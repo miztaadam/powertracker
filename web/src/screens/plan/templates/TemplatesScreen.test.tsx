@@ -145,7 +145,7 @@ describe('the ways into the templates', () => {
 
   it('beforeThePlanIsRead_planShowsNoEmptyLine_noTemplateButton_andNoMenu', () => {
     // The first frame, before the stored plan is read (Android's 9c89f4d): nothing is called empty, no menu is drawn.
-    const loading: PlanState = { loading: true, sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
+    const loading: PlanState = { loading: true, sections: [], exercises: [], recentIds: [], mainExercises: [], bests: {}, defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
     for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
       render(<PlanContent state={{ ...loading, side }} actions={{} as PlanActions} onOpenSettings={() => {}} onBuildPlan={() => {}} onChooseTemplate={() => {}} />)
       expect(screen.queryByText(/plan is empty/)).toBeNull()

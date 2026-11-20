@@ -24,6 +24,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,woff2,png,webmanifest,ogg,wav}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
+        // The app's main chunk reached the plugin's 2 MiB default in 1.16.1 (the shared domain is most of it); a chunk
+        // over the limit is left out of the precache and the build fails, so the limit is 3 MiB.
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
     }),
   ],

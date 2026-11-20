@@ -41756,6 +41756,12 @@ function ProgressMath$weeklyVolume$lambda(a, b) {
   var tmp$ret$2 = b.mb_1;
   return compareValues(tmp, tmp$ret$2);
 }
+function ProgressMath$knownBest$lambda(it) {
+  return it.s1j_1;
+}
+function ProgressMath$knownBest$lambda_0(it) {
+  return it.r1j_1;
+}
 function ProgressMath() {
   ProgressMath_instance = this;
   this.e22_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
@@ -41874,6 +41880,41 @@ protoOf(ProgressMath).n3k = function (history, lift) {
   var tmp$ret$3 = new sam$kotlin_Comparator$0_19(tmp);
   return sortedWith(this_0, tmp$ret$3);
 };
+protoOf(ProgressMath).o3k = function (history, lift) {
+  // Inline function 'kotlin.collections.filter' call
+  var tmp0 = history.q1i_1;
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = tmp0.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    var tmp0_safe_receiver = history.p1i_1.t1(element.q1j_1);
+    var tmp;
+    if (tmp0_safe_receiver == null) {
+      tmp = null;
+    } else {
+      // Inline function 'kotlin.let' call
+      tmp = (tmp0_safe_receiver.m1m() && equals(tmp0_safe_receiver.p1j(), lift));
+    }
+    if (tmp === true) {
+      destination.i(element);
+    }
+  }
+  var tmp_0 = destination;
+  var tmp_1 = ProgressMath$knownBest$lambda;
+  var tmp0_safe_receiver_0 = maxWithOrNull(tmp_0, compareBy([tmp_1, ProgressMath$knownBest$lambda_0]));
+  var typed = tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.r1j_1;
+  var tmp1_safe_receiver = lastOrNull(this.l3k(on(history, TrainingMode_POWERLIFTING_getInstance()), lift));
+  var lifted = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.e3k_1;
+  var tmp_2;
+  if (typed == null || lifted == null) {
+    tmp_2 = typed == null ? lifted : typed;
+  } else {
+    // Inline function 'kotlin.comparisons.maxOf' call
+    tmp_2 = Math.max(typed, lifted);
+  }
+  return tmp_2;
+};
 protoOf(ProgressMath).f22 = function (stats, until, includeStrictPress) {
   var included = includeStrictPress ? plus_2(this.e22_1, MainLift_STRICT_PRESS_getInstance()) : this.e22_1;
   // Inline function 'kotlin.collections.map' call
@@ -41913,17 +41954,17 @@ function SeedLibrary$exercises$Acc(heavy, lift, muscles) {
     tmp = muscles;
   }
   muscles = tmp;
-  this.o3k_1 = heavy;
-  this.p3k_1 = lift;
-  this.q3k_1 = muscles;
+  this.p3k_1 = heavy;
+  this.q3k_1 = lift;
+  this.r3k_1 = muscles;
 }
 function SeedLibrary() {
   SeedLibrary_instance = this;
-  this.r3k_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
+  this.s3k_1 = listOf([MainLift_SQUAT_getInstance(), MainLift_BENCH_getInstance(), MainLift_DEADLIFT_getInstance()]);
 }
-protoOf(SeedLibrary).s3k = function () {
+protoOf(SeedLibrary).t3k = function () {
   var found = LinkedHashMap_init_$Create$();
-  var _iterator__ex2g4s = this.r3k_1.j();
+  var _iterator__ex2g4s = this.s3k_1.j();
   while (_iterator__ex2g4s.k()) {
     var lift = _iterator__ex2g4s.l();
     var _iterator__ex2g4s_0 = get_entries_6().j();
@@ -41945,14 +41986,14 @@ protoOf(SeedLibrary).s3k = function () {
           tmp = value;
         }
         // Inline function 'kotlin.collections.plusAssign' call
-        var this_0 = tmp.q3k_1;
+        var this_0 = tmp.r3k_1;
         addAll(this_0, muscles);
       }
     }
   }
   var tmp_0 = found.u1();
   // Inline function 'kotlin.collections.flatMap' call
-  var tmp0 = this.r3k_1;
+  var tmp0 = this.s3k_1;
   // Inline function 'kotlin.collections.flatMapTo' call
   var destination = ArrayList_init_$Create$();
   var _iterator__ex2g4s_2 = tmp0.j();
@@ -41986,7 +42027,7 @@ protoOf(SeedLibrary).s3k = function () {
     var name = item_0.u();
     // Inline function 'kotlin.collections.component2' call
     var acc = item_0.v();
-    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.o3k_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.o3k_1 ? acc.p3k_1 : null, toList_0(acc.q3k_1), true);
+    var tmp$ret$13 = new Exercise(new Long(0, 0), name, acc.p3k_1 ? Category_VARIATION_getInstance() : Category_ACCESSORY_getInstance(), acc.p3k_1 ? acc.q3k_1 : null, toList_0(acc.r3k_1), true);
     destination_1.i(tmp$ret$13);
   }
   var mapped = destination_1;
@@ -42035,32 +42076,32 @@ function HighReps_getInstance() {
   return HighReps_instance;
 }
 function BigJump(fromKg) {
-  this.t3k_1 = fromKg;
+  this.u3k_1 = fromKg;
 }
 protoOf(BigJump).toString = function () {
-  return 'BigJump(fromKg=' + this.t3k_1 + ')';
+  return 'BigJump(fromKg=' + this.u3k_1 + ')';
 };
 protoOf(BigJump).hashCode = function () {
-  return getNumberHashCode(this.t3k_1);
+  return getNumberHashCode(this.u3k_1);
 };
 protoOf(BigJump).equals = function (other) {
   if (this === other)
     return true;
   if (!(other instanceof BigJump))
     return false;
-  if (!equals(this.t3k_1, other.t3k_1))
+  if (!equals(this.u3k_1, other.u3k_1))
     return false;
   return true;
 };
 function InputValidator() {
-  this.u3k_1 = 12;
-  this.v3k_1 = 1.3;
-  this.w3k_1 = 500.0;
+  this.v3k_1 = 12;
+  this.w3k_1 = 1.3;
+  this.x3k_1 = 500.0;
 }
-protoOf(InputValidator).x3k = function (kg) {
+protoOf(InputValidator).y3k = function (kg) {
   return isFinite(kg) && kg > 0.0 && kg <= 500.0;
 };
-protoOf(InputValidator).y3k = function (text) {
+protoOf(InputValidator).z3k = function (text) {
   // Inline function 'kotlin.text.trim' call
   var tmp$ret$0 = toString(trim(isCharSequence(text) ? text : THROW_CCE()));
   var tmp0_safe_receiver = toDoubleOrNull(replace_0(tmp$ret$0, _Char___init__impl__6a9atx(44), _Char___init__impl__6a9atx(46)));
@@ -42070,7 +42111,7 @@ protoOf(InputValidator).y3k = function (text) {
   } else {
     // Inline function 'kotlin.takeIf' call
     var tmp_0;
-    if (this.x3k(tmp0_safe_receiver)) {
+    if (this.y3k(tmp0_safe_receiver)) {
       tmp_0 = tmp0_safe_receiver;
     } else {
       tmp_0 = null;
@@ -42079,7 +42120,7 @@ protoOf(InputValidator).y3k = function (text) {
   }
   return tmp;
 };
-protoOf(InputValidator).z3k = function (weightKg, reps, lastWeightKg) {
+protoOf(InputValidator).a3l = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.buildList' call
   // Inline function 'kotlin.collections.buildListInternal' call
   // Inline function 'kotlin.apply' call
@@ -42110,16 +42151,16 @@ function ratioRange($this, numerator, denominator, typical) {
   return new JsRatioRange(numerator.w1_1, denominator.w1_1, typical.nc(), typical.oc());
 }
 function sam$kotlin_Comparator$0_20(function_0) {
-  this.a3l_1 = function_0;
+  this.b3l_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_20).ha = function (a, b) {
-  return this.a3l_1(a, b);
+  return this.b3l_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_20).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_20).g2 = function () {
-  return this.a3l_1;
+  return this.b3l_1;
 };
 protoOf(sam$kotlin_Comparator$0_20).equals = function (other) {
   var tmp;
@@ -42140,16 +42181,16 @@ protoOf(sam$kotlin_Comparator$0_20).hashCode = function () {
   return hashCode(this.g2());
 };
 function sam$kotlin_Comparator$0_21(function_0) {
-  this.b3l_1 = function_0;
+  this.c3l_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_21).ha = function (a, b) {
-  return this.b3l_1(a, b);
+  return this.c3l_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_21).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_21).g2 = function () {
-  return this.b3l_1;
+  return this.c3l_1;
 };
 protoOf(sam$kotlin_Comparator$0_21).equals = function (other) {
   var tmp;
@@ -42367,7 +42408,7 @@ protoOf(GritDomain).loadStep = function (changePlates) {
 };
 protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = InputValidator_instance.z3k(weightKg, reps, lastWeightKg);
+  var this_0 = InputValidator_instance.a3l(weightKg, reps, lastWeightKg);
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -42390,7 +42431,7 @@ protoOf(GritDomain).checkInput = function (weightKg, reps, lastWeightKg) {
   return copyToArray(destination);
 };
 protoOf(GritDomain).parseBaselineKg = function (text) {
-  return InputValidator_instance.y3k(text);
+  return InputValidator_instance.z3k(text);
 };
 protoOf(GritDomain).targetsFor = function (weekday, history, plan, settings, today, prior) {
   var tmp = Coach_getInstance();
@@ -43634,6 +43675,9 @@ protoOf(GritDomain).prs = function (history, lift) {
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
 };
+protoOf(GritDomain).knownBest = function (history, lift) {
+  return ProgressMath_getInstance().o3k(toDomain_6(history), parseLift('lift', lift));
+};
 protoOf(GritDomain).isNewPr = function (history, set, date, mode) {
   var tmp = ProgressMath_getInstance();
   var tmp_0 = toDomain_6(history);
@@ -43778,7 +43822,7 @@ protoOf(GritDomain).accessoryMuscles = function (lift, miss) {
 };
 protoOf(GritDomain).seedExercises = function () {
   // Inline function 'kotlin.collections.map' call
-  var this_0 = SeedLibrary_getInstance().s3k();
+  var this_0 = SeedLibrary_getInstance().t3k();
   // Inline function 'kotlin.collections.mapTo' call
   var destination = ArrayList_init_$Create$_0(collectionSizeOrDefault(this_0, 10));
   var _iterator__ex2g4s = this_0.j();
@@ -45755,10 +45799,10 @@ function JsGuideLine(text, constants) {
   this.text = text;
   this.constants = constants;
 }
-protoOf(JsGuideLine).c3l = function () {
+protoOf(JsGuideLine).d3l = function () {
   return this.text;
 };
-protoOf(JsGuideLine).d3l = function () {
+protoOf(JsGuideLine).e3l = function () {
   return this.constants;
 };
 protoOf(JsGuideLine).gb = function () {
@@ -45767,13 +45811,13 @@ protoOf(JsGuideLine).gb = function () {
 protoOf(JsGuideLine).hb = function () {
   return this.constants;
 };
-protoOf(JsGuideLine).e3l = function (text, constants) {
+protoOf(JsGuideLine).f3l = function (text, constants) {
   return new JsGuideLine(text, constants);
 };
 protoOf(JsGuideLine).copy = function (text, constants, $super) {
   text = text === VOID ? this.text : text;
   constants = constants === VOID ? this.constants : constants;
-  return $super === VOID ? this.e3l(text, constants) : $super.e3l.call(this, text, constants);
+  return $super === VOID ? this.f3l(text, constants) : $super.f3l.call(this, text, constants);
 };
 protoOf(JsGuideLine).toString = function () {
   return 'JsGuideLine(text=' + this.text + ', constants=' + toString(this.constants) + ')';
@@ -45800,16 +45844,16 @@ function JsGuideScreen(id, title, lines, example) {
   this.lines = lines;
   this.example = example;
 }
-protoOf(JsGuideScreen).f3l = function () {
+protoOf(JsGuideScreen).g3l = function () {
   return this.id;
 };
-protoOf(JsGuideScreen).g3l = function () {
+protoOf(JsGuideScreen).h3l = function () {
   return this.title;
 };
-protoOf(JsGuideScreen).h3l = function () {
+protoOf(JsGuideScreen).i3l = function () {
   return this.lines;
 };
-protoOf(JsGuideScreen).i3l = function () {
+protoOf(JsGuideScreen).j3l = function () {
   return this.example;
 };
 protoOf(JsGuideScreen).gb = function () {
@@ -45821,10 +45865,10 @@ protoOf(JsGuideScreen).hb = function () {
 protoOf(JsGuideScreen).tf = function () {
   return this.lines;
 };
-protoOf(JsGuideScreen).j3l = function () {
+protoOf(JsGuideScreen).k3l = function () {
   return this.example;
 };
-protoOf(JsGuideScreen).k3l = function (id, title, lines, example) {
+protoOf(JsGuideScreen).l3l = function (id, title, lines, example) {
   return new JsGuideScreen(id, title, lines, example);
 };
 protoOf(JsGuideScreen).copy = function (id, title, lines, example, $super) {
@@ -45832,7 +45876,7 @@ protoOf(JsGuideScreen).copy = function (id, title, lines, example, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
   example = example === VOID ? this.example : example;
-  return $super === VOID ? this.k3l(id, title, lines, example) : $super.k3l.call(this, id, title, lines, example);
+  return $super === VOID ? this.l3l(id, title, lines, example) : $super.l3l.call(this, id, title, lines, example);
 };
 protoOf(JsGuideScreen).toString = function () {
   return 'JsGuideScreen(id=' + this.id + ', title=' + this.title + ', lines=' + toString(this.lines) + ', example=' + this.example + ')';
@@ -45870,31 +45914,31 @@ function JsGuideTargetStep(date, exerciseId, doneWeightKg, doneReps, doneRpe, ne
   this.nextRepsHigh = nextRepsHigh;
   this.note = note;
 }
-protoOf(JsGuideTargetStep).l3l = function () {
+protoOf(JsGuideTargetStep).m3l = function () {
   return this.date;
 };
-protoOf(JsGuideTargetStep).m3l = function () {
+protoOf(JsGuideTargetStep).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsGuideTargetStep).n3l = function () {
+protoOf(JsGuideTargetStep).o3l = function () {
   return this.doneWeightKg;
 };
-protoOf(JsGuideTargetStep).o3l = function () {
+protoOf(JsGuideTargetStep).p3l = function () {
   return this.doneReps;
 };
-protoOf(JsGuideTargetStep).p3l = function () {
+protoOf(JsGuideTargetStep).q3l = function () {
   return this.doneRpe;
 };
-protoOf(JsGuideTargetStep).q3l = function () {
+protoOf(JsGuideTargetStep).r3l = function () {
   return this.nextWeightKg;
 };
-protoOf(JsGuideTargetStep).r3l = function () {
+protoOf(JsGuideTargetStep).s3l = function () {
   return this.nextRepsLow;
 };
-protoOf(JsGuideTargetStep).s3l = function () {
+protoOf(JsGuideTargetStep).t3l = function () {
   return this.nextRepsHigh;
 };
-protoOf(JsGuideTargetStep).t3l = function () {
+protoOf(JsGuideTargetStep).u3l = function () {
   return this.note;
 };
 protoOf(JsGuideTargetStep).gb = function () {
@@ -45906,25 +45950,25 @@ protoOf(JsGuideTargetStep).hb = function () {
 protoOf(JsGuideTargetStep).tf = function () {
   return this.doneWeightKg;
 };
-protoOf(JsGuideTargetStep).j3l = function () {
+protoOf(JsGuideTargetStep).k3l = function () {
   return this.doneReps;
 };
-protoOf(JsGuideTargetStep).u3l = function () {
+protoOf(JsGuideTargetStep).v3l = function () {
   return this.doneRpe;
 };
-protoOf(JsGuideTargetStep).v3l = function () {
+protoOf(JsGuideTargetStep).w3l = function () {
   return this.nextWeightKg;
 };
-protoOf(JsGuideTargetStep).w3l = function () {
+protoOf(JsGuideTargetStep).x3l = function () {
   return this.nextRepsLow;
 };
-protoOf(JsGuideTargetStep).x3l = function () {
+protoOf(JsGuideTargetStep).y3l = function () {
   return this.nextRepsHigh;
 };
-protoOf(JsGuideTargetStep).y3l = function () {
+protoOf(JsGuideTargetStep).z3l = function () {
   return this.note;
 };
-protoOf(JsGuideTargetStep).z3l = function (date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note) {
+protoOf(JsGuideTargetStep).a3m = function (date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note) {
   return new JsGuideTargetStep(date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note);
 };
 protoOf(JsGuideTargetStep).copy = function (date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note, $super) {
@@ -45937,7 +45981,7 @@ protoOf(JsGuideTargetStep).copy = function (date, exerciseId, doneWeightKg, done
   nextRepsLow = nextRepsLow === VOID ? this.nextRepsLow : nextRepsLow;
   nextRepsHigh = nextRepsHigh === VOID ? this.nextRepsHigh : nextRepsHigh;
   note = note === VOID ? this.note : note;
-  return $super === VOID ? this.z3l(date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note) : $super.z3l.call(this, date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note);
+  return $super === VOID ? this.a3m(date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note) : $super.a3m.call(this, date, exerciseId, doneWeightKg, doneReps, doneRpe, nextWeightKg, nextRepsLow, nextRepsHigh, note);
 };
 protoOf(JsGuideTargetStep).toString = function () {
   return 'JsGuideTargetStep(date=' + this.date + ', exerciseId=' + this.exerciseId + ', doneWeightKg=' + this.doneWeightKg + ', doneReps=' + this.doneReps + ', doneRpe=' + this.doneRpe + ', nextWeightKg=' + this.nextWeightKg + ', nextRepsLow=' + this.nextRepsLow + ', nextRepsHigh=' + this.nextRepsHigh + ', note=' + this.note + ')';
@@ -45983,7 +46027,7 @@ function JsGuidePoint(date, value) {
   this.date = date;
   this.value = value;
 }
-protoOf(JsGuidePoint).l3l = function () {
+protoOf(JsGuidePoint).m3l = function () {
   return this.date;
 };
 protoOf(JsGuidePoint).v = function () {
@@ -45995,13 +46039,13 @@ protoOf(JsGuidePoint).gb = function () {
 protoOf(JsGuidePoint).hb = function () {
   return this.value;
 };
-protoOf(JsGuidePoint).a3m = function (date, value) {
+protoOf(JsGuidePoint).b3m = function (date, value) {
   return new JsGuidePoint(date, value);
 };
 protoOf(JsGuidePoint).copy = function (date, value, $super) {
   date = date === VOID ? this.date : date;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.a3m(date, value) : $super.a3m.call(this, date, value);
+  return $super === VOID ? this.b3m(date, value) : $super.b3m.call(this, date, value);
 };
 protoOf(JsGuidePoint).toString = function () {
   return 'JsGuidePoint(date=' + this.date + ', value=' + this.value + ')';
@@ -46026,10 +46070,10 @@ function JsGuideBest(exerciseId, kg) {
   this.exerciseId = exerciseId;
   this.kg = kg;
 }
-protoOf(JsGuideBest).m3l = function () {
+protoOf(JsGuideBest).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsGuideBest).b3m = function () {
+protoOf(JsGuideBest).c3m = function () {
   return this.kg;
 };
 protoOf(JsGuideBest).gb = function () {
@@ -46038,13 +46082,13 @@ protoOf(JsGuideBest).gb = function () {
 protoOf(JsGuideBest).hb = function () {
   return this.kg;
 };
-protoOf(JsGuideBest).a3m = function (exerciseId, kg) {
+protoOf(JsGuideBest).b3m = function (exerciseId, kg) {
   return new JsGuideBest(exerciseId, kg);
 };
 protoOf(JsGuideBest).copy = function (exerciseId, kg, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   kg = kg === VOID ? this.kg : kg;
-  return $super === VOID ? this.a3m(exerciseId, kg) : $super.a3m.call(this, exerciseId, kg);
+  return $super === VOID ? this.b3m(exerciseId, kg) : $super.b3m.call(this, exerciseId, kg);
 };
 protoOf(JsGuideBest).toString = function () {
   return 'JsGuideBest(exerciseId=' + this.exerciseId + ', kg=' + this.kg + ')';
@@ -46071,16 +46115,16 @@ function JsGuideProgress(points, bests, totalKg, laggingMuscle) {
   this.totalKg = totalKg;
   this.laggingMuscle = laggingMuscle;
 }
-protoOf(JsGuideProgress).c3m = function () {
+protoOf(JsGuideProgress).d3m = function () {
   return this.points;
 };
-protoOf(JsGuideProgress).d3m = function () {
+protoOf(JsGuideProgress).e3m = function () {
   return this.bests;
 };
-protoOf(JsGuideProgress).e3m = function () {
+protoOf(JsGuideProgress).f3m = function () {
   return this.totalKg;
 };
-protoOf(JsGuideProgress).f3m = function () {
+protoOf(JsGuideProgress).g3m = function () {
   return this.laggingMuscle;
 };
 protoOf(JsGuideProgress).gb = function () {
@@ -46092,10 +46136,10 @@ protoOf(JsGuideProgress).hb = function () {
 protoOf(JsGuideProgress).tf = function () {
   return this.totalKg;
 };
-protoOf(JsGuideProgress).j3l = function () {
+protoOf(JsGuideProgress).k3l = function () {
   return this.laggingMuscle;
 };
-protoOf(JsGuideProgress).g3m = function (points, bests, totalKg, laggingMuscle) {
+protoOf(JsGuideProgress).h3m = function (points, bests, totalKg, laggingMuscle) {
   return new JsGuideProgress(points, bests, totalKg, laggingMuscle);
 };
 protoOf(JsGuideProgress).copy = function (points, bests, totalKg, laggingMuscle, $super) {
@@ -46103,7 +46147,7 @@ protoOf(JsGuideProgress).copy = function (points, bests, totalKg, laggingMuscle,
   bests = bests === VOID ? this.bests : bests;
   totalKg = totalKg === VOID ? this.totalKg : totalKg;
   laggingMuscle = laggingMuscle === VOID ? this.laggingMuscle : laggingMuscle;
-  return $super === VOID ? this.g3m(points, bests, totalKg, laggingMuscle) : $super.g3m.call(this, points, bests, totalKg, laggingMuscle);
+  return $super === VOID ? this.h3m(points, bests, totalKg, laggingMuscle) : $super.h3m.call(this, points, bests, totalKg, laggingMuscle);
 };
 protoOf(JsGuideProgress).toString = function () {
   return 'JsGuideProgress(points=' + toString(this.points) + ', bests=' + toString(this.bests) + ', totalKg=' + this.totalKg + ', laggingMuscle=' + this.laggingMuscle + ')';
@@ -46138,22 +46182,22 @@ function JsGuideFrame(stepIndex, step, progress, done, tap, tapProgress) {
   this.tap = tap;
   this.tapProgress = tapProgress;
 }
-protoOf(JsGuideFrame).h3m = function () {
+protoOf(JsGuideFrame).i3m = function () {
   return this.stepIndex;
 };
-protoOf(JsGuideFrame).i3m = function () {
+protoOf(JsGuideFrame).j3m = function () {
   return this.step;
 };
-protoOf(JsGuideFrame).j3m = function () {
+protoOf(JsGuideFrame).k3m = function () {
   return this.progress;
 };
-protoOf(JsGuideFrame).k3m = function () {
+protoOf(JsGuideFrame).l3m = function () {
   return this.done;
 };
-protoOf(JsGuideFrame).l3m = function () {
+protoOf(JsGuideFrame).m3m = function () {
   return this.tap;
 };
-protoOf(JsGuideFrame).m3m = function () {
+protoOf(JsGuideFrame).n3m = function () {
   return this.tapProgress;
 };
 protoOf(JsGuideFrame).gb = function () {
@@ -46165,16 +46209,16 @@ protoOf(JsGuideFrame).hb = function () {
 protoOf(JsGuideFrame).tf = function () {
   return this.progress;
 };
-protoOf(JsGuideFrame).j3l = function () {
+protoOf(JsGuideFrame).k3l = function () {
   return this.done;
 };
-protoOf(JsGuideFrame).u3l = function () {
+protoOf(JsGuideFrame).v3l = function () {
   return this.tap;
 };
-protoOf(JsGuideFrame).v3l = function () {
+protoOf(JsGuideFrame).w3l = function () {
   return this.tapProgress;
 };
-protoOf(JsGuideFrame).n3m = function (stepIndex, step, progress, done, tap, tapProgress) {
+protoOf(JsGuideFrame).o3m = function (stepIndex, step, progress, done, tap, tapProgress) {
   return new JsGuideFrame(stepIndex, step, progress, done, tap, tapProgress);
 };
 protoOf(JsGuideFrame).copy = function (stepIndex, step, progress, done, tap, tapProgress, $super) {
@@ -46184,7 +46228,7 @@ protoOf(JsGuideFrame).copy = function (stepIndex, step, progress, done, tap, tap
   done = done === VOID ? this.done : done;
   tap = tap === VOID ? this.tap : tap;
   tapProgress = tapProgress === VOID ? this.tapProgress : tapProgress;
-  return $super === VOID ? this.n3m(stepIndex, step, progress, done, tap, tapProgress) : $super.n3m.call(this, stepIndex, step, progress, done, tap, tapProgress);
+  return $super === VOID ? this.o3m(stepIndex, step, progress, done, tap, tapProgress) : $super.o3m.call(this, stepIndex, step, progress, done, tap, tapProgress);
 };
 protoOf(JsGuideFrame).toString = function () {
   return 'JsGuideFrame(stepIndex=' + this.stepIndex + ', step=' + this.step + ', progress=' + this.progress + ', done=' + this.done + ', tap=' + this.tap + ', tapProgress=' + this.tapProgress + ')';
@@ -46222,13 +46266,13 @@ function JsGuideEditor(weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsGuideEditor).o3m = function () {
+protoOf(JsGuideEditor).p3m = function () {
   return this.weightKg;
 };
-protoOf(JsGuideEditor).p3m = function () {
+protoOf(JsGuideEditor).q3m = function () {
   return this.reps;
 };
-protoOf(JsGuideEditor).q3m = function () {
+protoOf(JsGuideEditor).r3m = function () {
   return this.rpe;
 };
 protoOf(JsGuideEditor).gb = function () {
@@ -46240,14 +46284,14 @@ protoOf(JsGuideEditor).hb = function () {
 protoOf(JsGuideEditor).tf = function () {
   return this.rpe;
 };
-protoOf(JsGuideEditor).r3m = function (weightKg, reps, rpe) {
+protoOf(JsGuideEditor).s3m = function (weightKg, reps, rpe) {
   return new JsGuideEditor(weightKg, reps, rpe);
 };
 protoOf(JsGuideEditor).copy = function (weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.r3m(weightKg, reps, rpe) : $super.r3m.call(this, weightKg, reps, rpe);
+  return $super === VOID ? this.s3m(weightKg, reps, rpe) : $super.s3m.call(this, weightKg, reps, rpe);
 };
 protoOf(JsGuideEditor).toString = function () {
   return 'JsGuideEditor(weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -46275,10 +46319,10 @@ function JsGuideSideFrame(dropMs, pumpMs) {
   this.dropMs = dropMs;
   this.pumpMs = pumpMs;
 }
-protoOf(JsGuideSideFrame).s3m = function () {
+protoOf(JsGuideSideFrame).t3m = function () {
   return this.dropMs;
 };
-protoOf(JsGuideSideFrame).t3m = function () {
+protoOf(JsGuideSideFrame).u3m = function () {
   return this.pumpMs;
 };
 protoOf(JsGuideSideFrame).gb = function () {
@@ -46287,13 +46331,13 @@ protoOf(JsGuideSideFrame).gb = function () {
 protoOf(JsGuideSideFrame).hb = function () {
   return this.pumpMs;
 };
-protoOf(JsGuideSideFrame).u3m = function (dropMs, pumpMs) {
+protoOf(JsGuideSideFrame).v3m = function (dropMs, pumpMs) {
   return new JsGuideSideFrame(dropMs, pumpMs);
 };
 protoOf(JsGuideSideFrame).copy = function (dropMs, pumpMs, $super) {
   dropMs = dropMs === VOID ? this.dropMs : dropMs;
   pumpMs = pumpMs === VOID ? this.pumpMs : pumpMs;
-  return $super === VOID ? this.u3m(dropMs, pumpMs) : $super.u3m.call(this, dropMs, pumpMs);
+  return $super === VOID ? this.v3m(dropMs, pumpMs) : $super.v3m.call(this, dropMs, pumpMs);
 };
 protoOf(JsGuideSideFrame).toString = function () {
   return 'JsGuideSideFrame(dropMs=' + this.dropMs + ', pumpMs=' + this.pumpMs + ')';
@@ -46320,16 +46364,16 @@ function JsGuideSideBox(w, h, srcX, srcY) {
   this.srcX = srcX;
   this.srcY = srcY;
 }
-protoOf(JsGuideSideBox).v3m = function () {
+protoOf(JsGuideSideBox).w3m = function () {
   return this.w;
 };
-protoOf(JsGuideSideBox).w3m = function () {
+protoOf(JsGuideSideBox).x3m = function () {
   return this.h;
 };
-protoOf(JsGuideSideBox).x3m = function () {
+protoOf(JsGuideSideBox).y3m = function () {
   return this.srcX;
 };
-protoOf(JsGuideSideBox).y3m = function () {
+protoOf(JsGuideSideBox).z3m = function () {
   return this.srcY;
 };
 protoOf(JsGuideSideBox).gb = function () {
@@ -46341,10 +46385,10 @@ protoOf(JsGuideSideBox).hb = function () {
 protoOf(JsGuideSideBox).tf = function () {
   return this.srcX;
 };
-protoOf(JsGuideSideBox).j3l = function () {
+protoOf(JsGuideSideBox).k3l = function () {
   return this.srcY;
 };
-protoOf(JsGuideSideBox).z3m = function (w, h, srcX, srcY) {
+protoOf(JsGuideSideBox).a3n = function (w, h, srcX, srcY) {
   return new JsGuideSideBox(w, h, srcX, srcY);
 };
 protoOf(JsGuideSideBox).copy = function (w, h, srcX, srcY, $super) {
@@ -46352,7 +46396,7 @@ protoOf(JsGuideSideBox).copy = function (w, h, srcX, srcY, $super) {
   h = h === VOID ? this.h : h;
   srcX = srcX === VOID ? this.srcX : srcX;
   srcY = srcY === VOID ? this.srcY : srcY;
-  return $super === VOID ? this.z3m(w, h, srcX, srcY) : $super.z3m.call(this, w, h, srcX, srcY);
+  return $super === VOID ? this.a3n(w, h, srcX, srcY) : $super.a3n.call(this, w, h, srcX, srcY);
 };
 protoOf(JsGuideSideBox).toString = function () {
   return 'JsGuideSideBox(w=' + this.w + ', h=' + this.h + ', srcX=' + this.srcX + ', srcY=' + this.srcY + ')';
@@ -46387,10 +46431,10 @@ function JsGuideSwap(day, from, to) {
 protoOf(JsGuideSwap).j11 = function () {
   return this.day;
 };
-protoOf(JsGuideSwap).a3n = function () {
+protoOf(JsGuideSwap).b3n = function () {
   return this.from;
 };
-protoOf(JsGuideSwap).b3n = function () {
+protoOf(JsGuideSwap).c3n = function () {
   return this.to;
 };
 protoOf(JsGuideSwap).gb = function () {
@@ -46402,14 +46446,14 @@ protoOf(JsGuideSwap).hb = function () {
 protoOf(JsGuideSwap).tf = function () {
   return this.to;
 };
-protoOf(JsGuideSwap).c3n = function (day, from, to) {
+protoOf(JsGuideSwap).d3n = function (day, from, to) {
   return new JsGuideSwap(day, from, to);
 };
 protoOf(JsGuideSwap).copy = function (day, from, to, $super) {
   day = day === VOID ? this.day : day;
   from = from === VOID ? this.from : from;
   to = to === VOID ? this.to : to;
-  return $super === VOID ? this.c3n(day, from, to) : $super.c3n.call(this, day, from, to);
+  return $super === VOID ? this.d3n(day, from, to) : $super.d3n.call(this, day, from, to);
 };
 protoOf(JsGuideSwap).toString = function () {
   return 'JsGuideSwap(day=' + this.day + ', from=' + this.from + ', to=' + this.to + ')';
@@ -46596,16 +46640,16 @@ function toJs_10(_this__u8e3s4) {
   return new JsCheckIn(tmp, tmp_0, tmp$ret$7, toFacadeId(_this__u8e3s4.l1t_1, 'checkIn.id'));
 }
 function sam$kotlin_Comparator$0_22(function_0) {
-  this.d3n_1 = function_0;
+  this.e3n_1 = function_0;
 }
 protoOf(sam$kotlin_Comparator$0_22).ha = function (a, b) {
-  return this.d3n_1(a, b);
+  return this.e3n_1(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_22).compare = function (a, b) {
   return this.ha(a, b);
 };
 protoOf(sam$kotlin_Comparator$0_22).g2 = function () {
-  return this.d3n_1;
+  return this.e3n_1;
 };
 protoOf(sam$kotlin_Comparator$0_22).equals = function (other) {
   var tmp;
@@ -46635,10 +46679,10 @@ function JsMotionPoint(x, y) {
   this.x = x;
   this.y = y;
 }
-protoOf(JsMotionPoint).e3n = function () {
+protoOf(JsMotionPoint).f3n = function () {
   return this.x;
 };
-protoOf(JsMotionPoint).f3n = function () {
+protoOf(JsMotionPoint).g3n = function () {
   return this.y;
 };
 protoOf(JsMotionPoint).gb = function () {
@@ -46647,13 +46691,13 @@ protoOf(JsMotionPoint).gb = function () {
 protoOf(JsMotionPoint).hb = function () {
   return this.y;
 };
-protoOf(JsMotionPoint).u3m = function (x, y) {
+protoOf(JsMotionPoint).v3m = function (x, y) {
   return new JsMotionPoint(x, y);
 };
 protoOf(JsMotionPoint).copy = function (x, y, $super) {
   x = x === VOID ? this.x : x;
   y = y === VOID ? this.y : y;
-  return $super === VOID ? this.u3m(x, y) : $super.u3m.call(this, x, y);
+  return $super === VOID ? this.v3m(x, y) : $super.v3m.call(this, x, y);
 };
 protoOf(JsMotionPoint).toString = function () {
   return 'JsMotionPoint(x=' + this.x + ', y=' + this.y + ')';
@@ -46683,25 +46727,25 @@ function JsDropTimeline(fall, impact, hold, settle, lift, end, hammerScale) {
   this.end = end;
   this.hammerScale = hammerScale;
 }
-protoOf(JsDropTimeline).g3n = function () {
+protoOf(JsDropTimeline).h3n = function () {
   return this.fall;
 };
-protoOf(JsDropTimeline).h3n = function () {
+protoOf(JsDropTimeline).i3n = function () {
   return this.impact;
 };
-protoOf(JsDropTimeline).i3n = function () {
+protoOf(JsDropTimeline).j3n = function () {
   return this.hold;
 };
-protoOf(JsDropTimeline).j3n = function () {
+protoOf(JsDropTimeline).k3n = function () {
   return this.settle;
 };
-protoOf(JsDropTimeline).k3n = function () {
+protoOf(JsDropTimeline).l3n = function () {
   return this.lift;
 };
-protoOf(JsDropTimeline).l3n = function () {
+protoOf(JsDropTimeline).m3n = function () {
   return this.end;
 };
-protoOf(JsDropTimeline).m3n = function () {
+protoOf(JsDropTimeline).n3n = function () {
   return this.hammerScale;
 };
 protoOf(JsDropTimeline).gb = function () {
@@ -46713,19 +46757,19 @@ protoOf(JsDropTimeline).hb = function () {
 protoOf(JsDropTimeline).tf = function () {
   return this.hold;
 };
-protoOf(JsDropTimeline).j3l = function () {
+protoOf(JsDropTimeline).k3l = function () {
   return this.settle;
 };
-protoOf(JsDropTimeline).u3l = function () {
+protoOf(JsDropTimeline).v3l = function () {
   return this.lift;
 };
-protoOf(JsDropTimeline).v3l = function () {
+protoOf(JsDropTimeline).w3l = function () {
   return this.end;
 };
-protoOf(JsDropTimeline).w3l = function () {
+protoOf(JsDropTimeline).x3l = function () {
   return this.hammerScale;
 };
-protoOf(JsDropTimeline).n3n = function (fall, impact, hold, settle, lift, end, hammerScale) {
+protoOf(JsDropTimeline).o3n = function (fall, impact, hold, settle, lift, end, hammerScale) {
   return new JsDropTimeline(fall, impact, hold, settle, lift, end, hammerScale);
 };
 protoOf(JsDropTimeline).copy = function (fall, impact, hold, settle, lift, end, hammerScale, $super) {
@@ -46736,7 +46780,7 @@ protoOf(JsDropTimeline).copy = function (fall, impact, hold, settle, lift, end, 
   lift = lift === VOID ? this.lift : lift;
   end = end === VOID ? this.end : end;
   hammerScale = hammerScale === VOID ? this.hammerScale : hammerScale;
-  return $super === VOID ? this.n3n(fall, impact, hold, settle, lift, end, hammerScale) : $super.n3n.call(this, fall, impact, hold, settle, lift, end, hammerScale);
+  return $super === VOID ? this.o3n(fall, impact, hold, settle, lift, end, hammerScale) : $super.o3n.call(this, fall, impact, hold, settle, lift, end, hammerScale);
 };
 protoOf(JsDropTimeline).toString = function () {
   return 'JsDropTimeline(fall=' + this.fall + ', impact=' + this.impact + ', hold=' + this.hold + ', settle=' + this.settle + ', lift=' + this.lift + ', end=' + this.end + ', hammerScale=' + this.hammerScale + ')';
@@ -46782,28 +46826,28 @@ function JsPumpTimeline(beats, amps, rise, fall, reach, surge, flood, end) {
   this.flood = flood;
   this.end = end;
 }
-protoOf(JsPumpTimeline).o3n = function () {
+protoOf(JsPumpTimeline).p3n = function () {
   return this.beats;
 };
-protoOf(JsPumpTimeline).p3n = function () {
+protoOf(JsPumpTimeline).q3n = function () {
   return this.amps;
 };
-protoOf(JsPumpTimeline).q3n = function () {
+protoOf(JsPumpTimeline).r3n = function () {
   return this.rise;
 };
-protoOf(JsPumpTimeline).g3n = function () {
+protoOf(JsPumpTimeline).h3n = function () {
   return this.fall;
 };
-protoOf(JsPumpTimeline).r3n = function () {
+protoOf(JsPumpTimeline).s3n = function () {
   return this.reach;
 };
-protoOf(JsPumpTimeline).s3n = function () {
+protoOf(JsPumpTimeline).t3n = function () {
   return this.surge;
 };
-protoOf(JsPumpTimeline).t3n = function () {
+protoOf(JsPumpTimeline).u3n = function () {
   return this.flood;
 };
-protoOf(JsPumpTimeline).l3n = function () {
+protoOf(JsPumpTimeline).m3n = function () {
   return this.end;
 };
 protoOf(JsPumpTimeline).gb = function () {
@@ -46815,22 +46859,22 @@ protoOf(JsPumpTimeline).hb = function () {
 protoOf(JsPumpTimeline).tf = function () {
   return this.rise;
 };
-protoOf(JsPumpTimeline).j3l = function () {
+protoOf(JsPumpTimeline).k3l = function () {
   return this.fall;
 };
-protoOf(JsPumpTimeline).u3l = function () {
+protoOf(JsPumpTimeline).v3l = function () {
   return this.reach;
 };
-protoOf(JsPumpTimeline).v3l = function () {
+protoOf(JsPumpTimeline).w3l = function () {
   return this.surge;
 };
-protoOf(JsPumpTimeline).w3l = function () {
+protoOf(JsPumpTimeline).x3l = function () {
   return this.flood;
 };
-protoOf(JsPumpTimeline).x3l = function () {
+protoOf(JsPumpTimeline).y3l = function () {
   return this.end;
 };
-protoOf(JsPumpTimeline).u3n = function (beats, amps, rise, fall, reach, surge, flood, end) {
+protoOf(JsPumpTimeline).v3n = function (beats, amps, rise, fall, reach, surge, flood, end) {
   return new JsPumpTimeline(beats, amps, rise, fall, reach, surge, flood, end);
 };
 protoOf(JsPumpTimeline).copy = function (beats, amps, rise, fall, reach, surge, flood, end, $super) {
@@ -46842,7 +46886,7 @@ protoOf(JsPumpTimeline).copy = function (beats, amps, rise, fall, reach, surge, 
   surge = surge === VOID ? this.surge : surge;
   flood = flood === VOID ? this.flood : flood;
   end = end === VOID ? this.end : end;
-  return $super === VOID ? this.u3n(beats, amps, rise, fall, reach, surge, flood, end) : $super.u3n.call(this, beats, amps, rise, fall, reach, surge, flood, end);
+  return $super === VOID ? this.v3n(beats, amps, rise, fall, reach, surge, flood, end) : $super.v3n.call(this, beats, amps, rise, fall, reach, surge, flood, end);
 };
 protoOf(JsPumpTimeline).toString = function () {
   return 'JsPumpTimeline(beats=' + toString(this.beats) + ', amps=' + toString(this.amps) + ', rise=' + toString(this.rise) + ', fall=' + toString(this.fall) + ', reach=' + toString(this.reach) + ', surge=' + toString(this.surge) + ', flood=' + this.flood + ', end=' + this.end + ')';
@@ -46887,16 +46931,16 @@ function JsModeSwitchVibration(dropPattern, dropAmplitudes, pumpPulses, pumpAmpl
   this.pumpPulses = pumpPulses;
   this.pumpAmplitudes = pumpAmplitudes;
 }
-protoOf(JsModeSwitchVibration).v3n = function () {
+protoOf(JsModeSwitchVibration).w3n = function () {
   return this.dropPattern;
 };
-protoOf(JsModeSwitchVibration).w3n = function () {
+protoOf(JsModeSwitchVibration).x3n = function () {
   return this.dropAmplitudes;
 };
-protoOf(JsModeSwitchVibration).x3n = function () {
+protoOf(JsModeSwitchVibration).y3n = function () {
   return this.pumpPulses;
 };
-protoOf(JsModeSwitchVibration).y3n = function () {
+protoOf(JsModeSwitchVibration).z3n = function () {
   return this.pumpAmplitudes;
 };
 protoOf(JsModeSwitchVibration).gb = function () {
@@ -46908,10 +46952,10 @@ protoOf(JsModeSwitchVibration).hb = function () {
 protoOf(JsModeSwitchVibration).tf = function () {
   return this.pumpPulses;
 };
-protoOf(JsModeSwitchVibration).j3l = function () {
+protoOf(JsModeSwitchVibration).k3l = function () {
   return this.pumpAmplitudes;
 };
-protoOf(JsModeSwitchVibration).z3n = function (dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) {
+protoOf(JsModeSwitchVibration).a3o = function (dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) {
   return new JsModeSwitchVibration(dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes);
 };
 protoOf(JsModeSwitchVibration).copy = function (dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes, $super) {
@@ -46919,7 +46963,7 @@ protoOf(JsModeSwitchVibration).copy = function (dropPattern, dropAmplitudes, pum
   dropAmplitudes = dropAmplitudes === VOID ? this.dropAmplitudes : dropAmplitudes;
   pumpPulses = pumpPulses === VOID ? this.pumpPulses : pumpPulses;
   pumpAmplitudes = pumpAmplitudes === VOID ? this.pumpAmplitudes : pumpAmplitudes;
-  return $super === VOID ? this.z3n(dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) : $super.z3n.call(this, dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes);
+  return $super === VOID ? this.a3o(dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes) : $super.a3o.call(this, dropPattern, dropAmplitudes, pumpPulses, pumpAmplitudes);
 };
 protoOf(JsModeSwitchVibration).toString = function () {
   return 'JsModeSwitchVibration(dropPattern=' + toString(this.dropPattern) + ', dropAmplitudes=' + toString(this.dropAmplitudes) + ', pumpPulses=' + toString(this.pumpPulses) + ', pumpAmplitudes=' + toString(this.pumpAmplitudes) + ')';
@@ -46955,25 +46999,25 @@ function JsMotionPath(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) 
   this.lineCap = lineCap;
   this.lineJoin = lineJoin;
 }
-protoOf(JsMotionPath).a3o = function () {
+protoOf(JsMotionPath).b3o = function () {
   return this.d;
 };
-protoOf(JsMotionPath).b3o = function () {
+protoOf(JsMotionPath).c3o = function () {
   return this.fill;
 };
-protoOf(JsMotionPath).c3o = function () {
+protoOf(JsMotionPath).d3o = function () {
   return this.stroke;
 };
-protoOf(JsMotionPath).d3o = function () {
+protoOf(JsMotionPath).e3o = function () {
   return this.strokeWidth;
 };
-protoOf(JsMotionPath).e3o = function () {
+protoOf(JsMotionPath).f3o = function () {
   return this.opacity;
 };
-protoOf(JsMotionPath).f3o = function () {
+protoOf(JsMotionPath).g3o = function () {
   return this.lineCap;
 };
-protoOf(JsMotionPath).g3o = function () {
+protoOf(JsMotionPath).h3o = function () {
   return this.lineJoin;
 };
 protoOf(JsMotionPath).gb = function () {
@@ -46985,19 +47029,19 @@ protoOf(JsMotionPath).hb = function () {
 protoOf(JsMotionPath).tf = function () {
   return this.stroke;
 };
-protoOf(JsMotionPath).j3l = function () {
+protoOf(JsMotionPath).k3l = function () {
   return this.strokeWidth;
 };
-protoOf(JsMotionPath).u3l = function () {
+protoOf(JsMotionPath).v3l = function () {
   return this.opacity;
 };
-protoOf(JsMotionPath).v3l = function () {
+protoOf(JsMotionPath).w3l = function () {
   return this.lineCap;
 };
-protoOf(JsMotionPath).w3l = function () {
+protoOf(JsMotionPath).x3l = function () {
   return this.lineJoin;
 };
-protoOf(JsMotionPath).h3o = function (d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) {
+protoOf(JsMotionPath).i3o = function (d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) {
   return new JsMotionPath(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin);
 };
 protoOf(JsMotionPath).copy = function (d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin, $super) {
@@ -47008,7 +47052,7 @@ protoOf(JsMotionPath).copy = function (d, fill, stroke, strokeWidth, opacity, li
   opacity = opacity === VOID ? this.opacity : opacity;
   lineCap = lineCap === VOID ? this.lineCap : lineCap;
   lineJoin = lineJoin === VOID ? this.lineJoin : lineJoin;
-  return $super === VOID ? this.h3o(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) : $super.h3o.call(this, d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin);
+  return $super === VOID ? this.i3o(d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin) : $super.i3o.call(this, d, fill, stroke, strokeWidth, opacity, lineCap, lineJoin);
 };
 protoOf(JsMotionPath).toString = function () {
   return 'JsMotionPath(d=' + this.d + ', fill=' + this.fill + ', stroke=' + this.stroke + ', strokeWidth=' + this.strokeWidth + ', opacity=' + this.opacity + ', lineCap=' + this.lineCap + ', lineJoin=' + this.lineJoin + ')';
@@ -47049,13 +47093,13 @@ function JsGradientStop(offset, color, opacity) {
   this.color = color;
   this.opacity = opacity;
 }
-protoOf(JsGradientStop).i3o = function () {
+protoOf(JsGradientStop).j3o = function () {
   return this.offset;
 };
-protoOf(JsGradientStop).j3o = function () {
+protoOf(JsGradientStop).k3o = function () {
   return this.color;
 };
-protoOf(JsGradientStop).e3o = function () {
+protoOf(JsGradientStop).f3o = function () {
   return this.opacity;
 };
 protoOf(JsGradientStop).gb = function () {
@@ -47067,14 +47111,14 @@ protoOf(JsGradientStop).hb = function () {
 protoOf(JsGradientStop).tf = function () {
   return this.opacity;
 };
-protoOf(JsGradientStop).k3o = function (offset, color, opacity) {
+protoOf(JsGradientStop).l3o = function (offset, color, opacity) {
   return new JsGradientStop(offset, color, opacity);
 };
 protoOf(JsGradientStop).copy = function (offset, color, opacity, $super) {
   offset = offset === VOID ? this.offset : offset;
   color = color === VOID ? this.color : color;
   opacity = opacity === VOID ? this.opacity : opacity;
-  return $super === VOID ? this.k3o(offset, color, opacity) : $super.k3o.call(this, offset, color, opacity);
+  return $super === VOID ? this.l3o(offset, color, opacity) : $super.l3o.call(this, offset, color, opacity);
 };
 protoOf(JsGradientStop).toString = function () {
   return 'JsGradientStop(offset=' + this.offset + ', color=' + this.color + ', opacity=' + this.opacity + ')';
@@ -47107,25 +47151,25 @@ function JsMotionGradient(id, radial, x1, y1, x2, y2, stops) {
   this.y2 = y2;
   this.stops = stops;
 }
-protoOf(JsMotionGradient).f3l = function () {
+protoOf(JsMotionGradient).g3l = function () {
   return this.id;
 };
-protoOf(JsMotionGradient).l3o = function () {
+protoOf(JsMotionGradient).m3o = function () {
   return this.radial;
 };
-protoOf(JsMotionGradient).m3o = function () {
+protoOf(JsMotionGradient).n3o = function () {
   return this.x1;
 };
-protoOf(JsMotionGradient).n3o = function () {
+protoOf(JsMotionGradient).o3o = function () {
   return this.y1;
 };
-protoOf(JsMotionGradient).o3o = function () {
+protoOf(JsMotionGradient).p3o = function () {
   return this.x2;
 };
-protoOf(JsMotionGradient).p3o = function () {
+protoOf(JsMotionGradient).q3o = function () {
   return this.y2;
 };
-protoOf(JsMotionGradient).q3o = function () {
+protoOf(JsMotionGradient).r3o = function () {
   return this.stops;
 };
 protoOf(JsMotionGradient).gb = function () {
@@ -47137,19 +47181,19 @@ protoOf(JsMotionGradient).hb = function () {
 protoOf(JsMotionGradient).tf = function () {
   return this.x1;
 };
-protoOf(JsMotionGradient).j3l = function () {
+protoOf(JsMotionGradient).k3l = function () {
   return this.y1;
 };
-protoOf(JsMotionGradient).u3l = function () {
+protoOf(JsMotionGradient).v3l = function () {
   return this.x2;
 };
-protoOf(JsMotionGradient).v3l = function () {
+protoOf(JsMotionGradient).w3l = function () {
   return this.y2;
 };
-protoOf(JsMotionGradient).w3l = function () {
+protoOf(JsMotionGradient).x3l = function () {
   return this.stops;
 };
-protoOf(JsMotionGradient).r3o = function (id, radial, x1, y1, x2, y2, stops) {
+protoOf(JsMotionGradient).s3o = function (id, radial, x1, y1, x2, y2, stops) {
   return new JsMotionGradient(id, radial, x1, y1, x2, y2, stops);
 };
 protoOf(JsMotionGradient).copy = function (id, radial, x1, y1, x2, y2, stops, $super) {
@@ -47160,7 +47204,7 @@ protoOf(JsMotionGradient).copy = function (id, radial, x1, y1, x2, y2, stops, $s
   x2 = x2 === VOID ? this.x2 : x2;
   y2 = y2 === VOID ? this.y2 : y2;
   stops = stops === VOID ? this.stops : stops;
-  return $super === VOID ? this.r3o(id, radial, x1, y1, x2, y2, stops) : $super.r3o.call(this, id, radial, x1, y1, x2, y2, stops);
+  return $super === VOID ? this.s3o(id, radial, x1, y1, x2, y2, stops) : $super.s3o.call(this, id, radial, x1, y1, x2, y2, stops);
 };
 protoOf(JsMotionGradient).toString = function () {
   return 'JsMotionGradient(id=' + this.id + ', radial=' + this.radial + ', x1=' + this.x1 + ', y1=' + this.y1 + ', x2=' + this.x2 + ', y2=' + this.y2 + ', stops=' + toString(this.stops) + ')';
@@ -47205,25 +47249,25 @@ function JsVeinPath(d, layer, color, width, d0, len, swell) {
   this.len = len;
   this.swell = swell;
 }
-protoOf(JsVeinPath).a3o = function () {
+protoOf(JsVeinPath).b3o = function () {
   return this.d;
 };
-protoOf(JsVeinPath).s3o = function () {
+protoOf(JsVeinPath).t3o = function () {
   return this.layer;
 };
-protoOf(JsVeinPath).j3o = function () {
+protoOf(JsVeinPath).k3o = function () {
   return this.color;
 };
 protoOf(JsVeinPath).c2q = function () {
   return this.width;
 };
-protoOf(JsVeinPath).t3o = function () {
+protoOf(JsVeinPath).u3o = function () {
   return this.d0;
 };
-protoOf(JsVeinPath).u3o = function () {
+protoOf(JsVeinPath).v3o = function () {
   return this.len;
 };
-protoOf(JsVeinPath).v3o = function () {
+protoOf(JsVeinPath).w3o = function () {
   return this.swell;
 };
 protoOf(JsVeinPath).gb = function () {
@@ -47235,19 +47279,19 @@ protoOf(JsVeinPath).hb = function () {
 protoOf(JsVeinPath).tf = function () {
   return this.color;
 };
-protoOf(JsVeinPath).j3l = function () {
+protoOf(JsVeinPath).k3l = function () {
   return this.width;
 };
-protoOf(JsVeinPath).u3l = function () {
+protoOf(JsVeinPath).v3l = function () {
   return this.d0;
 };
-protoOf(JsVeinPath).v3l = function () {
+protoOf(JsVeinPath).w3l = function () {
   return this.len;
 };
-protoOf(JsVeinPath).w3l = function () {
+protoOf(JsVeinPath).x3l = function () {
   return this.swell;
 };
-protoOf(JsVeinPath).w3o = function (d, layer, color, width, d0, len, swell) {
+protoOf(JsVeinPath).x3o = function (d, layer, color, width, d0, len, swell) {
   return new JsVeinPath(d, layer, color, width, d0, len, swell);
 };
 protoOf(JsVeinPath).copy = function (d, layer, color, width, d0, len, swell, $super) {
@@ -47258,7 +47302,7 @@ protoOf(JsVeinPath).copy = function (d, layer, color, width, d0, len, swell, $su
   d0 = d0 === VOID ? this.d0 : d0;
   len = len === VOID ? this.len : len;
   swell = swell === VOID ? this.swell : swell;
-  return $super === VOID ? this.w3o(d, layer, color, width, d0, len, swell) : $super.w3o.call(this, d, layer, color, width, d0, len, swell);
+  return $super === VOID ? this.x3o(d, layer, color, width, d0, len, swell) : $super.x3o.call(this, d, layer, color, width, d0, len, swell);
 };
 protoOf(JsVeinPath).toString = function () {
   return 'JsVeinPath(d=' + this.d + ', layer=' + this.layer + ', color=' + this.color + ', width=' + this.width + ', d0=' + this.d0 + ', len=' + this.len + ', swell=' + this.swell + ')';
@@ -47300,16 +47344,16 @@ function JsVeinNode(x, y, r, d0) {
   this.r = r;
   this.d0 = d0;
 }
-protoOf(JsVeinNode).e3n = function () {
+protoOf(JsVeinNode).f3n = function () {
   return this.x;
 };
-protoOf(JsVeinNode).f3n = function () {
+protoOf(JsVeinNode).g3n = function () {
   return this.y;
 };
-protoOf(JsVeinNode).x3o = function () {
+protoOf(JsVeinNode).y3o = function () {
   return this.r;
 };
-protoOf(JsVeinNode).t3o = function () {
+protoOf(JsVeinNode).u3o = function () {
   return this.d0;
 };
 protoOf(JsVeinNode).gb = function () {
@@ -47321,10 +47365,10 @@ protoOf(JsVeinNode).hb = function () {
 protoOf(JsVeinNode).tf = function () {
   return this.r;
 };
-protoOf(JsVeinNode).j3l = function () {
+protoOf(JsVeinNode).k3l = function () {
   return this.d0;
 };
-protoOf(JsVeinNode).z3m = function (x, y, r, d0) {
+protoOf(JsVeinNode).a3n = function (x, y, r, d0) {
   return new JsVeinNode(x, y, r, d0);
 };
 protoOf(JsVeinNode).copy = function (x, y, r, d0, $super) {
@@ -47332,7 +47376,7 @@ protoOf(JsVeinNode).copy = function (x, y, r, d0, $super) {
   y = y === VOID ? this.y : y;
   r = r === VOID ? this.r : r;
   d0 = d0 === VOID ? this.d0 : d0;
-  return $super === VOID ? this.z3m(x, y, r, d0) : $super.z3m.call(this, x, y, r, d0);
+  return $super === VOID ? this.a3n(x, y, r, d0) : $super.a3n.call(this, x, y, r, d0);
 };
 protoOf(JsVeinNode).toString = function () {
   return 'JsVeinNode(x=' + this.x + ', y=' + this.y + ', r=' + this.r + ', d0=' + this.d0 + ')';
@@ -47368,25 +47412,25 @@ function JsMotionParticle(ox, oy, dx, dy, r0, life, alpha) {
   this.life = life;
   this.alpha = alpha;
 }
-protoOf(JsMotionParticle).y3o = function () {
+protoOf(JsMotionParticle).z3o = function () {
   return this.ox;
 };
-protoOf(JsMotionParticle).z3o = function () {
+protoOf(JsMotionParticle).a3p = function () {
   return this.oy;
 };
-protoOf(JsMotionParticle).a3p = function () {
+protoOf(JsMotionParticle).b3p = function () {
   return this.dx;
 };
-protoOf(JsMotionParticle).b3p = function () {
+protoOf(JsMotionParticle).c3p = function () {
   return this.dy;
 };
-protoOf(JsMotionParticle).c3p = function () {
+protoOf(JsMotionParticle).d3p = function () {
   return this.r0;
 };
-protoOf(JsMotionParticle).d3p = function () {
+protoOf(JsMotionParticle).e3p = function () {
   return this.life;
 };
-protoOf(JsMotionParticle).e3p = function () {
+protoOf(JsMotionParticle).f3p = function () {
   return this.alpha;
 };
 protoOf(JsMotionParticle).gb = function () {
@@ -47398,19 +47442,19 @@ protoOf(JsMotionParticle).hb = function () {
 protoOf(JsMotionParticle).tf = function () {
   return this.dx;
 };
-protoOf(JsMotionParticle).j3l = function () {
+protoOf(JsMotionParticle).k3l = function () {
   return this.dy;
 };
-protoOf(JsMotionParticle).u3l = function () {
+protoOf(JsMotionParticle).v3l = function () {
   return this.r0;
 };
-protoOf(JsMotionParticle).v3l = function () {
+protoOf(JsMotionParticle).w3l = function () {
   return this.life;
 };
-protoOf(JsMotionParticle).w3l = function () {
+protoOf(JsMotionParticle).x3l = function () {
   return this.alpha;
 };
-protoOf(JsMotionParticle).n3n = function (ox, oy, dx, dy, r0, life, alpha) {
+protoOf(JsMotionParticle).o3n = function (ox, oy, dx, dy, r0, life, alpha) {
   return new JsMotionParticle(ox, oy, dx, dy, r0, life, alpha);
 };
 protoOf(JsMotionParticle).copy = function (ox, oy, dx, dy, r0, life, alpha, $super) {
@@ -47421,7 +47465,7 @@ protoOf(JsMotionParticle).copy = function (ox, oy, dx, dy, r0, life, alpha, $sup
   r0 = r0 === VOID ? this.r0 : r0;
   life = life === VOID ? this.life : life;
   alpha = alpha === VOID ? this.alpha : alpha;
-  return $super === VOID ? this.n3n(ox, oy, dx, dy, r0, life, alpha) : $super.n3n.call(this, ox, oy, dx, dy, r0, life, alpha);
+  return $super === VOID ? this.o3n(ox, oy, dx, dy, r0, life, alpha) : $super.o3n.call(this, ox, oy, dx, dy, r0, life, alpha);
 };
 protoOf(JsMotionParticle).toString = function () {
   return 'JsMotionParticle(ox=' + this.ox + ', oy=' + this.oy + ', dx=' + this.dx + ', dy=' + this.dy + ', r0=' + this.r0 + ', life=' + this.life + ', alpha=' + this.alpha + ')';
@@ -47464,19 +47508,19 @@ function JsMotionPose(x, y, rotation, scaleX, scaleY) {
   this.scaleX = scaleX;
   this.scaleY = scaleY;
 }
-protoOf(JsMotionPose).e3n = function () {
+protoOf(JsMotionPose).f3n = function () {
   return this.x;
 };
-protoOf(JsMotionPose).f3n = function () {
+protoOf(JsMotionPose).g3n = function () {
   return this.y;
 };
-protoOf(JsMotionPose).f3p = function () {
+protoOf(JsMotionPose).g3p = function () {
   return this.rotation;
 };
-protoOf(JsMotionPose).g3p = function () {
+protoOf(JsMotionPose).h3p = function () {
   return this.scaleX;
 };
-protoOf(JsMotionPose).h3p = function () {
+protoOf(JsMotionPose).i3p = function () {
   return this.scaleY;
 };
 protoOf(JsMotionPose).gb = function () {
@@ -47488,10 +47532,10 @@ protoOf(JsMotionPose).hb = function () {
 protoOf(JsMotionPose).tf = function () {
   return this.rotation;
 };
-protoOf(JsMotionPose).j3l = function () {
+protoOf(JsMotionPose).k3l = function () {
   return this.scaleX;
 };
-protoOf(JsMotionPose).u3l = function () {
+protoOf(JsMotionPose).v3l = function () {
   return this.scaleY;
 };
 protoOf(JsMotionPose).n2j = function (x, y, rotation, scaleX, scaleY) {
@@ -47537,10 +47581,10 @@ function JsMotionGhost(opacity, pose) {
   this.opacity = opacity;
   this.pose = pose;
 }
-protoOf(JsMotionGhost).e3o = function () {
+protoOf(JsMotionGhost).f3o = function () {
   return this.opacity;
 };
-protoOf(JsMotionGhost).i3p = function () {
+protoOf(JsMotionGhost).j3p = function () {
   return this.pose;
 };
 protoOf(JsMotionGhost).gb = function () {
@@ -47549,13 +47593,13 @@ protoOf(JsMotionGhost).gb = function () {
 protoOf(JsMotionGhost).hb = function () {
   return this.pose;
 };
-protoOf(JsMotionGhost).j3p = function (opacity, pose) {
+protoOf(JsMotionGhost).k3p = function (opacity, pose) {
   return new JsMotionGhost(opacity, pose);
 };
 protoOf(JsMotionGhost).copy = function (opacity, pose, $super) {
   opacity = opacity === VOID ? this.opacity : opacity;
   pose = pose === VOID ? this.pose : pose;
-  return $super === VOID ? this.j3p(opacity, pose) : $super.j3p.call(this, opacity, pose);
+  return $super === VOID ? this.k3p(opacity, pose) : $super.k3p.call(this, opacity, pose);
 };
 protoOf(JsMotionGhost).toString = function () {
   return 'JsMotionGhost(opacity=' + this.opacity + ', pose=' + this.pose.toString() + ')';
@@ -47581,13 +47625,13 @@ function JsMotionCircle(opacity, radius, strokeWidth) {
   this.radius = radius;
   this.strokeWidth = strokeWidth;
 }
-protoOf(JsMotionCircle).e3o = function () {
+protoOf(JsMotionCircle).f3o = function () {
   return this.opacity;
 };
 protoOf(JsMotionCircle).s30 = function () {
   return this.radius;
 };
-protoOf(JsMotionCircle).d3o = function () {
+protoOf(JsMotionCircle).e3o = function () {
   return this.strokeWidth;
 };
 protoOf(JsMotionCircle).gb = function () {
@@ -47599,14 +47643,14 @@ protoOf(JsMotionCircle).hb = function () {
 protoOf(JsMotionCircle).tf = function () {
   return this.strokeWidth;
 };
-protoOf(JsMotionCircle).k3p = function (opacity, radius, strokeWidth) {
+protoOf(JsMotionCircle).l3p = function (opacity, radius, strokeWidth) {
   return new JsMotionCircle(opacity, radius, strokeWidth);
 };
 protoOf(JsMotionCircle).copy = function (opacity, radius, strokeWidth, $super) {
   opacity = opacity === VOID ? this.opacity : opacity;
   radius = radius === VOID ? this.radius : radius;
   strokeWidth = strokeWidth === VOID ? this.strokeWidth : strokeWidth;
-  return $super === VOID ? this.k3p(opacity, radius, strokeWidth) : $super.k3p.call(this, opacity, radius, strokeWidth);
+  return $super === VOID ? this.l3p(opacity, radius, strokeWidth) : $super.l3p.call(this, opacity, radius, strokeWidth);
 };
 protoOf(JsMotionCircle).toString = function () {
   return 'JsMotionCircle(opacity=' + this.opacity + ', radius=' + this.radius + ', strokeWidth=' + this.strokeWidth + ')';
@@ -47636,16 +47680,16 @@ function JsDustState(cx, cy, r, opacity) {
   this.r = r;
   this.opacity = opacity;
 }
-protoOf(JsDustState).l3p = function () {
+protoOf(JsDustState).m3p = function () {
   return this.cx;
 };
-protoOf(JsDustState).m3p = function () {
+protoOf(JsDustState).n3p = function () {
   return this.cy;
 };
-protoOf(JsDustState).x3o = function () {
+protoOf(JsDustState).y3o = function () {
   return this.r;
 };
-protoOf(JsDustState).e3o = function () {
+protoOf(JsDustState).f3o = function () {
   return this.opacity;
 };
 protoOf(JsDustState).gb = function () {
@@ -47657,10 +47701,10 @@ protoOf(JsDustState).hb = function () {
 protoOf(JsDustState).tf = function () {
   return this.r;
 };
-protoOf(JsDustState).j3l = function () {
+protoOf(JsDustState).k3l = function () {
   return this.opacity;
 };
-protoOf(JsDustState).z3m = function (cx, cy, r, opacity) {
+protoOf(JsDustState).a3n = function (cx, cy, r, opacity) {
   return new JsDustState(cx, cy, r, opacity);
 };
 protoOf(JsDustState).copy = function (cx, cy, r, opacity, $super) {
@@ -47668,7 +47712,7 @@ protoOf(JsDustState).copy = function (cx, cy, r, opacity, $super) {
   cy = cy === VOID ? this.cy : cy;
   r = r === VOID ? this.r : r;
   opacity = opacity === VOID ? this.opacity : opacity;
-  return $super === VOID ? this.z3m(cx, cy, r, opacity) : $super.z3m.call(this, cx, cy, r, opacity);
+  return $super === VOID ? this.a3n(cx, cy, r, opacity) : $super.a3n.call(this, cx, cy, r, opacity);
 };
 protoOf(JsDustState).toString = function () {
   return 'JsDustState(cx=' + this.cx + ', cy=' + this.cy + ', r=' + this.r + ', opacity=' + this.opacity + ')';
@@ -47702,19 +47746,19 @@ function JsSparkState(x1, y1, x2, y2, opacity) {
   this.y2 = y2;
   this.opacity = opacity;
 }
-protoOf(JsSparkState).m3o = function () {
+protoOf(JsSparkState).n3o = function () {
   return this.x1;
 };
-protoOf(JsSparkState).n3o = function () {
+protoOf(JsSparkState).o3o = function () {
   return this.y1;
 };
-protoOf(JsSparkState).o3o = function () {
+protoOf(JsSparkState).p3o = function () {
   return this.x2;
 };
-protoOf(JsSparkState).p3o = function () {
+protoOf(JsSparkState).q3o = function () {
   return this.y2;
 };
-protoOf(JsSparkState).e3o = function () {
+protoOf(JsSparkState).f3o = function () {
   return this.opacity;
 };
 protoOf(JsSparkState).gb = function () {
@@ -47726,10 +47770,10 @@ protoOf(JsSparkState).hb = function () {
 protoOf(JsSparkState).tf = function () {
   return this.x2;
 };
-protoOf(JsSparkState).j3l = function () {
+protoOf(JsSparkState).k3l = function () {
   return this.y2;
 };
-protoOf(JsSparkState).u3l = function () {
+protoOf(JsSparkState).v3l = function () {
   return this.opacity;
 };
 protoOf(JsSparkState).n2j = function (x1, y1, x2, y2, opacity) {
@@ -47801,88 +47845,88 @@ function JsDropFrame(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, sh
   this.dust = dust;
   this.sparks = sparks;
 }
-protoOf(JsDropFrame).n3p = function () {
+protoOf(JsDropFrame).o3p = function () {
   return this.hitX;
 };
-protoOf(JsDropFrame).o3p = function () {
+protoOf(JsDropFrame).p3p = function () {
   return this.hitY;
 };
-protoOf(JsDropFrame).p3p = function () {
+protoOf(JsDropFrame).q3p = function () {
   return this.shadowOpacity;
 };
-protoOf(JsDropFrame).q3p = function () {
+protoOf(JsDropFrame).r3p = function () {
   return this.shadowRx;
 };
-protoOf(JsDropFrame).r3p = function () {
+protoOf(JsDropFrame).s3p = function () {
   return this.shadowRy;
 };
-protoOf(JsDropFrame).s3p = function () {
+protoOf(JsDropFrame).t3p = function () {
   return this.shadowCx;
 };
-protoOf(JsDropFrame).t3p = function () {
+protoOf(JsDropFrame).u3p = function () {
   return this.shadowCy;
 };
-protoOf(JsDropFrame).u3p = function () {
+protoOf(JsDropFrame).v3p = function () {
   return this.hammer;
 };
-protoOf(JsDropFrame).v3p = function () {
+protoOf(JsDropFrame).w3p = function () {
   return this.ghosts;
 };
-protoOf(JsDropFrame).w3p = function () {
+protoOf(JsDropFrame).x3p = function () {
   return this.runeOpacity;
 };
-protoOf(JsDropFrame).x3p = function () {
+protoOf(JsDropFrame).y3p = function () {
   return this.revealRadius;
 };
-protoOf(JsDropFrame).y3p = function () {
+protoOf(JsDropFrame).z3p = function () {
   return this.revealFull;
 };
-protoOf(JsDropFrame).z3p = function () {
+protoOf(JsDropFrame).a3q = function () {
   return this.shakeX;
 };
-protoOf(JsDropFrame).a3q = function () {
+protoOf(JsDropFrame).b3q = function () {
   return this.shakeY;
 };
-protoOf(JsDropFrame).b3q = function () {
+protoOf(JsDropFrame).c3q = function () {
   return this.shakeRotation;
 };
-protoOf(JsDropFrame).c3q = function () {
+protoOf(JsDropFrame).d3q = function () {
   return this.shakeScale;
 };
-protoOf(JsDropFrame).d3q = function () {
+protoOf(JsDropFrame).e3q = function () {
   return this.deviceShakeY;
 };
-protoOf(JsDropFrame).e3q = function () {
+protoOf(JsDropFrame).f3q = function () {
   return this.stampScale;
 };
-protoOf(JsDropFrame).f3q = function () {
+protoOf(JsDropFrame).g3q = function () {
   return this.stampOpacity;
 };
-protoOf(JsDropFrame).g3q = function () {
+protoOf(JsDropFrame).h3q = function () {
   return this.flashOpacity;
 };
-protoOf(JsDropFrame).h3q = function () {
+protoOf(JsDropFrame).i3q = function () {
   return this.burstOpacity;
 };
-protoOf(JsDropFrame).i3q = function () {
+protoOf(JsDropFrame).j3q = function () {
   return this.burstScale;
 };
-protoOf(JsDropFrame).j3q = function () {
+protoOf(JsDropFrame).k3q = function () {
   return this.ring1;
 };
-protoOf(JsDropFrame).k3q = function () {
+protoOf(JsDropFrame).l3q = function () {
   return this.ring2;
 };
-protoOf(JsDropFrame).l3q = function () {
+protoOf(JsDropFrame).m3q = function () {
   return this.cracksOpacity;
 };
-protoOf(JsDropFrame).m3q = function () {
+protoOf(JsDropFrame).n3q = function () {
   return this.crackDrawn;
 };
-protoOf(JsDropFrame).n3q = function () {
+protoOf(JsDropFrame).o3q = function () {
   return this.dust;
 };
-protoOf(JsDropFrame).o3q = function () {
+protoOf(JsDropFrame).p3q = function () {
   return this.sparks;
 };
 protoOf(JsDropFrame).gb = function () {
@@ -47894,82 +47938,82 @@ protoOf(JsDropFrame).hb = function () {
 protoOf(JsDropFrame).tf = function () {
   return this.shadowOpacity;
 };
-protoOf(JsDropFrame).j3l = function () {
+protoOf(JsDropFrame).k3l = function () {
   return this.shadowRx;
 };
-protoOf(JsDropFrame).u3l = function () {
+protoOf(JsDropFrame).v3l = function () {
   return this.shadowRy;
 };
-protoOf(JsDropFrame).v3l = function () {
+protoOf(JsDropFrame).w3l = function () {
   return this.shadowCx;
 };
-protoOf(JsDropFrame).w3l = function () {
+protoOf(JsDropFrame).x3l = function () {
   return this.shadowCy;
 };
-protoOf(JsDropFrame).x3l = function () {
+protoOf(JsDropFrame).y3l = function () {
   return this.hammer;
 };
-protoOf(JsDropFrame).y3l = function () {
+protoOf(JsDropFrame).z3l = function () {
   return this.ghosts;
 };
-protoOf(JsDropFrame).p3q = function () {
+protoOf(JsDropFrame).q3q = function () {
   return this.runeOpacity;
 };
-protoOf(JsDropFrame).q3q = function () {
+protoOf(JsDropFrame).r3q = function () {
   return this.revealRadius;
 };
-protoOf(JsDropFrame).r3q = function () {
+protoOf(JsDropFrame).s3q = function () {
   return this.revealFull;
 };
-protoOf(JsDropFrame).s3q = function () {
+protoOf(JsDropFrame).t3q = function () {
   return this.shakeX;
 };
-protoOf(JsDropFrame).t3q = function () {
+protoOf(JsDropFrame).u3q = function () {
   return this.shakeY;
 };
-protoOf(JsDropFrame).u3q = function () {
+protoOf(JsDropFrame).v3q = function () {
   return this.shakeRotation;
 };
-protoOf(JsDropFrame).v3q = function () {
+protoOf(JsDropFrame).w3q = function () {
   return this.shakeScale;
 };
-protoOf(JsDropFrame).w3q = function () {
+protoOf(JsDropFrame).x3q = function () {
   return this.deviceShakeY;
 };
-protoOf(JsDropFrame).x3q = function () {
+protoOf(JsDropFrame).y3q = function () {
   return this.stampScale;
 };
-protoOf(JsDropFrame).y3q = function () {
+protoOf(JsDropFrame).z3q = function () {
   return this.stampOpacity;
 };
-protoOf(JsDropFrame).z3q = function () {
+protoOf(JsDropFrame).a3r = function () {
   return this.flashOpacity;
 };
-protoOf(JsDropFrame).a3r = function () {
+protoOf(JsDropFrame).b3r = function () {
   return this.burstOpacity;
 };
-protoOf(JsDropFrame).b3r = function () {
+protoOf(JsDropFrame).c3r = function () {
   return this.burstScale;
 };
-protoOf(JsDropFrame).c3r = function () {
+protoOf(JsDropFrame).d3r = function () {
   return this.ring1;
 };
-protoOf(JsDropFrame).d3r = function () {
+protoOf(JsDropFrame).e3r = function () {
   return this.ring2;
 };
-protoOf(JsDropFrame).e3r = function () {
+protoOf(JsDropFrame).f3r = function () {
   return this.cracksOpacity;
 };
-protoOf(JsDropFrame).f3r = function () {
+protoOf(JsDropFrame).g3r = function () {
   return this.crackDrawn;
 };
-protoOf(JsDropFrame).g3r = function () {
+protoOf(JsDropFrame).h3r = function () {
   return this.dust;
 };
-protoOf(JsDropFrame).h3r = function () {
+protoOf(JsDropFrame).i3r = function () {
   return this.sparks;
 };
-protoOf(JsDropFrame).i3r = function (hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) {
+protoOf(JsDropFrame).j3r = function (hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) {
   return new JsDropFrame(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks);
 };
 protoOf(JsDropFrame).copy = function (hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks, $super) {
@@ -48001,7 +48045,7 @@ protoOf(JsDropFrame).copy = function (hitX, hitY, shadowOpacity, shadowRx, shado
   crackDrawn = crackDrawn === VOID ? this.crackDrawn : crackDrawn;
   dust = dust === VOID ? this.dust : dust;
   sparks = sparks === VOID ? this.sparks : sparks;
-  return $super === VOID ? this.i3r(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) : $super.i3r.call(this, hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks);
+  return $super === VOID ? this.j3r(hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks) : $super.j3r.call(this, hitX, hitY, shadowOpacity, shadowRx, shadowRy, shadowCx, shadowCy, hammer, ghosts, runeOpacity, revealRadius, revealFull, shakeX, shakeY, shakeRotation, shakeScale, deviceShakeY, stampScale, stampOpacity, flashOpacity, burstOpacity, burstScale, ring1, ring2, cracksOpacity, crackDrawn, dust, sparks);
 };
 protoOf(JsDropFrame).toString = function () {
   return 'JsDropFrame(hitX=' + this.hitX + ', hitY=' + this.hitY + ', shadowOpacity=' + this.shadowOpacity + ', shadowRx=' + this.shadowRx + ', shadowRy=' + this.shadowRy + ', shadowCx=' + this.shadowCx + ', shadowCy=' + this.shadowCy + ', hammer=' + toString_1(this.hammer) + ', ghosts=' + toString(this.ghosts) + ', runeOpacity=' + this.runeOpacity + ', revealRadius=' + this.revealRadius + ', revealFull=' + this.revealFull + ', shakeX=' + this.shakeX + ', shakeY=' + this.shakeY + ', shakeRotation=' + this.shakeRotation + ', shakeScale=' + this.shakeScale + ', deviceShakeY=' + this.deviceShakeY + ', stampScale=' + this.stampScale + ', stampOpacity=' + this.stampOpacity + ', flashOpacity=' + this.flashOpacity + ', burstOpacity=' + this.burstOpacity + ', burstScale=' + this.burstScale + ', ring1=' + this.ring1.toString() + ', ring2=' + this.ring2.toString() + ', cracksOpacity=' + this.cracksOpacity + ', crackDrawn=' + this.crackDrawn + ', dust=' + toString(this.dust) + ', sparks=' + toString(this.sparks) + ')';
@@ -48125,73 +48169,73 @@ function JsPumpFrame(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpa
   this.edgeSoftWidth = edgeSoftWidth;
   this.pillScale = pillScale;
 }
-protoOf(JsPumpFrame).x3m = function () {
+protoOf(JsPumpFrame).y3m = function () {
   return this.srcX;
 };
-protoOf(JsPumpFrame).y3m = function () {
+protoOf(JsPumpFrame).z3m = function () {
   return this.srcY;
 };
-protoOf(JsPumpFrame).v3o = function () {
+protoOf(JsPumpFrame).w3o = function () {
   return this.swell;
 };
-protoOf(JsPumpFrame).j3r = function () {
+protoOf(JsPumpFrame).k3r = function () {
   return this.contentScale;
 };
-protoOf(JsPumpFrame).k3r = function () {
+protoOf(JsPumpFrame).l3r = function () {
   return this.deviceScale;
 };
-protoOf(JsPumpFrame).l3r = function () {
+protoOf(JsPumpFrame).m3r = function () {
   return this.glow;
 };
-protoOf(JsPumpFrame).m3r = function () {
+protoOf(JsPumpFrame).n3r = function () {
   return this.tintOpacity;
 };
-protoOf(JsPumpFrame).n3r = function () {
+protoOf(JsPumpFrame).o3r = function () {
   return this.halos;
 };
-protoOf(JsPumpFrame).o3r = function () {
+protoOf(JsPumpFrame).p3r = function () {
   return this.rings;
 };
-protoOf(JsPumpFrame).p3r = function () {
+protoOf(JsPumpFrame).q3r = function () {
   return this.veinsOpacity;
 };
-protoOf(JsPumpFrame).q3r = function () {
+protoOf(JsPumpFrame).r3r = function () {
   return this.glowLayerOpacity;
 };
-protoOf(JsPumpFrame).r3r = function () {
+protoOf(JsPumpFrame).s3r = function () {
   return this.veinFront;
 };
-protoOf(JsPumpFrame).s3r = function () {
+protoOf(JsPumpFrame).t3r = function () {
   return this.veinWidthScale;
 };
-protoOf(JsPumpFrame).t3r = function () {
+protoOf(JsPumpFrame).u3r = function () {
   return this.nodeOpacity;
 };
-protoOf(JsPumpFrame).u3r = function () {
+protoOf(JsPumpFrame).v3r = function () {
   return this.nodeScale;
 };
-protoOf(JsPumpFrame).v3r = function () {
+protoOf(JsPumpFrame).w3r = function () {
   return this.pulseOpacity;
 };
-protoOf(JsPumpFrame).w3r = function () {
+protoOf(JsPumpFrame).x3r = function () {
   return this.floodRadius;
 };
-protoOf(JsPumpFrame).x3r = function () {
+protoOf(JsPumpFrame).y3r = function () {
   return this.floodFull;
 };
-protoOf(JsPumpFrame).y3r = function () {
+protoOf(JsPumpFrame).z3r = function () {
   return this.edgeOpacity;
 };
-protoOf(JsPumpFrame).z3r = function () {
+protoOf(JsPumpFrame).a3s = function () {
   return this.edgeWidth;
 };
-protoOf(JsPumpFrame).a3s = function () {
+protoOf(JsPumpFrame).b3s = function () {
   return this.edgeSoftOpacity;
 };
-protoOf(JsPumpFrame).b3s = function () {
+protoOf(JsPumpFrame).c3s = function () {
   return this.edgeSoftWidth;
 };
-protoOf(JsPumpFrame).c3s = function () {
+protoOf(JsPumpFrame).d3s = function () {
   return this.pillScale;
 };
 protoOf(JsPumpFrame).gb = function () {
@@ -48203,67 +48247,67 @@ protoOf(JsPumpFrame).hb = function () {
 protoOf(JsPumpFrame).tf = function () {
   return this.swell;
 };
-protoOf(JsPumpFrame).j3l = function () {
+protoOf(JsPumpFrame).k3l = function () {
   return this.contentScale;
 };
-protoOf(JsPumpFrame).u3l = function () {
+protoOf(JsPumpFrame).v3l = function () {
   return this.deviceScale;
 };
-protoOf(JsPumpFrame).v3l = function () {
+protoOf(JsPumpFrame).w3l = function () {
   return this.glow;
 };
-protoOf(JsPumpFrame).w3l = function () {
+protoOf(JsPumpFrame).x3l = function () {
   return this.tintOpacity;
 };
-protoOf(JsPumpFrame).x3l = function () {
+protoOf(JsPumpFrame).y3l = function () {
   return this.halos;
 };
-protoOf(JsPumpFrame).y3l = function () {
+protoOf(JsPumpFrame).z3l = function () {
   return this.rings;
 };
-protoOf(JsPumpFrame).p3q = function () {
+protoOf(JsPumpFrame).q3q = function () {
   return this.veinsOpacity;
 };
-protoOf(JsPumpFrame).q3q = function () {
+protoOf(JsPumpFrame).r3q = function () {
   return this.glowLayerOpacity;
 };
-protoOf(JsPumpFrame).r3q = function () {
+protoOf(JsPumpFrame).s3q = function () {
   return this.veinFront;
 };
-protoOf(JsPumpFrame).s3q = function () {
+protoOf(JsPumpFrame).t3q = function () {
   return this.veinWidthScale;
 };
-protoOf(JsPumpFrame).t3q = function () {
+protoOf(JsPumpFrame).u3q = function () {
   return this.nodeOpacity;
 };
-protoOf(JsPumpFrame).u3q = function () {
+protoOf(JsPumpFrame).v3q = function () {
   return this.nodeScale;
 };
-protoOf(JsPumpFrame).v3q = function () {
+protoOf(JsPumpFrame).w3q = function () {
   return this.pulseOpacity;
 };
-protoOf(JsPumpFrame).w3q = function () {
+protoOf(JsPumpFrame).x3q = function () {
   return this.floodRadius;
 };
-protoOf(JsPumpFrame).x3q = function () {
+protoOf(JsPumpFrame).y3q = function () {
   return this.floodFull;
 };
-protoOf(JsPumpFrame).y3q = function () {
+protoOf(JsPumpFrame).z3q = function () {
   return this.edgeOpacity;
 };
-protoOf(JsPumpFrame).z3q = function () {
+protoOf(JsPumpFrame).a3r = function () {
   return this.edgeWidth;
 };
-protoOf(JsPumpFrame).a3r = function () {
+protoOf(JsPumpFrame).b3r = function () {
   return this.edgeSoftOpacity;
 };
-protoOf(JsPumpFrame).b3r = function () {
+protoOf(JsPumpFrame).c3r = function () {
   return this.edgeSoftWidth;
 };
-protoOf(JsPumpFrame).c3r = function () {
+protoOf(JsPumpFrame).d3r = function () {
   return this.pillScale;
 };
-protoOf(JsPumpFrame).d3s = function (srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) {
+protoOf(JsPumpFrame).e3s = function (srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) {
   return new JsPumpFrame(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale);
 };
 protoOf(JsPumpFrame).copy = function (srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale, $super) {
@@ -48290,7 +48334,7 @@ protoOf(JsPumpFrame).copy = function (srcX, srcY, swell, contentScale, deviceSca
   edgeSoftOpacity = edgeSoftOpacity === VOID ? this.edgeSoftOpacity : edgeSoftOpacity;
   edgeSoftWidth = edgeSoftWidth === VOID ? this.edgeSoftWidth : edgeSoftWidth;
   pillScale = pillScale === VOID ? this.pillScale : pillScale;
-  return $super === VOID ? this.d3s(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) : $super.d3s.call(this, srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale);
+  return $super === VOID ? this.e3s(srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale) : $super.e3s.call(this, srcX, srcY, swell, contentScale, deviceScale, glow, tintOpacity, halos, rings, veinsOpacity, glowLayerOpacity, veinFront, veinWidthScale, nodeOpacity, nodeScale, pulseOpacity, floodRadius, floodFull, edgeOpacity, edgeWidth, edgeSoftOpacity, edgeSoftWidth, pillScale);
 };
 protoOf(JsPumpFrame).toString = function () {
   return 'JsPumpFrame(srcX=' + this.srcX + ', srcY=' + this.srcY + ', swell=' + this.swell + ', contentScale=' + this.contentScale + ', deviceScale=' + this.deviceScale + ', glow=' + this.glow + ', tintOpacity=' + this.tintOpacity + ', halos=' + toString(this.halos) + ', rings=' + toString(this.rings) + ', veinsOpacity=' + this.veinsOpacity + ', glowLayerOpacity=' + this.glowLayerOpacity + ', veinFront=' + this.veinFront + ', veinWidthScale=' + this.veinWidthScale + ', nodeOpacity=' + this.nodeOpacity + ', nodeScale=' + this.nodeScale + ', pulseOpacity=' + this.pulseOpacity + ', floodRadius=' + this.floodRadius + ', floodFull=' + this.floodFull + ', edgeOpacity=' + this.edgeOpacity + ', edgeWidth=' + this.edgeWidth + ', edgeSoftOpacity=' + this.edgeSoftOpacity + ', edgeSoftWidth=' + this.edgeSoftWidth + ', pillScale=' + this.pillScale + ')';
@@ -48395,61 +48439,61 @@ function JsModeSwitchColors(shadow, crackShadow, crack, crackBranch, flash, flas
   this.veinPulse = veinPulse;
   this.node = node;
 }
-protoOf(JsModeSwitchColors).e3s = function () {
+protoOf(JsModeSwitchColors).f3s = function () {
   return this.shadow;
 };
-protoOf(JsModeSwitchColors).f3s = function () {
+protoOf(JsModeSwitchColors).g3s = function () {
   return this.crackShadow;
 };
-protoOf(JsModeSwitchColors).g3s = function () {
+protoOf(JsModeSwitchColors).h3s = function () {
   return this.crack;
 };
-protoOf(JsModeSwitchColors).h3s = function () {
+protoOf(JsModeSwitchColors).i3s = function () {
   return this.crackBranch;
 };
-protoOf(JsModeSwitchColors).i3s = function () {
+protoOf(JsModeSwitchColors).j3s = function () {
   return this.flash;
 };
-protoOf(JsModeSwitchColors).j3s = function () {
+protoOf(JsModeSwitchColors).k3s = function () {
   return this.flashLight;
 };
-protoOf(JsModeSwitchColors).j3q = function () {
+protoOf(JsModeSwitchColors).k3q = function () {
   return this.ring1;
 };
-protoOf(JsModeSwitchColors).k3q = function () {
+protoOf(JsModeSwitchColors).l3q = function () {
   return this.ring2;
 };
-protoOf(JsModeSwitchColors).k3s = function () {
+protoOf(JsModeSwitchColors).l3s = function () {
   return this.burst;
 };
-protoOf(JsModeSwitchColors).l3s = function () {
+protoOf(JsModeSwitchColors).m3s = function () {
   return this.spark;
 };
-protoOf(JsModeSwitchColors).m3s = function () {
+protoOf(JsModeSwitchColors).n3s = function () {
   return this.tint;
 };
-protoOf(JsModeSwitchColors).n3s = function () {
+protoOf(JsModeSwitchColors).o3s = function () {
   return this.pumpRing;
 };
-protoOf(JsModeSwitchColors).o3s = function () {
+protoOf(JsModeSwitchColors).p3s = function () {
   return this.edge;
 };
-protoOf(JsModeSwitchColors).p3s = function () {
+protoOf(JsModeSwitchColors).q3s = function () {
   return this.edgeSoft;
 };
-protoOf(JsModeSwitchColors).q3s = function () {
+protoOf(JsModeSwitchColors).r3s = function () {
   return this.veinGlow;
 };
-protoOf(JsModeSwitchColors).r3s = function () {
+protoOf(JsModeSwitchColors).s3s = function () {
   return this.veinCore;
 };
-protoOf(JsModeSwitchColors).s3s = function () {
+protoOf(JsModeSwitchColors).t3s = function () {
   return this.veinHot;
 };
-protoOf(JsModeSwitchColors).t3s = function () {
+protoOf(JsModeSwitchColors).u3s = function () {
   return this.veinPulse;
 };
-protoOf(JsModeSwitchColors).u3s = function () {
+protoOf(JsModeSwitchColors).v3s = function () {
   return this.node;
 };
 protoOf(JsModeSwitchColors).gb = function () {
@@ -48461,55 +48505,55 @@ protoOf(JsModeSwitchColors).hb = function () {
 protoOf(JsModeSwitchColors).tf = function () {
   return this.crack;
 };
-protoOf(JsModeSwitchColors).j3l = function () {
+protoOf(JsModeSwitchColors).k3l = function () {
   return this.crackBranch;
 };
-protoOf(JsModeSwitchColors).u3l = function () {
+protoOf(JsModeSwitchColors).v3l = function () {
   return this.flash;
 };
-protoOf(JsModeSwitchColors).v3l = function () {
+protoOf(JsModeSwitchColors).w3l = function () {
   return this.flashLight;
 };
-protoOf(JsModeSwitchColors).w3l = function () {
+protoOf(JsModeSwitchColors).x3l = function () {
   return this.ring1;
 };
-protoOf(JsModeSwitchColors).x3l = function () {
+protoOf(JsModeSwitchColors).y3l = function () {
   return this.ring2;
 };
-protoOf(JsModeSwitchColors).y3l = function () {
+protoOf(JsModeSwitchColors).z3l = function () {
   return this.burst;
 };
-protoOf(JsModeSwitchColors).p3q = function () {
+protoOf(JsModeSwitchColors).q3q = function () {
   return this.spark;
 };
-protoOf(JsModeSwitchColors).q3q = function () {
+protoOf(JsModeSwitchColors).r3q = function () {
   return this.tint;
 };
-protoOf(JsModeSwitchColors).r3q = function () {
+protoOf(JsModeSwitchColors).s3q = function () {
   return this.pumpRing;
 };
-protoOf(JsModeSwitchColors).s3q = function () {
+protoOf(JsModeSwitchColors).t3q = function () {
   return this.edge;
 };
-protoOf(JsModeSwitchColors).t3q = function () {
+protoOf(JsModeSwitchColors).u3q = function () {
   return this.edgeSoft;
 };
-protoOf(JsModeSwitchColors).u3q = function () {
+protoOf(JsModeSwitchColors).v3q = function () {
   return this.veinGlow;
 };
-protoOf(JsModeSwitchColors).v3q = function () {
+protoOf(JsModeSwitchColors).w3q = function () {
   return this.veinCore;
 };
-protoOf(JsModeSwitchColors).w3q = function () {
+protoOf(JsModeSwitchColors).x3q = function () {
   return this.veinHot;
 };
-protoOf(JsModeSwitchColors).x3q = function () {
+protoOf(JsModeSwitchColors).y3q = function () {
   return this.veinPulse;
 };
-protoOf(JsModeSwitchColors).y3q = function () {
+protoOf(JsModeSwitchColors).z3q = function () {
   return this.node;
 };
-protoOf(JsModeSwitchColors).v3s = function (shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) {
+protoOf(JsModeSwitchColors).w3s = function (shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) {
   return new JsModeSwitchColors(shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node);
 };
 protoOf(JsModeSwitchColors).copy = function (shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node, $super) {
@@ -48532,7 +48576,7 @@ protoOf(JsModeSwitchColors).copy = function (shadow, crackShadow, crack, crackBr
   veinHot = veinHot === VOID ? this.veinHot : veinHot;
   veinPulse = veinPulse === VOID ? this.veinPulse : veinPulse;
   node = node === VOID ? this.node : node;
-  return $super === VOID ? this.v3s(shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) : $super.v3s.call(this, shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node);
+  return $super === VOID ? this.w3s(shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node) : $super.w3s.call(this, shadow, crackShadow, crack, crackBranch, flash, flashLight, ring1, ring2, burst, spark, tint, pumpRing, edge, edgeSoft, veinGlow, veinCore, veinHot, veinPulse, node);
 };
 protoOf(JsModeSwitchColors).toString = function () {
   return 'JsModeSwitchColors(shadow=' + this.shadow + ', crackShadow=' + this.crackShadow + ', crack=' + this.crack + ', crackBranch=' + this.crackBranch + ', flash=' + this.flash + ', flashLight=' + this.flashLight + ', ring1=' + this.ring1 + ', ring2=' + this.ring2 + ', burst=' + this.burst + ', spark=' + this.spark + ', tint=' + this.tint + ', pumpRing=' + this.pumpRing + ', edge=' + this.edge + ', edgeSoft=' + this.edgeSoft + ', veinGlow=' + this.veinGlow + ', veinCore=' + this.veinCore + ', veinHot=' + this.veinHot + ', veinPulse=' + this.veinPulse + ', node=' + this.node + ')';
@@ -48616,34 +48660,34 @@ function JsModeSwitchLightColors(flash, flashOpacityScale, crackShadowOpacity, c
   this.burstEdge = burstEdge;
   this.burstEdgeWidth = burstEdgeWidth;
 }
-protoOf(JsModeSwitchLightColors).i3s = function () {
+protoOf(JsModeSwitchLightColors).j3s = function () {
   return this.flash;
 };
-protoOf(JsModeSwitchLightColors).w3s = function () {
+protoOf(JsModeSwitchLightColors).x3s = function () {
   return this.flashOpacityScale;
 };
-protoOf(JsModeSwitchLightColors).x3s = function () {
+protoOf(JsModeSwitchLightColors).y3s = function () {
   return this.crackShadowOpacity;
 };
-protoOf(JsModeSwitchLightColors).y3s = function () {
+protoOf(JsModeSwitchLightColors).z3s = function () {
   return this.chalk;
 };
-protoOf(JsModeSwitchLightColors).z3s = function () {
+protoOf(JsModeSwitchLightColors).a3t = function () {
   return this.veinEdge;
 };
-protoOf(JsModeSwitchLightColors).a3t = function () {
+protoOf(JsModeSwitchLightColors).b3t = function () {
   return this.veinEdgeOpacity;
 };
-protoOf(JsModeSwitchLightColors).j3q = function () {
+protoOf(JsModeSwitchLightColors).k3q = function () {
   return this.ring1;
 };
-protoOf(JsModeSwitchLightColors).l3s = function () {
+protoOf(JsModeSwitchLightColors).m3s = function () {
   return this.spark;
 };
-protoOf(JsModeSwitchLightColors).b3t = function () {
+protoOf(JsModeSwitchLightColors).c3t = function () {
   return this.burstEdge;
 };
-protoOf(JsModeSwitchLightColors).c3t = function () {
+protoOf(JsModeSwitchLightColors).d3t = function () {
   return this.burstEdgeWidth;
 };
 protoOf(JsModeSwitchLightColors).gb = function () {
@@ -48655,28 +48699,28 @@ protoOf(JsModeSwitchLightColors).hb = function () {
 protoOf(JsModeSwitchLightColors).tf = function () {
   return this.crackShadowOpacity;
 };
-protoOf(JsModeSwitchLightColors).j3l = function () {
+protoOf(JsModeSwitchLightColors).k3l = function () {
   return this.chalk;
 };
-protoOf(JsModeSwitchLightColors).u3l = function () {
+protoOf(JsModeSwitchLightColors).v3l = function () {
   return this.veinEdge;
 };
-protoOf(JsModeSwitchLightColors).v3l = function () {
+protoOf(JsModeSwitchLightColors).w3l = function () {
   return this.veinEdgeOpacity;
 };
-protoOf(JsModeSwitchLightColors).w3l = function () {
+protoOf(JsModeSwitchLightColors).x3l = function () {
   return this.ring1;
 };
-protoOf(JsModeSwitchLightColors).x3l = function () {
+protoOf(JsModeSwitchLightColors).y3l = function () {
   return this.spark;
 };
-protoOf(JsModeSwitchLightColors).y3l = function () {
+protoOf(JsModeSwitchLightColors).z3l = function () {
   return this.burstEdge;
 };
-protoOf(JsModeSwitchLightColors).p3q = function () {
+protoOf(JsModeSwitchLightColors).q3q = function () {
   return this.burstEdgeWidth;
 };
-protoOf(JsModeSwitchLightColors).d3t = function (flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth) {
+protoOf(JsModeSwitchLightColors).e3t = function (flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth) {
   return new JsModeSwitchLightColors(flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth);
 };
 protoOf(JsModeSwitchLightColors).copy = function (flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth, $super) {
@@ -48690,7 +48734,7 @@ protoOf(JsModeSwitchLightColors).copy = function (flash, flashOpacityScale, crac
   spark = spark === VOID ? this.spark : spark;
   burstEdge = burstEdge === VOID ? this.burstEdge : burstEdge;
   burstEdgeWidth = burstEdgeWidth === VOID ? this.burstEdgeWidth : burstEdgeWidth;
-  return $super === VOID ? this.d3t(flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth) : $super.d3t.call(this, flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth);
+  return $super === VOID ? this.e3t(flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth) : $super.e3t.call(this, flash, flashOpacityScale, crackShadowOpacity, chalk, veinEdge, veinEdgeOpacity, ring1, spark, burstEdge, burstEdgeWidth);
 };
 protoOf(JsModeSwitchLightColors).toString = function () {
   return 'JsModeSwitchLightColors(flash=' + this.flash + ', flashOpacityScale=' + this.flashOpacityScale + ', crackShadowOpacity=' + this.crackShadowOpacity + ', chalk=' + toString(this.chalk) + ', veinEdge=' + this.veinEdge + ', veinEdgeOpacity=' + this.veinEdgeOpacity + ', ring1=' + this.ring1 + ', spark=' + this.spark + ', burstEdge=' + this.burstEdge + ', burstEdgeWidth=' + this.burstEdgeWidth + ')';
@@ -48911,25 +48955,25 @@ function JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived
   this.isBuiltIn = isBuiltIn;
   this.archived = archived;
 }
-protoOf(JsExercise).f3l = function () {
+protoOf(JsExercise).g3l = function () {
   return this.id;
 };
 protoOf(JsExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsExercise).e3t = function () {
+protoOf(JsExercise).f3t = function () {
   return this.category;
 };
-protoOf(JsExercise).f3t = function () {
+protoOf(JsExercise).g3t = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).g3t = function () {
+protoOf(JsExercise).h3t = function () {
   return this.muscles;
 };
-protoOf(JsExercise).h3t = function () {
+protoOf(JsExercise).i3t = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).i3t = function () {
+protoOf(JsExercise).j3t = function () {
   return this.archived;
 };
 protoOf(JsExercise).gb = function () {
@@ -48941,19 +48985,19 @@ protoOf(JsExercise).hb = function () {
 protoOf(JsExercise).tf = function () {
   return this.category;
 };
-protoOf(JsExercise).j3l = function () {
+protoOf(JsExercise).k3l = function () {
   return this.parentLift;
 };
-protoOf(JsExercise).u3l = function () {
+protoOf(JsExercise).v3l = function () {
   return this.muscles;
 };
-protoOf(JsExercise).v3l = function () {
+protoOf(JsExercise).w3l = function () {
   return this.isBuiltIn;
 };
-protoOf(JsExercise).w3l = function () {
+protoOf(JsExercise).x3l = function () {
   return this.archived;
 };
-protoOf(JsExercise).j3t = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
+protoOf(JsExercise).k3t = function (id, name, category, parentLift, muscles, isBuiltIn, archived) {
   return new JsExercise(id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, isBuiltIn, archived, $super) {
@@ -48964,7 +49008,7 @@ protoOf(JsExercise).copy = function (id, name, category, parentLift, muscles, is
   muscles = muscles === VOID ? this.muscles : muscles;
   isBuiltIn = isBuiltIn === VOID ? this.isBuiltIn : isBuiltIn;
   archived = archived === VOID ? this.archived : archived;
-  return $super === VOID ? this.j3t(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.j3t.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
+  return $super === VOID ? this.k3t(id, name, category, parentLift, muscles, isBuiltIn, archived) : $super.k3t.call(this, id, name, category, parentLift, muscles, isBuiltIn, archived);
 };
 protoOf(JsExercise).toString = function () {
   return 'JsExercise(id=' + this.id + ', name=' + this.name + ', category=' + this.category + ', parentLift=' + this.parentLift + ', muscles=' + toString(this.muscles) + ', isBuiltIn=' + this.isBuiltIn + ', archived=' + this.archived + ')';
@@ -49009,25 +49053,25 @@ function JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   this.missPoint = missPoint;
   this.isTopSet = isTopSet;
 }
-protoOf(JsSet).m3l = function () {
+protoOf(JsSet).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsSet).o3m = function () {
+protoOf(JsSet).p3m = function () {
   return this.weightKg;
 };
-protoOf(JsSet).p3m = function () {
+protoOf(JsSet).q3m = function () {
   return this.reps;
 };
-protoOf(JsSet).q3m = function () {
+protoOf(JsSet).r3m = function () {
   return this.rpe;
 };
-protoOf(JsSet).k3t = function () {
+protoOf(JsSet).l3t = function () {
   return this.failed;
 };
-protoOf(JsSet).l3t = function () {
+protoOf(JsSet).m3t = function () {
   return this.missPoint;
 };
-protoOf(JsSet).m3t = function () {
+protoOf(JsSet).n3t = function () {
   return this.isTopSet;
 };
 protoOf(JsSet).gb = function () {
@@ -49039,19 +49083,19 @@ protoOf(JsSet).hb = function () {
 protoOf(JsSet).tf = function () {
   return this.reps;
 };
-protoOf(JsSet).j3l = function () {
+protoOf(JsSet).k3l = function () {
   return this.rpe;
 };
-protoOf(JsSet).u3l = function () {
+protoOf(JsSet).v3l = function () {
   return this.failed;
 };
-protoOf(JsSet).v3l = function () {
+protoOf(JsSet).w3l = function () {
   return this.missPoint;
 };
-protoOf(JsSet).w3l = function () {
+protoOf(JsSet).x3l = function () {
   return this.isTopSet;
 };
-protoOf(JsSet).n3t = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
+protoOf(JsSet).o3t = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) {
   return new JsSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, $super) {
@@ -49062,7 +49106,7 @@ protoOf(JsSet).copy = function (exerciseId, weightKg, reps, rpe, failed, missPoi
   failed = failed === VOID ? this.failed : failed;
   missPoint = missPoint === VOID ? this.missPoint : missPoint;
   isTopSet = isTopSet === VOID ? this.isTopSet : isTopSet;
-  return $super === VOID ? this.n3t(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.n3t.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
+  return $super === VOID ? this.o3t(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet) : $super.o3t.call(this, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet);
 };
 protoOf(JsSet).toString = function () {
   return 'JsSet(exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', failed=' + this.failed + ', missPoint=' + this.missPoint + ', isTopSet=' + this.isTopSet + ')';
@@ -49107,22 +49151,22 @@ function JsSession(id, date, bodyweightKg, readiness, sets, mode) {
   this.sets = sets;
   this.mode = mode;
 }
-protoOf(JsSession).f3l = function () {
+protoOf(JsSession).g3l = function () {
   return this.id;
 };
-protoOf(JsSession).l3l = function () {
+protoOf(JsSession).m3l = function () {
   return this.date;
 };
-protoOf(JsSession).o3t = function () {
+protoOf(JsSession).p3t = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).p3t = function () {
+protoOf(JsSession).q3t = function () {
   return this.readiness;
 };
-protoOf(JsSession).q3t = function () {
+protoOf(JsSession).r3t = function () {
   return this.sets;
 };
-protoOf(JsSession).r3t = function () {
+protoOf(JsSession).s3t = function () {
   return this.mode;
 };
 protoOf(JsSession).gb = function () {
@@ -49134,16 +49178,16 @@ protoOf(JsSession).hb = function () {
 protoOf(JsSession).tf = function () {
   return this.bodyweightKg;
 };
-protoOf(JsSession).j3l = function () {
+protoOf(JsSession).k3l = function () {
   return this.readiness;
 };
-protoOf(JsSession).u3l = function () {
+protoOf(JsSession).v3l = function () {
   return this.sets;
 };
-protoOf(JsSession).v3l = function () {
+protoOf(JsSession).w3l = function () {
   return this.mode;
 };
-protoOf(JsSession).s3t = function (id, date, bodyweightKg, readiness, sets, mode) {
+protoOf(JsSession).t3t = function (id, date, bodyweightKg, readiness, sets, mode) {
   return new JsSession(id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mode, $super) {
@@ -49153,7 +49197,7 @@ protoOf(JsSession).copy = function (id, date, bodyweightKg, readiness, sets, mod
   readiness = readiness === VOID ? this.readiness : readiness;
   sets = sets === VOID ? this.sets : sets;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.s3t(id, date, bodyweightKg, readiness, sets, mode) : $super.s3t.call(this, id, date, bodyweightKg, readiness, sets, mode);
+  return $super === VOID ? this.t3t(id, date, bodyweightKg, readiness, sets, mode) : $super.t3t.call(this, id, date, bodyweightKg, readiness, sets, mode);
 };
 protoOf(JsSession).toString = function () {
   return 'JsSession(id=' + this.id + ', date=' + this.date + ', bodyweightKg=' + this.bodyweightKg + ', readiness=' + this.readiness + ', sets=' + toString(this.sets) + ', mode=' + this.mode + ')';
@@ -49199,31 +49243,31 @@ function JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode,
   this.mode = mode;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPlanItem).f3l = function () {
+protoOf(JsPlanItem).g3l = function () {
   return this.id;
 };
-protoOf(JsPlanItem).t3t = function () {
+protoOf(JsPlanItem).u3t = function () {
   return this.weekday;
 };
-protoOf(JsPlanItem).m3l = function () {
+protoOf(JsPlanItem).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).q3t = function () {
+protoOf(JsPlanItem).r3t = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).p3m = function () {
+protoOf(JsPlanItem).q3m = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).u3t = function () {
+protoOf(JsPlanItem).v3t = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).v3t = function () {
+protoOf(JsPlanItem).w3t = function () {
   return this.order;
 };
-protoOf(JsPlanItem).r3t = function () {
+protoOf(JsPlanItem).s3t = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).w3t = function () {
+protoOf(JsPlanItem).x3t = function () {
   return this.repsHigh;
 };
 protoOf(JsPlanItem).gb = function () {
@@ -49235,25 +49279,25 @@ protoOf(JsPlanItem).hb = function () {
 protoOf(JsPlanItem).tf = function () {
   return this.exerciseId;
 };
-protoOf(JsPlanItem).j3l = function () {
+protoOf(JsPlanItem).k3l = function () {
   return this.sets;
 };
-protoOf(JsPlanItem).u3l = function () {
+protoOf(JsPlanItem).v3l = function () {
   return this.reps;
 };
-protoOf(JsPlanItem).v3l = function () {
+protoOf(JsPlanItem).w3l = function () {
   return this.targetRpe;
 };
-protoOf(JsPlanItem).w3l = function () {
+protoOf(JsPlanItem).x3l = function () {
   return this.order;
 };
-protoOf(JsPlanItem).x3l = function () {
+protoOf(JsPlanItem).y3l = function () {
   return this.mode;
 };
-protoOf(JsPlanItem).y3l = function () {
+protoOf(JsPlanItem).z3l = function () {
   return this.repsHigh;
 };
-protoOf(JsPlanItem).x3t = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
+protoOf(JsPlanItem).y3t = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) {
   return new JsPlanItem(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh, $super) {
@@ -49266,7 +49310,7 @@ protoOf(JsPlanItem).copy = function (id, weekday, exerciseId, sets, reps, target
   order = order === VOID ? this.order : order;
   mode = mode === VOID ? this.mode : mode;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.x3t(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.x3t.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
+  return $super === VOID ? this.y3t(id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh) : $super.y3t.call(this, id, weekday, exerciseId, sets, reps, targetRpe, order, mode, repsHigh);
 };
 protoOf(JsPlanItem).toString = function () {
   return 'JsPlanItem(id=' + this.id + ', weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', sets=' + this.sets + ', reps=' + this.reps + ', targetRpe=' + this.targetRpe + ', order=' + this.order + ', mode=' + this.mode + ', repsHigh=' + this.repsHigh + ')';
@@ -49313,13 +49357,13 @@ function JsBaseline(exerciseId, e1rmKg, date) {
   this.e1rmKg = e1rmKg;
   this.date = date;
 }
-protoOf(JsBaseline).m3l = function () {
+protoOf(JsBaseline).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsBaseline).y3t = function () {
+protoOf(JsBaseline).z3t = function () {
   return this.e1rmKg;
 };
-protoOf(JsBaseline).l3l = function () {
+protoOf(JsBaseline).m3l = function () {
   return this.date;
 };
 protoOf(JsBaseline).gb = function () {
@@ -49331,14 +49375,14 @@ protoOf(JsBaseline).hb = function () {
 protoOf(JsBaseline).tf = function () {
   return this.date;
 };
-protoOf(JsBaseline).z3t = function (exerciseId, e1rmKg, date) {
+protoOf(JsBaseline).a3u = function (exerciseId, e1rmKg, date) {
   return new JsBaseline(exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).copy = function (exerciseId, e1rmKg, date, $super) {
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   e1rmKg = e1rmKg === VOID ? this.e1rmKg : e1rmKg;
   date = date === VOID ? this.date : date;
-  return $super === VOID ? this.z3t(exerciseId, e1rmKg, date) : $super.z3t.call(this, exerciseId, e1rmKg, date);
+  return $super === VOID ? this.a3u(exerciseId, e1rmKg, date) : $super.a3u.call(this, exerciseId, e1rmKg, date);
 };
 protoOf(JsBaseline).toString = function () {
   return 'JsBaseline(exerciseId=' + this.exerciseId + ', e1rmKg=' + this.e1rmKg + ', date=' + this.date + ')';
@@ -49374,31 +49418,31 @@ function JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJs
   this.payloadJson = payloadJson;
   this.mode = mode;
 }
-protoOf(JsAdvice).f3l = function () {
+protoOf(JsAdvice).g3l = function () {
   return this.id;
 };
-protoOf(JsAdvice).a3u = function () {
+protoOf(JsAdvice).b3u = function () {
   return this.type;
 };
-protoOf(JsAdvice).k3n = function () {
+protoOf(JsAdvice).l3n = function () {
   return this.lift;
 };
-protoOf(JsAdvice).b3u = function () {
+protoOf(JsAdvice).c3u = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).c3u = function () {
+protoOf(JsAdvice).d3u = function () {
   return this.reason;
 };
-protoOf(JsAdvice).d3u = function () {
+protoOf(JsAdvice).e3u = function () {
   return this.severity;
 };
-protoOf(JsAdvice).e3u = function () {
+protoOf(JsAdvice).f3u = function () {
   return this.status;
 };
-protoOf(JsAdvice).f3u = function () {
+protoOf(JsAdvice).g3u = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).r3t = function () {
+protoOf(JsAdvice).s3t = function () {
   return this.mode;
 };
 protoOf(JsAdvice).gb = function () {
@@ -49410,25 +49454,25 @@ protoOf(JsAdvice).hb = function () {
 protoOf(JsAdvice).tf = function () {
   return this.lift;
 };
-protoOf(JsAdvice).j3l = function () {
+protoOf(JsAdvice).k3l = function () {
   return this.createdAt;
 };
-protoOf(JsAdvice).u3l = function () {
+protoOf(JsAdvice).v3l = function () {
   return this.reason;
 };
-protoOf(JsAdvice).v3l = function () {
+protoOf(JsAdvice).w3l = function () {
   return this.severity;
 };
-protoOf(JsAdvice).w3l = function () {
+protoOf(JsAdvice).x3l = function () {
   return this.status;
 };
-protoOf(JsAdvice).x3l = function () {
+protoOf(JsAdvice).y3l = function () {
   return this.payloadJson;
 };
-protoOf(JsAdvice).y3l = function () {
+protoOf(JsAdvice).z3l = function () {
   return this.mode;
 };
-protoOf(JsAdvice).g3u = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
+protoOf(JsAdvice).h3u = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode) {
   return new JsAdvice(id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, status, payloadJson, mode, $super) {
@@ -49441,7 +49485,7 @@ protoOf(JsAdvice).copy = function (id, type, lift, createdAt, reason, severity, 
   status = status === VOID ? this.status : status;
   payloadJson = payloadJson === VOID ? this.payloadJson : payloadJson;
   mode = mode === VOID ? this.mode : mode;
-  return $super === VOID ? this.g3u(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.g3u.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
+  return $super === VOID ? this.h3u(id, type, lift, createdAt, reason, severity, status, payloadJson, mode) : $super.h3u.call(this, id, type, lift, createdAt, reason, severity, status, payloadJson, mode);
 };
 protoOf(JsAdvice).toString = function () {
   return 'JsAdvice(id=' + this.id + ', type=' + this.type + ', lift=' + this.lift + ', createdAt=' + this.createdAt + ', reason=' + this.reason + ', severity=' + this.severity + ', status=' + this.status + ', payloadJson=' + this.payloadJson + ', mode=' + this.mode + ')';
@@ -49491,22 +49535,22 @@ function JsSkip(id, date, mode, exerciseId, planItemId, reason) {
   this.planItemId = planItemId;
   this.reason = reason;
 }
-protoOf(JsSkip).f3l = function () {
+protoOf(JsSkip).g3l = function () {
   return this.id;
 };
-protoOf(JsSkip).l3l = function () {
+protoOf(JsSkip).m3l = function () {
   return this.date;
 };
-protoOf(JsSkip).r3t = function () {
+protoOf(JsSkip).s3t = function () {
   return this.mode;
 };
-protoOf(JsSkip).m3l = function () {
+protoOf(JsSkip).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsSkip).h3u = function () {
+protoOf(JsSkip).i3u = function () {
   return this.planItemId;
 };
-protoOf(JsSkip).c3u = function () {
+protoOf(JsSkip).d3u = function () {
   return this.reason;
 };
 protoOf(JsSkip).gb = function () {
@@ -49518,16 +49562,16 @@ protoOf(JsSkip).hb = function () {
 protoOf(JsSkip).tf = function () {
   return this.mode;
 };
-protoOf(JsSkip).j3l = function () {
+protoOf(JsSkip).k3l = function () {
   return this.exerciseId;
 };
-protoOf(JsSkip).u3l = function () {
+protoOf(JsSkip).v3l = function () {
   return this.planItemId;
 };
-protoOf(JsSkip).v3l = function () {
+protoOf(JsSkip).w3l = function () {
   return this.reason;
 };
-protoOf(JsSkip).i3u = function (id, date, mode, exerciseId, planItemId, reason) {
+protoOf(JsSkip).j3u = function (id, date, mode, exerciseId, planItemId, reason) {
   return new JsSkip(id, date, mode, exerciseId, planItemId, reason);
 };
 protoOf(JsSkip).copy = function (id, date, mode, exerciseId, planItemId, reason, $super) {
@@ -49537,7 +49581,7 @@ protoOf(JsSkip).copy = function (id, date, mode, exerciseId, planItemId, reason,
   exerciseId = exerciseId === VOID ? this.exerciseId : exerciseId;
   planItemId = planItemId === VOID ? this.planItemId : planItemId;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.i3u(id, date, mode, exerciseId, planItemId, reason) : $super.i3u.call(this, id, date, mode, exerciseId, planItemId, reason);
+  return $super === VOID ? this.j3u(id, date, mode, exerciseId, planItemId, reason) : $super.j3u.call(this, id, date, mode, exerciseId, planItemId, reason);
 };
 protoOf(JsSkip).toString = function () {
   return 'JsSkip(id=' + this.id + ', date=' + this.date + ', mode=' + this.mode + ', exerciseId=' + this.exerciseId + ', planItemId=' + this.planItemId + ', reason=' + this.reason + ')';
@@ -49575,13 +49619,13 @@ function JsHistory(sessions, exercises, baselines) {
   this.exercises = exercises;
   this.baselines = baselines;
 }
-protoOf(JsHistory).j3u = function () {
+protoOf(JsHistory).k3u = function () {
   return this.sessions;
 };
-protoOf(JsHistory).k3u = function () {
+protoOf(JsHistory).l3u = function () {
   return this.exercises;
 };
-protoOf(JsHistory).l3u = function () {
+protoOf(JsHistory).m3u = function () {
   return this.baselines;
 };
 protoOf(JsHistory).gb = function () {
@@ -49593,14 +49637,14 @@ protoOf(JsHistory).hb = function () {
 protoOf(JsHistory).tf = function () {
   return this.baselines;
 };
-protoOf(JsHistory).m3u = function (sessions, exercises, baselines) {
+protoOf(JsHistory).n3u = function (sessions, exercises, baselines) {
   return new JsHistory(sessions, exercises, baselines);
 };
 protoOf(JsHistory).copy = function (sessions, exercises, baselines, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   exercises = exercises === VOID ? this.exercises : exercises;
   baselines = baselines === VOID ? this.baselines : baselines;
-  return $super === VOID ? this.m3u(sessions, exercises, baselines) : $super.m3u.call(this, sessions, exercises, baselines);
+  return $super === VOID ? this.n3u(sessions, exercises, baselines) : $super.n3u.call(this, sessions, exercises, baselines);
 };
 protoOf(JsHistory).toString = function () {
   return 'JsHistory(sessions=' + toString(this.sessions) + ', exercises=' + toString(this.exercises) + ', baselines=' + toString(this.baselines) + ')';
@@ -49628,10 +49672,10 @@ function JsBestSet(date, set) {
   this.date = date;
   this.set = set;
 }
-protoOf(JsBestSet).l3l = function () {
+protoOf(JsBestSet).m3l = function () {
   return this.date;
 };
-protoOf(JsBestSet).n3u = function () {
+protoOf(JsBestSet).o3u = function () {
   return this.set;
 };
 protoOf(JsBestSet).gb = function () {
@@ -49640,13 +49684,13 @@ protoOf(JsBestSet).gb = function () {
 protoOf(JsBestSet).hb = function () {
   return this.set;
 };
-protoOf(JsBestSet).o3u = function (date, set) {
+protoOf(JsBestSet).p3u = function (date, set) {
   return new JsBestSet(date, set);
 };
 protoOf(JsBestSet).copy = function (date, set, $super) {
   date = date === VOID ? this.date : date;
   set = set === VOID ? this.set : set;
-  return $super === VOID ? this.o3u(date, set) : $super.o3u.call(this, date, set);
+  return $super === VOID ? this.p3u(date, set) : $super.p3u.call(this, date, set);
 };
 protoOf(JsBestSet).toString = function () {
   return 'JsBestSet(date=' + this.date + ', set=' + this.set.toString() + ')';
@@ -49673,16 +49717,16 @@ function JsExerciseTrend(exerciseId, name, bestSets, goingUp) {
   this.bestSets = bestSets;
   this.goingUp = goingUp;
 }
-protoOf(JsExerciseTrend).m3l = function () {
+protoOf(JsExerciseTrend).n3l = function () {
   return this.exerciseId;
 };
 protoOf(JsExerciseTrend).b14 = function () {
   return this.name;
 };
-protoOf(JsExerciseTrend).p3u = function () {
+protoOf(JsExerciseTrend).q3u = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).q3u = function () {
+protoOf(JsExerciseTrend).r3u = function () {
   return this.goingUp;
 };
 protoOf(JsExerciseTrend).gb = function () {
@@ -49694,10 +49738,10 @@ protoOf(JsExerciseTrend).hb = function () {
 protoOf(JsExerciseTrend).tf = function () {
   return this.bestSets;
 };
-protoOf(JsExerciseTrend).j3l = function () {
+protoOf(JsExerciseTrend).k3l = function () {
   return this.goingUp;
 };
-protoOf(JsExerciseTrend).r3u = function (exerciseId, name, bestSets, goingUp) {
+protoOf(JsExerciseTrend).s3u = function (exerciseId, name, bestSets, goingUp) {
   return new JsExerciseTrend(exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $super) {
@@ -49705,7 +49749,7 @@ protoOf(JsExerciseTrend).copy = function (exerciseId, name, bestSets, goingUp, $
   name = name === VOID ? this.name : name;
   bestSets = bestSets === VOID ? this.bestSets : bestSets;
   goingUp = goingUp === VOID ? this.goingUp : goingUp;
-  return $super === VOID ? this.r3u(exerciseId, name, bestSets, goingUp) : $super.r3u.call(this, exerciseId, name, bestSets, goingUp);
+  return $super === VOID ? this.s3u(exerciseId, name, bestSets, goingUp) : $super.s3u.call(this, exerciseId, name, bestSets, goingUp);
 };
 protoOf(JsExerciseTrend).toString = function () {
   return 'JsExerciseTrend(exerciseId=' + this.exerciseId + ', name=' + this.name + ', bestSets=' + toString(this.bestSets) + ', goingUp=' + this.goingUp + ')';
@@ -49736,10 +49780,10 @@ function JsCoachSettings(defaultRpe, changePlates) {
   this.defaultRpe = defaultRpe;
   this.changePlates = changePlates;
 }
-protoOf(JsCoachSettings).s3u = function () {
+protoOf(JsCoachSettings).t3u = function () {
   return this.defaultRpe;
 };
-protoOf(JsCoachSettings).t3u = function () {
+protoOf(JsCoachSettings).u3u = function () {
   return this.changePlates;
 };
 protoOf(JsCoachSettings).gb = function () {
@@ -49748,13 +49792,13 @@ protoOf(JsCoachSettings).gb = function () {
 protoOf(JsCoachSettings).hb = function () {
   return this.changePlates;
 };
-protoOf(JsCoachSettings).u3u = function (defaultRpe, changePlates) {
+protoOf(JsCoachSettings).v3u = function (defaultRpe, changePlates) {
   return new JsCoachSettings(defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).copy = function (defaultRpe, changePlates, $super) {
   defaultRpe = defaultRpe === VOID ? this.defaultRpe : defaultRpe;
   changePlates = changePlates === VOID ? this.changePlates : changePlates;
-  return $super === VOID ? this.u3u(defaultRpe, changePlates) : $super.u3u.call(this, defaultRpe, changePlates);
+  return $super === VOID ? this.v3u(defaultRpe, changePlates) : $super.v3u.call(this, defaultRpe, changePlates);
 };
 protoOf(JsCoachSettings).toString = function () {
   return 'JsCoachSettings(defaultRpe=' + this.defaultRpe + ', changePlates=' + this.changePlates + ')';
@@ -49779,7 +49823,7 @@ function JsWeeklyPoint(weekStart, value) {
   this.weekStart = weekStart;
   this.value = value;
 }
-protoOf(JsWeeklyPoint).v3u = function () {
+protoOf(JsWeeklyPoint).w3u = function () {
   return this.weekStart;
 };
 protoOf(JsWeeklyPoint).v = function () {
@@ -49791,13 +49835,13 @@ protoOf(JsWeeklyPoint).gb = function () {
 protoOf(JsWeeklyPoint).hb = function () {
   return this.value;
 };
-protoOf(JsWeeklyPoint).a3m = function (weekStart, value) {
+protoOf(JsWeeklyPoint).b3m = function (weekStart, value) {
   return new JsWeeklyPoint(weekStart, value);
 };
 protoOf(JsWeeklyPoint).copy = function (weekStart, value, $super) {
   weekStart = weekStart === VOID ? this.weekStart : weekStart;
   value = value === VOID ? this.value : value;
-  return $super === VOID ? this.a3m(weekStart, value) : $super.a3m.call(this, weekStart, value);
+  return $super === VOID ? this.b3m(weekStart, value) : $super.b3m.call(this, weekStart, value);
 };
 protoOf(JsWeeklyPoint).toString = function () {
   return 'JsWeeklyPoint(weekStart=' + this.weekStart + ', value=' + this.value + ')';
@@ -49825,19 +49869,19 @@ function JsPr(date, e1rmKg, weightKg, reps, rpe) {
   this.reps = reps;
   this.rpe = rpe;
 }
-protoOf(JsPr).l3l = function () {
+protoOf(JsPr).m3l = function () {
   return this.date;
 };
-protoOf(JsPr).y3t = function () {
+protoOf(JsPr).z3t = function () {
   return this.e1rmKg;
 };
-protoOf(JsPr).o3m = function () {
+protoOf(JsPr).p3m = function () {
   return this.weightKg;
 };
-protoOf(JsPr).p3m = function () {
+protoOf(JsPr).q3m = function () {
   return this.reps;
 };
-protoOf(JsPr).q3m = function () {
+protoOf(JsPr).r3m = function () {
   return this.rpe;
 };
 protoOf(JsPr).gb = function () {
@@ -49849,13 +49893,13 @@ protoOf(JsPr).hb = function () {
 protoOf(JsPr).tf = function () {
   return this.weightKg;
 };
-protoOf(JsPr).j3l = function () {
+protoOf(JsPr).k3l = function () {
   return this.reps;
 };
-protoOf(JsPr).u3l = function () {
+protoOf(JsPr).v3l = function () {
   return this.rpe;
 };
-protoOf(JsPr).w3u = function (date, e1rmKg, weightKg, reps, rpe) {
+protoOf(JsPr).x3u = function (date, e1rmKg, weightKg, reps, rpe) {
   return new JsPr(date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
@@ -49864,7 +49908,7 @@ protoOf(JsPr).copy = function (date, e1rmKg, weightKg, reps, rpe, $super) {
   weightKg = weightKg === VOID ? this.weightKg : weightKg;
   reps = reps === VOID ? this.reps : reps;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.w3u(date, e1rmKg, weightKg, reps, rpe) : $super.w3u.call(this, date, e1rmKg, weightKg, reps, rpe);
+  return $super === VOID ? this.x3u(date, e1rmKg, weightKg, reps, rpe) : $super.x3u.call(this, date, e1rmKg, weightKg, reps, rpe);
 };
 protoOf(JsPr).toString = function () {
   return 'JsPr(date=' + this.date + ', e1rmKg=' + this.e1rmKg + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ')';
@@ -49901,7 +49945,7 @@ function JsAccessoryOption(name, heavy) {
 protoOf(JsAccessoryOption).b14 = function () {
   return this.name;
 };
-protoOf(JsAccessoryOption).x3u = function () {
+protoOf(JsAccessoryOption).y3u = function () {
   return this.heavy;
 };
 protoOf(JsAccessoryOption).gb = function () {
@@ -49910,13 +49954,13 @@ protoOf(JsAccessoryOption).gb = function () {
 protoOf(JsAccessoryOption).hb = function () {
   return this.heavy;
 };
-protoOf(JsAccessoryOption).y3u = function (name, heavy) {
+protoOf(JsAccessoryOption).z3u = function (name, heavy) {
   return new JsAccessoryOption(name, heavy);
 };
 protoOf(JsAccessoryOption).copy = function (name, heavy, $super) {
   name = name === VOID ? this.name : name;
   heavy = heavy === VOID ? this.heavy : heavy;
-  return $super === VOID ? this.y3u(name, heavy) : $super.y3u.call(this, name, heavy);
+  return $super === VOID ? this.z3u(name, heavy) : $super.z3u.call(this, name, heavy);
 };
 protoOf(JsAccessoryOption).toString = function () {
   return 'JsAccessoryOption(name=' + this.name + ', heavy=' + this.heavy + ')';
@@ -49943,13 +49987,13 @@ function JsRatioRange(numerator, denominator, low, high) {
   this.low = low;
   this.high = high;
 }
-protoOf(JsRatioRange).z3u = function () {
+protoOf(JsRatioRange).a3v = function () {
   return this.numerator;
 };
-protoOf(JsRatioRange).a3v = function () {
+protoOf(JsRatioRange).b3v = function () {
   return this.denominator;
 };
-protoOf(JsRatioRange).b3v = function () {
+protoOf(JsRatioRange).c3v = function () {
   return this.low;
 };
 protoOf(JsRatioRange).c36 = function () {
@@ -49964,10 +50008,10 @@ protoOf(JsRatioRange).hb = function () {
 protoOf(JsRatioRange).tf = function () {
   return this.low;
 };
-protoOf(JsRatioRange).j3l = function () {
+protoOf(JsRatioRange).k3l = function () {
   return this.high;
 };
-protoOf(JsRatioRange).c3v = function (numerator, denominator, low, high) {
+protoOf(JsRatioRange).d3v = function (numerator, denominator, low, high) {
   return new JsRatioRange(numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super) {
@@ -49975,7 +50019,7 @@ protoOf(JsRatioRange).copy = function (numerator, denominator, low, high, $super
   denominator = denominator === VOID ? this.denominator : denominator;
   low = low === VOID ? this.low : low;
   high = high === VOID ? this.high : high;
-  return $super === VOID ? this.c3v(numerator, denominator, low, high) : $super.c3v.call(this, numerator, denominator, low, high);
+  return $super === VOID ? this.d3v(numerator, denominator, low, high) : $super.d3v.call(this, numerator, denominator, low, high);
 };
 protoOf(JsRatioRange).toString = function () {
   return 'JsRatioRange(numerator=' + this.numerator + ', denominator=' + this.denominator + ', low=' + this.low + ', high=' + this.high + ')';
@@ -50008,16 +50052,16 @@ function JsPrescription(exerciseName, sets, repsLow, repsHigh) {
   this.repsLow = repsLow;
   this.repsHigh = repsHigh;
 }
-protoOf(JsPrescription).d3v = function () {
+protoOf(JsPrescription).e3v = function () {
   return this.exerciseName;
 };
-protoOf(JsPrescription).q3t = function () {
+protoOf(JsPrescription).r3t = function () {
   return this.sets;
 };
-protoOf(JsPrescription).e3v = function () {
+protoOf(JsPrescription).f3v = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).w3t = function () {
+protoOf(JsPrescription).x3t = function () {
   return this.repsHigh;
 };
 protoOf(JsPrescription).gb = function () {
@@ -50029,10 +50073,10 @@ protoOf(JsPrescription).hb = function () {
 protoOf(JsPrescription).tf = function () {
   return this.repsLow;
 };
-protoOf(JsPrescription).j3l = function () {
+protoOf(JsPrescription).k3l = function () {
   return this.repsHigh;
 };
-protoOf(JsPrescription).f3v = function (exerciseName, sets, repsLow, repsHigh) {
+protoOf(JsPrescription).g3v = function (exerciseName, sets, repsLow, repsHigh) {
   return new JsPrescription(exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, $super) {
@@ -50040,7 +50084,7 @@ protoOf(JsPrescription).copy = function (exerciseName, sets, repsLow, repsHigh, 
   sets = sets === VOID ? this.sets : sets;
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
-  return $super === VOID ? this.f3v(exerciseName, sets, repsLow, repsHigh) : $super.f3v.call(this, exerciseName, sets, repsLow, repsHigh);
+  return $super === VOID ? this.g3v(exerciseName, sets, repsLow, repsHigh) : $super.g3v.call(this, exerciseName, sets, repsLow, repsHigh);
 };
 protoOf(JsPrescription).toString = function () {
   return 'JsPrescription(exerciseName=' + this.exerciseName + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ')';
@@ -50074,19 +50118,19 @@ function JsSetAddition(weekday, exerciseId, name, fromSets, toSets) {
   this.fromSets = fromSets;
   this.toSets = toSets;
 }
-protoOf(JsSetAddition).t3t = function () {
+protoOf(JsSetAddition).u3t = function () {
   return this.weekday;
 };
-protoOf(JsSetAddition).m3l = function () {
+protoOf(JsSetAddition).n3l = function () {
   return this.exerciseId;
 };
 protoOf(JsSetAddition).b14 = function () {
   return this.name;
 };
-protoOf(JsSetAddition).g3v = function () {
+protoOf(JsSetAddition).h3v = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).h3v = function () {
+protoOf(JsSetAddition).i3v = function () {
   return this.toSets;
 };
 protoOf(JsSetAddition).gb = function () {
@@ -50098,13 +50142,13 @@ protoOf(JsSetAddition).hb = function () {
 protoOf(JsSetAddition).tf = function () {
   return this.name;
 };
-protoOf(JsSetAddition).j3l = function () {
+protoOf(JsSetAddition).k3l = function () {
   return this.fromSets;
 };
-protoOf(JsSetAddition).u3l = function () {
+protoOf(JsSetAddition).v3l = function () {
   return this.toSets;
 };
-protoOf(JsSetAddition).i3v = function (weekday, exerciseId, name, fromSets, toSets) {
+protoOf(JsSetAddition).j3v = function (weekday, exerciseId, name, fromSets, toSets) {
   return new JsSetAddition(weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toSets, $super) {
@@ -50113,7 +50157,7 @@ protoOf(JsSetAddition).copy = function (weekday, exerciseId, name, fromSets, toS
   name = name === VOID ? this.name : name;
   fromSets = fromSets === VOID ? this.fromSets : fromSets;
   toSets = toSets === VOID ? this.toSets : toSets;
-  return $super === VOID ? this.i3v(weekday, exerciseId, name, fromSets, toSets) : $super.i3v.call(this, weekday, exerciseId, name, fromSets, toSets);
+  return $super === VOID ? this.j3v(weekday, exerciseId, name, fromSets, toSets) : $super.j3v.call(this, weekday, exerciseId, name, fromSets, toSets);
 };
 protoOf(JsSetAddition).toString = function () {
   return 'JsSetAddition(weekday=' + this.weekday + ', exerciseId=' + this.exerciseId + ', name=' + this.name + ', fromSets=' + this.fromSets + ', toSets=' + this.toSets + ')';
@@ -50151,22 +50195,22 @@ function JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe) {
   this.repsHigh = repsHigh;
   this.rpe = rpe;
 }
-protoOf(JsNewExercise).t3t = function () {
+protoOf(JsNewExercise).u3t = function () {
   return this.weekday;
 };
 protoOf(JsNewExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsNewExercise).q3t = function () {
+protoOf(JsNewExercise).r3t = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).e3v = function () {
+protoOf(JsNewExercise).f3v = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).w3t = function () {
+protoOf(JsNewExercise).x3t = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).q3m = function () {
+protoOf(JsNewExercise).r3m = function () {
   return this.rpe;
 };
 protoOf(JsNewExercise).gb = function () {
@@ -50178,16 +50222,16 @@ protoOf(JsNewExercise).hb = function () {
 protoOf(JsNewExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsNewExercise).j3l = function () {
+protoOf(JsNewExercise).k3l = function () {
   return this.repsLow;
 };
-protoOf(JsNewExercise).u3l = function () {
+protoOf(JsNewExercise).v3l = function () {
   return this.repsHigh;
 };
-protoOf(JsNewExercise).v3l = function () {
+protoOf(JsNewExercise).w3l = function () {
   return this.rpe;
 };
-protoOf(JsNewExercise).j3v = function (weekday, name, sets, repsLow, repsHigh, rpe) {
+protoOf(JsNewExercise).k3v = function (weekday, name, sets, repsLow, repsHigh, rpe) {
   return new JsNewExercise(weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, rpe, $super) {
@@ -50197,7 +50241,7 @@ protoOf(JsNewExercise).copy = function (weekday, name, sets, repsLow, repsHigh, 
   repsLow = repsLow === VOID ? this.repsLow : repsLow;
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
   rpe = rpe === VOID ? this.rpe : rpe;
-  return $super === VOID ? this.j3v(weekday, name, sets, repsLow, repsHigh, rpe) : $super.j3v.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
+  return $super === VOID ? this.k3v(weekday, name, sets, repsLow, repsHigh, rpe) : $super.k3v.call(this, weekday, name, sets, repsLow, repsHigh, rpe);
 };
 protoOf(JsNewExercise).toString = function () {
   return 'JsNewExercise(weekday=' + this.weekday + ', name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ')';
@@ -50299,67 +50343,67 @@ function JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, vol
 protoOf(JsAdvicePayload).yi = function () {
   return this.kind;
 };
-protoOf(JsAdvicePayload).m3l = function () {
+protoOf(JsAdvicePayload).n3l = function () {
   return this.exerciseId;
 };
-protoOf(JsAdvicePayload).o3m = function () {
+protoOf(JsAdvicePayload).p3m = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).p3m = function () {
+protoOf(JsAdvicePayload).q3m = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).q3m = function () {
+protoOf(JsAdvicePayload).r3m = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).q3t = function () {
+protoOf(JsAdvicePayload).r3t = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).k3v = function () {
+protoOf(JsAdvicePayload).l3v = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).l3v = function () {
+protoOf(JsAdvicePayload).m3v = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).m3v = function () {
+protoOf(JsAdvicePayload).n3v = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).k3n = function () {
+protoOf(JsAdvicePayload).l3n = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).l3t = function () {
+protoOf(JsAdvicePayload).m3t = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).w3t = function () {
+protoOf(JsAdvicePayload).x3t = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).n3v = function () {
+protoOf(JsAdvicePayload).o3v = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).o3v = function () {
+protoOf(JsAdvicePayload).p3v = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).p3v = function () {
+protoOf(JsAdvicePayload).q3v = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).q3v = function () {
+protoOf(JsAdvicePayload).r3v = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).r3v = function () {
+protoOf(JsAdvicePayload).s3v = function () {
   return this.weeklyAfter;
 };
 protoOf(JsAdvicePayload).b14 = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).s3v = function () {
+protoOf(JsAdvicePayload).t3v = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).t3v = function () {
+protoOf(JsAdvicePayload).u3v = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).u3v = function () {
+protoOf(JsAdvicePayload).v3v = function () {
   return this.skipId;
 };
-protoOf(JsAdvicePayload).v3v = function () {
+protoOf(JsAdvicePayload).w3v = function () {
   return this.skipReason;
 };
 protoOf(JsAdvicePayload).gb = function () {
@@ -50371,64 +50415,64 @@ protoOf(JsAdvicePayload).hb = function () {
 protoOf(JsAdvicePayload).tf = function () {
   return this.weightKg;
 };
-protoOf(JsAdvicePayload).j3l = function () {
+protoOf(JsAdvicePayload).k3l = function () {
   return this.reps;
 };
-protoOf(JsAdvicePayload).u3l = function () {
+protoOf(JsAdvicePayload).v3l = function () {
   return this.rpe;
 };
-protoOf(JsAdvicePayload).v3l = function () {
+protoOf(JsAdvicePayload).w3l = function () {
   return this.sets;
 };
-protoOf(JsAdvicePayload).w3l = function () {
+protoOf(JsAdvicePayload).x3l = function () {
   return this.items;
 };
-protoOf(JsAdvicePayload).x3l = function () {
+protoOf(JsAdvicePayload).y3l = function () {
   return this.volumeFactor;
 };
-protoOf(JsAdvicePayload).y3l = function () {
+protoOf(JsAdvicePayload).z3l = function () {
   return this.loadFactor;
 };
-protoOf(JsAdvicePayload).p3q = function () {
+protoOf(JsAdvicePayload).q3q = function () {
   return this.lift;
 };
-protoOf(JsAdvicePayload).q3q = function () {
+protoOf(JsAdvicePayload).r3q = function () {
   return this.missPoint;
 };
-protoOf(JsAdvicePayload).r3q = function () {
+protoOf(JsAdvicePayload).s3q = function () {
   return this.repsHigh;
 };
-protoOf(JsAdvicePayload).s3q = function () {
+protoOf(JsAdvicePayload).t3q = function () {
   return this.group;
 };
-protoOf(JsAdvicePayload).t3q = function () {
+protoOf(JsAdvicePayload).u3q = function () {
   return this.addSets;
 };
-protoOf(JsAdvicePayload).u3q = function () {
+protoOf(JsAdvicePayload).v3q = function () {
   return this.newExercise;
 };
-protoOf(JsAdvicePayload).v3q = function () {
+protoOf(JsAdvicePayload).w3q = function () {
   return this.weeklyBefore;
 };
-protoOf(JsAdvicePayload).w3q = function () {
+protoOf(JsAdvicePayload).x3q = function () {
   return this.weeklyAfter;
 };
-protoOf(JsAdvicePayload).x3q = function () {
+protoOf(JsAdvicePayload).y3q = function () {
   return this.name;
 };
-protoOf(JsAdvicePayload).y3q = function () {
+protoOf(JsAdvicePayload).z3q = function () {
   return this.since;
 };
-protoOf(JsAdvicePayload).z3q = function () {
+protoOf(JsAdvicePayload).a3r = function () {
   return this.alternatives;
 };
-protoOf(JsAdvicePayload).a3r = function () {
+protoOf(JsAdvicePayload).b3r = function () {
   return this.skipId;
 };
-protoOf(JsAdvicePayload).b3r = function () {
+protoOf(JsAdvicePayload).c3r = function () {
   return this.skipReason;
 };
-protoOf(JsAdvicePayload).w3v = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) {
+protoOf(JsAdvicePayload).x3v = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) {
   return new JsAdvicePayload(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
 };
 protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason, $super) {
@@ -50454,7 +50498,7 @@ protoOf(JsAdvicePayload).copy = function (kind, exerciseId, weightKg, reps, rpe,
   alternatives = alternatives === VOID ? this.alternatives : alternatives;
   skipId = skipId === VOID ? this.skipId : skipId;
   skipReason = skipReason === VOID ? this.skipReason : skipReason;
-  return $super === VOID ? this.w3v(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) : $super.w3v.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
+  return $super === VOID ? this.x3v(kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason) : $super.x3v.call(this, kind, exerciseId, weightKg, reps, rpe, sets, items, volumeFactor, loadFactor, lift, missPoint, repsHigh, group, addSets, newExercise, weeklyBefore, weeklyAfter, name, since, alternatives, skipId, skipReason);
 };
 protoOf(JsAdvicePayload).toString = function () {
   return 'JsAdvicePayload(kind=' + this.kind + ', exerciseId=' + this.exerciseId + ', weightKg=' + this.weightKg + ', reps=' + this.reps + ', rpe=' + this.rpe + ', sets=' + this.sets + ', items=' + toString(this.items) + ', volumeFactor=' + this.volumeFactor + ', loadFactor=' + this.loadFactor + ', lift=' + this.lift + ', missPoint=' + this.missPoint + ', repsHigh=' + this.repsHigh + ', group=' + this.group + ', addSets=' + toString(this.addSets) + ', newExercise=' + toString_1(this.newExercise) + ', weeklyBefore=' + this.weeklyBefore + ', weeklyAfter=' + this.weeklyAfter + ', name=' + this.name + ', since=' + this.since + ', alternatives=' + toString(this.alternatives) + ', skipId=' + this.skipId + ', skipReason=' + this.skipReason + ')';
@@ -50542,16 +50586,16 @@ function JsCheckIn(date, lagging, growingWell, id) {
   this.growingWell = growingWell;
   this.id = id;
 }
-protoOf(JsCheckIn).l3l = function () {
+protoOf(JsCheckIn).m3l = function () {
   return this.date;
 };
-protoOf(JsCheckIn).x3v = function () {
+protoOf(JsCheckIn).y3v = function () {
   return this.lagging;
 };
-protoOf(JsCheckIn).y3v = function () {
+protoOf(JsCheckIn).z3v = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).f3l = function () {
+protoOf(JsCheckIn).g3l = function () {
   return this.id;
 };
 protoOf(JsCheckIn).gb = function () {
@@ -50563,10 +50607,10 @@ protoOf(JsCheckIn).hb = function () {
 protoOf(JsCheckIn).tf = function () {
   return this.growingWell;
 };
-protoOf(JsCheckIn).j3l = function () {
+protoOf(JsCheckIn).k3l = function () {
   return this.id;
 };
-protoOf(JsCheckIn).z3v = function (date, lagging, growingWell, id) {
+protoOf(JsCheckIn).a3w = function (date, lagging, growingWell, id) {
   return new JsCheckIn(date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
@@ -50574,7 +50618,7 @@ protoOf(JsCheckIn).copy = function (date, lagging, growingWell, id, $super) {
   lagging = lagging === VOID ? this.lagging : lagging;
   growingWell = growingWell === VOID ? this.growingWell : growingWell;
   id = id === VOID ? this.id : id;
-  return $super === VOID ? this.z3v(date, lagging, growingWell, id) : $super.z3v.call(this, date, lagging, growingWell, id);
+  return $super === VOID ? this.a3w(date, lagging, growingWell, id) : $super.a3w.call(this, date, lagging, growingWell, id);
 };
 protoOf(JsCheckIn).toString = function () {
   return 'JsCheckIn(date=' + this.date + ', lagging=' + toString(this.lagging) + ', growingWell=' + toString(this.growingWell) + ', id=' + this.id + ')';
@@ -50606,13 +50650,13 @@ function JsGroupNote(group, reason, weeklySets) {
   this.reason = reason;
   this.weeklySets = weeklySets;
 }
-protoOf(JsGroupNote).n3v = function () {
+protoOf(JsGroupNote).o3v = function () {
   return this.group;
 };
-protoOf(JsGroupNote).c3u = function () {
+protoOf(JsGroupNote).d3u = function () {
   return this.reason;
 };
-protoOf(JsGroupNote).a3w = function () {
+protoOf(JsGroupNote).b3w = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupNote).gb = function () {
@@ -50624,14 +50668,14 @@ protoOf(JsGroupNote).hb = function () {
 protoOf(JsGroupNote).tf = function () {
   return this.weeklySets;
 };
-protoOf(JsGroupNote).b3w = function (group, reason, weeklySets) {
+protoOf(JsGroupNote).c3w = function (group, reason, weeklySets) {
   return new JsGroupNote(group, reason, weeklySets);
 };
 protoOf(JsGroupNote).copy = function (group, reason, weeklySets, $super) {
   group = group === VOID ? this.group : group;
   reason = reason === VOID ? this.reason : reason;
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
-  return $super === VOID ? this.b3w(group, reason, weeklySets) : $super.b3w.call(this, group, reason, weeklySets);
+  return $super === VOID ? this.c3w(group, reason, weeklySets) : $super.c3w.call(this, group, reason, weeklySets);
 };
 protoOf(JsGroupNote).toString = function () {
   return 'JsGroupNote(group=' + this.group + ', reason=' + this.reason + ', weeklySets=' + this.weeklySets + ')';
@@ -50660,13 +50704,13 @@ function JsCheckInOutcome(advice, notes, dismissed) {
   this.notes = notes;
   this.dismissed = dismissed;
 }
-protoOf(JsCheckInOutcome).c3w = function () {
+protoOf(JsCheckInOutcome).d3w = function () {
   return this.advice;
 };
-protoOf(JsCheckInOutcome).d3w = function () {
+protoOf(JsCheckInOutcome).e3w = function () {
   return this.notes;
 };
-protoOf(JsCheckInOutcome).e3w = function () {
+protoOf(JsCheckInOutcome).f3w = function () {
   return this.dismissed;
 };
 protoOf(JsCheckInOutcome).gb = function () {
@@ -50678,14 +50722,14 @@ protoOf(JsCheckInOutcome).hb = function () {
 protoOf(JsCheckInOutcome).tf = function () {
   return this.dismissed;
 };
-protoOf(JsCheckInOutcome).f3w = function (advice, notes, dismissed) {
+protoOf(JsCheckInOutcome).g3w = function (advice, notes, dismissed) {
   return new JsCheckInOutcome(advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).copy = function (advice, notes, dismissed, $super) {
   advice = advice === VOID ? this.advice : advice;
   notes = notes === VOID ? this.notes : notes;
   dismissed = dismissed === VOID ? this.dismissed : dismissed;
-  return $super === VOID ? this.f3w(advice, notes, dismissed) : $super.f3w.call(this, advice, notes, dismissed);
+  return $super === VOID ? this.g3w(advice, notes, dismissed) : $super.g3w.call(this, advice, notes, dismissed);
 };
 protoOf(JsCheckInOutcome).toString = function () {
   return 'JsCheckInOutcome(advice=' + toString(this.advice) + ', notes=' + toString(this.notes) + ', dismissed=' + toString(this.dismissed) + ')';
@@ -50713,7 +50757,7 @@ function JsAddedPlanItem(item, name) {
   this.item = item;
   this.name = name;
 }
-protoOf(JsAddedPlanItem).g3w = function () {
+protoOf(JsAddedPlanItem).h3w = function () {
   return this.item;
 };
 protoOf(JsAddedPlanItem).b14 = function () {
@@ -50725,13 +50769,13 @@ protoOf(JsAddedPlanItem).gb = function () {
 protoOf(JsAddedPlanItem).hb = function () {
   return this.name;
 };
-protoOf(JsAddedPlanItem).h3w = function (item, name) {
+protoOf(JsAddedPlanItem).i3w = function (item, name) {
   return new JsAddedPlanItem(item, name);
 };
 protoOf(JsAddedPlanItem).copy = function (item, name, $super) {
   item = item === VOID ? this.item : item;
   name = name === VOID ? this.name : name;
-  return $super === VOID ? this.h3w(item, name) : $super.h3w.call(this, item, name);
+  return $super === VOID ? this.i3w(item, name) : $super.i3w.call(this, item, name);
 };
 protoOf(JsAddedPlanItem).toString = function () {
   return 'JsAddedPlanItem(item=' + this.item.toString() + ', name=' + this.name + ')';
@@ -50759,19 +50803,19 @@ function JsPlanChange(updated, removed, added, message, changed) {
   this.message = message;
   this.changed = changed;
 }
-protoOf(JsPlanChange).i3w = function () {
+protoOf(JsPlanChange).j3w = function () {
   return this.updated;
 };
-protoOf(JsPlanChange).j3w = function () {
+protoOf(JsPlanChange).k3w = function () {
   return this.removed;
 };
-protoOf(JsPlanChange).k3w = function () {
+protoOf(JsPlanChange).l3w = function () {
   return this.added;
 };
 protoOf(JsPlanChange).l8 = function () {
   return this.message;
 };
-protoOf(JsPlanChange).l3w = function () {
+protoOf(JsPlanChange).m3w = function () {
   return this.changed;
 };
 protoOf(JsPlanChange).gb = function () {
@@ -50783,13 +50827,13 @@ protoOf(JsPlanChange).hb = function () {
 protoOf(JsPlanChange).tf = function () {
   return this.added;
 };
-protoOf(JsPlanChange).j3l = function () {
+protoOf(JsPlanChange).k3l = function () {
   return this.message;
 };
-protoOf(JsPlanChange).u3l = function () {
+protoOf(JsPlanChange).v3l = function () {
   return this.changed;
 };
-protoOf(JsPlanChange).m3w = function (updated, removed, added, message, changed) {
+protoOf(JsPlanChange).n3w = function (updated, removed, added, message, changed) {
   return new JsPlanChange(updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed, $super) {
@@ -50798,7 +50842,7 @@ protoOf(JsPlanChange).copy = function (updated, removed, added, message, changed
   added = added === VOID ? this.added : added;
   message = message === VOID ? this.message : message;
   changed = changed === VOID ? this.changed : changed;
-  return $super === VOID ? this.m3w(updated, removed, added, message, changed) : $super.m3w.call(this, updated, removed, added, message, changed);
+  return $super === VOID ? this.n3w(updated, removed, added, message, changed) : $super.n3w.call(this, updated, removed, added, message, changed);
 };
 protoOf(JsPlanChange).toString = function () {
   return 'JsPlanChange(updated=' + toString(this.updated) + ', removed=' + toString(this.removed) + ', added=' + toString(this.added) + ', message=' + this.message + ', changed=' + this.changed + ')';
@@ -50832,10 +50876,10 @@ function JsRating(date, rating) {
   this.date = date;
   this.rating = rating;
 }
-protoOf(JsRating).l3l = function () {
+protoOf(JsRating).m3l = function () {
   return this.date;
 };
-protoOf(JsRating).n3w = function () {
+protoOf(JsRating).o3w = function () {
   return this.rating;
 };
 protoOf(JsRating).gb = function () {
@@ -50844,13 +50888,13 @@ protoOf(JsRating).gb = function () {
 protoOf(JsRating).hb = function () {
   return this.rating;
 };
-protoOf(JsRating).o3w = function (date, rating) {
+protoOf(JsRating).p3w = function (date, rating) {
   return new JsRating(date, rating);
 };
 protoOf(JsRating).copy = function (date, rating, $super) {
   date = date === VOID ? this.date : date;
   rating = rating === VOID ? this.rating : rating;
-  return $super === VOID ? this.o3w(date, rating) : $super.o3w.call(this, date, rating);
+  return $super === VOID ? this.p3w(date, rating) : $super.p3w.call(this, date, rating);
 };
 protoOf(JsRating).toString = function () {
   return 'JsRating(date=' + this.date + ', rating=' + this.rating + ')';
@@ -50879,22 +50923,22 @@ function JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercis
   this.exercisesUp = exercisesUp;
   this.exercisesTracked = exercisesTracked;
 }
-protoOf(JsMuscleRow).n3v = function () {
+protoOf(JsMuscleRow).o3v = function () {
   return this.group;
 };
-protoOf(JsMuscleRow).p3w = function () {
+protoOf(JsMuscleRow).q3w = function () {
   return this.ratings;
 };
-protoOf(JsMuscleRow).q3w = function () {
+protoOf(JsMuscleRow).r3w = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).r3w = function () {
+protoOf(JsMuscleRow).s3w = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).s3w = function () {
+protoOf(JsMuscleRow).t3w = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).t3w = function () {
+protoOf(JsMuscleRow).u3w = function () {
   return this.exercisesTracked;
 };
 protoOf(JsMuscleRow).gb = function () {
@@ -50906,16 +50950,16 @@ protoOf(JsMuscleRow).hb = function () {
 protoOf(JsMuscleRow).tf = function () {
   return this.setsDone;
 };
-protoOf(JsMuscleRow).j3l = function () {
+protoOf(JsMuscleRow).k3l = function () {
   return this.setsPlanned;
 };
-protoOf(JsMuscleRow).u3l = function () {
+protoOf(JsMuscleRow).v3l = function () {
   return this.exercisesUp;
 };
-protoOf(JsMuscleRow).v3l = function () {
+protoOf(JsMuscleRow).w3l = function () {
   return this.exercisesTracked;
 };
-protoOf(JsMuscleRow).u3w = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
+protoOf(JsMuscleRow).v3w = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) {
   return new JsMuscleRow(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked, $super) {
@@ -50925,7 +50969,7 @@ protoOf(JsMuscleRow).copy = function (group, ratings, setsDone, setsPlanned, exe
   setsPlanned = setsPlanned === VOID ? this.setsPlanned : setsPlanned;
   exercisesUp = exercisesUp === VOID ? this.exercisesUp : exercisesUp;
   exercisesTracked = exercisesTracked === VOID ? this.exercisesTracked : exercisesTracked;
-  return $super === VOID ? this.u3w(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.u3w.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
+  return $super === VOID ? this.v3w(group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked) : $super.v3w.call(this, group, ratings, setsDone, setsPlanned, exercisesUp, exercisesTracked);
 };
 protoOf(JsMuscleRow).toString = function () {
   return 'JsMuscleRow(group=' + this.group + ', ratings=' + toString(this.ratings) + ', setsDone=' + this.setsDone + ', setsPlanned=' + this.setsPlanned + ', exercisesUp=' + this.exercisesUp + ', exercisesTracked=' + this.exercisesTracked + ')';
@@ -50965,19 +51009,19 @@ function JsFormGuide(purpose, setup, steps, cues, mistakes) {
   this.cues = cues;
   this.mistakes = mistakes;
 }
-protoOf(JsFormGuide).v3w = function () {
+protoOf(JsFormGuide).w3w = function () {
   return this.purpose;
 };
-protoOf(JsFormGuide).w3w = function () {
+protoOf(JsFormGuide).x3w = function () {
   return this.setup;
 };
-protoOf(JsFormGuide).x3w = function () {
+protoOf(JsFormGuide).y3w = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).y3w = function () {
+protoOf(JsFormGuide).z3w = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).z3w = function () {
+protoOf(JsFormGuide).a3x = function () {
   return this.mistakes;
 };
 protoOf(JsFormGuide).gb = function () {
@@ -50989,13 +51033,13 @@ protoOf(JsFormGuide).hb = function () {
 protoOf(JsFormGuide).tf = function () {
   return this.steps;
 };
-protoOf(JsFormGuide).j3l = function () {
+protoOf(JsFormGuide).k3l = function () {
   return this.cues;
 };
-protoOf(JsFormGuide).u3l = function () {
+protoOf(JsFormGuide).v3l = function () {
   return this.mistakes;
 };
-protoOf(JsFormGuide).a3x = function (purpose, setup, steps, cues, mistakes) {
+protoOf(JsFormGuide).b3x = function (purpose, setup, steps, cues, mistakes) {
   return new JsFormGuide(purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $super) {
@@ -51004,7 +51048,7 @@ protoOf(JsFormGuide).copy = function (purpose, setup, steps, cues, mistakes, $su
   steps = steps === VOID ? this.steps : steps;
   cues = cues === VOID ? this.cues : cues;
   mistakes = mistakes === VOID ? this.mistakes : mistakes;
-  return $super === VOID ? this.a3x(purpose, setup, steps, cues, mistakes) : $super.a3x.call(this, purpose, setup, steps, cues, mistakes);
+  return $super === VOID ? this.b3x(purpose, setup, steps, cues, mistakes) : $super.b3x.call(this, purpose, setup, steps, cues, mistakes);
 };
 protoOf(JsFormGuide).toString = function () {
   return 'JsFormGuide(purpose=' + this.purpose + ', setup=' + toString(this.setup) + ', steps=' + toString(this.steps) + ', cues=' + toString(this.cues) + ', mistakes=' + toString(this.mistakes) + ')';
@@ -51039,13 +51083,13 @@ function JsMuscleFocus(stretch, squeeze, none) {
   this.squeeze = squeeze;
   this.none = none;
 }
-protoOf(JsMuscleFocus).b3x = function () {
+protoOf(JsMuscleFocus).c3x = function () {
   return this.stretch;
 };
-protoOf(JsMuscleFocus).c3x = function () {
+protoOf(JsMuscleFocus).d3x = function () {
   return this.squeeze;
 };
-protoOf(JsMuscleFocus).d3x = function () {
+protoOf(JsMuscleFocus).e3x = function () {
   return this.none;
 };
 protoOf(JsMuscleFocus).gb = function () {
@@ -51057,14 +51101,14 @@ protoOf(JsMuscleFocus).hb = function () {
 protoOf(JsMuscleFocus).tf = function () {
   return this.none;
 };
-protoOf(JsMuscleFocus).e3x = function (stretch, squeeze, none) {
+protoOf(JsMuscleFocus).f3x = function (stretch, squeeze, none) {
   return new JsMuscleFocus(stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).copy = function (stretch, squeeze, none, $super) {
   stretch = stretch === VOID ? this.stretch : stretch;
   squeeze = squeeze === VOID ? this.squeeze : squeeze;
   none = none === VOID ? this.none : none;
-  return $super === VOID ? this.e3x(stretch, squeeze, none) : $super.e3x.call(this, stretch, squeeze, none);
+  return $super === VOID ? this.f3x(stretch, squeeze, none) : $super.f3x.call(this, stretch, squeeze, none);
 };
 protoOf(JsMuscleFocus).toString = function () {
   return 'JsMuscleFocus(stretch=' + this.stretch + ', squeeze=' + this.squeeze + ', none=' + this.none + ')';
@@ -51092,10 +51136,10 @@ function JsRpeGuide(title, lines) {
   this.title = title;
   this.lines = lines;
 }
-protoOf(JsRpeGuide).g3l = function () {
+protoOf(JsRpeGuide).h3l = function () {
   return this.title;
 };
-protoOf(JsRpeGuide).h3l = function () {
+protoOf(JsRpeGuide).i3l = function () {
   return this.lines;
 };
 protoOf(JsRpeGuide).gb = function () {
@@ -51104,13 +51148,13 @@ protoOf(JsRpeGuide).gb = function () {
 protoOf(JsRpeGuide).hb = function () {
   return this.lines;
 };
-protoOf(JsRpeGuide).e3l = function (title, lines) {
+protoOf(JsRpeGuide).f3l = function (title, lines) {
   return new JsRpeGuide(title, lines);
 };
 protoOf(JsRpeGuide).copy = function (title, lines, $super) {
   title = title === VOID ? this.title : title;
   lines = lines === VOID ? this.lines : lines;
-  return $super === VOID ? this.e3l(title, lines) : $super.e3l.call(this, title, lines);
+  return $super === VOID ? this.f3l(title, lines) : $super.f3l.call(this, title, lines);
 };
 protoOf(JsRpeGuide).toString = function () {
   return 'JsRpeGuide(title=' + this.title + ', lines=' + toString(this.lines) + ')';
@@ -51145,28 +51189,28 @@ function JsLibraryExercise(name, aliases, area, equipment, muscles, kind, catego
 protoOf(JsLibraryExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsLibraryExercise).f3x = function () {
+protoOf(JsLibraryExercise).g3x = function () {
   return this.aliases;
 };
-protoOf(JsLibraryExercise).g3x = function () {
+protoOf(JsLibraryExercise).h3x = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).h3x = function () {
+protoOf(JsLibraryExercise).i3x = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).g3t = function () {
+protoOf(JsLibraryExercise).h3t = function () {
   return this.muscles;
 };
 protoOf(JsLibraryExercise).yi = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).e3t = function () {
+protoOf(JsLibraryExercise).f3t = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).f3t = function () {
+protoOf(JsLibraryExercise).g3t = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).i3x = function () {
+protoOf(JsLibraryExercise).j3x = function () {
   return this.guide;
 };
 protoOf(JsLibraryExercise).gb = function () {
@@ -51178,25 +51222,25 @@ protoOf(JsLibraryExercise).hb = function () {
 protoOf(JsLibraryExercise).tf = function () {
   return this.area;
 };
-protoOf(JsLibraryExercise).j3l = function () {
+protoOf(JsLibraryExercise).k3l = function () {
   return this.equipment;
 };
-protoOf(JsLibraryExercise).u3l = function () {
+protoOf(JsLibraryExercise).v3l = function () {
   return this.muscles;
 };
-protoOf(JsLibraryExercise).v3l = function () {
+protoOf(JsLibraryExercise).w3l = function () {
   return this.kind;
 };
-protoOf(JsLibraryExercise).w3l = function () {
+protoOf(JsLibraryExercise).x3l = function () {
   return this.category;
 };
-protoOf(JsLibraryExercise).x3l = function () {
+protoOf(JsLibraryExercise).y3l = function () {
   return this.parentLift;
 };
-protoOf(JsLibraryExercise).y3l = function () {
+protoOf(JsLibraryExercise).z3l = function () {
   return this.guide;
 };
-protoOf(JsLibraryExercise).j3x = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
+protoOf(JsLibraryExercise).k3x = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide) {
   return new JsLibraryExercise(name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, muscles, kind, category, parentLift, guide, $super) {
@@ -51209,7 +51253,7 @@ protoOf(JsLibraryExercise).copy = function (name, aliases, area, equipment, musc
   category = category === VOID ? this.category : category;
   parentLift = parentLift === VOID ? this.parentLift : parentLift;
   guide = guide === VOID ? this.guide : guide;
-  return $super === VOID ? this.j3x(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.j3x.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
+  return $super === VOID ? this.k3x(name, aliases, area, equipment, muscles, kind, category, parentLift, guide) : $super.k3x.call(this, name, aliases, area, equipment, muscles, kind, category, parentLift, guide);
 };
 protoOf(JsLibraryExercise).toString = function () {
   return 'JsLibraryExercise(name=' + this.name + ', aliases=' + toString(this.aliases) + ', area=' + this.area + ', equipment=' + toString(this.equipment) + ', muscles=' + toString(this.muscles) + ', kind=' + this.kind + ', category=' + this.category + ', parentLift=' + this.parentLift + ', guide=' + this.guide.toString() + ')';
@@ -51261,16 +51305,16 @@ function JsBuilderPick(name, muscles, compound, equipment, inCatalogue) {
 protoOf(JsBuilderPick).b14 = function () {
   return this.name;
 };
-protoOf(JsBuilderPick).g3t = function () {
+protoOf(JsBuilderPick).h3t = function () {
   return this.muscles;
 };
-protoOf(JsBuilderPick).k3x = function () {
+protoOf(JsBuilderPick).l3x = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).h3x = function () {
+protoOf(JsBuilderPick).i3x = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).l3x = function () {
+protoOf(JsBuilderPick).m3x = function () {
   return this.inCatalogue;
 };
 protoOf(JsBuilderPick).gb = function () {
@@ -51282,13 +51326,13 @@ protoOf(JsBuilderPick).hb = function () {
 protoOf(JsBuilderPick).tf = function () {
   return this.compound;
 };
-protoOf(JsBuilderPick).j3l = function () {
+protoOf(JsBuilderPick).k3l = function () {
   return this.equipment;
 };
-protoOf(JsBuilderPick).u3l = function () {
+protoOf(JsBuilderPick).v3l = function () {
   return this.inCatalogue;
 };
-protoOf(JsBuilderPick).m3x = function (name, muscles, compound, equipment, inCatalogue) {
+protoOf(JsBuilderPick).n3x = function (name, muscles, compound, equipment, inCatalogue) {
   return new JsBuilderPick(name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCatalogue, $super) {
@@ -51297,7 +51341,7 @@ protoOf(JsBuilderPick).copy = function (name, muscles, compound, equipment, inCa
   compound = compound === VOID ? this.compound : compound;
   equipment = equipment === VOID ? this.equipment : equipment;
   inCatalogue = inCatalogue === VOID ? this.inCatalogue : inCatalogue;
-  return $super === VOID ? this.m3x(name, muscles, compound, equipment, inCatalogue) : $super.m3x.call(this, name, muscles, compound, equipment, inCatalogue);
+  return $super === VOID ? this.n3x(name, muscles, compound, equipment, inCatalogue) : $super.n3x.call(this, name, muscles, compound, equipment, inCatalogue);
 };
 protoOf(JsBuilderPick).toString = function () {
   return 'JsBuilderPick(name=' + this.name + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', equipment=' + toString(this.equipment) + ', inCatalogue=' + this.inCatalogue + ')';
@@ -51343,34 +51387,34 @@ function JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGr
 protoOf(JsDraftExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsDraftExercise).l3x = function () {
+protoOf(JsDraftExercise).m3x = function () {
   return this.inCatalogue;
 };
-protoOf(JsDraftExercise).q3t = function () {
+protoOf(JsDraftExercise).r3t = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).e3v = function () {
+protoOf(JsDraftExercise).f3v = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).w3t = function () {
+protoOf(JsDraftExercise).x3t = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).q3m = function () {
+protoOf(JsDraftExercise).r3m = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).n3x = function () {
+protoOf(JsDraftExercise).o3x = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).g3t = function () {
+protoOf(JsDraftExercise).h3t = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).k3x = function () {
+protoOf(JsDraftExercise).l3x = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).o3x = function () {
+protoOf(JsDraftExercise).p3x = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).p3x = function () {
+protoOf(JsDraftExercise).q3x = function () {
   return this.lead;
 };
 protoOf(JsDraftExercise).gb = function () {
@@ -51382,31 +51426,31 @@ protoOf(JsDraftExercise).hb = function () {
 protoOf(JsDraftExercise).tf = function () {
   return this.sets;
 };
-protoOf(JsDraftExercise).j3l = function () {
+protoOf(JsDraftExercise).k3l = function () {
   return this.repsLow;
 };
-protoOf(JsDraftExercise).u3l = function () {
+protoOf(JsDraftExercise).v3l = function () {
   return this.repsHigh;
 };
-protoOf(JsDraftExercise).v3l = function () {
+protoOf(JsDraftExercise).w3l = function () {
   return this.rpe;
 };
-protoOf(JsDraftExercise).w3l = function () {
+protoOf(JsDraftExercise).x3l = function () {
   return this.mainGroup;
 };
-protoOf(JsDraftExercise).x3l = function () {
+protoOf(JsDraftExercise).y3l = function () {
   return this.muscles;
 };
-protoOf(JsDraftExercise).y3l = function () {
+protoOf(JsDraftExercise).z3l = function () {
   return this.compound;
 };
-protoOf(JsDraftExercise).p3q = function () {
+protoOf(JsDraftExercise).q3q = function () {
   return this.slot;
 };
-protoOf(JsDraftExercise).q3q = function () {
+protoOf(JsDraftExercise).r3q = function () {
   return this.lead;
 };
-protoOf(JsDraftExercise).q3x = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
+protoOf(JsDraftExercise).r3x = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) {
   return new JsDraftExercise(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead, $super) {
@@ -51421,7 +51465,7 @@ protoOf(JsDraftExercise).copy = function (name, inCatalogue, sets, repsLow, reps
   compound = compound === VOID ? this.compound : compound;
   slot = slot === VOID ? this.slot : slot;
   lead = lead === VOID ? this.lead : lead;
-  return $super === VOID ? this.q3x(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.q3x.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
+  return $super === VOID ? this.r3x(name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead) : $super.r3x.call(this, name, inCatalogue, sets, repsLow, repsHigh, rpe, mainGroup, muscles, compound, slot, lead);
 };
 protoOf(JsDraftExercise).toString = function () {
   return 'JsDraftExercise(name=' + this.name + ', inCatalogue=' + this.inCatalogue + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', mainGroup=' + this.mainGroup + ', muscles=' + toString(this.muscles) + ', compound=' + this.compound + ', slot=' + this.slot + ', lead=' + this.lead + ')';
@@ -51477,10 +51521,10 @@ function JsDraftSession(day, title, exercises) {
 protoOf(JsDraftSession).j11 = function () {
   return this.day;
 };
-protoOf(JsDraftSession).g3l = function () {
+protoOf(JsDraftSession).h3l = function () {
   return this.title;
 };
-protoOf(JsDraftSession).k3u = function () {
+protoOf(JsDraftSession).l3u = function () {
   return this.exercises;
 };
 protoOf(JsDraftSession).gb = function () {
@@ -51492,14 +51536,14 @@ protoOf(JsDraftSession).hb = function () {
 protoOf(JsDraftSession).tf = function () {
   return this.exercises;
 };
-protoOf(JsDraftSession).r3x = function (day, title, exercises) {
+protoOf(JsDraftSession).s3x = function (day, title, exercises) {
   return new JsDraftSession(day, title, exercises);
 };
 protoOf(JsDraftSession).copy = function (day, title, exercises, $super) {
   day = day === VOID ? this.day : day;
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.r3x(day, title, exercises) : $super.r3x.call(this, day, title, exercises);
+  return $super === VOID ? this.s3x(day, title, exercises) : $super.s3x.call(this, day, title, exercises);
 };
 protoOf(JsDraftSession).toString = function () {
   return 'JsDraftSession(day=' + this.day + ', title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -51529,16 +51573,16 @@ function JsGroupVolume(group, weeklySets, days, short) {
   this.days = days;
   this.short = short;
 }
-protoOf(JsGroupVolume).n3v = function () {
+protoOf(JsGroupVolume).o3v = function () {
   return this.group;
 };
-protoOf(JsGroupVolume).a3w = function () {
+protoOf(JsGroupVolume).b3w = function () {
   return this.weeklySets;
 };
 protoOf(JsGroupVolume).hy = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).s3x = function () {
+protoOf(JsGroupVolume).t3x = function () {
   return this.short;
 };
 protoOf(JsGroupVolume).gb = function () {
@@ -51550,10 +51594,10 @@ protoOf(JsGroupVolume).hb = function () {
 protoOf(JsGroupVolume).tf = function () {
   return this.days;
 };
-protoOf(JsGroupVolume).j3l = function () {
+protoOf(JsGroupVolume).k3l = function () {
   return this.short;
 };
-protoOf(JsGroupVolume).t3x = function (group, weeklySets, days, short) {
+protoOf(JsGroupVolume).u3x = function (group, weeklySets, days, short) {
   return new JsGroupVolume(group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) {
@@ -51561,7 +51605,7 @@ protoOf(JsGroupVolume).copy = function (group, weeklySets, days, short, $super) 
   weeklySets = weeklySets === VOID ? this.weeklySets : weeklySets;
   days = days === VOID ? this.days : days;
   short = short === VOID ? this.short : short;
-  return $super === VOID ? this.t3x(group, weeklySets, days, short) : $super.t3x.call(this, group, weeklySets, days, short);
+  return $super === VOID ? this.u3x(group, weeklySets, days, short) : $super.u3x.call(this, group, weeklySets, days, short);
 };
 protoOf(JsGroupVolume).toString = function () {
   return 'JsGroupVolume(group=' + this.group + ', weeklySets=' + this.weeklySets + ', days=' + this.days + ', short=' + this.short + ')';
@@ -51595,7 +51639,7 @@ function JsLeftOut(name, reason) {
 protoOf(JsLeftOut).b14 = function () {
   return this.name;
 };
-protoOf(JsLeftOut).c3u = function () {
+protoOf(JsLeftOut).d3u = function () {
   return this.reason;
 };
 protoOf(JsLeftOut).gb = function () {
@@ -51604,13 +51648,13 @@ protoOf(JsLeftOut).gb = function () {
 protoOf(JsLeftOut).hb = function () {
   return this.reason;
 };
-protoOf(JsLeftOut).o3w = function (name, reason) {
+protoOf(JsLeftOut).p3w = function (name, reason) {
   return new JsLeftOut(name, reason);
 };
 protoOf(JsLeftOut).copy = function (name, reason, $super) {
   name = name === VOID ? this.name : name;
   reason = reason === VOID ? this.reason : reason;
-  return $super === VOID ? this.o3w(name, reason) : $super.o3w.call(this, name, reason);
+  return $super === VOID ? this.p3w(name, reason) : $super.p3w.call(this, name, reason);
 };
 protoOf(JsLeftOut).toString = function () {
   return 'JsLeftOut(name=' + this.name + ', reason=' + this.reason + ')';
@@ -51636,13 +51680,13 @@ function JsPlanDraft(sessions, volume, leftOut) {
   this.volume = volume;
   this.leftOut = leftOut;
 }
-protoOf(JsPlanDraft).j3u = function () {
+protoOf(JsPlanDraft).k3u = function () {
   return this.sessions;
 };
-protoOf(JsPlanDraft).u3x = function () {
+protoOf(JsPlanDraft).v3x = function () {
   return this.volume;
 };
-protoOf(JsPlanDraft).v3x = function () {
+protoOf(JsPlanDraft).w3x = function () {
   return this.leftOut;
 };
 protoOf(JsPlanDraft).gb = function () {
@@ -51654,14 +51698,14 @@ protoOf(JsPlanDraft).hb = function () {
 protoOf(JsPlanDraft).tf = function () {
   return this.leftOut;
 };
-protoOf(JsPlanDraft).w3x = function (sessions, volume, leftOut) {
+protoOf(JsPlanDraft).x3x = function (sessions, volume, leftOut) {
   return new JsPlanDraft(sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).copy = function (sessions, volume, leftOut, $super) {
   sessions = sessions === VOID ? this.sessions : sessions;
   volume = volume === VOID ? this.volume : volume;
   leftOut = leftOut === VOID ? this.leftOut : leftOut;
-  return $super === VOID ? this.w3x(sessions, volume, leftOut) : $super.w3x.call(this, sessions, volume, leftOut);
+  return $super === VOID ? this.x3x(sessions, volume, leftOut) : $super.x3x.call(this, sessions, volume, leftOut);
 };
 protoOf(JsPlanDraft).toString = function () {
   return 'JsPlanDraft(sessions=' + toString(this.sessions) + ', volume=' + toString(this.volume) + ', leftOut=' + toString(this.leftOut) + ')';
@@ -51696,19 +51740,19 @@ function JsTemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPr
 protoOf(JsTemplateExercise).b14 = function () {
   return this.name;
 };
-protoOf(JsTemplateExercise).q3t = function () {
+protoOf(JsTemplateExercise).r3t = function () {
   return this.sets;
 };
-protoOf(JsTemplateExercise).e3v = function () {
+protoOf(JsTemplateExercise).f3v = function () {
   return this.repsLow;
 };
-protoOf(JsTemplateExercise).w3t = function () {
+protoOf(JsTemplateExercise).x3t = function () {
   return this.repsHigh;
 };
-protoOf(JsTemplateExercise).q3m = function () {
+protoOf(JsTemplateExercise).r3m = function () {
   return this.rpe;
 };
-protoOf(JsTemplateExercise).x3x = function () {
+protoOf(JsTemplateExercise).y3x = function () {
   return this.onlyWithStrictPress;
 };
 protoOf(JsTemplateExercise).gb = function () {
@@ -51720,16 +51764,16 @@ protoOf(JsTemplateExercise).hb = function () {
 protoOf(JsTemplateExercise).tf = function () {
   return this.repsLow;
 };
-protoOf(JsTemplateExercise).j3l = function () {
+protoOf(JsTemplateExercise).k3l = function () {
   return this.repsHigh;
 };
-protoOf(JsTemplateExercise).u3l = function () {
+protoOf(JsTemplateExercise).v3l = function () {
   return this.rpe;
 };
-protoOf(JsTemplateExercise).v3l = function () {
+protoOf(JsTemplateExercise).w3l = function () {
   return this.onlyWithStrictPress;
 };
-protoOf(JsTemplateExercise).y3x = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
+protoOf(JsTemplateExercise).z3x = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) {
   return new JsTemplateExercise(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
 };
 protoOf(JsTemplateExercise).copy = function (name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress, $super) {
@@ -51739,7 +51783,7 @@ protoOf(JsTemplateExercise).copy = function (name, sets, repsLow, repsHigh, rpe,
   repsHigh = repsHigh === VOID ? this.repsHigh : repsHigh;
   rpe = rpe === VOID ? this.rpe : rpe;
   onlyWithStrictPress = onlyWithStrictPress === VOID ? this.onlyWithStrictPress : onlyWithStrictPress;
-  return $super === VOID ? this.y3x(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) : $super.y3x.call(this, name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
+  return $super === VOID ? this.z3x(name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress) : $super.z3x.call(this, name, sets, repsLow, repsHigh, rpe, onlyWithStrictPress);
 };
 protoOf(JsTemplateExercise).toString = function () {
   return 'JsTemplateExercise(name=' + this.name + ', sets=' + this.sets + ', repsLow=' + this.repsLow + ', repsHigh=' + this.repsHigh + ', rpe=' + this.rpe + ', onlyWithStrictPress=' + this.onlyWithStrictPress + ')';
@@ -51776,10 +51820,10 @@ function JsTemplateSession(title, exercises) {
   this.title = title;
   this.exercises = exercises;
 }
-protoOf(JsTemplateSession).g3l = function () {
+protoOf(JsTemplateSession).h3l = function () {
   return this.title;
 };
-protoOf(JsTemplateSession).k3u = function () {
+protoOf(JsTemplateSession).l3u = function () {
   return this.exercises;
 };
 protoOf(JsTemplateSession).gb = function () {
@@ -51788,13 +51832,13 @@ protoOf(JsTemplateSession).gb = function () {
 protoOf(JsTemplateSession).hb = function () {
   return this.exercises;
 };
-protoOf(JsTemplateSession).z3x = function (title, exercises) {
+protoOf(JsTemplateSession).a3y = function (title, exercises) {
   return new JsTemplateSession(title, exercises);
 };
 protoOf(JsTemplateSession).copy = function (title, exercises, $super) {
   title = title === VOID ? this.title : title;
   exercises = exercises === VOID ? this.exercises : exercises;
-  return $super === VOID ? this.z3x(title, exercises) : $super.z3x.call(this, title, exercises);
+  return $super === VOID ? this.a3y(title, exercises) : $super.a3y.call(this, title, exercises);
 };
 protoOf(JsTemplateSession).toString = function () {
   return 'JsTemplateSession(title=' + this.title + ', exercises=' + toString(this.exercises) + ')';
@@ -51823,22 +51867,22 @@ function JsPlanTemplate(id, mode, name, suits, dayCount, sessions) {
   this.dayCount = dayCount;
   this.sessions = sessions;
 }
-protoOf(JsPlanTemplate).f3l = function () {
+protoOf(JsPlanTemplate).g3l = function () {
   return this.id;
 };
-protoOf(JsPlanTemplate).r3t = function () {
+protoOf(JsPlanTemplate).s3t = function () {
   return this.mode;
 };
 protoOf(JsPlanTemplate).b14 = function () {
   return this.name;
 };
-protoOf(JsPlanTemplate).a3y = function () {
+protoOf(JsPlanTemplate).b3y = function () {
   return this.suits;
 };
 protoOf(JsPlanTemplate).p22 = function () {
   return this.dayCount;
 };
-protoOf(JsPlanTemplate).j3u = function () {
+protoOf(JsPlanTemplate).k3u = function () {
   return this.sessions;
 };
 protoOf(JsPlanTemplate).gb = function () {
@@ -51850,16 +51894,16 @@ protoOf(JsPlanTemplate).hb = function () {
 protoOf(JsPlanTemplate).tf = function () {
   return this.name;
 };
-protoOf(JsPlanTemplate).j3l = function () {
+protoOf(JsPlanTemplate).k3l = function () {
   return this.suits;
 };
-protoOf(JsPlanTemplate).u3l = function () {
+protoOf(JsPlanTemplate).v3l = function () {
   return this.dayCount;
 };
-protoOf(JsPlanTemplate).v3l = function () {
+protoOf(JsPlanTemplate).w3l = function () {
   return this.sessions;
 };
-protoOf(JsPlanTemplate).b3y = function (id, mode, name, suits, dayCount, sessions) {
+protoOf(JsPlanTemplate).c3y = function (id, mode, name, suits, dayCount, sessions) {
   return new JsPlanTemplate(id, mode, name, suits, dayCount, sessions);
 };
 protoOf(JsPlanTemplate).copy = function (id, mode, name, suits, dayCount, sessions, $super) {
@@ -51869,7 +51913,7 @@ protoOf(JsPlanTemplate).copy = function (id, mode, name, suits, dayCount, sessio
   suits = suits === VOID ? this.suits : suits;
   dayCount = dayCount === VOID ? this.dayCount : dayCount;
   sessions = sessions === VOID ? this.sessions : sessions;
-  return $super === VOID ? this.b3y(id, mode, name, suits, dayCount, sessions) : $super.b3y.call(this, id, mode, name, suits, dayCount, sessions);
+  return $super === VOID ? this.c3y(id, mode, name, suits, dayCount, sessions) : $super.c3y.call(this, id, mode, name, suits, dayCount, sessions);
 };
 protoOf(JsPlanTemplate).toString = function () {
   return 'JsPlanTemplate(id=' + this.id + ', mode=' + this.mode + ', name=' + this.name + ', suits=' + this.suits + ', dayCount=' + this.dayCount + ', sessions=' + toString(this.sessions) + ')';
@@ -51908,16 +51952,16 @@ function JsFigureInfo(startCaption, endCaption, thumbnail, viewBox) {
   this.thumbnail = thumbnail;
   this.viewBox = viewBox;
 }
-protoOf(JsFigureInfo).c3y = function () {
+protoOf(JsFigureInfo).d3y = function () {
   return this.startCaption;
 };
-protoOf(JsFigureInfo).d3y = function () {
+protoOf(JsFigureInfo).e3y = function () {
   return this.endCaption;
 };
-protoOf(JsFigureInfo).e3y = function () {
+protoOf(JsFigureInfo).f3y = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).f3y = function () {
+protoOf(JsFigureInfo).g3y = function () {
   return this.viewBox;
 };
 protoOf(JsFigureInfo).gb = function () {
@@ -51929,10 +51973,10 @@ protoOf(JsFigureInfo).hb = function () {
 protoOf(JsFigureInfo).tf = function () {
   return this.thumbnail;
 };
-protoOf(JsFigureInfo).j3l = function () {
+protoOf(JsFigureInfo).k3l = function () {
   return this.viewBox;
 };
-protoOf(JsFigureInfo).g3y = function (startCaption, endCaption, thumbnail, viewBox) {
+protoOf(JsFigureInfo).h3y = function (startCaption, endCaption, thumbnail, viewBox) {
   return new JsFigureInfo(startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, viewBox, $super) {
@@ -51940,7 +51984,7 @@ protoOf(JsFigureInfo).copy = function (startCaption, endCaption, thumbnail, view
   endCaption = endCaption === VOID ? this.endCaption : endCaption;
   thumbnail = thumbnail === VOID ? this.thumbnail : thumbnail;
   viewBox = viewBox === VOID ? this.viewBox : viewBox;
-  return $super === VOID ? this.g3y(startCaption, endCaption, thumbnail, viewBox) : $super.g3y.call(this, startCaption, endCaption, thumbnail, viewBox);
+  return $super === VOID ? this.h3y(startCaption, endCaption, thumbnail, viewBox) : $super.h3y.call(this, startCaption, endCaption, thumbnail, viewBox);
 };
 protoOf(JsFigureInfo).toString = function () {
   return 'JsFigureInfo(startCaption=' + this.startCaption + ', endCaption=' + this.endCaption + ', thumbnail=' + this.thumbnail + ', viewBox=' + toString(this.viewBox) + ')';
@@ -51974,7 +52018,7 @@ function JsFigureShape(kind, role) {
 protoOf(JsFigureShape).yi = function () {
   return this.kind;
 };
-protoOf(JsFigureShape).h3y = function () {
+protoOf(JsFigureShape).i3y = function () {
   return this.role;
 };
 function JsFigureCircle(role, cx, cy, r) {
@@ -51983,13 +52027,13 @@ function JsFigureCircle(role, cx, cy, r) {
   this.cy = cy;
   this.r = r;
 }
-protoOf(JsFigureCircle).l3p = function () {
+protoOf(JsFigureCircle).m3p = function () {
   return this.cx;
 };
-protoOf(JsFigureCircle).m3p = function () {
+protoOf(JsFigureCircle).n3p = function () {
   return this.cy;
 };
-protoOf(JsFigureCircle).x3o = function () {
+protoOf(JsFigureCircle).y3o = function () {
   return this.r;
 };
 function JsFigureCapsule(role, x1, y1, x2, y2, width) {
@@ -52000,16 +52044,16 @@ function JsFigureCapsule(role, x1, y1, x2, y2, width) {
   this.y2 = y2;
   this.width = width;
 }
-protoOf(JsFigureCapsule).m3o = function () {
+protoOf(JsFigureCapsule).n3o = function () {
   return this.x1;
 };
-protoOf(JsFigureCapsule).n3o = function () {
+protoOf(JsFigureCapsule).o3o = function () {
   return this.y1;
 };
-protoOf(JsFigureCapsule).o3o = function () {
+protoOf(JsFigureCapsule).p3o = function () {
   return this.x2;
 };
-protoOf(JsFigureCapsule).p3o = function () {
+protoOf(JsFigureCapsule).q3o = function () {
   return this.y2;
 };
 protoOf(JsFigureCapsule).c2q = function () {
@@ -52023,16 +52067,16 @@ function JsFigureRect(role, x, y, w, h, radius) {
   this.h = h;
   this.radius = radius;
 }
-protoOf(JsFigureRect).e3n = function () {
+protoOf(JsFigureRect).f3n = function () {
   return this.x;
 };
-protoOf(JsFigureRect).f3n = function () {
+protoOf(JsFigureRect).g3n = function () {
   return this.y;
 };
-protoOf(JsFigureRect).v3m = function () {
+protoOf(JsFigureRect).w3m = function () {
   return this.w;
 };
-protoOf(JsFigureRect).w3m = function () {
+protoOf(JsFigureRect).x3m = function () {
   return this.h;
 };
 protoOf(JsFigureRect).s30 = function () {
@@ -52042,7 +52086,7 @@ function JsFigurePolygon(role, points) {
   JsFigureShape.call(this, 'polygon', role);
   this.points = points;
 }
-protoOf(JsFigurePolygon).c3m = function () {
+protoOf(JsFigurePolygon).d3m = function () {
   return this.points;
 };
 function toFacadeId(_this__u8e3s4, field) {

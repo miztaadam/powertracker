@@ -97,6 +97,14 @@
   border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
+/* A lift with a best (1.16.1): its name, then "Best e1RM …" under it. A row without one keeps its single name. */
+.plan-best-text {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
 /* The dialogs. */
 
 .plan-form {
