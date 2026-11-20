@@ -148,14 +148,16 @@ export function tickDots(enters: string[], targets: FlipTarget[], phone: HTMLEle
   return ticks
 }
 
-/** Where each control a step can stand for pressing is drawn (the domain's `GuideTap` names). */
-const TAP_SELECTORS: Record<string, string> = {
+/** Where Today's control a step can stand for pressing is drawn (the domain's `GuideTap` names). */
+export const TODAY_TAP_SELECTORS: Record<string, string> = {
   LOG_SET: '.today-item .today-log .gr-btn-primary',
 }
 
-/** The box of the control `tap` in the picture drawn in `screen`, in `phone`'s space: one read. Null if not drawn. */
-export function tapTarget(tap: string, screen: HTMLElement, phone: HTMLElement, scale: number): FlipBox | null {
-  const selector = TAP_SELECTORS[tap]
+/**
+ * The box of the control `tap` in the picture drawn in `screen`, in `phone`'s space: one read. Null if not drawn.
+ * `selector` is where the picture draws it (by default Today's).
+ */
+export function tapTarget(tap: string, screen: HTMLElement, phone: HTMLElement, scale: number, selector: string | undefined = TODAY_TAP_SELECTORS[tap]): FlipBox | null {
   const el = selector == null ? null : screen.querySelector<HTMLElement>(selector)
   if (el == null) return null
   return readBoxes([{ key: tap, el, parent: null }], phone, scale).get(tap)!
@@ -168,10 +170,11 @@ export type RingRun = { seek: (ms: number) => void; finish: () => void }
  * Starts the tap ring on a control drawn at `box`, paused at its start, in `ghosts` (over the screen, taking nothing).
  * Null where the page cannot animate (it would only sit there).
  */
-export function startRing(ghosts: HTMLElement, box: FlipBox, tapMs: number): RingRun | null {
+export function startRing(ghosts: HTMLElement, box: FlipBox, tapMs: number, ink: 'accent-ink' | 'accent-text' = 'accent-ink'): RingRun | null {
   const ring = document.createElement('div')
   if (typeof ring.animate !== 'function') return null
-  ring.className = 'guide-tap-ring'
+  // In the pressed control's own ink: a filled button's, or the accent text of a card or an outlined button.
+  ring.className = ink === 'accent-text' ? 'guide-tap-ring guide-tap-ring-text' : 'guide-tap-ring'
   ring.style.left = `${box.x + box.width / 2 - RING.sizePx / 2}px`
   ring.style.top = `${box.y + box.height / 2 - RING.sizePx / 2}px`
   ring.style.width = `${RING.sizePx}px`
@@ -218,6 +221,7 @@ export function startFlip(
   ghosts: HTMLElement | null,
   timing: FlipTiming,
   ticks: FlipTick[] = [],
+  rises: (key: string) => boolean = (key) => key === 'skipped',
 ): FlipRun {
   const byKey = new Map(after.map((t) => [t.key, t.el]))
   const animations: Animation[] = []
@@ -240,8 +244,8 @@ export function startFlip(
   const delayOf = (key: string) => (plan.crossFades.includes(key) ? 0 : enterDelay)
   for (const key of plan.enters) {
     const el = byKey.get(key)
-    // The "Skipped today" line rises as it fades in.
-    const frames: Keyframe[] = key === 'skipped' ? [{ opacity: 0, transform: `translateY(${RISE_PX}px)` }, { opacity: 1, transform: 'none' }] : [{ opacity: 0 }, { opacity: 1 }]
+    // The "Skipped today" line (and what else the picture says) rises as it fades in.
+    const frames: Keyframe[] = rises(key) ? [{ opacity: 0, transform: `translateY(${RISE_PX}px)` }, { opacity: 1, transform: 'none' }] : [{ opacity: 0 }, { opacity: 1 }]
     if (el) add(el, frames, timing.fadeMs, 'linear', delayOf(key))
   }
   // A set logged in the step: its tick plays as its row comes in, and is over when the move is. A stand-in draws it

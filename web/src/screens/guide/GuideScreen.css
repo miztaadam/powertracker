@@ -138,6 +138,11 @@
   border-radius: 50%;
 }
 
+/* A ring on a card or an outlined button (screen 3's template and Swap): the side's accent text. */
+.guide-tap-ring-text {
+  border-color: var(--accent-text);
+}
+
 .guide-picture-screen {
   height: 100%;
   pointer-events: none;
@@ -224,4 +229,178 @@
 /* Focused only so a screen reader starts at it when the guide opens: not a control, so no ring. */
 .guide-title:focus {
   outline: none;
+}
+
+/* A picture drawn on a screen with a bar at its foot (screen 3's draft): the phone's screen is its scrollport. */
+.guide-scrollport {
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+ * One phone size on every outlined screen (spec point 11). Unseen copies of those screens' texts, and of the second
+ * button under the controls, are laid out here as the pages lay them out, each from the top, for one measure.
+ */
+.guide-pages {
+  position: relative;
+}
+
+.guide-measure {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.guide-measure-page,
+.guide-measure-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 0 var(--space-5);
+}
+
+.guide-measure-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* An outlined screen: its picture's place is one height, set from the measure; the text above takes the rest and scrolls. */
+.guide-page-outlined .guide-text {
+  flex: 1 1 0;
+}
+
+.guide-page-outlined .guide-art {
+  flex: none;
+}
+
+.guide-example-unseen {
+  visibility: hidden;
+}
+
+/* WELCOME and SIDE: art that is no screen of the app, filling the picture's place with no outline. */
+.guide-picture-art {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: none;
+  container-type: size;
+}
+
+/*
+ * Each side in its own colours, whichever side the guide is in (the tokens of tokens.css; a unit test keeps them
+ * equal): its background, surface, hairline and accent.
+ */
+.guide-side-powerlifting {
+  --side-bg: #0b0c0e;
+  --side-surface: #131518;
+  --side-hairline: #262a30;
+  --side-accent: #93979d;
+}
+
+.guide-side-bodybuilding {
+  --side-bg: #070b14;
+  --side-surface: #0d1422;
+  --side-hairline: #1e2a44;
+  --side-accent: #8db8ff;
+}
+
+@media (prefers-color-scheme: light) {
+  .guide-side-powerlifting {
+    --side-bg: #f4f4f0;
+    --side-surface: #ffffff;
+    --side-hairline: #e0e0d9;
+    --side-accent: #4a4d52;
+  }
+
+  .guide-side-bodybuilding {
+    --side-bg: #edf2fa;
+    --side-surface: #ffffff;
+    --side-hairline: #d0dcee;
+    --side-accent: #1f4fa8;
+  }
+}
+
+/* Screen 1: the mark, then under it the two sides' colours. */
+.guide-welcome {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.guide-mark {
+  width: min(50cqw, 40cqh);
+  height: min(50cqw, 40cqh);
+  border-radius: 25%;
+  overflow: hidden;
+}
+
+.guide-welcome-sides {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* A side's colours: a plain swatch, its name under it as a caption. Not a button: no shape of one, no raise, no press. */
+.guide-side-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.guide-side-panel-swatch {
+  width: min(calc((100cqw - var(--space-4)) / 2), 30cqh);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--side-bg);
+  border: 1px solid var(--side-hairline);
+}
+
+.guide-side-panel-swatch::after {
+  content: '';
+  width: 50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--side-accent);
+}
+
+.guide-side-panel-name {
+  color: var(--text);
+}
+
+/* Screen 2: the hammer and the pump, side by side, as large as the place allows with their names under them. */
+.guide-side-loop {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.guide-side-motion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: min(calc((100cqw - var(--space-4)) / 2), calc((100cqh - 40px) * var(--side-ratio, 0.75)));
+}
+
+.guide-side-box {
+  width: 100%;
+  aspect-ratio: var(--side-ratio, 0.75);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--side-surface);
+}
+
+.guide-side-box svg {
+  display: block;
 }

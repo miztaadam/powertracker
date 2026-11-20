@@ -4,8 +4,8 @@ import { grit, type JsGuideScreen } from '../../domain'
 import { cx } from '../../ui/components/format'
 import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '../../ui/components/icons'
 import { Pill } from '../../ui/components/Pill'
-import { GuidePicture } from './GuidePictures'
-import { BACK, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, lastButtons, sideName } from './guideLabels'
+import { GuidePicture, isOutlined } from './GuidePictures'
+import { BACK, EXAMPLE, GUIDE_LABEL, NEXT, SEE_MY_PLAN, SKIP, dotsLabel, lastButtons, sideName } from './guideLabels'
 import './GuideScreen.css'
 
 export { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, pictureDescription } from './guideLabels'
@@ -26,6 +26,11 @@ export type GuideClock = {
    * when it mounted; standing still while not `playing`.
    */
   useElapsed: (steps: readonly string[], playing: boolean) => number
+  /**
+   * A held time for a picture with a loop of its own (screen 2, whose one step settles at once): it draws that moment
+   * and runs nothing. Absent on the real clock: the picture runs its own loop.
+   */
+  heldLoopMs?: number
 }
 
 /** The step whose motion (its tap ring, then its move) a picture is in or past at `t` ms; `starts` from `guideMotionStartMs`. */
@@ -109,7 +114,7 @@ export const tickingGuideClock: GuideClock = {
 
 /** A clock a test moves by hand: every picture is `ms` into its steps (held within them). */
 export function heldGuideClock(ms: number): GuideClock {
-  return { useElapsed: (steps) => Math.max(0, Math.min(ms, grit.guideDoneMs(steps.length))) }
+  return { useElapsed: (steps) => Math.max(0, Math.min(ms, grit.guideDoneMs(steps.length))), heldLoopMs: ms }
 }
 
 /** A held clock with every picture at step `index`, settled. */
@@ -180,7 +185,8 @@ function SideButtons({ mode, onPick }: { mode: TrainingMode; onPick: (mode: Trai
  * One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. Keyed by
  * screen, so its picture starts from the first step each time it is shown; its steps are worked out only once shown.
  */
-function GuidePage({ id, mode, motionOn, clock, focusTitle, below }: { id: string; mode: TrainingMode; motionOn: boolean; clock: GuideClock; focusTitle: boolean; below?: ReactNode }) {
+function GuidePage({ id, mode, motionOn, clock, focusTitle, below, artHeight }: { id: string; mode: TrainingMode; motionOn: boolean; clock: GuideClock; focusTitle: boolean; below?: ReactNode; artHeight: number | null }) {
+  const outlined = isOutlined(id)
   const screen: JsGuideScreen = useMemo(() => grit.guideScreen(id, mode), [id, mode])
   const titleRef = useRef<HTMLHeadingElement>(null)
   // The first screen's title takes the focus as the guide opens (what opened it has gone); later screens leave it on
@@ -197,7 +203,7 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle, below }: { id: strin
   const next = frame == null ? undefined : steps[frame.stepIndex + 1]
   const nextTap = next == null ? null : (grit.guideTap(next) ?? null)
   return (
-    <div className="guide-page">
+    <div className={cx('guide-page', outlined && artHeight != null && 'guide-page-outlined')}>
       {/* The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest. */}
       <div className="guide-text">
         <h1 className="guide-title headline-medium" data-testid="guide-title" tabIndex={-1} ref={titleRef}>
@@ -209,14 +215,76 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle, below }: { id: strin
           </p>
         ))}
       </div>
-      <div className="guide-art">
+      {/* On the outlined screens the picture's place is one height (spec point 11): the text above takes the rest, and scrolls. */}
+      <div className="guide-art" style={outlined && artHeight != null ? { height: `${artHeight}px` } : undefined}>
         {screen.example && (
           <span className="guide-example" data-testid="guide-example">
             <Pill text={EXAMPLE} />
           </span>
         )}
-        <GuidePicture id={id} mode={mode} frame={frame} moveMs={frame == null ? 0 : t - grit.guideStepStartMs(frame.stepIndex)} motionOn={motionOn} nextTap={nextTap} />
+        {/* An outlined screen with no label keeps its place, unseen, so its phone is the size of the others'. */}
+        {!screen.example && outlined && (
+          <span className="guide-example guide-example-unseen" aria-hidden="true">
+            <Pill text={EXAMPLE} />
+          </span>
+        )}
+        <GuidePicture id={id} mode={mode} frame={frame} moveMs={frame == null ? 0 : t - grit.guideStepStartMs(frame.stepIndex)} motionOn={motionOn} nextTap={nextTap} heldLoopMs={clock.heldLoopMs} />
         {below}
+      </div>
+    </div>
+  )
+}
+
+/** The screens whose picture is a drawn phone in its outline, worked out once. */
+const OUTLINED = (screens: readonly string[]) => screens.filter(isOutlined)
+
+/**
+ * What every outlined screen leaves its picture (spec point 11): the guide's pages' height, less the tallest text of the
+ * outlined screens on either side, less the room of the second button under the controls while it is not shown (screen
+ * 8's See my plan, or Build my plan), so the phone is one size on every such page and side. Measured from unseen copies
+ * of those texts and of that button, laid out as the pages lay them out; read when the pages' size changes (a resize, a
+ * rotation, the second button coming or going), never per step. Null until first measured, and where nothing can
+ * observe a size (jsdom): the pictures then simply take what their text leaves.
+ */
+function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly string[]; secondShown: boolean; onArt: (height: number | null) => void }) {
+  const host = useRef<HTMLDivElement>(null)
+  const shown = useRef(secondShown)
+  shown.current = secondShown
+  const texts = useMemo(() => (['POWERLIFTING', 'BODYBUILDING'] as const).flatMap((side) => OUTLINED(screens).map((id) => grit.guideScreen(id, side))), [screens])
+  useEffect(() => {
+    const el = host.current
+    if (el == null || typeof ResizeObserver === 'undefined') return
+    const measure = () => {
+      const tallest = Math.max(0, ...[...el.querySelectorAll<HTMLElement>('.guide-text')].map((t) => t.offsetHeight))
+      const button = el.querySelector<HTMLElement>('.guide-btn')?.offsetHeight ?? 0
+      const gap = parseFloat(getComputedStyle(el.querySelector<HTMLElement>('.guide-measure-controls')!).rowGap) || 0
+      const room = shown.current ? 0 : button + gap
+      onArt(Math.max(0, Math.floor(el.clientHeight - tallest - room)))
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [onArt])
+  return (
+    <div className="guide-measure" ref={host} aria-hidden="true">
+      {texts.map((screen, i) => (
+        <div key={i} className="guide-measure-page">
+          <div className="guide-text">
+            <h1 className="guide-title headline-medium">{screen.title}</h1>
+            {screen.lines.map((line) => (
+              <p key={line.text} className="guide-line body-large">
+                {line.text}
+              </p>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="guide-measure-controls">
+        <span className="gr-btn label-large gr-btn-secondary guide-btn guide-wide">
+          <span className="gr-btn-face">
+            <span className="gr-btn-text">{SEE_MY_PLAN}</span>
+          </span>
+        </span>
       </div>
     </div>
   )
@@ -254,6 +322,8 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
   }, [])
 
   const buttons = lastButtons(mode, hasPlan)
+  const [artHeight, setArtHeight] = useState<number | null>(null)
+  const secondShown = last && buttons.secondary != null
   const go = (to: number) => setIndex(Math.max(0, Math.min(screens.length - 1, to)))
   const start = useRef<{ x: number; y: number } | null>(null)
 
@@ -283,6 +353,7 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
           start.current = null
         }}
       >
+        <OutlineMeasure screens={screens} secondShown={secondShown} onArt={setArtHeight} />
         {/* Keyed by screen: a new page starts its picture from the first step, and slides in with motion on. */}
         <GuidePage
           key={id}
@@ -291,6 +362,7 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
           motionOn={motionOn}
           clock={clock}
           focusTitle={opening.current}
+          artHeight={artHeight}
           below={firstLaunch && id === 'SIDE' ? <SideButtons mode={mode} onPick={(side) => side !== mode && onPickSide(side)} /> : undefined}
         />
       </div>

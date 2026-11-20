@@ -42,6 +42,14 @@ export const dotsLabel = (index: number, count: number) => `Screen ${index + 1} 
 
 /** What a screen reader hears for a picture, the one thing of it in the accessibility tree. Only built pictures have one. */
 const PICTURE_DESCRIPTIONS: Partial<Record<string, string>> = {
+  // The same words as Android's (GuidePictures.kt).
+  WELCOME: 'The Grit mark, then the colours of its two sides, powerlifting and bodybuilding.',
+  SIDE: 'The hammer of the powerlifting side and the pump of the bodybuilding side, side by side.',
+  PLAN: 'Example of the Plan screen: a 3-day template is chosen, its weekdays are picked, one exercise is swapped, then the week is saved.',
+  TARGETS: "Example of the coach's target for one lift, session after session.",
+  HOLDS_BACK: 'Example of the Coach screen: its cards for when it holds back, one after another.',
+  MONTHS_LATER: 'Example of the Progress screen months later: the weeks fill in and the bests climb.',
+  YOUR_TURN: 'The Plan screen as it opens on a new plan, ready for a template.',
   TODAY: 'Example of the Today screen: a set’s weight, reps and effort are put in and the set is ticked, then an exercise is skipped.',
 }
 

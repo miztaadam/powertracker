@@ -25,7 +25,10 @@ const picture = (page: Page) => page.getByTestId('guide-picture')
 const FRAME_MS = 17
 
 /** Opens Grit on the sample Wednesday, on `side`, then the guide on screen 4 through Next (nothing else opens it yet). */
-async function openGuideOnToday(page: Page, side: Side) {
+const openGuideOnToday = (page: Page, side: Side) => openGuideOn(page, side, 'TODAY')
+
+/** Opens Grit on the sample Wednesday, on `side`, then the guide (a replay) on screen `id` through Next. */
+async function openGuideOn(page: Page, side: Side, id: string) {
   await page.clock.setFixedTime(WEDNESDAY)
   await page.goto('/#/today')
   await expect(tabBar(page)).toBeVisible()
@@ -52,8 +55,8 @@ async function openGuideOnToday(page: Page, side: Side) {
   })
   await expect(page.getByTestId('guide')).toBeVisible()
   const screens = grit.guideScreens()
-  for (let i = 0; i < screens.indexOf('TODAY'); i++) await page.getByTestId('guide-next').click()
-  await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen('TODAY', side).title)
+  for (let i = 0; i < screens.indexOf(id); i++) await page.getByTestId('guide-next').click()
+  await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, side).title)
 }
 
 async function shoot(page: Page, dir: string, name: string) {
@@ -1104,3 +1107,409 @@ for (const scheme of ['dark', 'light'] as const) {
     })
   })
 }
+
+// ---- The other seven pictures (1.16, Task 4) ----
+
+/** The screens whose picture is a drawn phone in its outline (spec point 11), and the two that are art. */
+const OUTLINED = ['PLAN', 'TODAY', 'TARGETS', 'HOLDS_BACK', 'MONTHS_LATER', 'YOUR_TURN']
+const ART = ['WELCOME', 'SIDE']
+const SEVEN = grit.guideScreens().filter((id) => id !== 'TODAY')
+const shotName = (id: string) => id.toLowerCase().replace('_', '-')
+
+// Every screen's last step (motion off), dark and light, both sides: `guide-<screen>-<side>-<scheme>`.
+for (const side of SIDES) {
+  for (const scheme of ['dark', 'light'] as const) {
+    test(`the seven other pictures at their last step, shot (${sideName(side)}, ${scheme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme })
+      await openGuideOn(page, side, 'WELCOME')
+      for (const id of grit.guideScreens()) {
+        await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, side).title)
+        if (id !== 'TODAY') {
+          await expect(picture(page)).toHaveAttribute('data-step', grit.guideSteps(id, side).at(-1)!)
+          await expect(picture(page)).toHaveAttribute('aria-label', pictureDescription(id))
+          await expect(picture(page)).toBeVisible()
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+          await shoot(page, outDir, `guide-${shotName(id)}-${sideName(side)}-${scheme}`)
+        }
+        if (id !== 'YOUR_TURN') await page.getByTestId('guide-next').click()
+      }
+    })
+  }
+}
+
+/** The SIDE picture's art, as drawn now: every attribute of both boxes' SVG, for telling whether the loop moved. */
+const sideArt = (page: Page) => picture(page).evaluate((el) => [...el.querySelectorAll('svg *')].map((n) => [...n.attributes].map((a) => `${a.name}=${a.value}`).join(' ')).join('|'))
+
+/** The guide's own animations in the picture (WAAPI: not the screens' CSS ones). */
+const ownAnimations = (page: Page) => picture(page).evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).length)
+
+test.describe('the seven other pictures, with motion on', () => {
+  test.use({ storageState: MOTION_ON })
+
+  /**
+   * Opens screen `id` on a held clock, its picture starting afresh at time 0 (the page left and come back to, the clock
+   * paused), and gives a way to move the picture's time to `ms` from its start.
+   */
+  async function heldOn(page: Page, side: Side, id: string) {
+    await page.clock.install({ time: WEDNESDAY })
+    await openGuideOn(page, side, id)
+    const now = await page.evaluate(() => Date.now())
+    await page.clock.pauseAt(now + 1000)
+    const away = id === 'WELCOME' ? 'guide-next' : 'guide-back'
+    await page.getByTestId(away).click()
+    await page.getByTestId(away === 'guide-next' ? 'guide-back' : 'guide-next').click()
+    await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, side).title)
+    await expect(picture(page)).toHaveAttribute('data-step', grit.guideSteps(id, side)[0]!)
+    let pos = 0
+    return async (ms: number) => {
+      if (ms > pos) await page.clock.runFor(ms - pos)
+      pos = Math.max(pos, ms)
+    }
+  }
+
+  for (const side of SIDES) {
+    for (const id of SEVEN) {
+      test(`guide_${shotName(id)}_firstAndLastStep, on a held clock (${sideName(side)})`, async ({ page }) => {
+        const at = await heldOn(page, side, id)
+        const steps = grit.guideSteps(id, side)
+        await expect(picture(page)).toHaveAttribute('data-step', steps[0]!)
+        for (const [i, step] of steps.entries()) {
+          await at(Math.max(300, grit.guideSettledMs(i) + 20))
+          await expect(picture(page)).toHaveAttribute('data-step', step)
+          await expect(picture(page)).toHaveAttribute('data-progress', '1')
+          // Settled: nothing of the guide's own motion is left (no move, ghost or ring).
+          expect(await ownAnimations(page)).toBe(0)
+          await expect(picture(page).locator('.guide-flip-ghosts > *')).toHaveCount(0)
+        }
+        // It holds on its last step.
+        await at(grit.guideDoneMs(steps.length) + grit.guideStepMs() * 3)
+        await expect(picture(page)).toHaveAttribute('data-step', steps.at(-1)!)
+        const drawn = picture(page).locator('.guide-picture-screen')
+        // What the last step shows, from the domain.
+        if (id === 'WELCOME') await expect(page.getByTestId('guide-welcome-sides')).toHaveCSS('opacity', '1')
+        if (id === 'PLAN') await expect(drawn).toContainText(grit.guideSampleSwap(side).to)
+        if (id === 'TARGETS') {
+          const last = grit.guideSampleTargetEditor(side, steps.length - 1, 1)
+          await expect(drawn.getByRole('textbox', { name: 'Weight, kilograms', includeHidden: true }).first()).toHaveValue(formatKg(last.weightKg!))
+          await expect(drawn.getByRole('textbox', { name: 'Reps', includeHidden: true }).first()).toHaveValue(String(last.reps))
+        }
+        if (id === 'HOLDS_BACK') await expect(drawn).toContainText(grit.guideSampleAdvice(side).at(-1)!.reason.slice(0, 20))
+        if (id === 'MONTHS_LATER') await expect(drawn).toContainText(side === 'BODYBUILDING' ? 'Lagging' : formatKg(Math.round(grit.guideSampleProgress(side).totalKg! * 2) / 2))
+        if (id === 'YOUR_TURN') await expect(drawn).toContainText(lastButtons(side, false).primary[0])
+      })
+    }
+  }
+
+  test('guide_screen2_callsNoControllerSoundOrVibration: its loop runs, silent, and nothing of the mode switch moves', async ({ page }) => {
+    // Every buzz, and every sound started: the app's own silent unlock on the first tap (one sample, for the rest timer)
+    // is allowed; nothing longer, and no mode-switch sound file asked for.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __buzz: number; __sounds: number[] }
+      w.__buzz = 0
+      w.__sounds = []
+      Object.defineProperty(navigator, 'vibrate', { configurable: true, value: () => ((w.__buzz += 1), true) })
+      const start = AudioBufferSourceNode.prototype.start
+      AudioBufferSourceNode.prototype.start = function (this: AudioBufferSourceNode, ...args: Parameters<AudioBufferSourceNode['start']>) {
+        w.__sounds.push(this.buffer?.length ?? 0)
+        return start.apply(this, args)
+      }
+    })
+    const soundFiles: string[] = []
+    page.on('request', (request) => {
+      if (/\/sounds\//.test(new URL(request.url()).pathname)) soundFiles.push(request.url())
+    })
+    await openGuideOn(page, 'POWERLIFTING', 'SIDE')
+    const first = await sideArt(page)
+    await page.waitForTimeout(400)
+    expect(await sideArt(page), 'the loop moves').not.toBe(first)
+    await page.waitForTimeout(grit.guideSideLoopMs())
+    const heard = await page.evaluate(() => {
+      const w = window as unknown as { __buzz: number; __sounds: number[] }
+      return { buzz: w.__buzz, sounds: w.__sounds.filter((length) => length > 1) }
+    })
+    expect(heard).toEqual({ buzz: 0, sounds: [] })
+    expect(soundFiles).toEqual([])
+    // The switch's own layer stays empty, and the page is on the side it was.
+    await expect(page.locator('.ms-overlay > *')).toHaveCount(0)
+    await expect(page.locator('html')).not.toHaveAttribute('data-mode', 'bodybuilding')
+  })
+
+  for (const side of SIDES) {
+    test(`guide_plan_ringsEachTap_onItsControl, just before its result (${sideName(side)})`, async ({ page }) => {
+      const at = await heldOn(page, side, 'PLAN')
+      const steps = grit.guideSteps('PLAN', side)
+      const swap = grit.guideSampleSwap(side)
+      // Where each control is drawn: the empty plan's Choose a template, the template's card, its Swap, Use this plan.
+      const controls: Record<string, string> = {
+        CHOOSE_TEMPLATE: '.plan-empty .gr-btn-primary',
+        TEMPLATE: `.tpl-row[aria-labelledby="tpl-${grit.guideSampleTemplate(side).id}-name"]`,
+        SWAP: `.tpl-draft button[aria-label="Swap ${swap.from}"]`,
+        USE_THIS_PLAN: '.pb-actions .gr-btn-primary',
+      }
+      const rung: string[] = []
+      for (let i = 1; i < steps.length; i++) {
+        const tap = grit.guideTap(steps[i]!)
+        if (tap == null) continue
+        await at(grit.guideStepStartMs(i) - grit.guideTapMs() / 2)
+        await expect(picture(page)).toHaveAttribute('data-stepindex', String(i - 1))
+        const ring = picture(page).locator('.guide-tap-ring')
+        await expect(ring).toHaveCount(1)
+        const control = picture(page).locator(controls[tap]!)
+        await expect(control).toHaveCount(1)
+        // The ring's centre is on the control (its box is drawn scaled; boxes are compared on the page).
+        const centre = await ring.evaluate((el) => {
+          const r = el.getBoundingClientRect()
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+        })
+        const box = (await control.boundingBox())!
+        expect(centre.x >= box.x && centre.x <= box.x + box.width && centre.y >= box.y && centre.y <= box.y + box.height, `${tap}: ${JSON.stringify(centre)} in ${JSON.stringify(box)}`).toBe(true)
+        // And on screen, inside the phone.
+        expect(await inside(page, control, picture(page)), `${tap} is in view`).toBe(true)
+        rung.push(tap)
+        // The step after a ring comes on the first frame past its start (the ring runs on frames).
+        await at(grit.guideStepStartMs(i) + FRAME_MS)
+        await expect(picture(page)).toHaveAttribute('data-stepindex', String(i))
+        await expect(ring).toHaveCount(0)
+      }
+      expect(rung).toEqual(['CHOOSE_TEMPLATE', 'TEMPLATE', 'SWAP', 'USE_THIS_PLAN'])
+    })
+  }
+
+  test('screen 2 stands still while the page is hidden, and goes on when shown; leaving it stops its loop', async ({ page }) => {
+    await page.clock.install({ time: WEDNESDAY })
+    await openGuideOn(page, 'POWERLIFTING', 'SIDE')
+    await page.clock.runFor(200)
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    const hidden = await sideArt(page)
+    await page.clock.runFor(300)
+    expect(await sideArt(page)).toBe(hidden)
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => false })
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    await page.clock.runFor(100)
+    expect(await sideArt(page)).not.toBe(hidden)
+    await page.getByTestId('guide-next').click()
+    await expect(page.locator('[data-testid^="guide-side-box"]')).toHaveCount(0)
+  })
+
+  // Reads of layout inside the drawn phone, at step changes only: none while a move plays, none while a step holds.
+  for (const id of ['PLAN', 'TARGETS', 'HOLDS_BACK', 'MONTHS_LATER']) {
+    test(`guide_noLayoutReadsPerStep (${shotName(id)}): boxes are read at a step change, never per frame or per in-between value`, async ({ page }) => {
+      await page.addInitScript(() => {
+        const w = window as unknown as { __guideReads: number }
+        w.__guideReads = 0
+        const inPhone = (el: Element) => el.closest('.guide-phone') != null
+        const read = Element.prototype.getBoundingClientRect
+        Element.prototype.getBoundingClientRect = function (this: Element) {
+          if (inPhone(this)) w.__guideReads += 1
+          return read.call(this)
+        }
+        for (const name of ['offsetTop', 'offsetLeft', 'offsetWidth', 'offsetHeight'] as const) {
+          const own = Object.getOwnPropertyDescriptor(HTMLElement.prototype, name)!
+          Object.defineProperty(HTMLElement.prototype, name, {
+            configurable: true,
+            get(this: HTMLElement) {
+              if (inPhone(this)) w.__guideReads += 1
+              return own.get!.call(this)
+            },
+          })
+        }
+      })
+      const at = await heldOn(page, 'POWERLIFTING', id)
+      const reads = () => page.evaluate(() => (window as unknown as { __guideReads: number }).__guideReads)
+      const steps = grit.guideSteps(id, 'POWERLIFTING')
+      for (let i = 1; i < steps.length; i++) {
+        const start = grit.guideMotionStartMs([...steps], i)
+        await at(start - 30)
+        const held = await reads()
+        // A ring (screen 3) runs on frames before its step: none of them reads anything.
+        if (start < grit.guideStepStartMs(i)) {
+          await at(grit.guideStepStartMs(i) - FRAME_MS)
+          expect((await reads()) - held, `${id} step ${i}: reads while its ring plays`).toBe(0)
+        }
+        await at(grit.guideStepStartMs(i) + FRAME_MS)
+        await expect(picture(page)).toHaveAttribute('data-stepindex', String(i))
+        const moving = await reads()
+        await at(grit.guideSettledMs(i) + 100)
+        expect((await reads()) - moving, `${id} step ${i}: reads during its move and hold`).toBe(0)
+      }
+    })
+  }
+
+  test('guide_noLayoutReadsPerStep (side): the loop reads no layout at all', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __reads: number }
+      w.__reads = 0
+      const read = Element.prototype.getBoundingClientRect
+      Element.prototype.getBoundingClientRect = function (this: Element) {
+        if (this.closest('[data-testid="guide-picture"]') != null) w.__reads += 1
+        return read.call(this)
+      }
+    })
+    await page.clock.install({ time: WEDNESDAY })
+    await openGuideOn(page, 'POWERLIFTING', 'SIDE')
+    const before = await page.evaluate(() => (window as unknown as { __reads: number }).__reads)
+    await page.clock.runFor(grit.guideSideLoopMs() * 2)
+    expect(await page.evaluate(() => (window as unknown as { __reads: number }).__reads)).toBe(before)
+  })
+
+  for (const id of ['WELCOME', 'PLAN', 'TARGETS', 'HOLDS_BACK', 'MONTHS_LATER']) {
+    test(`guide_replay (${shotName(id)}): a page return starts the picture again at its first step, never playing backwards`, async ({ page }) => {
+      const at = await heldOn(page, 'POWERLIFTING', id)
+      const steps = grit.guideSteps(id, 'POWERLIFTING')
+      await at(grit.guideDoneMs(steps.length) + 50)
+      await expect(picture(page)).toHaveAttribute('data-step', steps.at(-1)!)
+      const away = id === 'WELCOME' ? 'guide-next' : 'guide-back'
+      await page.getByTestId(away).click()
+      await page.getByTestId(away === 'guide-next' ? 'guide-back' : 'guide-next').click()
+      await expect(picture(page)).toHaveAttribute('data-stepindex', '0')
+      expect(await ownAnimations(page)).toBe(0)
+    })
+  }
+
+  for (const [id, what] of [
+    ['PLAN', 'mid-ring'],
+    ['HOLDS_BACK', 'mid-move'],
+  ] as const) {
+    test(`a page change ${what} (${shotName(id)}) leaves no animation, ghost or ring behind`, async ({ page }) => {
+      const at = await heldOn(page, 'POWERLIFTING', id)
+      const steps = grit.guideSteps(id, 'POWERLIFTING')
+      await at(what === 'mid-ring' ? grit.guideStepStartMs(1) - grit.guideTapMs() / 2 : grit.guideStepStartMs(1) + grit.guideMoveMs() / 2)
+      if (what === 'mid-ring') await expect(picture(page).locator('.guide-tap-ring')).toHaveCount(1)
+      else expect(await ownAnimations(page)).toBeGreaterThan(0)
+      expect(steps.length).toBeGreaterThan(1)
+      await page.getByTestId('guide-next').click()
+      const left = await page.evaluate(() => document.getAnimations().filter((a) => !(a instanceof CSSAnimation || a instanceof CSSTransition)).filter((a) => a.playState === 'running' || a.playState === 'paused').length)
+      expect(left).toBe(0)
+      await expect(page.locator('.guide-tap-ring, .guide-flip-ghosts > *')).toHaveCount(0)
+    })
+  }
+})
+
+test.describe('the seven other pictures, with the system asking for reduced motion', () => {
+  test('each shows its last step, still: no motion of the guide\'s, and screen 2 its still frame', async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ baseURL, storageState: MOTION_ON, reducedMotion: 'reduce' })
+    const page = await context.newPage()
+    await page.clock.install({ time: WEDNESDAY })
+    await openGuideOn(page, 'BODYBUILDING', 'WELCOME')
+    for (const id of grit.guideScreens()) {
+      const steps = grit.guideSteps(id, 'BODYBUILDING')
+      await expect(picture(page)).toHaveAttribute('data-step', steps.at(-1)!)
+      const art = id === 'SIDE' ? await sideArt(page) : ''
+      for (let t = 0; t < 3; t++) {
+        await page.clock.runFor(400)
+        expect(await ownAnimations(page), id).toBe(0)
+        await expect(picture(page)).toHaveAttribute('data-step', steps.at(-1)!)
+      }
+      if (id === 'SIDE') expect(await sideArt(page)).toBe(art)
+      if (id !== 'YOUR_TURN') await page.getByTestId('guide-next').click()
+    }
+    await context.close()
+  })
+})
+
+test('the outline: one size on every screen with a phone, on both sides; WELCOME and SIDE draw none', async ({ page }) => {
+  const boxes: string[] = []
+  for (const side of SIDES) {
+    await openGuideOn(page, side, 'WELCOME')
+    for (const id of grit.guideScreens()) {
+      await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, side).title)
+      await expect(picture(page)).toBeVisible()
+      const box = (await picture(page).boundingBox())!
+      if (OUTLINED.includes(id)) {
+        await expect(picture(page)).toHaveAttribute('data-outlined', 'true')
+        boxes.push(`${Math.round(box.width * 2) / 2} x ${Math.round(box.height * 2) / 2}`)
+      } else {
+        await expect(picture(page)).toHaveAttribute('data-outlined', 'false')
+        await expect(picture(page)).toHaveCSS('border-top-width', '0px')
+        await expect(picture(page).locator('.guide-phone')).toHaveCount(0)
+      }
+      if (id !== 'YOUR_TURN') await page.getByTestId('guide-next').click()
+    }
+    await page.goto('/#/today')
+  }
+  expect(boxes).toHaveLength(12)
+  expect(new Set(boxes), boxes.join(', ')).toEqual(new Set([boxes[0]]))
+  expect(parseFloat(boxes[0]!)).toBeGreaterThan(0)
+})
+
+test('the outline keeps its size with a plan too (screen 8 then has See my plan under its buttons)', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('grit:guide', 'off'))
+  await openOnWednesday(page)
+  await page.goto('/#/settings')
+  await page.getByTestId('settings-guide').click()
+  await nextTo(page, 'TODAY')
+  const empty = (await picture(page).boundingBox())!
+  await page.goto('/#/today')
+  await seedFlatBench(page)
+  await page.goto('/#/settings')
+  await page.getByTestId('settings-guide').click()
+  await nextTo(page, 'TODAY')
+  const planned = (await picture(page).boundingBox())!
+  await nextTo(page, 'YOUR_TURN')
+  await expect(page.getByTestId('guide-last-secondary')).toBeVisible()
+  const last = (await picture(page).boundingBox())!
+  for (const b of [planned, last]) {
+    expect(Math.abs(b.width - empty.width)).toBeLessThan(0.6)
+    expect(Math.abs(b.height - empty.height)).toBeLessThan(0.6)
+  }
+})
+
+test("WELCOME's side colours are plain panels, not buttons: nothing in the picture can be pressed or focused", async ({ page }) => {
+  await openGuideOn(page, 'POWERLIFTING', 'WELCOME')
+  const panels = picture(page).getByTestId('guide-side-panel')
+  await expect(panels).toHaveCount(2)
+  await expect(panels.nth(0)).toContainText('Powerlifting')
+  await expect(panels.nth(1)).toContainText('Bodybuilding')
+  await expect(picture(page).locator('button, a, [tabindex], [role="button"]')).toHaveCount(0)
+  for (const i of [0, 1]) {
+    const swatch = panels.nth(i).locator('.guide-side-panel-swatch')
+    await expect(swatch).toHaveCSS('cursor', 'auto')
+    await expect(swatch).toHaveCSS('box-shadow', 'none')
+  }
+  // Tabbing from the title never lands in the picture.
+  await page.getByTestId('guide-title').focus()
+  for (let i = 0; i < 4; i++) {
+    await page.keyboard.press('Tab')
+    expect(await page.evaluate(() => document.activeElement?.closest('[data-testid="guide-picture"]') == null)).toBe(true)
+  }
+})
+
+test('guide_rotationOrResize_keepsTheScreen, on every picture', async ({ page }) => {
+  await openGuideOn(page, 'POWERLIFTING', 'WELCOME')
+  for (const id of grit.guideScreens()) {
+    await page.setViewportSize({ width: 664, height: 390 })
+    await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, 'POWERLIFTING').title)
+    await page.setViewportSize({ width: 390, height: 664 })
+    await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, 'POWERLIFTING').title)
+    await expect(picture(page)).toHaveAttribute('data-step', grit.guideSteps(id, 'POWERLIFTING').at(-1)!)
+    if (id !== 'YOUR_TURN') await page.getByTestId('guide-next').click()
+  }
+})
+
+test.describe('guide speed', { tag: '@speed' }, () => {
+  test('the first screen is painted soon after the guide is opened (reports; asserts only if it is quick here)', async ({ page }) => {
+    await page.clock.setFixedTime(WEDNESDAY)
+    await page.goto('/#/today')
+    await expect(tabBar(page)).toBeVisible()
+    const ms = await page.evaluate(
+      () =>
+        new Promise<number>((done) => {
+          const start = performance.now()
+          const watch = () => {
+            const title = document.querySelector('[data-testid="guide-title"]')
+            if (title != null && title.textContent) requestAnimationFrame(() => done(performance.now() - start))
+            else requestAnimationFrame(watch)
+          }
+          window.location.hash = '#/guide'
+          requestAnimationFrame(watch)
+        }),
+    )
+    console.log(`guide speed: first screen's title painted ${ms.toFixed(1)} ms after #/guide was opened (limit 300 ms; asserted only under 150 ms)`)
+    if (ms < 150) expect(ms).toBeLessThan(300)
+  })
+})
