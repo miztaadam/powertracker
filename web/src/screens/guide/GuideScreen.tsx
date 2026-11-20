@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import type { TrainingMode } from '../../db/schema'
 import { grit, type JsGuideScreen } from '../../domain'
 import { cx } from '../../ui/components/format'
@@ -6,6 +6,7 @@ import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '../../ui/components/
 import { Pill } from '../../ui/components/Pill'
 import { GuidePicture, isOutlined } from './GuidePictures'
 import { BACK, EXAMPLE, GUIDE_LABEL, NEXT, SEE_MY_PLAN, SKIP, dotsLabel, lastButtons, sideName } from './guideLabels'
+import { outlineArt, outlineArtFor, type OutlineArt } from './outlineArt'
 import './GuideScreen.css'
 
 export { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, pictureDescription } from './guideLabels'
@@ -239,14 +240,15 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle, below, artHeight }: 
 const OUTLINED = (screens: readonly string[]) => screens.filter(isOutlined)
 
 /**
- * What every outlined screen leaves its picture (spec point 11): the guide's pages' height, less the tallest text of the
- * outlined screens on either side, less the room of the second button under the controls while it is not shown (screen
- * 8's See my plan, or Build my plan), so the phone is one size on every such page and side. Measured from unseen copies
- * of those texts and of that button, laid out as the pages lay them out; read when the pages' size changes (a resize, a
- * rotation, the second button coming or going), never per step. Null until first measured, and where nothing can
- * observe a size (jsdom): the pictures then simply take what their text leaves.
+ * What the outlined screens leave their picture (spec point 11, `outlineArt`): the guide's pages' height with one row of
+ * buttons, less the tallest text of the outlined screens on either side, the same on every such page and side; and the
+ * room of the second button under the controls (screen 8's See my plan, or Build my plan, `secondLabel`), which screen 8
+ * alone gives up while it has one. Measured from unseen copies of those texts and of that button, laid out as the pages
+ * lay them out; read when the pages' size changes (a resize, a rotation, the second button coming or going), never per
+ * step. Null until first measured, and where nothing can observe a size (jsdom): the pictures then simply take what their
+ * text leaves.
  */
-function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly string[]; secondShown: boolean; onArt: (height: number | null) => void }) {
+function OutlineMeasure({ screens, secondShown, secondLabel, onArt }: { screens: readonly string[]; secondShown: boolean; secondLabel: string; onArt: Dispatch<SetStateAction<OutlineArt | null>> }) {
   const host = useRef<HTMLDivElement>(null)
   const shown = useRef(secondShown)
   shown.current = secondShown
@@ -258,13 +260,14 @@ function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly str
       const tallest = Math.max(0, ...[...el.querySelectorAll<HTMLElement>('.guide-measure-text')].map((t) => t.offsetHeight))
       const button = el.querySelector<HTMLElement>('.gr-btn')?.offsetHeight ?? 0
       const gap = parseFloat(getComputedStyle(el.querySelector<HTMLElement>('.guide-measure-controls')!).rowGap) || 0
-      const room = shown.current ? 0 : button + gap
-      onArt(Math.max(0, Math.floor(el.clientHeight - tallest - room)))
+      const art = outlineArt({ pagesHeight: el.clientHeight, tallest, second: button + gap, secondShown: shown.current })
+      // The same values keep the same state: no new render while nothing has changed.
+      onArt((before) => (before != null && before.shared === art.shared && before.second === art.second ? before : art))
     }
     const observer = new ResizeObserver(measure)
     observer.observe(el)
     return () => observer.disconnect()
-  }, [onArt])
+  }, [onArt, secondLabel])
   return (
     <div className="guide-measure" ref={host} aria-hidden="true">
       {texts.map((screen, i) => (
@@ -283,7 +286,7 @@ function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly str
       <div className="guide-measure-controls">
         <span className="gr-btn label-large gr-btn-secondary guide-measure-btn">
           <span className="gr-btn-face">
-            <span className="gr-btn-text">{SEE_MY_PLAN}</span>
+            <span className="gr-btn-text">{secondLabel}</span>
           </span>
         </span>
       </div>
@@ -323,8 +326,10 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
   }, [])
 
   const buttons = lastButtons(mode, hasPlan)
-  const [artHeight, setArtHeight] = useState<number | null>(null)
+  const [art, setArt] = useState<OutlineArt | null>(null)
   const secondShown = last && buttons.secondary != null
+  // Screen 8 alone gives up its second button's room; every other outlined screen keeps the shared height.
+  const artHeight = art == null ? null : outlineArtFor(art, last, buttons.secondary != null)
   const go = (to: number) => setIndex(Math.max(0, Math.min(screens.length - 1, to)))
   const start = useRef<{ x: number; y: number } | null>(null)
 
@@ -354,7 +359,7 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
           start.current = null
         }}
       >
-        <OutlineMeasure screens={screens} secondShown={secondShown} onArt={setArtHeight} />
+        <OutlineMeasure screens={screens} secondShown={secondShown} secondLabel={buttons.secondary?.[0] ?? SEE_MY_PLAN} onArt={setArt} />
         {/* Keyed by screen: a new page starts its picture from the first step, and slides in with motion on. */}
         <GuidePage
           key={id}

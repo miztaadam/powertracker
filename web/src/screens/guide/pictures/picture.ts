@@ -26,8 +26,9 @@ export type PictureTap = { selector: string; ink: 'accent-ink' | 'accent-text' }
 export type PictureDef = {
   Draw: (props: PictureProps) => ReactNode
   /**
-   * A drawn phone, in its outline, one size on every such screen (spec point 11); false for art that is no screen of
-   * the app (WELCOME, SIDE): it fills the picture's place, with no phone and no outline.
+   * A drawn phone, in its outline, one size on every such screen (spec point 11; screen 8 gives up the room of its
+   * second button when it has one); false for art that is no screen of the app (WELCOME, SIDE): it fills the picture's
+   * place, with no phone and no outline.
    */
   outlined: boolean
   /** The drawn phone's height (outlined pictures). */
