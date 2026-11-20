@@ -249,13 +249,18 @@ class GuidePicturesTest {
         }
     }
 
-    /** Each of screen 3's taps rings its own control: the guide finds each one's box on the drawn screen. */
+    /**
+     * Each of screen 3's taps rings its own control, in view: the guide finds each one's box on the drawn screen, and the
+     * swapped exercise's Swap sits above the draft's bottom bar (Use this plan), on both sides, with real fonts.
+     */
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun guide_plan_ringsEachTap_onItsControl() {
         for (mode in TrainingMode.entries) {
             val steps = Guide.steps(GuideScreenId.PLAN, mode)
             val clock = HeldGuideClock(0)
             show(GuideScreenId.PLAN, mode, clock = clock)
+            val boxes = mutableMapOf<GuideTap, androidx.compose.ui.geometry.Rect>()
             for (i in 1 until steps.size) {
                 val tap = Guide.tap(steps[i]) ?: continue
                 clock.heldMs = Guide.motionStartMs(steps, i) + Guide.TAP_MS / 2
@@ -263,8 +268,14 @@ class GuidePicturesTest {
                 assertEquals(tap, pictureFrame().tap)
                 val box = compose.onNodeWithTag("guide-picture").fetchSemanticsNode().config.getOrNull(GuideTapBox)
                 assertNotNull("$mode: no box for $tap", box)
-                assertTrue("$mode $tap: $box", box!!.width > 0 && box.height > 0 && box.bottom < with(compose.density) { PHONE_HEIGHT.toPx() })
+                assertTrue("$mode $tap: $box", box!!.width > 0 && box.height > 0 && box.top > 0f && box.bottom < with(compose.density) { PHONE_HEIGHT.toPx() })
+                boxes[tap] = box
             }
+            val swap = boxes.getValue(GuideTap.SWAP)
+            val use = boxes.getValue(GuideTap.USE_THIS_PLAN)
+            // The bar starts its padding (Space.m) above its button.
+            val barTop = use.top - with(compose.density) { com.powertracker.ui.theme.Space.m.toPx() }
+            assertTrue("$mode: Swap $swap is under the bottom bar (from $barTop)", swap.bottom <= barTop)
         }
     }
 
@@ -464,13 +475,14 @@ class GuidePicturesTest {
             val crop = Bitmap.createBitmap(full, b.left.toInt(), b.top.toInt(), b.width.toInt(), b.height.toInt())
             java.io.File(dir, "$name.png").outputStream().use { crop.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
-        for (id in seven) {
+        // Every picture on powerlifting, and screen 3 on bodybuilding too (its longer draft).
+        for ((id, mode) in seven.map { it to pl } + (GuideScreenId.PLAN to bb)) {
             val name = id.name.lowercase().replace('_', '-')
-            val steps = Guide.steps(id, pl)
+            val steps = Guide.steps(id, mode)
             val clock = HeldGuideClock(0)
             // Screen 2's loop is an infinite animation, which waiting for idle cancels: its strip never waits.
             compose.mainClock.autoAdvance = id != GuideScreenId.SIDE
-            show(id, clock = clock)
+            show(id, mode, clock = clock)
             compose.mainClock.autoAdvance = false
             compose.mainClock.advanceTimeByFrame()
             val end = if (id == GuideScreenId.SIDE) Guide.SIDE_LOOP_MS else Guide.doneMs(steps.size) + 300
@@ -480,7 +492,7 @@ class GuidePicturesTest {
                 compose.runOnUiThread { clock.heldMs = t }
                 androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications()
                 compose.mainClock.advanceTimeBy(every.toLong())
-                save("android-$name-powerlifting-dark-%03d-%05dms".format(n++, t))
+                save("android-$name-${mode.name.lowercase()}-dark-%03d-%05dms".format(n++, t))
                 t += every
             }
         }
