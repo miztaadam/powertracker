@@ -231,12 +231,14 @@ Paths are relative to `domain/src/commonMain/kotlin/com/powertracker/domain/` un
   - every existing kg test and the 1.16 guide's tests unchanged.
 - **Screenshots:** Today with a plate-counted exercise, and the sheet, dark and light, on both apps.
 
-## Open questions for the owner
+## Questions answered by the owner (2026-11-20)
+
+The owner approved this design and accepted each recommendation below. They are decisions now.
 1. **Custom variations.** A custom exercise can be an accessory or a variation of squat, bench, deadlift or strict press. Variation sets feed that lift's strength trend (at 90%), stalls and weak points. Should custom variations be offered plate counting?
-   **My recommendation: no, accessories only.** A variation belongs to a main lift, and the main lifts are never in plates.
+   **Decided: no, accessories only.** A variation belongs to a main lift, and the main lifts are never in plates.
 2. **The exercise chart.** Decision 6 says the exercise's chart plots the plate number, but neither app has a chart for a single machine or cable exercise. Progress charts are main lifts only, and the bodybuilding rows and exercise history are text. Should 1.17 add an exercise chart?
-   **My recommendation: no chart in 1.17.** The rule stands for any chart added later.
+   **Decided: no chart in 1.17.** The rule stands for any chart added later.
 3. **Assisted machines** (assisted pull-up, assisted chin-up, assisted dip). On these, more weight is easier, so "one step up" would make the exercise easier. Should they be offered plate counting?
-   **My recommendation: not in 1.17; they stay in kg.** If there is no answer, the builder leaves them out, since a wrong-way target is worse than none. In kg the coach also adds weight on these as if it were harder. That matters only if lifters log the assistance as the weight; nothing in the code says which they log. That is a separate question for its own release.
+   **Decided: not in 1.17; they stay in kg.** If there is no answer, the builder leaves them out, since a wrong-way target is worse than none. In kg the coach also adds weight on these as if it were harder. That matters only if lifters log the assistance as the weight; nothing in the code says which they log. That is a separate question for its own release.
 4. **The powerlifting side's plate progression** (my proposal above): one more rep at the same plate, up to 12, then one step up and back to the planned reps; a step down after a missed or much-too-hard top set. Is that right?
-   **My recommendation: yes.** It is what the kg rule already does when a machine's jump is too big, carried through to the step.
+   **Decided: yes.** It is what the kg rule already does when a machine's jump is too big, carried through to the step.
