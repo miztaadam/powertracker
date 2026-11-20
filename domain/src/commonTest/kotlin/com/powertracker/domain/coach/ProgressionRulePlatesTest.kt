@@ -193,9 +193,12 @@ internal object PlateFixtures {
         skips: List<Skip> = emptyList(),
         settings: CoachSettings = CoachSettings(),
     ): Advice? {
-        val a = Coaching.targetsFor(mode, today.dayOfWeek, h, listOf(item), settings, today, prior, skips)
-            .singleOrNull { (it.payload as AdvicePayload.Target).exerciseId == pulldown } ?: return null
+        fun run(s: CoachSettings) = Coaching.targetsFor(mode, today.dayOfWeek, h, listOf(item), s, today, prior, skips)
+            .singleOrNull { (it.payload as AdvicePayload.Target).exerciseId == pulldown }
+        val a = run(settings) ?: return null
         assertInPlates(a)
+        // Change plates (0.5 and 0.25 kg) is a kg setting: no plate target moves with it.
+        assertEquals(a, run(settings.copy(changePlates = !settings.changePlates)), "changePlates moved: ${a.reason}")
         return a
     }
 
