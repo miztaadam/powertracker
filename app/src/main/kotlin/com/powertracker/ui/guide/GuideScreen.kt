@@ -10,6 +10,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.layout.Layout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -206,6 +215,10 @@ fun GuideScreen(
 
     val current = pager.currentPage
     val last = current == screens.lastIndex
+    val buttons = remember(mode, hasPlan) { lastButtons(mode, hasPlan) }
+    // A second button under Back and the first (screen 8's See my plan, or Build my plan) takes room from the page while
+    // it shows: measured once, every other page keeps that room out of its picture, so the phone is one size on all.
+    var secondRoom by remember { mutableStateOf(0.dp) }
     // The guide is a pane titled with the screen shown: a page change is a new title, which a screen reader reads out.
     val shownTitle = remember(screens[current], mode) { Guide.screen(screens[current], mode).title }
     Column(
@@ -229,13 +242,12 @@ fun GuideScreen(
                 // With motion off: the last step, still.
                 val t = if (motionOn) elapsed else Guide.doneMs(steps.size)
                 val frame = Guide.frame(steps, t)
-                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t) {
+                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t, reserve = if (last && buttons.secondary != null) 0.dp else secondRoom) {
                     if (firstLaunch && id == GuideScreenId.SIDE) SideButtons(mode) { if (it != mode) pick(it) }
                 }
             }
         }
         Dots(current, screens.size, Modifier.align(Alignment.CenterHorizontally).padding(vertical = Space.m))
-        val buttons = remember(mode, hasPlan) { lastButtons(mode, hasPlan) }
         Column(
             Modifier.fillMaxWidth().padding(horizontal = Space.gutter).padding(bottom = Space.l),
             verticalArrangement = Arrangement.spacedBy(Space.s),
@@ -257,6 +269,17 @@ fun GuideScreen(
             val secondary = buttons.secondary
             if (last && secondary != null) {
                 SecondaryButton(secondary.first, { close(secondary.second) }, Modifier.fillMaxWidth().testTag("guide-last-secondary"))
+            } else {
+                // Measured, not drawn: the room a second button takes (one is on screen 8 with a plan, and on
+                // bodybuilding's without). Every page keeps it out of its picture, on both sides, so the phone is one
+                // size everywhere. Its gap above is already taken here (the column spaces this empty child too).
+                val density = LocalDensity.current
+                Layout({ SecondaryButton(secondary?.first ?: SEE_MY_PLAN, {}, Modifier.fillMaxWidth().clearAndSetSemantics {}) }) { measurables, constraints ->
+                    val height = measurables.single().measure(constraints.copy(minHeight = 0)).height
+                    val room = with(density) { height.toDp() }
+                    if (room != secondRoom) secondRoom = room
+                    layout(0, 0) {}
+                }
             }
         }
     }
@@ -277,15 +300,50 @@ private fun SideButtons(mode: TrainingMode, onPick: (TrainingMode) -> Unit) {
     }
 }
 
-/** One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. */
+/** The screens whose picture is a drawn phone, in its outline: one size on all of them (spec point 11). */
+internal val OUTLINED: Set<GuideScreenId> = setOf(
+    GuideScreenId.PLAN, GuideScreenId.TODAY, GuideScreenId.TARGETS, GuideScreenId.HOLDS_BACK, GuideScreenId.MONTHS_LATER, GuideScreenId.YOUR_TURN,
+)
+
+/**
+ * The height the longest text of the outlined screens takes, on either side, at [width] and the default font size: what
+ * every outlined screen leaves its text, so its phone is the same size on all of them. Measured, not laid out.
+ */
 @Composable
-private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame, elapsedMs: Int, below: @Composable () -> Unit = {}) {
+private fun outlinedTextRoom(width: Dp): Dp {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val title = MaterialTheme.typography.headlineMedium
+    val body = MaterialTheme.typography.bodyLarge
+    return remember(width, density.density, title, body) {
+        val unscaled = Density(density.density, fontScale = 1f)
+        val constraints = Constraints(maxWidth = with(density) { width.roundToPx() }.coerceAtLeast(0))
+        val gap = with(density) { Space.s.roundToPx() }
+        val px = TrainingMode.entries.flatMap { mode -> OUTLINED.map { Guide.screen(it, mode) } }.maxOf { screen ->
+            measurer.measure(screen.title, title, constraints = constraints, density = unscaled).size.height +
+                screen.lines.sumOf { gap + measurer.measure(it.text, body, constraints = constraints, density = unscaled).size.height }
+        }
+        with(density) { px.toDp() }
+    }
+}
+
+/**
+ * One screen: its title and lines from the domain, then its picture. On the outlined screens the picture has the same
+ * room on every one ([outlinedTextRoom]): at a larger font the text scrolls, and the phone keeps its size. WELCOME and
+ * SIDE draw no phone: their art takes what the text leaves.
+ */
+@Composable
+private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame, elapsedMs: Int, reserve: Dp = 0.dp, below: @Composable () -> Unit = {}) {
     val screen = remember(id, mode) { Guide.screen(id, mode) }
+    val outlined = id in OUTLINED
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = Space.gutter)) {
-        val textRoom = maxHeight * 0.6f
+        val room = if (outlined) outlinedTextRoom(maxWidth) else 0.dp
+        val artHeight = (maxHeight - reserve - room).coerceAtLeast(0.dp)
+        val textMax = maxHeight * 0.6f
         Column(Modifier.fillMaxSize()) {
-            // The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest.
-            Column(Modifier.heightIn(max = textRoom).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+            // The text wraps and is never cut: past its room it scrolls.
+            val text = if (outlined) Modifier.weight(1f) else Modifier.heightIn(max = textMax)
+            Column(text.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Space.s)) {
                 Text(
                     screen.title,
                     style = MaterialTheme.typography.headlineMedium,
@@ -297,13 +355,18 @@ private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, f
                 }
             }
             Column(
-                Modifier.weight(1f).fillMaxWidth().padding(top = Space.l, bottom = Space.xs),
+                (if (outlined) Modifier.height(artHeight) else Modifier.weight(1f)).fillMaxWidth().padding(top = Space.l, bottom = Space.xs),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(Space.s),
             ) {
-                // The label sits above the picture, outside its single description.
-                if (screen.example) Pill(EXAMPLE, if (current) Modifier.testTag("guide-example") else Modifier)
-                GuidePicture(id, mode, frame, Modifier.weight(1f, fill = false), elapsedMs = elapsedMs)
+                // The label sits above the picture, outside its single description. An outlined screen without one keeps
+                // its place, unseen, so its phone is the size of the others'.
+                if (screen.example) {
+                    Pill(EXAMPLE, if (current) Modifier.testTag("guide-example") else Modifier)
+                } else if (outlined) {
+                    Pill(EXAMPLE, Modifier.alpha(0f).clearAndSetSemantics {})
+                }
+                GuidePicture(id, mode, frame, Modifier.weight(1f, fill = !outlined), elapsedMs = elapsedMs)
                 below()
             }
         }

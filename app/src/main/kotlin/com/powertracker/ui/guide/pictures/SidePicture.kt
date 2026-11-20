@@ -3,6 +3,10 @@ package com.powertracker.ui.guide.pictures
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -87,14 +91,14 @@ internal fun SidePicture() {
         onDispose { if (sideLoopNow === now) sideLoopNow = null }
     }
     val dark = MaterialTheme.colorScheme.background.luminance() < .5f
-    Column(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(Space.gutter),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+    // No phone: the two boxes fill the picture's place, side by side, as large as it allows with their names under them.
+    BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        val ratio = (Guide.SIDE_BOX_W / Guide.SIDE_BOX_H).toFloat()
+        val boxWidth = min((maxWidth - Space.m) / 2, (maxHeight - LABEL_ROOM) * ratio).coerceAtLeast(0.dp)
+        Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
             for (side in TrainingMode.entries) {
                 PowertrackerTheme(mode = side, darkTheme = dark) {
-                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Space.s)) {
+                    Column(Modifier.width(boxWidth), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Space.s)) {
                         SideBox(side, now)
                         Text(sideName(side), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
                     }
@@ -103,6 +107,9 @@ internal fun SidePicture() {
         }
     }
 }
+
+/** Under each box: its side's name and the gap above it. */
+private val LABEL_ROOM = 40.dp
 
 private fun sideFrameOf(loop: MutableLongState): GuideSideFrame {
     val t = loop.longValue

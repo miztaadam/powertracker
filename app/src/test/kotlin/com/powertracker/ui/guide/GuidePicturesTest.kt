@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -26,6 +28,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import com.powertracker.domain.guide.Guide
@@ -401,6 +404,8 @@ class GuidePicturesTest {
             assertOn(GuideScreenId.HOLDS_BACK, mode)
             for (tag in listOf("guide-skip", "guide-back", "guide-next", "guide-dots")) compose.onNodeWithTag(tag).assertIsDisplayed()
             for (line in Guide.screen(GuideScreenId.HOLDS_BACK, mode).lines) {
+                // The text scrolls above a phone that keeps its size (spec point 11): each line is brought into view.
+                compose.onNodeWithText(line.text).performScrollTo()
                 val node = compose.onNodeWithText(line.text).fetchSemanticsNode()
                 val layouts = mutableListOf<TextLayoutResult>()
                 node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
@@ -422,6 +427,60 @@ class GuidePicturesTest {
             }
             assertTrue(wrapped)
         }
+    }
+
+    // ---- the outline (spec point 11) ----
+
+    private fun picture() = compose.onNodeWithTag("guide-picture").fetchSemanticsNode()
+
+    @Test
+    fun guide_outline_isOneSize_onEveryScreenWithAPhone_onBothSides() {
+        val sizes = TrainingMode.entries.flatMap { mode ->
+            OUTLINED.map { id ->
+                show(id, mode)
+                assertOn(id, mode)
+                assertTrue("$id on $mode is outlined", picture().config[GuidePictureOutlined])
+                "$id/$mode" to picture().size
+            }
+        }
+        assertEquals(6, OUTLINED.size)
+        assertTrue("$sizes", sizes.first().second.width > 0 && sizes.first().second.height > 0)
+        assertEquals("$sizes", 1, sizes.map { it.second }.toSet().size)
+    }
+
+    @Test
+    fun guide_outline_atTwiceTheFontSize_keepsItsSize_whileTheTextScrolls() {
+        show(GuideScreenId.HOLDS_BACK, pl)
+        val normal = picture().size
+        show(GuideScreenId.HOLDS_BACK, pl, fontScale = 2f)
+        assertEquals(normal, picture().size)
+        for (tag in listOf("guide-skip", "guide-back", "guide-next")) compose.onNodeWithTag(tag).assertIsDisplayed()
+    }
+
+    @Test
+    fun guide_welcomeAndSide_drawNoOutline_andFillThePicturesPlace() {
+        for (mode in TrainingMode.entries) for (id in listOf(GuideScreenId.WELCOME, GuideScreenId.SIDE)) {
+            show(id, mode)
+            assertOn(id, mode)
+            assertFalse("$id on $mode", picture().config[GuidePictureOutlined])
+            show(GuideScreenId.TODAY, mode)
+            val phone = picture().size
+            show(id, mode)
+            // Its art fills the place: wider than the phone drawn on the outlined screens.
+            assertTrue("$id on $mode: ${picture().size} vs $phone", picture().size.width > phone.width)
+        }
+    }
+
+    @Test
+    fun guide_welcome_sidePanels_areColourSwatches_notButtons() {
+        drawAlone(GuideScreenId.WELCOME, pl, lastFrame(GuideScreenId.WELCOME, pl))
+        val panels = compose.onAllNodes(hasTestTag("guide-side-panel")).fetchSemanticsNodes()
+        assertEquals(2, panels.size)
+        // Nothing in the picture can be pressed or focused.
+        assertEquals(0, compose.onAllNodes(hasClickAction()).fetchSemanticsNodes().size)
+        assertTrue(panels.none { SemanticsProperties.Focused in it.config || SemanticsActions.OnClick in it.config || SemanticsActions.RequestFocus in it.config })
+        // Each still named with its side.
+        assertTrue(shows("Powerlifting") && shows("Bodybuilding"))
     }
 
     /** Review Focus 3: a rotation (the activity's state saved and restored) keeps the screen shown. */

@@ -97,6 +97,10 @@ private var SemanticsPropertyReceiver.guidePictureStep by GuidePictureStep
 val GuidePictureFrame = SemanticsPropertyKey<GuideFrame>("GuidePictureFrame")
 private var SemanticsPropertyReceiver.guidePictureFrame by GuidePictureFrame
 
+/** Whether a picture is a drawn phone in its outline (the six screens of [OUTLINED]), for tests. */
+val GuidePictureOutlined = SemanticsPropertyKey<Boolean>("GuidePictureOutlined")
+private var SemanticsPropertyReceiver.guidePictureOutlined by GuidePictureOutlined
+
 /** While a tap ring plays: where the control it rings is, in the drawn phone's own space (unscaled px), for tests. */
 val GuideTapBox = SemanticsPropertyKey<Rect>("GuideTapBox")
 private var SemanticsPropertyReceiver.guideTapBox by GuideTapBox
@@ -158,15 +162,16 @@ internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFra
     // Where the drawn screen's controls are, for the tap ring (the screen says, to the guide only).
     val anchors = remember { TapAnchors() }
     val ringing = frame?.tap?.let { anchors.boxes[anchorOf(it, mode)] }
+    // WELCOME and SIDE are no screen of the app: their art fills the picture's place, with no phone and no outline.
+    val outlined = id in OUTLINED
     Box(
         modifier
-            // A picture not drawn yet is an empty frame, filling its place.
-            .then(if (drawn) Modifier else Modifier.fillMaxSize())
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, PowertrackerTheme.colors.hairline, shape)
+            // A picture not drawn yet is an empty frame, filling its place; so is art with no outline.
+            .then(if (drawn && outlined) Modifier else Modifier.fillMaxSize())
+            .then(if (outlined) Modifier.clip(shape).background(MaterialTheme.colorScheme.background).border(1.dp, PowertrackerTheme.colors.hairline, shape) else Modifier)
             .clearAndSetSemantics {
                 testTag = "guide-picture"
+                guidePictureOutlined = outlined
                 if (description != null) contentDescription = description
                 if (frame != null) {
                     guidePictureStep = frame.step
@@ -176,7 +181,9 @@ internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFra
             },
         contentAlignment = Alignment.Center,
     ) {
-        if (drawn) {
+        if (drawn && !outlined) {
+            Box(Modifier.fillMaxSize().focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()) { PictureContent(id, mode, frame) }
+        } else if (drawn) {
             Phone(PHONE_HEIGHT) {
                 // The guide's time drives the screen's own one-off motion (a set's tick drawing in, the skipped line
                 // rising): a held clock holds it, a replay replays it.
