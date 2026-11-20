@@ -524,6 +524,13 @@ class GuidePicturesTest {
         compose.waitForIdle()
     }
 
+    /** The same mid-swipe on the narrowest phones, where the outgoing page's text gives See my plan's room for the moment. */
+    @Test
+    @Config(qualifiers = "w320dp-h568dp-xhdpi")
+    fun guide_outline_midSwipeToTheLastScreen_keepsTheOutgoingPhonesSize_onA320x568Phone() {
+        guide_outline_midSwipeToTheLastScreen_keepsTheOutgoingPhonesSize()
+    }
+
     @Test
     fun guide_outline_atTwiceTheFontSize_keepsItsSize_whileTheTextScrolls() {
         show(GuideScreenId.HOLDS_BACK, pl)
@@ -599,7 +606,9 @@ class GuidePicturesTest {
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun guide_pictures_frameStrips() {
-        val dir = System.getenv("GUIDE_FRAMES") ?: return
+        val dir = System.getenv("GUIDE_FRAMES")
+        // Skipped, not passed, on a normal run: it only writes the owner's frames.
+        org.junit.Assume.assumeTrue("GUIDE_FRAMES is not set", dir != null)
         val every = System.getenv("GUIDE_FRAME_MS")?.toInt() ?: 80
         java.io.File(dir).mkdirs()
         fun save(name: String) {
