@@ -284,8 +284,30 @@ class ScreenshotTest {
 
     @Test
     fun guideTodayBodybuilding() = render("guide-today-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideTodayShowcase(TrainingMode.BODYBUILDING) }
+
+    /** The guide's other seven screens at their last step (motion off shows it), on each side (1.16, Task 4). */
+    private fun guide(id: GuideScreenId, mode: TrainingMode) =
+        render("guide-${guideShotName(id)}-${mode.name.lowercase()}", null, mode) { GuideTodayShowcase(mode, id) }
+
+    @Test fun guideWelcomePowerlifting() = guide(GuideScreenId.WELCOME, TrainingMode.POWERLIFTING)
+    @Test fun guideWelcomeBodybuilding() = guide(GuideScreenId.WELCOME, TrainingMode.BODYBUILDING)
+    @Test fun guideSidePowerlifting() = guide(GuideScreenId.SIDE, TrainingMode.POWERLIFTING)
+    @Test fun guideSideBodybuilding() = guide(GuideScreenId.SIDE, TrainingMode.BODYBUILDING)
+    @Test fun guidePlanPowerlifting() = guide(GuideScreenId.PLAN, TrainingMode.POWERLIFTING)
+    @Test fun guidePlanBodybuilding() = guide(GuideScreenId.PLAN, TrainingMode.BODYBUILDING)
+    @Test fun guideTargetsPowerlifting() = guide(GuideScreenId.TARGETS, TrainingMode.POWERLIFTING)
+    @Test fun guideTargetsBodybuilding() = guide(GuideScreenId.TARGETS, TrainingMode.BODYBUILDING)
+    @Test fun guideHoldsBackPowerlifting() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.POWERLIFTING)
+    @Test fun guideHoldsBackBodybuilding() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.BODYBUILDING)
+    @Test fun guideMonthsLaterPowerlifting() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.POWERLIFTING)
+    @Test fun guideMonthsLaterBodybuilding() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.BODYBUILDING)
+    @Test fun guideYourTurnPowerlifting() = guide(GuideScreenId.YOUR_TURN, TrainingMode.POWERLIFTING)
+    @Test fun guideYourTurnBodybuilding() = guide(GuideScreenId.YOUR_TURN, TrainingMode.BODYBUILDING)
 }
 
+/** A guide screen's shot name: "months-later" for MONTHS_LATER. */
+internal fun guideShotName(id: GuideScreenId): String = id.name.lowercase().replace('_', '-')
+
 @Composable
-private fun GuideTodayShowcase(mode: TrainingMode) =
-    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = GuideScreenId.TODAY)
+private fun GuideTodayShowcase(mode: TrainingMode, id: GuideScreenId = GuideScreenId.TODAY) =
+    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = id)

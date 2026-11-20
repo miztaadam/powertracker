@@ -48,6 +48,15 @@ import com.powertracker.ui.today.LocalEventClock
 import com.powertracker.ui.today.LocalTapAnchors
 import com.powertracker.ui.today.TapAnchor
 import com.powertracker.ui.today.TapAnchors
+import com.powertracker.ui.today.TapSpot
+import com.powertracker.ui.guide.pictures.HoldsBackPicture
+import com.powertracker.ui.guide.pictures.MonthsLaterPicture
+import com.powertracker.ui.guide.pictures.PlanPicture
+import com.powertracker.ui.guide.pictures.SidePicture
+import com.powertracker.ui.guide.pictures.TargetsPicture
+import com.powertracker.ui.guide.pictures.WelcomePicture
+import com.powertracker.ui.guide.pictures.YourTurnPicture
+import androidx.compose.ui.graphics.Color
 import com.powertracker.ui.today.TodayActions
 import com.powertracker.ui.today.TodayContent
 import kotlin.math.min
@@ -57,7 +66,7 @@ import kotlin.math.roundToInt
 internal val PHONE_WIDTH = 412.dp
 
 /** The strip a phone's status bar takes at its top. */
-private val PHONE_STATUS_BAR = 24.dp
+internal val PHONE_STATUS_BAR = 24.dp
 
 /**
  * The phone's height, the same for both sides: the mockups' 915 dp, which holds screen 4's day
@@ -66,9 +75,16 @@ private val PHONE_STATUS_BAR = 24.dp
  */
 internal val PHONE_HEIGHT = 915.dp
 
-/** What a screen reader hears for a picture, the one thing of it in the accessibility tree. Only built pictures have one. */
+/** What a screen reader hears for a picture, the one thing of it in the accessibility tree. */
 private val PICTURE_DESCRIPTIONS = mapOf(
+    GuideScreenId.WELCOME to "The Grit mark, then the colours of its two sides, powerlifting and bodybuilding.",
+    GuideScreenId.SIDE to "The hammer of the powerlifting side and the pump of the bodybuilding side, side by side.",
+    GuideScreenId.PLAN to "Example of the Plan screen: a 3-day template is chosen, its weekdays are picked, one exercise is swapped, then the week is saved.",
     GuideScreenId.TODAY to "Example of the Today screen: a set's weight, reps and effort are put in and the set is ticked, then an exercise is skipped.",
+    GuideScreenId.TARGETS to "Example of the coach's target for one lift, session after session.",
+    GuideScreenId.HOLDS_BACK to "Example of the Coach screen: its cards for when it holds back, one after another.",
+    GuideScreenId.MONTHS_LATER to "Example of the Progress screen months later: the weeks fill in and the bests climb.",
+    GuideScreenId.YOUR_TURN to "The Plan screen as it opens on a new plan, ready for a template.",
 )
 
 fun pictureDescription(id: GuideScreenId): String = PICTURE_DESCRIPTIONS.getValue(id)
@@ -85,9 +101,23 @@ private var SemanticsPropertyReceiver.guidePictureFrame by GuidePictureFrame
 val GuideTapBox = SemanticsPropertyKey<Rect>("GuideTapBox")
 private var SemanticsPropertyReceiver.guideTapBox by GuideTapBox
 
-/** The control on the drawn screen that a [GuideTap] rings. */
-private fun anchorOf(tap: GuideTap): TapAnchor = when (tap) {
-    GuideTap.LOG_SET -> TapAnchor.LOG_SET
+/** The control on [mode]'s drawn screen that a [GuideTap] rings. */
+internal fun anchorOf(tap: GuideTap, mode: TrainingMode): TapSpot = when (tap) {
+    GuideTap.LOG_SET -> TapSpot(TapAnchor.LOG_SET)
+    GuideTap.CHOOSE_TEMPLATE -> TapSpot(TapAnchor.CHOOSE_TEMPLATE)
+    GuideTap.TEMPLATE -> TapSpot(TapAnchor.TEMPLATE, GuideSample.template(mode).id)
+    GuideTap.SWAP -> TapSpot(TapAnchor.SWAP, GuideSample.swap(mode).from)
+    GuideTap.USE_THIS_PLAN -> TapSpot(TapAnchor.USE_THIS_PLAN)
+}
+
+/**
+ * The ring's ink on the control it rings: a primary button's own ink (Log set, Choose a template, Use this plan), else
+ * the side's accent text (a template's card, a Swap button), so it shows on that control on either side and scheme.
+ */
+@Composable
+private fun ringInk(tap: GuideTap?): Color = when (tap) {
+    GuideTap.TEMPLATE, GuideTap.SWAP -> PowertrackerTheme.colors.accentText
+    else -> PowertrackerTheme.colors.onAccent
 }
 
 /*
@@ -117,17 +147,17 @@ private val NoTouches = Modifier.pointerInput(Unit) {
 /**
  * Screen [id]'s picture at [step], in its frame: the real screen content with the guide's sample state, laid out on a
  * phone and shrunk to fit, with no-op actions. It takes no touches and no focus, and is one description to a screen
- * reader. Screens whose picture isn't built yet show the empty frame.
+ * reader. Each screen's picture is in its own file under `pictures/`; this frames it and rings its taps.
  */
 @Composable
 internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFrame?, modifier: Modifier = Modifier, elapsedMs: Int = 0) {
     val shape = MaterialTheme.shapes.large
     val description = PICTURE_DESCRIPTIONS[id]
     val step = frame?.step
-    val drawn = id == GuideScreenId.TODAY && step != null
+    val drawn = step != null
     // Where the drawn screen's controls are, for the tap ring (the screen says, to the guide only).
     val anchors = remember { TapAnchors() }
-    val ringing = frame?.tap?.let { anchors.boxes[anchorOf(it)] }
+    val ringing = frame?.tap?.let { anchors.boxes[anchorOf(it, mode)] }
     Box(
         modifier
             // A picture not drawn yet is an empty frame, filling its place.
@@ -153,13 +183,28 @@ internal fun GuidePicture(id: GuideScreenId, mode: TrainingMode, frame: GuideFra
                 val time = EventClock(nowMs = elapsedMs, stepStartMs = Guide.stepStartMs(frame.stepIndex))
                 CompositionLocalProvider(LocalEventClock provides time, LocalTapAnchors provides anchors) {
                     Box(Modifier.fillMaxSize().onGloballyPositioned { anchors.placeRoot(it) }) {
-                        TodayPicture(mode, step!!, frame.progress)
-                        TapRing(frame, anchors)
+                        PictureContent(id, mode, frame)
+                        TapRing(frame, anchors, mode)
                     }
                 }
             }
         }
         Box(Modifier.matchParentSize().then(NoTouches))
+    }
+}
+
+/** Screen [id]'s drawn phone at [frame]: each picture is its own file under `pictures/`, screen 4's below. */
+@Composable
+internal fun PictureContent(id: GuideScreenId, mode: TrainingMode, frame: GuideFrame) {
+    when (id) {
+        GuideScreenId.WELCOME -> WelcomePicture(frame)
+        GuideScreenId.SIDE -> SidePicture()
+        GuideScreenId.PLAN -> PlanPicture(mode, frame)
+        GuideScreenId.TODAY -> TodayPicture(mode, frame.step, frame.progress)
+        GuideScreenId.TARGETS -> TargetsPicture(mode, frame)
+        GuideScreenId.HOLDS_BACK -> HoldsBackPicture(mode, frame)
+        GuideScreenId.MONTHS_LATER -> MonthsLaterPicture(mode, frame)
+        GuideScreenId.YOUR_TURN -> YourTurnPicture(mode)
     }
 }
 
@@ -182,14 +227,14 @@ internal fun TodayPicture(mode: TrainingMode, step: GuideStep, progress: Double 
  * its time says. It draws nothing otherwise.
  */
 @Composable
-private fun TapRing(frame: GuideFrame, anchors: TapAnchors) {
-    // In the pressed button's own ink (Log set: a primary button), so it shows on that button on either side and scheme.
-    val color = PowertrackerTheme.colors.onAccent
+private fun TapRing(frame: GuideFrame, anchors: TapAnchors, mode: TrainingMode) {
     val tap = frame.tap
+    val color = ringInk(tap)
+    val spot = tap?.let { anchorOf(it, mode) }
     val p = frame.tapProgress.toFloat()
     Box(
         Modifier.fillMaxSize().drawBehind {
-            val box = tap?.let { anchors.boxes[anchorOf(it)] } ?: return@drawBehind
+            val box = spot?.let { anchors.boxes[it] } ?: return@drawBehind
             val scale = RING_SCALE_FROM + (RING_SCALE_TO - RING_SCALE_FROM) * p
             val line = RING_LINE.toPx() * scale
             val outer = RING_SIZE.toPx() / 2 * scale

@@ -86,28 +86,34 @@ internal fun riseFade(p: Float): Float =
  * one asks, and the marker is no modifier at all: it draws nothing and changes nothing.
  */
 
-/** The controls the guide can ring. */
-enum class TapAnchor { LOG_SET }
+/**
+ * The controls the guide can ring: Today's Log set; the Plan screen's Choose a template, a template's card in the list,
+ * a draft exercise's Swap and Use this plan.
+ */
+enum class TapAnchor { LOG_SET, CHOOSE_TEMPLATE, TEMPLATE, SWAP, USE_THIS_PLAN }
+
+/** One control: [anchor], and for one of many alike (a template's card, an exercise's Swap) its [key]. */
+data class TapSpot(val anchor: TapAnchor, val key: String? = null)
 
 /** Where each [TapAnchor] is, in the space of the layout that holds it ([root]): the guide's. */
 class TapAnchors {
     private var root: LayoutCoordinates? = null
-    private val placed = HashMap<TapAnchor, LayoutCoordinates>()
+    private val placed = HashMap<TapSpot, LayoutCoordinates>()
 
     /** Each anchor's box in [root]'s space, kept up to date as either moves. */
-    val boxes = mutableStateMapOf<TapAnchor, Rect>()
+    val boxes = mutableStateMapOf<TapSpot, Rect>()
 
     fun placeRoot(coordinates: LayoutCoordinates) {
         root = coordinates
         placed.keys.toList().forEach(::measure)
     }
 
-    internal fun place(anchor: TapAnchor, coordinates: LayoutCoordinates) {
+    internal fun place(anchor: TapSpot, coordinates: LayoutCoordinates) {
         placed[anchor] = coordinates
         measure(anchor)
     }
 
-    private fun measure(anchor: TapAnchor) {
+    private fun measure(anchor: TapSpot) {
         val r = root ?: return
         val c = placed[anchor] ?: return
         if (!r.isAttached || !c.isAttached) return
@@ -121,7 +127,7 @@ val LocalTapAnchors = staticCompositionLocalOf<TapAnchors?> { null }
 
 /** Says where this control is to a guide that asks ([LocalTapAnchors]); in the app it is nothing. */
 @Composable
-internal fun Modifier.tapAnchor(anchor: TapAnchor): Modifier {
+internal fun Modifier.tapAnchor(anchor: TapAnchor, key: String? = null): Modifier {
     val anchors = LocalTapAnchors.current ?: return this
-    return this.onGloballyPositioned { anchors.place(anchor, it) }
+    return this.onGloballyPositioned { anchors.place(TapSpot(anchor, key), it) }
 }
