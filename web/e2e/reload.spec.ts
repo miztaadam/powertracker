@@ -18,6 +18,26 @@ test('reloadMidSession_keepsEverything', async ({ page }) => {
   await tap(page, 'Decrease RPE')
   await expect(weightField(page)).toHaveValue('105')
   await expect(page.getByRole('timer', { name: 'Rest, 3:00 left' })).toBeVisible()
+  // The app stores each change as it is made, without waiting: reload once the last one is stored, not while it is
+  // still being written (a busy machine was seen to reload first, losing the RPE).
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const db = await new Promise<IDBDatabase>((done, fail) => {
+          const request = indexedDB.open('grit')
+          request.onsuccess = () => done(request.result)
+          request.onerror = () => fail(request.error)
+        })
+        const rows = await new Promise<{ key: string; value: unknown }[]>((done, fail) => {
+          const all = db.transaction('meta').objectStore('meta').getAll()
+          all.onsuccess = () => done(all.result)
+          all.onerror = () => fail(all.error)
+        })
+        db.close()
+        return rows.filter((r) => r.key.startsWith('editor:')).map((r) => r.value)
+      }),
+    )
+    .toContainEqual({ weightKg: 105, reps: 4, rpe: 7.5 })
 
   await page.reload()
 
