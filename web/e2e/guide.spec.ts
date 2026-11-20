@@ -1513,3 +1513,38 @@ test.describe('guide speed', { tag: '@speed' }, () => {
     if (ms < 150) expect(ms).toBeLessThan(300)
   })
 })
+
+// For the owner (GUIDE_VIDEO=<dir>): each of the seven other pictures playing in real time with motion on, from its first
+// step until a second and a half after its last has settled (screen 2: two turns of its loop), at the e2e phone's full
+// screen (390 × 844). `<name>.json` beside each says where in the video the screen opened, to trim from.
+test.describe('for the owner: the seven other pictures in real time', () => {
+  const dir = process.env.GUIDE_VIDEO
+  test.skip(dir == null, 'GUIDE_VIDEO is not set')
+  const runs: [string, Side, 'dark' | 'light'][] = [
+    ...SEVEN.map((id): [string, Side, 'dark' | 'light'] => [id, 'POWERLIFTING', 'dark']),
+    ['TARGETS', 'BODYBUILDING', 'light'],
+    ['HOLDS_BACK', 'BODYBUILDING', 'light'],
+    ['MONTHS_LATER', 'BODYBUILDING', 'light'],
+  ]
+  for (const [id, side, scheme] of runs) {
+    test(`${shotName(id)} video (${sideName(side)}, ${scheme})`, async ({ browser, baseURL }) => {
+      const { defaultBrowserType: _, ...phone } = devices['iPhone 13']
+      const size = { width: 390, height: 844 }
+      const context = await browser.newContext({ ...phone, viewport: size, baseURL, storageState: MOTION_ON, recordVideo: { dir: resolve(dir!, 'raw'), size } })
+      const page = await context.newPage()
+      const started = Date.now()
+      await page.emulateMedia({ colorScheme: scheme })
+      await openGuideOn(page, side, id)
+      const opened = (Date.now() - started) / 1000
+      const steps = grit.guideSteps(id, side)
+      await page.waitForTimeout(id === 'SIDE' ? grit.guideSideLoopMs() * 2 : grit.guideDoneMs(steps.length) + 1500)
+      await expect(picture(page)).toHaveAttribute('data-step', steps.at(-1)!)
+      await page.close()
+      await context.close()
+      const name = `web-guide-${shotName(id)}-${sideName(side)}-${scheme}`
+      mkdirSync(dir!, { recursive: true })
+      await page.video()!.saveAs(resolve(dir!, `${name}.webm`))
+      writeFileSync(resolve(dir!, `${name}.json`), JSON.stringify({ openedAtSeconds: opened }))
+    })
+  }
+})
