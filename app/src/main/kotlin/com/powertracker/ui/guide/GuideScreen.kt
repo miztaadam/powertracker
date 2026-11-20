@@ -275,7 +275,7 @@ fun GuideScreen(
             // Below it: Build my plan (bodybuilding, no plan), or See my plan.
             val secondary = buttons.secondary
             val density = LocalDensity.current
-            if (secondShown && secondary != null) {
+            if (secondShown) {
                 SecondaryButton(
                     secondary.first, { close(secondary.second) },
                     Modifier.fillMaxWidth().testTag("guide-last-secondary").onSizeChanged {
