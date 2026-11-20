@@ -446,16 +446,31 @@
   gap: var(--space-4);
 }
 
+/*
+ * Each side's column is as wide as its box or its name, whichever is wider (review, 1.16): in a low landscape place the
+ * box is narrower than its name, and a column held to the box's width let the two names run into each other. Two flex
+ * columns with a gap never overlap, at any text size; the rule below keeps them inside the art.
+ */
 .guide-side-motion {
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  width: min(calc((100cqw - var(--space-4)) / 2), calc((100cqh - 40px) * var(--side-ratio, 0.75)));
+}
+
+/*
+ * The two names side by side need about 190 px (91.6 and 85.5 px of title-medium, and the gap). Narrower than 212 px,
+ * leaving some room for a wider fallback font, SIDE's art is not drawn, as WELCOME's is not below 200 px.
+ */
+@container (max-width: 211px) {
+  .guide-picture-art > .guide-picture-screen:has(.guide-side-loop) {
+    visibility: hidden;
+  }
 }
 
 .guide-side-box {
-  width: 100%;
+  width: min(calc((100cqw - var(--space-4)) / 2), calc((100cqh - 40px) * var(--side-ratio, 0.75)));
   aspect-ratio: var(--side-ratio, 0.75);
   border-radius: var(--radius-lg);
   overflow: hidden;

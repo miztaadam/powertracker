@@ -943,9 +943,67 @@ async function nextTo(page: Page, id: string, side: Side = 'POWERLIFTING') {
   }
 }
 
+/**
+ * SIDE in a landscape phone at the default text size (review, 1.16): its art is either not drawn, or drawn with both
+ * motion boxes and both names inside it and the two names apart. Returns whether the art was drawn, for the log.
+ */
+async function checkSideNamesApart(page: Page, label: string): Promise<boolean> {
+  await page.evaluate(() => document.fonts.ready)
+  const art = picture(page).locator('.guide-picture-screen')
+  if (!(await art.isVisible())) return false
+  const frame = (await picture(page).boundingBox())!
+  const names = await Promise.all((await art.locator('.guide-side-panel-name').all()).map(async (n) => (await n.boundingBox())!))
+  const boxes = await Promise.all((await art.locator('.guide-side-box').all()).map(async (b) => (await b.boundingBox())!))
+  expect(names, label).toHaveLength(2)
+  expect(boxes, label).toHaveLength(2)
+  for (const name of names) expect(within(name, frame), `${label}: a name runs out of the art: ${JSON.stringify(name)} in ${JSON.stringify(frame)}`).toBe(true)
+  for (const box of boxes) expect(within(box, frame), `${label}: a motion box runs out of the art`).toBe(true)
+  expect(overlap(names[0]!, names[1]!), `${label}: the two names run into each other: ${JSON.stringify(names)}`).toBe(false)
+  // Each name is apart from the other side's box too.
+  expect(overlap(names[0]!, boxes[1]!) || overlap(names[1]!, boxes[0]!), `${label}: a name runs into the other side's box`).toBe(false)
+  return true
+}
+
+/** The landscape phones SIDE is checked on at the default text size. */
+const LANDSCAPE = [
+  [664, 390],
+  [844, 390],
+] as const
+
+for (const [width, height] of LANDSCAPE) {
+  test(`SIDE on a replay at ${width} × ${height}, default text: the names apart and inside the art, or the art not drawn`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    for (const side of SIDES) {
+      await openGuideOn(page, side, 'SIDE')
+      const drawn = await checkSideNamesApart(page, `replay, ${sideName(side)}, ${width} × ${height}`)
+      console.log(`SIDE replay ${sideName(side)} ${width} × ${height}: art ${drawn ? 'drawn' : 'not drawn'}`)
+    }
+  })
+}
+
 test.describe('the first launch', () => {
   // A new device: the gate open. (Motion off, for steady checks.)
   test.use({ storageState: NEW_DEVICE })
+
+  for (const [width, height] of LANDSCAPE) {
+    test(`SIDE on a first launch at ${width} × ${height}, default text: the names apart and inside the art, or the art not drawn; the side buttons kept`, async ({ page }) => {
+      await page.setViewportSize({ width, height })
+      await page.clock.setFixedTime(WEDNESDAY)
+      await page.goto('/')
+      await nextTo(page, 'SIDE')
+      await expect(page.getByTestId('guide-side-powerlifting')).toBeVisible()
+      await expect(page.getByTestId('guide-side-bodybuilding')).toBeVisible()
+      const drawn = await checkSideNamesApart(page, `first launch, ${width} × ${height}`)
+      console.log(`SIDE first launch ${width} × ${height}: art ${drawn ? 'drawn' : 'not drawn'}`)
+      // The side buttons stay whole on screen, below the art.
+      const viewport = { x: 0, y: 0, width, height }
+      for (const id of ['guide-side-powerlifting', 'guide-side-bodybuilding']) {
+        const button = (await page.getByTestId(id).boundingBox())!
+        expect(within(button, viewport), `${id} is off screen`).toBe(true)
+        if (drawn) expect(overlap(button, (await picture(page).boundingBox())!), `${id} covers the art`).toBe(false)
+      }
+    })
+  }
 
   test('guide_seam: every spec keeps the gate shut, through e2e/storage.ts; only this block opens it', async () => {
     const { readdirSync, readFileSync } = await import('node:fs')
