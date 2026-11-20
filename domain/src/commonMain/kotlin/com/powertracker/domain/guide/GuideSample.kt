@@ -1,5 +1,6 @@
 package com.powertracker.domain.guide
 
+import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.CoachSettings
 import com.powertracker.domain.coach.Coaching
@@ -12,6 +13,7 @@ import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
+import com.powertracker.domain.model.CheckIn
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
@@ -22,11 +24,13 @@ import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.plan.PlanDraft
 import com.powertracker.domain.plan.PlanTemplate
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.plan.PlanTemplates
 import com.powertracker.domain.progress.ProgressMath
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
@@ -53,6 +57,9 @@ data class GuideTargetStep(
  * reps and the RPE.
  */
 data class GuideEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
+
+/** Screen 3's one swap: on [day], the draft's [from] becomes [to] (catalogue names). */
+data class GuideSwap(val day: DayOfWeek, val from: String, val to: String)
 
 /**
  * The sample lifter months on: [points] for the chart, oldest first (powerlifting: the sample lift's weekly e1RM;
@@ -141,8 +148,11 @@ object GuideSample {
 
     private class Side(val exercises: Map<Long, Exercise>, val plan: List<PlanItem>)
 
-    private fun side(mode: TrainingMode): Side {
-        val draft = PlanTemplates.draft(template(mode), PlanTemplates.suggestedDays(DAYS, emptySet()), strictPress = false)
+    /** The template's draft on its 3-day spread, as the templates screen opens it for a new lifter. */
+    private fun templateDraft(mode: TrainingMode): PlanDraft =
+        PlanTemplates.draft(template(mode), PlanTemplates.suggestedDays(DAYS, emptySet()), strictPress = false)
+
+    private fun side(mode: TrainingMode, draft: PlanDraft = templateDraft(mode)): Side {
         val names = draft.sessions.flatMap { s -> s.exercises.map { it.name } }.distinct()
         val exercises = names.mapIndexed { i, name ->
             val entry = Library.find(name) ?: error("$name is not in the catalogue")
@@ -174,6 +184,55 @@ object GuideSample {
 
     /** That template's draft, saved, on the templates' 3-day spread (Monday, Wednesday, Friday). */
     fun plan(mode: TrainingMode): List<PlanItem> = sideOf(mode).plan
+
+    /*
+     * Screen 3 swaps one exercise of the draft before saving it. The other screens draw [plan] (the draft as the template
+     * gives it): the swapped exercise is one none of them shows, so what they draw is the same either way.
+     */
+
+    private fun buildSwap(mode: TrainingMode): GuideSwap {
+        val template = template(mode)
+        val draft = templateDraft(mode)
+        val first = draft.sessions.first()
+        // The first day's last exercise that has alternatives: in view on the draft, and below screen 4's few items.
+        val from = first.exercises.last { PlanTemplates.alternatives(template, draft, first.day, it.name).isNotEmpty() }.name
+        return GuideSwap(first.day, from, PlanTemplates.alternatives(template, draft, first.day, from).first().name)
+    }
+
+    private val swaps: Map<TrainingMode, Lazy<GuideSwap>> = TrainingMode.entries.associateWith { lazy { buildSwap(it) } }
+
+    private val filledSides: Map<TrainingMode, Lazy<Side>> = TrainingMode.entries.associateWith { mode ->
+        lazy { side(mode, draft(mode, swapped = true)) }
+    }
+
+    /** The one Swap screen 3 shows: on the first day, its last exercise with alternatives, for the first of them. */
+    fun swap(mode: TrainingMode): GuideSwap {
+        reads++
+        return swaps.getValue(mode).value
+    }
+
+    /** The template's draft as screen 3 shows it: on Monday, Wednesday and Friday; [swapped], with [swap] made. */
+    fun draft(mode: TrainingMode, swapped: Boolean): PlanDraft {
+        val draft = templateDraft(mode)
+        if (!swapped) return draft
+        val s = swap(mode)
+        return PlanTemplates.swap(draft, s.day, s.from, s.to)
+    }
+
+    /**
+     * The swapped draft as Use this plan saves it (screen 3's last step): [plan]'s items and ids, the swapped one on
+     * [filledExercises]' exercise of the same id.
+     */
+    fun filledPlan(mode: TrainingMode): List<PlanItem> {
+        reads++
+        return filledSides.getValue(mode).value.plan
+    }
+
+    /** [exercises] with the swapped exercise in place of the one it replaced, under the same id: [filledPlan]'s. */
+    fun filledExercises(mode: TrainingMode): Map<Long, Exercise> {
+        reads++
+        return filledSides.getValue(mode).value.exercises
+    }
 
     /**
      * Screen 4's day, for the guide only: the first [TODAY_ITEMS] of the plan's items on [TODAY], in order. The whole
@@ -251,7 +310,10 @@ object GuideSample {
             starts.map { (id, set) -> Baseline(id, E1rm.estimate(set.first, set.second, set.third), date) }
         }
 
-    private fun buildTargets(mode: TrainingMode): List<GuideTargetStep> {
+    /** Screen 5's run: each session's step, the coach's target advice behind it, and what following it puts in. */
+    private class TargetRun(val steps: List<GuideTargetStep>, val advice: List<Advice>, val editors: List<GuideEditor>, val history: TrainingHistory)
+
+    private fun buildTargets(mode: TrainingMode): TargetRun {
         val pl = mode == TrainingMode.POWERLIFTING
         val name = if (pl) PL_LIFT else BB_LIFT
         val id = idOf(mode, name)
@@ -261,7 +323,9 @@ object GuideSample {
         var kg = if (pl) PL_START_KG else BB_START_KG
         val sessions = mutableListOf<LoggedSession>()
         var baselines = emptyList<Baseline>()
-        return (0 until count).map { i ->
+        val advice = mutableListOf<Advice>()
+        val editors = mutableListOf<GuideEditor>()
+        val steps = (0 until count).map { i ->
             val item = plan.first { it.exerciseId == id && it.weekday == date.dayOfWeek }
             val reps = if (pl) (if (i == 0) PL_FIRST_REPS else item.reps) else BB_TARGET_REPS[i]
             val rpe = if (pl) PL_TARGET_RPES[i] else BB_TARGET_RPES[i]
@@ -272,20 +336,66 @@ object GuideSample {
             val target = Coaching.targetsFor(mode, next.dayOfWeek, history, plan, SETTINGS, next, emptyList())
                 .first { (it.payload as AdvicePayload.Target).exerciseId == id }
             val payload = target.payload as AdvicePayload.Target
+            // Distinct ids, as stored cards have.
+            advice += target.copy(id = i + 1L)
+            // Following it: its weight and effort, and on a range the reps to beat (the Today field's own choice).
+            val nextItem = plan.first { it.exerciseId == id && it.weekday == next.dayOfWeek }
+            val shownReps = if (payload.repsHigh != null) BodybuildingCoach.repsToBeat(nextItem, history, 1, next) else payload.reps
+            editors += GuideEditor(payload.weightKg, shownReps, payload.rpe)
             GuideTargetStep(date, name, kg, reps, rpe, payload.weightKg, payload.reps, payload.repsHigh ?: payload.reps, target.reason)
                 .also {
                     date = next
                     kg = payload.weightKg
                 }
         }
+        return TargetRun(steps, advice, editors, TrainingHistory(sessions.toList(), exercises(mode), baselines))
     }
 
-    private val targetSteps: Map<TrainingMode, Lazy<List<GuideTargetStep>>> = TrainingMode.entries.associateWith { lazy { buildTargets(it) } }
+    private val targetRuns: Map<TrainingMode, Lazy<TargetRun>> = TrainingMode.entries.associateWith { lazy { buildTargets(it) } }
+
+    private fun targetRun(mode: TrainingMode): TargetRun {
+        reads++
+        return targetRuns.getValue(mode).value
+    }
 
     /** One lift, 5 sessions from [TODAY]: what was done, and the coach's next target. */
-    fun targets(mode: TrainingMode): List<GuideTargetStep> {
-        reads++
-        return targetSteps.getValue(mode).value
+    fun targets(mode: TrainingMode): List<GuideTargetStep> = targetRun(mode).steps
+
+    /**
+     * The coach's target behind each [targets] entry, as Today shows it on the next session's date (its `createdAt`):
+     * OPEN, the real advice with its reason; distinct ids.
+     */
+    fun targetAdvice(mode: TrainingMode): List<Advice> = targetRun(mode).advice
+
+    /** Every session of screen 5's run, as the coach saw them: the history [targetAdvice] was worked out from. */
+    fun targetHistory(mode: TrainingMode): TrainingHistory = targetRun(mode).history
+
+    /**
+     * What the lift's editor shows at [progress] (0 to 1) through the move into screen 5's step [index]: what following
+     * target [index] puts in (its weight and RPE; on a range, the reps to beat, which the field fills in), rolled from the
+     * step before's through values the app allows (the weight on the plate grid, whole reps, RPE in halves). The first
+     * step has no move.
+     */
+    fun targetEditor(mode: TrainingMode, index: Int, progress: Double): GuideEditor {
+        val editors = targetRun(mode).editors
+        require(index in editors.indices) { "$index is not a step of the targets picture" }
+        val end = editors[index]
+        if (progress >= 1.0 || index == 0) return end
+        return roll(editors[index - 1], end, maxOf(0.0, progress))
+    }
+
+    /** [from] to [to] at [p]: the weight on the plate grid (never past [to]), whole reps, RPE in halves. */
+    private fun roll(from: GuideEditor, to: GuideEditor, p: Double): GuideEditor {
+        val grid = PlateLoader.step(changePlates = false)
+        val weight = if (from.weightKg == null || to.weightKg == null || from.weightKg == to.weightKg) {
+            to.weightKg
+        } else {
+            val kg = from.weightKg + kotlin.math.round((to.weightKg - from.weightKg) * p / grid) * grid
+            if (to.weightKg > from.weightKg) minOf(kg, to.weightKg) else maxOf(kg, to.weightKg)
+        }
+        val reps = from.reps + kotlin.math.round((to.reps - from.reps) * p).toInt()
+        val rpe = from.rpe + kotlin.math.round((to.rpe - from.rpe) * p * 2) / 2
+        return GuideEditor(weight, reps, rpe)
     }
 
     /** How many sessions [targets] has, without working them out: one per session result. */
@@ -332,10 +442,7 @@ object GuideSample {
         // what a lifter first sees (the rule fires at that many weeks), and after the first an extra set missed out of
         // the hole. Stuck (bodybuilding): the same sets for the stuck window and two sessions past it.
         val last = if (pl) {
-            val missed = LoggedSet(id, kg, reps, null, failed = true, missPoint = MissPoint.FLOOR, isTopSet = false)
-            val first = SETTINGS.stallWeeks
-            val weeks = (first downTo 1).map { daysBefore(7L * it) to (done() + if (it < first) listOf(missed) else emptyList()) }.toTypedArray()
-            evaluated(mode, history(mode, *weeks), AdviceType.STALL)
+            evaluated(mode, stallHistoryOf(mode), AdviceType.STALL)
         } else {
             val week = 7L
             val from = PhysiqueCoach.STUCK_DAYS.toLong()
@@ -346,7 +453,41 @@ object GuideSample {
         return listOf(deload, reEntry, pain, last).mapIndexed { i, card -> card.copy(id = i + 1L) }
     }
 
+    /** The stall card's history (powerlifting): see [buildAdvice]. */
+    private fun stallHistoryOf(mode: TrainingMode): TrainingHistory {
+        val id = idOf(mode, PL_LIFT)
+        val item = plan(mode).first { it.exerciseId == id }
+        val missed = LoggedSet(id, PL_START_KG, item.reps, null, failed = true, missPoint = MissPoint.FLOOR, isTopSet = false)
+        val first = SETTINGS.stallWeeks
+        val weeks = (first downTo 1).map { daysBefore(7L * it) to (sets(item, PL_START_KG, item.reps, PL_RPE) + if (it < first) listOf(missed) else emptyList()) }
+        return history(mode, *weeks.toTypedArray())
+    }
+
+    private val stallHistories: Map<TrainingMode, Lazy<TrainingHistory?>> = TrainingMode.entries.associateWith { mode ->
+        lazy { if (mode == TrainingMode.POWERLIFTING) stallHistoryOf(mode) else null }
+    }
+
     private val cards: Map<TrainingMode, Lazy<List<Advice>>> = TrainingMode.entries.associateWith { lazy { buildAdvice(it) } }
+
+    /** The history screen 6's stall card was worked out from (powerlifting); null on bodybuilding, which has none. */
+    fun stallHistory(mode: TrainingMode): TrainingHistory? {
+        reads++
+        return stallHistories.getValue(mode).value
+    }
+
+    /**
+     * The stall card's figures, as both apps' Coach screens work them out on [TODAY] from [stallHistory]: its lift's
+     * weekly best e1RM, oldest first (the apps show the last of them), and its current e1RM. Empty and null on bodybuilding.
+     */
+    fun stallTrend(mode: TrainingMode): List<Pair<LocalDate, Double>> {
+        val history = stallHistory(mode) ?: return emptyList()
+        return HistoryStats(history).weeklyTrend(MainLift.SQUAT, TODAY).map { it.weekStart to it.e1rmKg }
+    }
+
+    fun stallE1rm(mode: TrainingMode): Double? {
+        val history = stallHistory(mode) ?: return null
+        return HistoryStats(history).currentE1rm(MainLift.SQUAT, TODAY)
+    }
 
     /** Screen 6's cards, in the rule table's order, each from the real rule run on a small history built for it. */
     fun advice(mode: TrainingMode): List<Advice> {
@@ -360,10 +501,10 @@ object GuideSample {
         (if (mode == TrainingMode.POWERLIFTING) PL_PROGRESS_START else BB_PROGRESS_START).mapKeys { idOf(mode, it.key) }
 
     /** The last day of the progress run (exclusive): [PROGRESS_WEEKS] from [TODAY]. */
-    internal val PROGRESS_END: LocalDate = TODAY.plus(PROGRESS_WEEKS, DateTimeUnit.WEEK)
+    val PROGRESS_END: LocalDate = TODAY.plus(PROGRESS_WEEKS, DateTimeUnit.WEEK)
 
     /** The progress run's plan: the plan's items for the run's exercises. */
-    internal fun progressPlan(mode: TrainingMode): List<PlanItem> {
+    fun progressPlan(mode: TrainingMode): List<PlanItem> {
         val starts = progressStarts(mode)
         return plan(mode).filter { it.exerciseId in starts }
     }
@@ -410,7 +551,7 @@ object GuideSample {
         TrainingMode.entries.associateWith { lazy { buildProgressHistory(it) } }
 
     /** The six months [progress] is read from, as the real coach saw them session by session. */
-    internal fun progressHistory(mode: TrainingMode): TrainingHistory {
+    fun progressHistory(mode: TrainingMode): TrainingHistory {
         reads++
         return progressHistories.getValue(mode).value
     }
@@ -452,5 +593,54 @@ object GuideSample {
     fun progress(mode: TrainingMode): GuideProgress {
         reads++
         return months.getValue(mode).value
+    }
+
+    // ---- screen 7's picture: the Progress screen as the weeks go by ----
+
+    /** The weeks into the run screen 7's steps show: the chart's first weeks, then on, then the run's last week. */
+    private const val MONTHS_CHART_WEEKS = 8
+    private const val MONTHS_BESTS_WEEKS = 17
+
+    private fun monthsWeeks(step: GuideStep): Int = when (step) {
+        GuideStep.MONTHS_CHART -> MONTHS_CHART_WEEKS
+        GuideStep.MONTHS_BESTS -> MONTHS_BESTS_WEEKS
+        GuideStep.MONTHS_ENDING -> PROGRESS_WEEKS
+        else -> throw IllegalArgumentException("$step is not a step of the months-later picture")
+    }
+
+    /** The day [weeks] whole weeks into the run: the Sunday that ends its last week, so that week's sessions count. */
+    private fun weeksIn(weeks: Int): LocalDate = TODAY.plus(weeks, DateTimeUnit.WEEK).minus(1, DateTimeUnit.DAY)
+
+    /**
+     * The day the Progress screen of screen 7 is drawn on at [progress] (0 to 1) through the move into [step]: whole
+     * weeks into the run, from the step before's to the step's own, so the chart gains its points one week at a time
+     * and the bests climb through what the screen would really have shown. The first step has no move.
+     */
+    fun monthsDate(mode: TrainingMode, step: GuideStep, progress: Double): LocalDate {
+        val steps = Guide.steps(GuideScreenId.MONTHS_LATER, mode)
+        val at = steps.indexOf(step)
+        require(at >= 0) { "$step is not a step of the months-later picture" }
+        val to = monthsWeeks(step)
+        if (progress >= 1.0 || at == 0) return weeksIn(to)
+        val from = monthsWeeks(steps[at - 1])
+        return weeksIn(from + kotlin.math.round((to - from) * maxOf(0.0, progress)).toInt())
+    }
+
+    /** The run's sessions on or before [until], with its exercises and baselines: what the Progress screen reads then. */
+    fun monthsHistory(mode: TrainingMode, until: LocalDate): TrainingHistory {
+        val all = progressHistory(mode)
+        return TrainingHistory(all.sessions.filter { it.date <= until }, all.exercises, all.baselines)
+    }
+
+    /** The plan the run was logged against ([progressPlan]): what the bodybuilding Progress screen lists. */
+    fun monthsPlan(mode: TrainingMode): List<PlanItem> = progressPlan(mode)
+
+    /**
+     * Bodybuilding's check-in at the run's end, once screen 7's last move has arrived there: the lagging muscle
+     * ([GuideProgress.laggingMuscle]) marked lagging. Null before then, and always on powerlifting (no check-ins).
+     */
+    fun monthsCheckIn(mode: TrainingMode, step: GuideStep, progress: Double): CheckIn? {
+        if (mode != TrainingMode.BODYBUILDING || step != GuideStep.MONTHS_ENDING || progress < 1.0) return null
+        return CheckIn(monthsDate(mode, step, progress), setOf(BB_LAGGING), emptySet(), id = 1)
     }
 }

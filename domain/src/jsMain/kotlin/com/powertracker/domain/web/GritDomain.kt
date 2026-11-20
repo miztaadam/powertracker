@@ -718,6 +718,69 @@ object GritDomain {
     /** The sample lifter about six months on. */
     fun guideSampleProgress(mode: String): JsGuideProgress = GuideSample.progress(parseEnum<TrainingMode>("mode", mode)).toJs()
 
+    // ---- the other seven pictures (Task 4) ----
+
+    /** Screen 2's loop [tMs] after it started: how far into the drop and the pump each is, in their own ms. */
+    fun guideSideFrame(tMs: Double): JsGuideSideFrame = Guide.sideFrame(tMs.toLong()).toJs()
+
+    /** Screen 2 still (motion off, the shots): the hammer at rest on the cracks, the pump's last beat at its height. */
+    fun guideSideStill(): JsGuideSideFrame = Guide.SIDE_STILL.toJs()
+
+    /** One turn of screen 2's loop, in ms. */
+    fun guideSideLoopMs(): Int = Guide.SIDE_LOOP_MS
+
+    /** Each of screen 2's motion boxes (the units `modeSwitchDropFrame` / `modeSwitchPumpFrame` take) and the pump's start. */
+    fun guideSideBox(): JsGuideSideBox = Guide.sidePumpSource().let { JsGuideSideBox(Guide.SIDE_BOX_W, Guide.SIDE_BOX_H, it.x, it.y) }
+
+    /** Screen 3's one swap: the day (1-7), the draft's exercise and what it becomes. */
+    fun guideSampleSwap(mode: String): JsGuideSwap = GuideSample.swap(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** The template's draft as screen 3 shows it (Monday, Wednesday, Friday); [swapped], with the swap made. */
+    fun guideSampleDraft(mode: String, swapped: Boolean): JsPlanDraft =
+        GuideSample.draft(parseEnum<TrainingMode>("mode", mode), swapped).toJs()
+
+    /** The swapped draft as Use this plan saves it: screen 3's last step; its exercise ids are [guideSampleFilledExercises]'. */
+    fun guideSampleFilledPlan(mode: String): Array<JsPlanItem> =
+        GuideSample.filledPlan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** [guideSampleExercises] with the swapped exercise under the replaced one's id. */
+    fun guideSampleFilledExercises(mode: String): Array<JsExercise> =
+        GuideSample.filledExercises(parseEnum<TrainingMode>("mode", mode)).values.sortedBy { it.id }.map { it.toJs() }.toTypedArray()
+
+    /** Screen 5: the coach's OPEN target behind each [guideSampleTargets] entry, dated the session it is for. */
+    fun guideSampleTargetAdvice(mode: String): Array<JsAdvice> =
+        GuideSample.targetAdvice(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Every session of screen 5's run: what the targets were worked out from. */
+    fun guideSampleTargetHistory(mode: String): JsHistory = GuideSample.targetHistory(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** What the lift's editor shows at [progress] (0 to 1) through the move into screen 5's step [index]. */
+    fun guideSampleTargetEditor(mode: String, index: Int, progress: Double): JsGuideEditor =
+        GuideSample.targetEditor(parseEnum<TrainingMode>("mode", mode), index, progress).toJs()
+
+    /** Screen 6's stall card: its lift's weekly best e1RM up to the sample's today (powerlifting; empty on bodybuilding). */
+    fun guideSampleStallTrend(mode: String): Array<JsGuidePoint> =
+        GuideSample.stallTrend(parseEnum<TrainingMode>("mode", mode)).map { (d, v) -> JsGuidePoint(d.toString(), v) }.toTypedArray()
+
+    /** Screen 6's stall card: its lift's current e1RM (powerlifting; null on bodybuilding). */
+    fun guideSampleStallE1rm(mode: String): Double? = GuideSample.stallE1rm(parseEnum<TrainingMode>("mode", mode))
+
+    /** The day (ISO) screen 7's Progress screen is drawn on at [progress] through the move into [step]: whole weeks. */
+    fun guideSampleMonthsDate(mode: String, step: String, progress: Double): String =
+        GuideSample.monthsDate(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress).toString()
+
+    /** The run's sessions on or before [until] (ISO): what the Progress screen reads then. */
+    fun guideSampleMonthsHistory(mode: String, until: String): JsHistory =
+        GuideSample.monthsHistory(parseEnum<TrainingMode>("mode", mode), parseDate("until", until)).toJs()
+
+    /** The plan the run was logged against: what the bodybuilding Progress screen lists. */
+    fun guideSampleMonthsPlan(mode: String): Array<JsPlanItem> =
+        GuideSample.monthsPlan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Bodybuilding's check-in once screen 7's last move has arrived; null before then and on powerlifting. */
+    fun guideSampleMonthsCheckIn(mode: String, step: String, progress: Double): JsCheckIn? =
+        GuideSample.monthsCheckIn(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress)?.toJs()
+
     private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
         JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)
 }
