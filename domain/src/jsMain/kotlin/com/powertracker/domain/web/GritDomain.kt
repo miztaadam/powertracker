@@ -268,9 +268,16 @@ object GritDomain {
         MuscleProgress.rows(history.toDomain(), plan.map { it.toDomain() }, checkIns.map { it.toDomain() }, parseDate("today", today))
             .map { it.toJs() }.toTypedArray()
 
-    /** Whether to show the welcome-back card: the side has a plan and was left ([leftOn], ISO date or null) more than 30 days before [today]. */
-    fun welcomeBack(leftOn: String?, today: String, hasPlan: Boolean): Boolean =
-        Coaching.welcomeBack(leftOn?.let { parseDate("leftOn", it) }, parseDate("today", today), hasPlan)
+    /**
+     * Whether to show the welcome-back card ([Coaching.welcomeBack]): the side has a plan, was left ([leftOn], ISO date
+     * or null) more than 30 days before [today], and its earliest session ([firstSessionOn], ISO date, or null when it
+     * has none) is on or before [leftOn].
+     */
+    fun welcomeBack(leftOn: String?, today: String, hasPlan: Boolean, firstSessionOn: String?): Boolean =
+        Coaching.welcomeBack(
+            leftOn?.let { parseDate("leftOn", it) }, parseDate("today", today), hasPlan,
+            firstSessionOn?.let { parseDate("firstSessionOn", it) },
+        )
 
     /**
      * Reps to put in the reps field for set [setNumber] (1-based) of a bodybuilding [item]: last time's reps for that

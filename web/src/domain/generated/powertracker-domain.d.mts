@@ -32,7 +32,7 @@ export declare namespace GritDomain {
             physiqueApplySwap(payloadJson: string, choice: string, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange;
             physiqueWeeklySets(plan: Array<JsPlanItem>, exercises: Array<JsExercise>, group: string): number;
             muscleProgressRows(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: string): Array<JsMuscleRow>;
-            welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean): boolean;
+            welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean, firstSessionOn: Nullable<string>): boolean;
             repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
             repsToBeatWithSkips(item: JsPlanItem, history: JsHistory, setNumber: number, today: string, skips: Array<JsSkip>): number;
             bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;

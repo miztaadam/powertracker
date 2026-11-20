@@ -125,7 +125,7 @@ class CoachViewModel(
                 .sortedWith(compareBy<Advice> { FEED_ORDER.indexOf(it.type) }.thenByDescending { it.createdAt }.thenByDescending { it.id })
                 .mapNotNull { a -> detail(a, stats, date, plan, exercises)?.let { CoachCard(a, it) } }
             CoachState(
-                loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty()),
+                loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty(), Coaching.firstSessionOn(mode, history)),
                 checkInDue = mode == TrainingMode.BODYBUILDING && Coaching.checkInDue(history, plans.bodybuilding, checkIns, date),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())

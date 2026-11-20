@@ -102,7 +102,16 @@ object Coaching {
     fun applySkipSwap(payload: AdvicePayload.Skipped, choice: String, mode: TrainingMode, plan: List<PlanItem>, exercises: Map<Long, Exercise>): PlanChange =
         SkipCoach.applySkipSwap(payload, choice, mode, plan, exercises)
 
-    /** The welcome-back card: this side has a plan and was left more than 30 days before [today]. */
-    fun welcomeBack(leftOn: LocalDate?, today: LocalDate, hasPlan: Boolean): Boolean =
-        hasPlan && leftOn != null && leftOn.daysUntil(today) > WELCOME_BACK_DAYS
+    /**
+     * The welcome-back card: this side has a plan, was left more than 30 days before [today], and was trained before
+     * it was left: its earliest session ([firstSessionOn]) is on or before [leftOn]. A side left in Settings before
+     * any session on it has nothing to come back to, so it gets no card, even once it is trained.
+     */
+    fun welcomeBack(leftOn: LocalDate?, today: LocalDate, hasPlan: Boolean, firstSessionOn: LocalDate?): Boolean =
+        hasPlan && leftOn != null && firstSessionOn != null && firstSessionOn <= leftOn &&
+            leftOn.daysUntil(today) > WELCOME_BACK_DAYS
+
+    /** The date of the earliest session logged on [mode]'s side of [history]; null when it has none. */
+    fun firstSessionOn(mode: TrainingMode, history: TrainingHistory): LocalDate? =
+        history.sessions.filter { it.mode == mode }.minOfOrNull { it.date }
 }

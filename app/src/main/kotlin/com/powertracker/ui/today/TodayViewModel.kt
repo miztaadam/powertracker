@@ -329,7 +329,10 @@ class TodayViewModel(
             changePlates = d.settings.changePlates,
             mode = d.mode,
             sideNote = if (d.sessionId != null && d.mode != d.settings.trainingMode) sideNote(d.mode) else null,
-            welcomeBack = Coaching.welcomeBack(d.settings.leftOn(d.settings.trainingMode), date, d.activeHasPlan),
+            welcomeBack = Coaching.welcomeBack(
+                d.settings.leftOn(d.settings.trainingMode), date, d.activeHasPlan,
+                Coaching.firstSessionOn(d.settings.trainingMode, d.history),
+            ),
             skippedToday = skippedToday,
         )
     }

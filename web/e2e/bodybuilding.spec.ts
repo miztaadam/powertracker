@@ -86,6 +86,8 @@ async function seedStory(page: Page, story: Story = {}) {
       const id = await added(tx.objectStore('sessions').add({ date, bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' }))
       for (const [exerciseId, weightKg, reps] of sets) tx.objectStore('sets').add({ sessionId: id, exerciseId, weightKg, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false })
     }
+    // A side left gets its welcome back only when it was trained before it was left (1.16).
+    if (bodybuildingLeftOn != null) await session('2026-09-23', [[incline, 22, 12]])
     await session('2026-10-28', [
       [incline, 24, 12],
       [incline, 24, 11],

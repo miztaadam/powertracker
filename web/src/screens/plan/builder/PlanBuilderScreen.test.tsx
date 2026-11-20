@@ -610,6 +610,9 @@ describe('the ways into the builder', () => {
 
   it('myGoalsHaveChanged_opensTheBuilderOnTheBodybuildingSide_andPlanOnThePowerliftingSide', async () => {
     await planOn('BODYBUILDING', 'Curl')
+    // Each side trained before it was left: a side never trained gets no welcome back.
+    await db.sessions.add({ date: addDays(TODAY, -50), bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })
+    await db.sessions.add({ date: addDays(TODAY, -51), bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' })
     await onSide('BODYBUILDING', { bodybuildingLeftOn: addDays(TODAY, -40) })
     const onOpenPlan = vi.fn()
     const onOpenBuilder = vi.fn()
