@@ -18,7 +18,10 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.liftLabel
+import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.validation.InputValidator
+import com.powertracker.ui.progress.toHalfKg
 import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.SAVE_FAILED
@@ -42,6 +45,17 @@ import kotlinx.datetime.LocalDate
 
 data class PlanRow(val item: PlanItem, val exerciseName: String)
 
+/** The catalogue's strict press as a Known bests row before it has a row of its own: stored nowhere (id 0). */
+internal val CATALOGUE_STRICT_PRESS: Exercise =
+    requireNotNull(Library.find(liftLabel(MainLift.STRICT_PRESS))) { "Strict press is missing from the catalogue" }
+        .let { Exercise(0, it.name, it.category, it.parentLift, it.muscles, isBuiltIn = true) }
+
+/** Each stored row's best ([ProgressMath.knownBest] of its lift, to the half kilo, as Progress rounds), by id. */
+internal fun knownBests(rows: List<Exercise>, history: TrainingHistory): Map<Long, Double> {
+    val byLift = rows.mapNotNull { it.mainLift }.distinct().associateWith { ProgressMath.knownBest(history, it)?.toHalfKg() }
+    return rows.filter { it.id != 0L }.mapNotNull { row -> row.mainLift?.let(byLift::get)?.let { row.id to it } }.toMap()
+}
+
 data class DaySection(val day: DayOfWeek, val rows: List<PlanRow>)
 
 data class PlanUiState(
@@ -50,8 +64,17 @@ data class PlanUiState(
     val exercises: List<Exercise> = emptyList(),
     /** Exercise ids, most recently logged first, for the picker's "Your exercises". */
     val recentIds: List<Long> = emptyList(),
-    /** The main lifts' own exercises (squat, bench, deadlift and, once it has a row, strict press), for "Set a known best". */
+    /**
+     * The main lifts' own exercises (squat, bench, deadlift and, once it has a row, strict press), for "Set a known best".
+     * With the strict press switch on and no strict press row yet, the catalogue's strict press ([CATALOGUE_STRICT_PRESS],
+     * id 0) comes last: its Set best makes its row.
+     */
     val mainExercises: List<Exercise> = emptyList(),
+    /**
+     * The best e1RM of each row's lift to the half kilo ([ProgressMath.knownBest]: the higher of the typed best and the
+     * best logged), by exercise id. A row with no best has no entry and shows no line.
+     */
+    val bests: Map<Long, Double> = emptyMap(),
     val defaultRpe: Double = 8.0,
     /** The days the lifter trains on this side, from Settings; a day can have plan items without being one. */
     val trainingDays: Set<DayOfWeek> = emptySet(),
@@ -116,13 +139,17 @@ class PlanViewModel(
         val names = exercises.associate { it.id to it.name }
         val byDay = plan.groupBy { it.weekday }
         val days = (s.activeTrainingDays + byDay.keys).sorted()
+        val stored = exercises.filter { it.isMainLift }
+        // The Progress switch on brings strict press, as the catalogue has it, until it has a row of its own.
+        val main = if (s.showStrictPress && stored.none { it.mainLift == MainLift.STRICT_PRESS }) stored + CATALOGUE_STRICT_PRESS else stored
         return PlanUiState(
             sections = days.map { day ->
                 DaySection(day, byDay[day].orEmpty().sortedBy { it.order }.map { PlanRow(it, names[it.exerciseId] ?: "Unknown exercise") })
             },
             exercises = exercises.filter { !it.archived },
             recentIds = recentExerciseIds(history),
-            mainExercises = exercises.filter { it.isMainLift },
+            mainExercises = main,
+            bests = knownBests(main, history),
             defaultRpe = s.defaultRpe,
             trainingDays = s.activeTrainingDays,
             mode = mode,
@@ -268,10 +295,23 @@ class PlanViewModel(
         _messages.trySend(SAVE_FAILED)
     }
 
-    /** Ignores values the dialog would not accept (non-finite, 0 or below, above 500 kg). */
+    /**
+     * Ignores values the dialog would not accept (non-finite, 0 or below, above 500 kg). Id 0 is the catalogue's strict
+     * press, stored nowhere yet ([CATALOGUE_STRICT_PRESS]): its row is found, restored or made as any catalogue pick's
+     * is, in the same transaction as the best.
+     */
     fun setBaseline(mainExerciseId: Long, e1rmKg: Double) {
         if (!InputValidator.isValidBaselineKg(e1rmKg)) return
-        write { training.setBaseline(Baseline(mainExerciseId, e1rmKg, today())) }
+        write {
+            if (mainExerciseId == 0L) {
+                training.inTransaction {
+                    val id = training.resolveCatalogue(CATALOGUE_STRICT_PRESS.name)
+                    training.setBaseline(Baseline(id, e1rmKg, today()))
+                }
+            } else {
+                training.setBaseline(Baseline(mainExerciseId, e1rmKg, today()))
+            }
+        }
     }
 
     /**
