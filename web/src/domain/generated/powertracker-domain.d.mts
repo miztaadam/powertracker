@@ -16,6 +16,16 @@ export declare namespace GritDomain {
             roundLoad(kg: number, changePlates: boolean): number;
             loadStep(changePlates: boolean): number;
             checkInput(weightKg: number, reps: number, lastWeightKg: Nullable<number>): Array<string>;
+            checkLoadInput(weight: number, reps: number, lastWeight: Nullable<number>, unit: string, plateCount: string): Array<string>;
+            plateCountOffered(exercise: JsExercise): boolean;
+            loadUnitOf(exercise: JsExercise): string;
+            plateStep(plateCount: string): number;
+            plateUp(plate: Nullable<number>, plateCount: string): number;
+            plateDown(plate: Nullable<number>, plateCount: string): number;
+            plateCheck(plate: number, plateCount: string): string;
+            plateText(plate: number): string;
+            plateSpoken(plate: number): string;
+            maxPlate(): number;
             parseBaselineKg(text: string): Nullable<number>;
             targetsFor(weekday: number, history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
             evaluate(history: JsHistory, plan: Array<JsPlanItem>, settings: JsCoachSettings, today: string, prior: Array<JsAdvice>): Array<JsAdvice>;
@@ -741,7 +751,7 @@ export declare namespace JsModeSwitchLightColors {
     }
 }
 export declare class JsExercise {
-    constructor(id: number, name: string, category: string, parentLift: Nullable<string>, muscles: Array<string>, isBuiltIn: boolean, archived: boolean);
+    constructor(id: number, name: string, category: string, parentLift: Nullable<string>, muscles: Array<string>, isBuiltIn: boolean, archived: boolean, plateCount?: string);
     get id(): number;
     get name(): string;
     get category(): string;
@@ -749,7 +759,8 @@ export declare class JsExercise {
     get muscles(): Array<string>;
     get isBuiltIn(): boolean;
     get archived(): boolean;
-    copy(id?: number, name?: string, category?: string, parentLift?: Nullable<string>, muscles?: Array<string>, isBuiltIn?: boolean, archived?: boolean): JsExercise;
+    get plateCount(): string;
+    copy(id?: number, name?: string, category?: string, parentLift?: Nullable<string>, muscles?: Array<string>, isBuiltIn?: boolean, archived?: boolean, plateCount?: string): JsExercise;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -761,7 +772,7 @@ export declare namespace JsExercise {
     }
 }
 export declare class JsSet {
-    constructor(exerciseId: number, weightKg: number, reps: number, rpe: Nullable<number>, failed: boolean, missPoint: Nullable<string>, isTopSet: boolean);
+    constructor(exerciseId: number, weightKg: number, reps: number, rpe: Nullable<number>, failed: boolean, missPoint: Nullable<string>, isTopSet: boolean, unit?: string);
     get exerciseId(): number;
     get weightKg(): number;
     get reps(): number;
@@ -769,7 +780,8 @@ export declare class JsSet {
     get failed(): boolean;
     get missPoint(): Nullable<string>;
     get isTopSet(): boolean;
-    copy(exerciseId?: number, weightKg?: number, reps?: number, rpe?: Nullable<number>, failed?: boolean, missPoint?: Nullable<string>, isTopSet?: boolean): JsSet;
+    get unit(): string;
+    copy(exerciseId?: number, weightKg?: number, reps?: number, rpe?: Nullable<number>, failed?: boolean, missPoint?: Nullable<string>, isTopSet?: boolean, unit?: string): JsSet;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

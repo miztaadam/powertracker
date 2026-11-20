@@ -121,19 +121,19 @@ initMetadataForInterface(RandomAccess, 'RandomAccess');
 initMetadataForClass(SubList, 'SubList', VOID, AbstractMutableList, [RandomAccess]);
 initMetadataForClass(AbstractMap, 'AbstractMap', VOID, VOID, [KtMap]);
 initMetadataForClass(AbstractMutableMap, 'AbstractMutableMap', VOID, AbstractMap, [KtMap]);
-initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [Collection, MutableIterable, KtSet]);
+initMetadataForClass(AbstractMutableSet, 'AbstractMutableSet', VOID, AbstractMutableCollection, [Collection, KtSet, MutableIterable]);
 initMetadataForCompanion(Companion_2);
 initMetadataForClass(ArrayList, 'ArrayList', ArrayList_init_$Create$, AbstractMutableList, [Collection, MutableIterable, KtList, RandomAccess]);
 initMetadataForClass(HashMap, 'HashMap', HashMap_init_$Create$, AbstractMutableMap, [KtMap]);
-initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [Collection, MutableIterable, KtSet]);
+initMetadataForClass(HashMapKeys, 'HashMapKeys', VOID, AbstractMutableSet, [Collection, KtSet, MutableIterable]);
 initMetadataForClass(HashMapValues, 'HashMapValues', VOID, AbstractMutableCollection, [Collection, MutableIterable]);
-initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [Collection, MutableIterable, KtSet]);
+initMetadataForClass(HashMapEntrySetBase, 'HashMapEntrySetBase', VOID, AbstractMutableSet, [Collection, KtSet, MutableIterable]);
 initMetadataForClass(HashMapEntrySet, 'HashMapEntrySet', VOID, HashMapEntrySetBase);
 initMetadataForClass(HashMapKeysDefault$iterator$1);
 initMetadataForClass(HashMapKeysDefault, 'HashMapKeysDefault', VOID, AbstractMutableSet);
 initMetadataForClass(HashMapValuesDefault$iterator$1);
 initMetadataForClass(HashMapValuesDefault, 'HashMapValuesDefault', VOID, AbstractMutableCollection);
-initMetadataForClass(HashSet, 'HashSet', HashSet_init_$Create$, AbstractMutableSet, [Collection, MutableIterable, KtSet]);
+initMetadataForClass(HashSet, 'HashSet', HashSet_init_$Create$, AbstractMutableSet, [Collection, KtSet, MutableIterable]);
 initMetadataForCompanion(Companion_3);
 initMetadataForClass(Itr, 'Itr');
 initMetadataForClass(KeysItr, 'KeysItr', VOID, Itr);
@@ -179,7 +179,7 @@ initMetadataForInterface(InternalMap, 'InternalMap');
 initMetadataForClass(InternalHashMap, 'InternalHashMap', InternalHashMap_init_$Create$, VOID, [InternalMap]);
 initMetadataForObject(EmptyHolder, 'EmptyHolder');
 initMetadataForClass(LinkedHashMap, 'LinkedHashMap', LinkedHashMap_init_$Create$, HashMap, [KtMap]);
-initMetadataForClass(LinkedHashSet, 'LinkedHashSet', LinkedHashSet_init_$Create$, HashSet, [Collection, MutableIterable, KtSet]);
+initMetadataForClass(LinkedHashSet, 'LinkedHashSet', LinkedHashSet_init_$Create$, HashSet, [Collection, KtSet, MutableIterable]);
 initMetadataForInterface(Continuation, 'Continuation');
 initMetadataForClass(InterceptedCoroutine, 'InterceptedCoroutine', VOID, VOID, [Continuation]);
 initMetadataForClass(CoroutineImpl, 'CoroutineImpl', VOID, InterceptedCoroutine, [Continuation]);
@@ -1158,17 +1158,6 @@ function coerceAtMost_0(_this__u8e3s4, maximumValue) {
 function coerceAtLeast_0(_this__u8e3s4, minimumValue) {
   return _this__u8e3s4 < minimumValue ? minimumValue : _this__u8e3s4;
 }
-function contains_6(_this__u8e3s4, value) {
-  // Inline function 'kotlin.let' call
-  var it = toIntExactOrNull(value);
-  return !(it == null) ? _this__u8e3s4.b1(it) : false;
-}
-function contains_7(_this__u8e3s4, value) {
-  return _this__u8e3s4.b1(fromInt(value));
-}
-function toIntExactOrNull(_this__u8e3s4) {
-  return (compare(new Long(-2147483648, -1), _this__u8e3s4) <= 0 ? compare(_this__u8e3s4, new Long(2147483647, 0)) <= 0 : false) ? convertToInt(_this__u8e3s4) : null;
-}
 function coerceIn_0(_this__u8e3s4, minimumValue, maximumValue) {
   if (compare(minimumValue, maximumValue) > 0)
     throw IllegalArgumentException_init_$Create$_0('Cannot coerce value to an empty range: maximum ' + maximumValue.toString() + ' is less than minimum ' + minimumValue.toString() + '.');
@@ -1180,6 +1169,17 @@ function coerceIn_0(_this__u8e3s4, minimumValue, maximumValue) {
 }
 function coerceAtLeast_1(_this__u8e3s4, minimumValue) {
   return compare(_this__u8e3s4, minimumValue) < 0 ? minimumValue : _this__u8e3s4;
+}
+function contains_6(_this__u8e3s4, value) {
+  // Inline function 'kotlin.let' call
+  var it = toIntExactOrNull(value);
+  return !(it == null) ? _this__u8e3s4.b1(it) : false;
+}
+function contains_7(_this__u8e3s4, value) {
+  return _this__u8e3s4.b1(fromInt(value));
+}
+function toIntExactOrNull(_this__u8e3s4) {
+  return (compare(new Long(-2147483648, -1), _this__u8e3s4) <= 0 ? compare(_this__u8e3s4, new Long(2147483647, 0)) <= 0 : false) ? convertToInt(_this__u8e3s4) : null;
 }
 function coerceAtMost_1(_this__u8e3s4, maximumValue) {
   return compare(_this__u8e3s4, maximumValue) > 0 ? maximumValue : _this__u8e3s4;
@@ -12676,10 +12676,12 @@ export {
   round as round2mrvepag8eey0,
   ClosedRange as ClosedRangehokgr73im9z3,
   coerceAtLeast_0 as coerceAtLeastklytehohcpeq,
+  coerceAtLeast_1 as coerceAtLeast3qxv4gros2xti,
   coerceAtLeast as coerceAtLeast2bkz8m9ik7hep,
   coerceAtMost_0 as coerceAtMostfyc3emgaderp,
   coerceAtMost as coerceAtMost322komnqp70ag,
   coerceIn as coerceIn1xblvmyr0tby6,
+  coerceIn_0 as coerceIn302bduskdb54x,
   contains_6 as contains2c50nlxg7en7o,
   contains_7 as contains16ds8fxxkpknr,
   downTo as downTo39qhfeycepm1j,

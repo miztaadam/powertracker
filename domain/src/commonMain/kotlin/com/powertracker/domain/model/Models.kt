@@ -40,6 +40,8 @@ data class Exercise(
     val muscles: List<String>,
     val isBuiltIn: Boolean,
     val archived: Boolean = false,
+    /** Whether the lifter counts plates on this machine; it counts only where `PlateStack.offered` allows it. */
+    val plateCount: PlateCount = PlateCount.OFF,
 ) {
     /** A main-lift category -> that lift; VARIATION -> [parentLift]; ACCESSORY -> null. */
     val mainLift: MainLift?
@@ -68,6 +70,8 @@ data class LoggedSet(
     val failed: Boolean,
     val missPoint: MissPoint?,
     val isTopSet: Boolean,
+    /** What [weightKg] means: kg, or a plate number when this is [LoadUnit.PLATES]. */
+    val unit: LoadUnit = LoadUnit.KG,
 )
 
 data class LoggedSession(

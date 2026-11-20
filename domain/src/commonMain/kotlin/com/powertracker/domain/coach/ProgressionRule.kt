@@ -29,7 +29,7 @@ object ProgressionRule {
 
     /** The increase for a squat or deadlift top set at least 1 RPE under target. */
     internal const val BIG_STEP_KG = 5.0
-    private const val MAX_REPS = 12
+    internal const val MAX_REPS = 12
     private const val RECENT_JUMP_DAYS = 14L
 
     /** null when the exercise has no prior top set. */
