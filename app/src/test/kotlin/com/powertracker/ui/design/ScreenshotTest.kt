@@ -134,6 +134,11 @@ class ScreenshotTest {
     @Test
     fun planAddForm() = render("plan-add-form", Tab.PLAN) { PlanAddFormShowcase() }
 
+    // 1.16.1: Known bests with a best on three lifts and the strict press switch on; tall enough for the whole card.
+    @Test
+    @Config(qualifiers = "w412dp-h960dp-xhdpi")
+    fun planKnownBests() = render("plan-known-bests", Tab.PLAN) { PlanShowcase(knownBests = true) }
+
     @Test
     // Tall enough for the whole screen, the guide's row (1.16) and the version line included.
     @Config(qualifiers = "w412dp-h1530dp-xhdpi")
