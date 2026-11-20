@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from 'react'
 import type { TrainingMode } from '../../db/schema'
 import { grit, type JsGuideScreen } from '../../domain'
 import { cx } from '../../ui/components/format'
 import { ArrowBackIcon, ArrowForwardIcon, CheckIcon } from '../../ui/components/icons'
 import { Pill } from '../../ui/components/Pill'
 import { GuidePicture, isOutlined } from './GuidePictures'
-import { BACK, EXAMPLE, GUIDE_LABEL, NEXT, SEE_MY_PLAN, SKIP, dotsLabel, lastButtons, sideName } from './guideLabels'
-import { outlineArt, outlineArtFor, type OutlineArt } from './outlineArt'
+import { BACK, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, lastButtons, sideName } from './guideLabels'
+import { outlineArt, type OutlineArt } from './outlineArt'
 import './GuideScreen.css'
 
 export { BACK, DONE, EXAMPLE, GUIDE_LABEL, NEXT, SKIP, dotsLabel, pictureDescription } from './guideLabels'
@@ -134,7 +134,7 @@ export type GuideScreenProps = {
 }
 
 /** A button as the app's (ui/components/Button), with the guide's test id. */
-function GuideButton({ text, onClick, kind, icon, enabled = true, testId, className }: { text: string; onClick: () => void; kind: 'primary' | 'secondary' | 'quiet'; icon?: ReactNode; enabled?: boolean; testId: string; className?: string }) {
+function GuideButton({ text, onClick, kind, icon, enabled = true, testId, className }: { text: string; onClick: () => void; kind: 'primary' | 'secondary' | 'quiet'; icon?: ReactNode; enabled?: boolean; testId?: string; className?: string }) {
   // Never `disabled`: a focused button that became disabled would drop the keyboard focus to the page. Off, it says
   // so (aria-disabled) and does nothing.
   return (
@@ -183,6 +183,26 @@ function SideButtons({ mode, onPick }: { mode: TrainingMode; onPick: (mode: Trai
 }
 
 /**
+ * Whether the text box scrolls (its words taller than its box): read when the box or its words change size (a resize,
+ * a font loading late), never per step. False where nothing can observe a size (jsdom).
+ */
+function useScrolls(): [(el: HTMLDivElement | null) => void, boolean] {
+  const [scrolls, setScrolls] = useState(false)
+  const observer = useRef<ResizeObserver | null>(null)
+  const ref = useCallback((el: HTMLDivElement | null) => {
+    observer.current?.disconnect()
+    observer.current = null
+    if (el == null || typeof ResizeObserver === 'undefined') return
+    const check = () => setScrolls(el.scrollHeight > el.clientHeight + 1)
+    const watch = new ResizeObserver(check)
+    watch.observe(el)
+    for (const child of el.children) watch.observe(child)
+    observer.current = watch
+  }, [])
+  return [ref, scrolls]
+}
+
+/**
  * One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. Keyed by
  * screen, so its picture starts from the first step each time it is shown; its steps are worked out only once shown.
  */
@@ -203,11 +223,23 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle, below, artHeight }: 
   // The control the next step stands for pressing, if any: its place is read as this step comes in, for its ring.
   const next = frame == null ? undefined : steps[frame.stepIndex + 1]
   const nextTap = next == null ? null : (grit.guideTap(next) ?? null)
+  const titleId = useId()
+  const [textRef, scrolls] = useScrolls()
   return (
     <div className={cx('guide-page', outlined && artHeight != null && 'guide-page-outlined')}>
-      {/* The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest. */}
-      <div className="guide-text">
-        <h1 className="guide-title headline-medium" data-testid="guide-title" tabIndex={-1} ref={titleRef}>
+      {/*
+       * The text wraps and is never cut: past its share of the height it scrolls, and the picture takes the rest. While
+       * it scrolls it is a named region in the tab order, so a keyboard can scroll it and a screen reader finds it.
+       */}
+      <div
+        className="guide-text"
+        data-testid="guide-text"
+        ref={textRef}
+        tabIndex={scrolls ? 0 : undefined}
+        role={scrolls ? 'region' : undefined}
+        aria-labelledby={scrolls ? titleId : undefined}
+      >
+        <h1 className="guide-title headline-medium" data-testid="guide-title" tabIndex={-1} ref={titleRef} id={titleId}>
           {screen.title}
         </h1>
         {screen.lines.map((line) => (
@@ -239,37 +271,62 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle, below, artHeight }: 
 /** The screens whose picture is a drawn phone in its outline, worked out once. */
 const OUTLINED = (screens: readonly string[]) => screens.filter(isOutlined)
 
+/** React 18 has no `inert` prop: the attribute is set on the element itself. */
+const makeInert = (el: HTMLDivElement | null) => el?.setAttribute('inert', '')
+
 /**
- * What the outlined screens leave their picture (spec point 11, `outlineArt`): the guide's pages' height with one row of
- * buttons, less the tallest text of the outlined screens on either side, the same on every such page and side; and the
- * room of the second button under the controls (screen 8's See my plan, or Build my plan, `secondLabel`), which screen 8
- * alone gives up while it has one. Measured from unseen copies of those texts and of that button, laid out as the pages
- * lay them out; read when the pages' size changes (a resize, a rotation, the second button coming or going), never per
- * step. Null until first measured, and where nothing can observe a size (jsdom): the pictures then simply take what their
- * text leaves.
+ * What the outlined screens leave their picture (spec point 11, `outlineArt`), worked out from what is laid out, never
+ * from which page is current: the pages and the live controls together (the same on every page), less the tallest text
+ * of the outlined screens on either side, less the controls: one row (Back, Next) on the first seven screens, and screen
+ * 8's own (its first button's words, which may wrap, and its second button, if any) on the last, so screen 8 gives up
+ * only what its controls really take. Unseen copies of those texts, of both sets of controls and of the picture's place
+ * are laid out here as the pages lay them out; read when a size changes (a resize, a rotation, the fonts loading), never
+ * per step. Null until first measured, and where nothing can observe a size (jsdom): the pictures then simply take what
+ * their text leaves.
  */
-function OutlineMeasure({ screens, secondShown, secondLabel, onArt }: { screens: readonly string[]; secondShown: boolean; secondLabel: string; onArt: Dispatch<SetStateAction<OutlineArt | null>> }) {
-  const host = useRef<HTMLDivElement>(null)
-  const shown = useRef(secondShown)
-  shown.current = secondShown
+function OutlineMeasure({ screens, controls, lastPrimary, lastSecondary, onArt }: { screens: readonly string[]; controls: RefObject<HTMLDivElement | null>; lastPrimary: string; lastSecondary: string | null; onArt: Dispatch<SetStateAction<OutlineArt | null>> }) {
+  const host = useRef<HTMLDivElement | null>(null)
+  const setHost = useCallback((el: HTMLDivElement | null) => {
+    host.current = el
+    makeInert(el)
+  }, [])
   const texts = useMemo(() => (['POWERLIFTING', 'BODYBUILDING'] as const).flatMap((side) => OUTLINED(screens).map((id) => grit.guideScreen(id, side))), [screens])
   useEffect(() => {
     const el = host.current
-    if (el == null || typeof ResizeObserver === 'undefined') return
+    const live = controls.current
+    if (el == null || live == null || typeof ResizeObserver === 'undefined') return
+    const height = (selector: string) => el.querySelector<HTMLElement>(selector)?.offsetHeight ?? 0
     const measure = () => {
       const tallest = Math.max(0, ...[...el.querySelectorAll<HTMLElement>('.guide-measure-text')].map((t) => t.offsetHeight))
-      const button = el.querySelector<HTMLElement>('.gr-btn')?.offsetHeight ?? 0
-      const gap = parseFloat(getComputedStyle(el.querySelector<HTMLElement>('.guide-measure-controls')!).rowGap) || 0
-      const art = outlineArt({ pagesHeight: el.clientHeight, tallest, second: button + gap, secondShown: shown.current })
+      const art = outlineArt({
+        budget: el.clientHeight + live.offsetHeight,
+        tallest,
+        standardControls: height('.guide-measure-controls-standard'),
+        lastControls: height('.guide-measure-controls-last'),
+        chrome: height('.guide-measure-art'),
+      })
       // The same values keep the same state: no new render while nothing has changed.
-      onArt((before) => (before != null && before.shared === art.shared && before.second === art.second ? before : art))
+      onArt((before) => (before != null && before.shared === art.shared && before.last === art.last ? before : art))
     }
     const observer = new ResizeObserver(measure)
     observer.observe(el)
-    return () => observer.disconnect()
-  }, [onArt, secondLabel])
+    observer.observe(live)
+    // The copies too: a font that loads late changes their size, not the host's.
+    for (const copy of el.querySelectorAll('.guide-measure-text, .guide-measure-controls, .guide-measure-art')) observer.observe(copy)
+    let gone = false
+    const fonts = typeof document !== 'undefined' ? document.fonts : undefined
+    fonts?.ready.then(() => {
+      if (!gone) measure()
+    })
+    fonts?.addEventListener?.('loadingdone', measure)
+    return () => {
+      gone = true
+      observer.disconnect()
+      fonts?.removeEventListener?.('loadingdone', measure)
+    }
+  }, [onArt, controls, lastPrimary, lastSecondary])
   return (
-    <div className="guide-measure" ref={host} aria-hidden="true">
+    <div className="guide-measure" ref={setHost} aria-hidden="true">
       {texts.map((screen, i) => (
         <div key={i} className="guide-measure-page">
           {/* Their own class names, so nothing that looks for the page's text finds these copies. */}
@@ -283,12 +340,22 @@ function OutlineMeasure({ screens, secondShown, secondLabel, onArt }: { screens:
           </div>
         </div>
       ))}
-      <div className="guide-measure-controls">
-        <span className="gr-btn label-large gr-btn-secondary guide-measure-btn">
-          <span className="gr-btn-face">
-            <span className="gr-btn-text">{secondLabel}</span>
-          </span>
+      {/* Both sets of controls, as the guide lays them out: the first seven screens', and screen 8's. */}
+      <div className="guide-measure-controls guide-measure-controls-standard">
+        <GuideButton text={BACK} kind="secondary" icon={<ArrowBackIcon />} onClick={() => {}} />
+        <GuideButton text={NEXT} kind="primary" icon={<ArrowForwardIcon />} onClick={() => {}} className="guide-next" />
+      </div>
+      <div className="guide-measure-controls guide-measure-controls-last">
+        <GuideButton text={BACK} kind="secondary" icon={<ArrowBackIcon />} onClick={() => {}} />
+        <GuideButton text={lastPrimary} kind="primary" icon={<CheckIcon />} onClick={() => {}} className="guide-next" />
+        {lastSecondary != null && <GuideButton text={lastSecondary} kind="secondary" onClick={() => {}} className="guide-wide" />}
+      </div>
+      {/* The picture's place with no phone in it: its padding, and the Example label with its gap. */}
+      <div className="guide-measure-art">
+        <span className="guide-example">
+          <Pill text={EXAMPLE} />
         </span>
+        <div />
       </div>
     </div>
   )
@@ -327,9 +394,9 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
 
   const buttons = lastButtons(mode, hasPlan)
   const [art, setArt] = useState<OutlineArt | null>(null)
-  const secondShown = last && buttons.secondary != null
-  // Screen 8 alone gives up its second button's room; every other outlined screen keeps the shared height.
-  const artHeight = art == null ? null : outlineArtFor(art, last, buttons.secondary != null)
+  const controls = useRef<HTMLDivElement>(null)
+  // Screen 8 alone gives up what its taller controls take; every other outlined screen keeps the shared height.
+  const artHeight = art == null ? null : last ? art.last : art.shared
   const go = (to: number) => setIndex(Math.max(0, Math.min(screens.length - 1, to)))
   const start = useRef<{ x: number; y: number } | null>(null)
 
@@ -359,7 +426,7 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
           start.current = null
         }}
       >
-        <OutlineMeasure screens={screens} secondShown={secondShown} secondLabel={buttons.secondary?.[0] ?? SEE_MY_PLAN} onArt={setArt} />
+        <OutlineMeasure screens={screens} controls={controls} lastPrimary={buttons.primary[0]} lastSecondary={buttons.secondary?.[0] ?? null} onArt={setArt} />
         {/* Keyed by screen: a new page starts its picture from the first step, and slides in with motion on. */}
         <GuidePage
           key={id}
@@ -377,7 +444,7 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
           <span key={s} className={cx('guide-dot', i === index && 'guide-dot-current')} />
         ))}
       </div>
-      <div className="guide-controls">
+      <div className="guide-controls" ref={controls}>
         <GuideButton text={BACK} kind="secondary" icon={<ArrowBackIcon />} onClick={() => go(index - 1)} enabled={index > 0} testId="guide-back" />
         {/* On screen 8, Next becomes its first button: Choose a template, or Done with a plan. */}
         <GuideButton

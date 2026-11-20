@@ -77,6 +77,11 @@
   flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
+}
+
+/* Its place, and the measure's copy of it (.guide-measure-art): its padding, the Example label and its gap. */
+.guide-art,
+.guide-measure-art {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -170,7 +175,8 @@
   background: var(--accent);
 }
 
-.guide-controls {
+.guide-controls,
+.guide-measure-controls {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -181,23 +187,27 @@
  * Never narrower than their words: with large text on a narrow phone, Next goes under Back (each then the full width)
  * rather than either label being cut or one button running over the other. Side by side, Next takes the rest.
  */
-.guide-controls .gr-btn {
+.guide-controls .gr-btn,
+.guide-measure-controls .gr-btn {
   min-width: min(max-content, 100%);
   flex: 1 1 auto;
 }
 
 /* Screen 8's longer words ("Choose a template") wrap inside their button rather than run off a narrow phone. */
-.guide-controls .gr-btn-text {
+.guide-controls .gr-btn-text,
+.guide-measure-controls .gr-btn-text {
   white-space: normal;
   text-align: center;
 }
 
-.guide-controls .guide-next {
+.guide-controls .guide-next,
+.guide-measure-controls .guide-next {
   flex-grow: 1000;
 }
 
 /* Screen 8's second button: on a line of its own, under Back and the first. */
-.guide-controls .guide-wide {
+.guide-controls .guide-wide,
+.guide-measure-controls .guide-wide {
   flex-basis: 100%;
 }
 
@@ -241,9 +251,9 @@
 }
 
 /*
- * One phone size on the outlined screens (spec point 11; screen 8 alone gives up its second button's room). Unseen
- * copies of those screens' texts, and of the second button under the controls, are laid out here as the pages lay them
- * out, each from the top, for one measure.
+ * One phone size on the outlined screens (spec point 11; screen 8 alone gives up what its taller controls take). Unseen
+ * copies of those screens' texts, of both sets of controls and of the picture's place are laid out here as the pages and
+ * the controls lay them out, each from the top, for one measure.
  */
 .guide-pages {
   position: relative;
@@ -258,31 +268,27 @@
 }
 
 .guide-measure-page,
-.guide-measure-controls {
+.guide-measure-controls,
+.guide-measure-art {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+}
+
+.guide-measure-page {
   padding: 0 var(--space-5);
 }
 
+/* The controls' own padding (.guide-controls), so a copy is as tall as the controls it stands for. */
 .guide-measure-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-5);
 }
 
-/* Screen 8's second button as it is laid out: the full width, its words free to wrap. */
-.guide-measure-btn {
-  flex-basis: 100%;
-}
-
-.guide-measure-btn .gr-btn-text {
-  white-space: normal;
-  text-align: center;
-}
-
-/* An outlined screen: its picture's place is one height, set from the measure; the text above takes the rest and scrolls. */
+/*
+ * An outlined screen: its picture's place is one height, set from the measure (never below the phone's least height);
+ * the text above takes the rest and scrolls.
+ */
 .guide-page-outlined .guide-text {
   flex: 1 1 0;
 }

@@ -3,7 +3,8 @@ import { resolve } from 'node:path'
 import { devices, expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { BACK, EXAMPLE, GUIDE_ROW, GUIDE_ROW_SUPPORTING, NEXT, PHONE_HEIGHT, PHONE_WIDTH, SKIP, lastButtons, pictureDescription } from '../src/screens/guide/guideLabels'
-import { MOTION_ON, NEW_DEVICE } from './storage'
+import { OUTLINE_MIN } from '../src/screens/guide/outlineArt'
+import { MOTION_ON, NEW_DEVICE, SHARED_STATE } from './storage'
 import { formatKg, formatRpe } from '../src/ui/components/format'
 import { WEDNESDAY, openOnWednesday, seedFlatBench, tabBar } from './helpers'
 
@@ -245,13 +246,17 @@ for (const side of SIDES) {
 }
 
 // What 200% text does to a phone: everything is laid out in half its width and height (as pictures.spec does). The
-// iPhone the e2e runs as (390 × 664), and the narrowest phones (320 × 568).
-for (const [width, height] of [
-  [390, 664],
-  [320, 568],
+// iPhone the e2e runs as (390 × 664), the narrowest phones (320 × 568), and a tall phone (390 × 844). Spec point 11, as on
+// Android: on the outlined screens the phone keeps its least size (OUTLINE_MIN) and the text scrolls above it, a region
+// the keyboard and a screen reader reach. Where the phone at that size and two lines of text do not both fit with the
+// controls (200% on the two smaller phones), the picture gives way: it is drawn at its least size or not at all.
+for (const [width, height, phoneFits] of [
+  [390, 664, false],
+  [320, 568, false],
+  [390, 844, true],
 ] as const) {
   // The text box scrolls when it is taller than its share; across, it wraps and is never cut.
-  test(`guide_atTwiceTheTextSize_onA${width}pxPhone_keepsItsControlsWhole_andCutsNoText`, async ({ page }) => {
+  test(`guide_atTwiceTheTextSize_onA${width}x${height}Phone_keepsItsControlsWhole_cutsNoText_andThePhoneAtItsLeastSize${phoneFits ? '' : 'OrNone'}`, async ({ page }) => {
     await page.clock.setFixedTime(WEDNESDAY)
     await page.setViewportSize({ width: Math.floor(width / 2), height: Math.floor(height / 2) })
     await page.goto('/#/today')
@@ -295,19 +300,42 @@ for (const [width, height] of [
       // The title and lines wrap: nothing runs past the side of the page.
       const cut = await page.locator('.guide-title, .guide-line').evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth + 0.5).map((el) => el.textContent))
       expect(cut, id).toEqual([])
-      // Down the page, the text comes first: the picture gives up its room before the text has to scroll.
       const room = await page.evaluate(() => {
         const text = document.querySelector<HTMLElement>('.guide-text')!
         const art = document.querySelector<HTMLElement>('.guide-art')!
         const style = getComputedStyle(art)
+        const phone = art.querySelector<HTMLElement>('[data-testid="guide-picture"]')
         return {
           scrolls: text.scrollHeight > text.clientHeight + 1,
           scrollable: getComputedStyle(text).overflowY === 'auto',
           art: art.getBoundingClientRect().height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom),
+          phone: phone == null ? 0 : phone.getBoundingClientRect().height,
         }
       })
       expect(room.scrollable, id).toBe(true)
-      if (room.scrolls) expect(room.art, `${id}: the text scrolls while the picture keeps ${room.art} px`).toBeLessThanOrEqual(1)
+      if (OUTLINED.includes(id)) {
+        // The phone keeps its least size while the text scrolls, or gives way altogether; never anything between.
+        if (phoneFits) expect(room.phone, `${id}: the phone at ${room.phone} px`).toBeGreaterThanOrEqual(OUTLINE_MIN - 0.5)
+        else expect(room.phone >= OUTLINE_MIN - 0.5 || room.art <= 1, `${id}: the phone at ${room.phone} px in ${room.art} px`).toBe(true)
+      } else if (room.scrolls) {
+        // WELCOME and SIDE: art, not a phone. The text comes first: the art gives up its room before the text scrolls.
+        expect(room.art, `${id}: the text scrolls while the art keeps ${room.art} px`).toBeLessThanOrEqual(1)
+      }
+      if (room.scrolls) {
+        // The scrolling text is a region named by its title, in the tab order (after Skip), and the keyboard scrolls it
+        // to its last line.
+        const text = page.getByTestId('guide-text')
+        await expect(page.getByRole('region', { name: grit.guideScreen(id, 'POWERLIFTING').title })).toHaveCount(1)
+        await page.getByTestId('guide-skip').focus()
+        await page.keyboard.press('Tab')
+        await expect(text).toBeFocused()
+        await page.keyboard.press('End')
+        await expect.poll(() => text.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1), id).toBe(true)
+        const [lastLine, box] = [(await page.locator('.guide-line').last().boundingBox())!, (await text.boundingBox())!]
+        expect(lastLine.y + lastLine.height, `${id}: the last line is reached`).toBeLessThanOrEqual(box.y + box.height + 1)
+      } else {
+        await expect(page.getByTestId('guide-text')).not.toHaveAttribute('tabindex', '0')
+      }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       if (i < screens.length - 1) await page.getByTestId('guide-next').click()
     }
@@ -1494,6 +1522,139 @@ test('the outline keeps its size with a plan too; screen 8 then has See my plan 
   await expect(picture(page)).toBeVisible()
   const back = (await picture(page).boundingBox())!
   expect(Math.abs(back.height - empty.height)).toBeLessThan(0.6)
+})
+
+/** The live controls' height, and the measure's unseen copies of the two sets (the first seven screens', screen 8's). */
+const controlsHeights = (page: Page) =>
+  page.evaluate(() => ({
+    live: document.querySelector<HTMLElement>('.guide-controls')!.offsetHeight,
+    standard: document.querySelector<HTMLElement>('.guide-measure-controls-standard')!.offsetHeight,
+    last: document.querySelector<HTMLElement>('.guide-measure-controls-last')!.offsetHeight,
+  }))
+
+// At 320 × 568 screen 8's controls are taller than one row: "Choose a template" goes under Back, and bodybuilding has
+// Build my plan under it too; with a plan, See my plan. Screen 8 gives up only what its controls really take, down to
+// the phone's least size, and is never larger than the others.
+for (const [what, side, plan] of [
+  ['no plan', 'POWERLIFTING', false],
+  ['no plan', 'BODYBUILDING', false],
+  ['a plan', 'POWERLIFTING', true],
+] as const) {
+  test(`the outline at 320 × 568 (${sideName(side)}, ${what}): one size on the five screens; screen 8 smaller by its taller controls only, never below the least size`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 })
+    if (plan) {
+      await openOnWednesday(page)
+      await seedFlatBench(page)
+      await page.goto('/#/settings')
+      await page.getByTestId('settings-guide').click()
+    } else {
+      await openGuideOn(page, side, 'WELCOME')
+    }
+    const boxes: string[] = []
+    let shared: Box | null = null
+    let standard = 0
+    for (const id of grit.guideScreens()) {
+      await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, side).title)
+      if (OUTLINED.includes(id)) {
+        await expect(picture(page)).toBeVisible()
+        const box = (await picture(page).boundingBox())!
+        const heights = await controlsHeights(page)
+        if (id === 'YOUR_TURN') {
+          // The copy the measure reads stands for the controls on screen.
+          expect(heights.last, 'screen 8 controls copy').toBe(heights.live)
+          const taller = heights.live - standard
+          expect(taller, 'screen 8 controls are taller here').toBeGreaterThan(0)
+          expect(box.height, `screen 8: ${box.height} vs ${shared!.height}`).toBeLessThanOrEqual(shared!.height + 0.5)
+          expect(box.width).toBeLessThanOrEqual(shared!.width + 0.5)
+          expect(box.height, 'screen 8 at least the least size').toBeGreaterThanOrEqual(OUTLINE_MIN - 0.5)
+          expect(Math.abs(box.height - Math.max(OUTLINE_MIN, shared!.height - taller)), `screen 8: ${box.height} px; ${shared!.height} less ${taller}`).toBeLessThan(1.5)
+        } else {
+          expect(heights.standard, `${id} controls copy`).toBe(heights.live)
+          standard = heights.live
+          shared ??= box
+          boxes.push(`${Math.round(box.width * 2) / 2} x ${Math.round(box.height * 2) / 2}`)
+        }
+      }
+      if (id !== 'YOUR_TURN') await page.getByTestId('guide-next').click()
+    }
+    expect(boxes).toHaveLength(5)
+    expect(new Set(boxes), boxes.join(', ')).toEqual(new Set([boxes[0]]))
+  })
+}
+
+// Into screen 8 and back, at 320 × 568 with See my plan: every frame drawn has each page's own size, never a frame at
+// the other page's (the measure depends on no page, so nothing is measured again on the way).
+test('the outline: no frame at a stale size when the page changes into screen 8 and back', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 })
+  await openOnWednesday(page)
+  await seedFlatBench(page)
+  await page.goto('/#/settings')
+  await page.getByTestId('settings-guide').click()
+  await nextTo(page, 'MONTHS_LATER')
+  await expect(picture(page)).toBeVisible()
+  const shared = (await page.locator('.guide-art').boundingBox())!.height
+  await page.evaluate(() => {
+    const w = window as unknown as { frames_: [string, number, string][] }
+    w.frames_ = []
+    const sample = () => {
+      const art = document.querySelector<HTMLElement>('.guide-art')
+      const phone = document.querySelector<HTMLElement>('[data-testid="guide-picture"]')
+      w.frames_.push([document.querySelector('[data-testid="guide-title"]')?.textContent ?? '', art?.getBoundingClientRect().height ?? -1, phone == null ? 'none' : getComputedStyle(phone).visibility])
+      requestAnimationFrame(sample)
+    }
+    requestAnimationFrame(sample)
+  })
+  await page.getByTestId('guide-next').click()
+  await expect(page.getByTestId('guide-last-secondary')).toBeVisible()
+  await expect(picture(page)).toBeVisible()
+  await page.waitForTimeout(300)
+  const last = (await page.locator('.guide-art').boundingBox())!.height
+  await page.getByTestId('guide-back').click()
+  await expect(page.getByTestId('guide-last-secondary')).toHaveCount(0)
+  await expect(picture(page)).toBeVisible()
+  await page.waitForTimeout(300)
+  const frames = await page.evaluate(() => (window as unknown as { frames_: [string, number, string][] }).frames_)
+  const months = grit.guideScreen('MONTHS_LATER', 'POWERLIFTING').title
+  const yours = grit.guideScreen('YOUR_TURN', 'POWERLIFTING').title
+  expect(last).toBeLessThan(shared)
+  expect(frames.some(([t]) => t === yours) && frames.filter(([t]) => t === months).length > 1).toBe(true)
+  for (const [title, art] of frames) {
+    if (title === yours) expect(Math.abs(art - last), `a frame of screen 8 at ${art} px, not ${last}`).toBeLessThan(0.6)
+    if (title === months) expect(Math.abs(art - shared), `a frame of screen 7 at ${art} px, not ${shared}`).toBeLessThan(0.6)
+  }
+})
+
+// Fonts that load late (font-display: swap) change the texts' height, not the pages': the measure is read again once
+// they have loaded, so the phone ends at the size it has when the fonts were there from the start. At 340 px the tallest
+// outlined text is a line taller in the fallback font.
+test('the outline is measured again when the fonts load late', async ({ browser, baseURL }) => {
+  const sizes: number[] = []
+  for (const late of [false, true]) {
+    const context = await browser.newContext({ ...devices['iPhone 13'], viewport: { width: 340, height: 600 }, baseURL, storageState: SHARED_STATE })
+    const page = await context.newPage()
+    let release = () => {}
+    const held = new Promise<void>((done) => (release = done))
+    if (late) {
+      await page.route('**/fonts/*.woff2', async (route) => {
+        await held
+        await route.continue()
+      })
+    }
+    // Not waiting for the page's load, which waits for the preloaded fonts.
+    await page.goto('/#/guide', { waitUntil: 'commit' })
+    await expect(page.getByTestId('guide')).toBeVisible()
+    for (let i = 0; i < grit.guideScreens().indexOf('TODAY'); i++) await page.getByTestId('guide-next').click()
+    await expect(picture(page)).toBeVisible()
+    if (late) {
+      expect(await page.evaluate(() => document.fonts.check('600 26px Barlow Condensed')), 'the fonts are still loading').toBe(false)
+      release()
+    }
+    await page.evaluate(() => document.fonts.ready)
+    await page.waitForTimeout(200)
+    sizes.push((await picture(page).boundingBox())!.height)
+    await context.close()
+  }
+  expect(Math.abs(sizes[1]! - sizes[0]!), `${sizes[1]} px with late fonts, ${sizes[0]} without`).toBeLessThan(0.6)
 })
 
 test("WELCOME's side colours are plain panels, not buttons: nothing in the picture can be pressed or focused", async ({ page }) => {
