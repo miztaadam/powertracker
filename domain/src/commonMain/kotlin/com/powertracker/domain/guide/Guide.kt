@@ -6,6 +6,8 @@ import com.powertracker.domain.coach.PhysiqueCoach
 import com.powertracker.domain.coach.ProgressionRule
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.motion.ModeSwitchMotion
+import com.powertracker.domain.motion.Point
 import kotlin.math.roundToInt
 
 /*
@@ -78,7 +80,25 @@ enum class GuideStep {
 enum class GuideTap {
     /** Today's "Log set" button, on the open card. */
     LOG_SET,
+
+    /** The empty Plan screen's "Choose a template" button. */
+    CHOOSE_TEMPLATE,
+
+    /** The template [GuideSample.template] picks, its card in the templates' list. */
+    TEMPLATE,
+
+    /** The Swap button of [GuideSample.swap]'s exercise, on the template's draft. */
+    SWAP,
+
+    /** The draft's "Use this plan" button. */
+    USE_THIS_PLAN,
 }
+
+/**
+ * Screen 2's two motions at one moment of their loop: how far into the hammer's drop ([dropMs]) and into the pump
+ * ([pumpMs]) each is, in the mode switch's own time (`ModeSwitchMotion.dropFrame` / `pumpFrame`).
+ */
+data class GuideSideFrame(val dropMs: Double, val pumpMs: Double)
 
 /**
  * Where a picture is at one moment: step [stepIndex] ([step]) of its screen, [progress] (0 to 1, eased) through the move
@@ -124,11 +144,61 @@ object Guide {
 
     private const val SPAN_MS = MOVE_MS + STEP_MS
 
-    /** The control [step] stands for pressing, ringed just before it: only screen 4's logged set, on "Log set". */
+    /**
+     * The control [step] stands for pressing, ringed just before it: screen 4's logged set ("Log set"), and screen 3's
+     * way from the empty plan to the saved week ("Choose a template", the template, its Swap, "Use this plan").
+     */
     fun tap(step: GuideStep): GuideTap? = when (step) {
         GuideStep.TODAY_TICKED -> GuideTap.LOG_SET
+        GuideStep.PLAN_TEMPLATES -> GuideTap.CHOOSE_TEMPLATE
+        GuideStep.PLAN_DRAFT -> GuideTap.TEMPLATE
+        GuideStep.PLAN_SWAP -> GuideTap.SWAP
+        GuideStep.PLAN_FILLED -> GuideTap.USE_THIS_PLAN
         else -> null
     }
+
+    // ---- screen 2: the hammer and the pump, cut down, looping side by side ----
+
+    /** The drop is cut at the hammer's rest after its recoil: the fall and the impact, not the lift out of frame. */
+    val SIDE_DROP_CUT_MS: Double get() = ModeSwitchMotion.DROP.lift
+
+    /** The pump is cut once its third beat has fallen: the three beats. */
+    val SIDE_PUMP_CUT_MS: Double get() = ModeSwitchMotion.PUMP.let { it.beats[2] + it.rise[2] + it.fall[2] }
+
+    /** One turn of screen 2's loop, in ms: the longer cut, then a picture step's hold at rest, before it starts again. */
+    val SIDE_LOOP_MS: Int get() = SIDE_PUMP_CUT_MS.toInt() + STEP_MS
+
+    /**
+     * Each motion's box, in the mode switch's own units (dp): a phone's shape, smaller than the prototype's 390 x 760
+     * screen, so the hammer and the veins fill it. The apps scale it to the room they have.
+     */
+    const val SIDE_BOX_W: Double = 180.0
+    const val SIDE_BOX_H: Double = 320.0
+
+    /** Where the pump starts in its box: where the switch sits on the prototype's screen, in proportion. */
+    fun sidePumpSource(): Point = Point(SIDE_BOX_W * SIDE_SRC_X, SIDE_BOX_H * SIDE_SRC_Y)
+
+    /** The prototype's switch, 341, 715 on its 390 x 760 screen, as fractions of it. */
+    private const val SIDE_SRC_X = 341.0 / 390.0
+    private const val SIDE_SRC_Y = 715.0 / 760.0
+
+    /**
+     * Screen 2's loop [tMs] after it started: both motions run from 0 at their own speed until their cut, then hold there
+     * until the loop comes round ([SIDE_LOOP_MS]). Silent: the apps play no sound and no vibration with it.
+     */
+    fun sideFrame(tMs: Long): GuideSideFrame {
+        val t = (((tMs % SIDE_LOOP_MS) + SIDE_LOOP_MS) % SIDE_LOOP_MS).toDouble()
+        return GuideSideFrame(minOf(t, SIDE_DROP_CUT_MS), minOf(t, SIDE_PUMP_CUT_MS))
+    }
+
+    /**
+     * Screen 2 with motion off, and its shots: the hammer at rest on the cracked glass (its recoil over), and the pump's
+     * last beat at its height. (Either motion's own end draws nothing: the switch has finished.)
+     */
+    val SIDE_STILL: GuideSideFrame get() = GuideSideFrame(
+        ModeSwitchMotion.DROP.settle,
+        ModeSwitchMotion.PUMP.let { it.beats[2] + it.rise[2] },
+    )
 
     /**
      * When the motion into step [index] of [steps] starts: its tap ring ([TAP_MS] before the step) for a step that

@@ -131,6 +131,23 @@ export declare namespace GritDomain {
             guideSampleTargets(mode: string): Array<JsGuideTargetStep>;
             guideSampleAdvice(mode: string): Array<JsAdvice>;
             guideSampleProgress(mode: string): JsGuideProgress;
+            guideSideFrame(tMs: number): JsGuideSideFrame;
+            guideSideStill(): JsGuideSideFrame;
+            guideSideLoopMs(): number;
+            guideSideBox(): JsGuideSideBox;
+            guideSampleSwap(mode: string): JsGuideSwap;
+            guideSampleDraft(mode: string, swapped: boolean): JsPlanDraft;
+            guideSampleFilledPlan(mode: string): Array<JsPlanItem>;
+            guideSampleFilledExercises(mode: string): Array<JsExercise>;
+            guideSampleTargetAdvice(mode: string): Array<JsAdvice>;
+            guideSampleTargetHistory(mode: string): JsHistory;
+            guideSampleTargetEditor(mode: string, index: number, progress: number): JsGuideEditor;
+            guideSampleStallTrend(mode: string): Array<JsGuidePoint>;
+            guideSampleStallE1rm(mode: string): Nullable<number>;
+            guideSampleMonthsDate(mode: string, step: string, progress: number): string;
+            guideSampleMonthsHistory(mode: string, until: string): JsHistory;
+            guideSampleMonthsPlan(mode: string): Array<JsPlanItem>;
+            guideSampleMonthsCheckIn(mode: string, step: string, progress: number): Nullable<JsCheckIn>;
             private constructor();
         }
     }
@@ -269,6 +286,54 @@ export declare namespace JsGuideEditor {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsGuideEditor;
+    }
+}
+export declare class JsGuideSideFrame {
+    constructor(dropMs: number, pumpMs: number);
+    get dropMs(): number;
+    get pumpMs(): number;
+    copy(dropMs?: number, pumpMs?: number): JsGuideSideFrame;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideSideFrame {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideSideFrame;
+    }
+}
+export declare class JsGuideSideBox {
+    constructor(w: number, h: number, srcX: number, srcY: number);
+    get w(): number;
+    get h(): number;
+    get srcX(): number;
+    get srcY(): number;
+    copy(w?: number, h?: number, srcX?: number, srcY?: number): JsGuideSideBox;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideSideBox {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideSideBox;
+    }
+}
+export declare class JsGuideSwap {
+    constructor(day: number, from: string, to: string);
+    get day(): number;
+    get from(): string;
+    get to(): string;
+    copy(day?: number, from?: string, to?: string): JsGuideSwap;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideSwap {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideSwap;
     }
 }
 export declare class JsMotionPoint {
