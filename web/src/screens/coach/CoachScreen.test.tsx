@@ -5,7 +5,7 @@ import { resolveCatalogue } from '../../db/catalogue'
 import type { GritDb } from '../../db/db'
 import { updateSettings } from '../../db/db'
 import { setTapHaptics } from '../../platform/haptics'
-import { advice, insertAdvice, payload, planOf, rx, statuses } from '../../test/coachFixture'
+import { advice, insertAdvice, payload, planOf, rx, statuses, trainedSides } from '../../test/coachFixture'
 import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { TODAY, addDays, exerciseNamed, logSet, plan, set, startSession, todayFixture } from '../../test/todayFixture'
 import { CoachScreen } from './CoachScreen'
@@ -137,6 +137,7 @@ describe('CoachScreen', () => {
 
   it('deloadApply_statusOnly', async () => {
     await plan(db, await id('Squat'), { weekday: 1 })
+    await trainedSides(db, 'POWERLIFTING')
     await insertAdvice(
       db,
       advice('DELOAD', null, 'Signs of fatigue.', payload.deload(), { severity: 2 }),

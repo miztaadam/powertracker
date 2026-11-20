@@ -1,6 +1,6 @@
 import type { GritDb } from '../db/db'
-import type { AdviceRow } from '../db/schema'
-import { TODAY } from './todayFixture'
+import type { AdviceRow, TrainingMode } from '../db/schema'
+import { TODAY, addDays } from './todayFixture'
 
 const PAYLOAD = 'com.powertracker.domain.model.AdvicePayload'
 
@@ -20,6 +20,14 @@ export const rx = (exerciseName: string, sets: number, repsLow: number, repsHigh
 /** An OPEN piece of advice created today unless `over` says otherwise. */
 export function advice(type: string, lift: string | null, reason: string, payloadJson: string, over: Partial<AdviceRow> = {}): AdviceRow {
   return { type, lift, createdAt: TODAY, reason, severity: 3, status: 'OPEN', payloadJson, ...over }
+}
+
+/**
+ * A session on each of `sides` well before today (40, 41, ... days ago): a side trained before any break, so an
+ * easing back in shows on it (spec point 10).
+ */
+export async function trainedSides(db: GritDb, ...sides: TrainingMode[]): Promise<void> {
+  for (const [i, mode] of sides.entries()) await db.sessions.add({ date: addDays(TODAY, -40 - i), bodyweightKg: null, readiness: null, mode })
 }
 
 export async function insertAdvice(db: GritDb, ...rows: AdviceRow[]): Promise<void> {

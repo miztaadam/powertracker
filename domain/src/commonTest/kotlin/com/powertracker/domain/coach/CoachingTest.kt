@@ -103,18 +103,28 @@ class CoachingTest {
     @Test
     fun bodybuildingEvaluateGivesOnlyReEntryAndDeloadStampedWithItsSide() {
         // The golden scenario's fatigue checkpoint gives a deload and a bench stall; on the return checkpoint a
-        // re-entry. The bodybuilding side gets the deload and the re-entry, never the stall.
+        // re-entry. The bodybuilding side gets the deload, never the stall. The golden log has no bodybuilding
+        // session, so that side was never trained before the break and gets no re-entry (1.16); the same log kept on
+        // the bodybuilding side gets it.
         for (cp in GoldenScenario.checkpoints) {
             val h = GoldenScenario.historyUntil(cp.today)
             val power = Coach.evaluate(h, GoldenScenario.plan, GoldenScenario.settings, cp.today, emptyList())
             val body = Coaching.evaluate(TrainingMode.BODYBUILDING, h, GoldenScenario.plan, GoldenScenario.settings, cp.today, emptyList())
             assertEquals(
-                power.filter { it.type == AdviceType.DELOAD || it.type == AdviceType.RE_ENTRY }.map { it.copy(mode = TrainingMode.BODYBUILDING) },
+                power.filter { it.type == AdviceType.DELOAD }.map { it.copy(mode = TrainingMode.BODYBUILDING) },
                 body,
                 cp.label,
             )
             assertTrue(body.all { it.mode == TrainingMode.BODYBUILDING })
         }
+        val back = GoldenScenario.checkpoints.single { it.label == "return" }
+        val onBody = GoldenScenario.historyUntil(back.today).let { h -> h.copy(sessions = h.sessions.map { it.copy(mode = TrainingMode.BODYBUILDING) }) }
+        assertEquals(
+            Coach.evaluate(GoldenScenario.historyUntil(back.today), GoldenScenario.plan, GoldenScenario.settings, back.today, emptyList())
+                .filter { it.type == AdviceType.RE_ENTRY }.map { it.copy(mode = TrainingMode.BODYBUILDING) },
+            Coaching.evaluate(TrainingMode.BODYBUILDING, onBody, GoldenScenario.plan, GoldenScenario.settings, back.today, emptyList())
+                .filter { it.type == AdviceType.RE_ENTRY },
+        )
         val fatigue = GoldenScenario.checkpoints.single { it.label == "fatigue" }
         assertEquals(
             listOf(AdviceType.DELOAD),

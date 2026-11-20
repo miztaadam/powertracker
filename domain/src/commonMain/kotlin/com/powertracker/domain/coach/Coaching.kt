@@ -1,5 +1,6 @@
 package com.powertracker.domain.coach
 
+import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.CheckIn
@@ -47,7 +48,8 @@ object Coaching {
      * New advice to store for [mode]'s side. On the bodybuilding side in this stage only the advice that belongs to
      * the lifter: easing back in after a break and the fatigue deload (the same rule and the same one-at-a-time
      * rails as on the powerlifting side). The deload's other signals read only powerlifting sessions, so on the
-     * bodybuilding side low readiness (over every session, as the rule reads it) is enough by itself.
+     * bodybuilding side low readiness (over every session, as the rule reads it) is enough by itself. Easing back in
+     * is made only for a side trained before the session that ended the break, on either side (1.16).
      *
      * From stage 3 the bodybuilding side also gets [PhysiqueCoach.stuck]'s SWAP advice, reading [checkIns] for the
      * growing-well groups; a deload or easing-back-in made in this same call counts as one created today. The
@@ -65,6 +67,7 @@ object Coaching {
         val advice = Coach.evaluate(
             history, plan.on(mode), settings, today, priorAdvice.forSide(mode),
             readinessAloneDeloads = mode == TrainingMode.BODYBUILDING,
+            side = mode,
         )
         val kept = when (mode) {
             TrainingMode.POWERLIFTING -> advice
@@ -74,6 +77,23 @@ object Coaching {
             TrainingMode.POWERLIFTING -> kept
             TrainingMode.BODYBUILDING -> kept + PhysiqueCoach.stuck(history, plan.on(mode), checkIns, priorAdvice.forSide(mode) + kept, today)
         }
+    }
+
+    /**
+     * Whether a RE_ENTRY (easing back in) card created on [createdAt] shows on [mode]'s side: only when that side was
+     * trained before the session that ended the break, the same rule that lets the card clamp its targets (1.16).
+     * [history] is the whole log, both sides.
+     */
+    fun reEntryShows(mode: TrainingMode, createdAt: LocalDate, history: TrainingHistory): Boolean =
+        Coach.reEntryCounts(mode, createdAt, history, HistoryStats(history))
+
+    /**
+     * The stored advice [mode]'s feed shows: [forSide], less any easing back in that does not count on this side
+     * ([reEntryShows]). [history] is the whole log, both sides.
+     */
+    fun feedFor(advice: List<Advice>, mode: TrainingMode, history: TrainingHistory): List<Advice> {
+        val all = HistoryStats(history)
+        return advice.forSide(mode).filter { it.type != AdviceType.RE_ENTRY || Coach.reEntryCounts(mode, it.createdAt, history, all) }
     }
 
     /** Whether a check-in is due on the bodybuilding side ([PhysiqueCoach.checkInDue]). */

@@ -461,6 +461,9 @@ class BodybuildingScreensTest {
 
     @Test
     fun coach_showsTheActiveSidesFeed_withDeloadsWhateverTheirSide() {
+        // Both sides trained before, so the easing back in counts on both (spec point 10).
+        session(today.minus(40, DateTimeUnit.DAY), POWERLIFTING, set(curl, 12.0, 10))
+        session(today.minus(41, DateTimeUnit.DAY), BODYBUILDING, set(curl, 12.0, 10))
         runBlocking {
             advice.insert(
                 listOf(

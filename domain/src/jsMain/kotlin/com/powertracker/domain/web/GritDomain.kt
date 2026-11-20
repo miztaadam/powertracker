@@ -280,6 +280,14 @@ object GritDomain {
         )
 
     /**
+     * Whether a RE_ENTRY card created on [createdAt] (ISO date) shows on [mode]'s side (a `TrainingMode` name)
+     * ([Coaching.reEntryShows]): only a side trained before the session that ended the break. [history] is the
+     * whole log, both sides.
+     */
+    fun coachingReEntryShows(mode: String, createdAt: String, history: JsHistory): Boolean =
+        Coaching.reEntryShows(parseEnum<TrainingMode>("mode", mode), parseDate("createdAt", createdAt), history.toDomain())
+
+    /**
      * Reps to put in the reps field for set [setNumber] (1-based) of a bodybuilding [item]: last time's reps for that
      * set + 1, capped at the top of the range; the low end the first time and after an increase.
      */
