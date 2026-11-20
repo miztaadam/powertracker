@@ -1481,6 +1481,7 @@ test('the outline keeps its size with a plan too; screen 8 then has See my plan 
   const planned = (await picture(page).boundingBox())!
   await nextTo(page, 'YOUR_TURN')
   await expect(page.getByTestId('guide-last-secondary')).toBeVisible()
+  await expect(picture(page)).toBeVisible()
   const last = (await picture(page).boundingBox())!
   expect(Math.abs(planned.width - empty.width)).toBeLessThan(0.6)
   expect(Math.abs(planned.height - empty.height)).toBeLessThan(0.6)
@@ -1488,6 +1489,9 @@ test('the outline keeps its size with a plan too; screen 8 then has See my plan 
   // Back to screen 7: the shared size again, See my plan gone.
   await page.getByTestId('guide-back').click()
   await expect(page.getByTestId('guide-last-secondary')).toHaveCount(0)
+  await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen('MONTHS_LATER', 'POWERLIFTING').title)
+  // The new page's picture is hidden until its fit is measured: read its box once it shows.
+  await expect(picture(page)).toBeVisible()
   const back = (await picture(page).boundingBox())!
   expect(Math.abs(back.height - empty.height)).toBeLessThan(0.6)
 })
