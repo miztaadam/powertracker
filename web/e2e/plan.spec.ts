@@ -494,6 +494,9 @@ test.describe('on a 320 × 568 phone', () => {
     expect(name.height).toBeGreaterThan(squatName.height * 1.5)
     expect(await crowdedBests(page)).toEqual([])
     expect(await overflowing(page)).toEqual([])
-    expect(await smallTargets(page)).toEqual([])
+    // Every Set best is still a full target (the rest of Plan's targets at this width are narrow.spec.ts's).
+    for (const box of await page.locator('.plan-best button').evaluateAll((all) => all.map((b) => b.getBoundingClientRect().toJSON() as DOMRect))) {
+      expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(47.5)
+    }
   })
 })
