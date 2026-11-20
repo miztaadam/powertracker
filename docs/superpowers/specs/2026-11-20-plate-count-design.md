@@ -39,7 +39,7 @@
 - **Kg coaching is unchanged.** Every existing coach, progress and backup test passes unchanged. A lifter who never turns this on sees no difference.
 - **The 1.16 guide is unchanged.** Its pictures draw the real Today and Progress screens and its sample lifter runs the real coach, all in kg. Its text, tests and screenshots stay as they are.
 - **Both apps ship together.** As in every backup version so far, an app that reads only version 5 turns a version 6 file away.
-- **Version:** 1.17 on both apps (versionCode 27, after 1.16's 26).
+- **Version:** 1.17 on both apps (versionCode 28; 1.16.1 took 27).
 - **Fixed rules:** no model names in code or commits; new commits only; e2e with `--trace off`.
 
 ## Approaches
