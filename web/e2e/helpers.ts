@@ -9,6 +9,12 @@ const ADD_FORM_TAP_WINDOW_MS = 300
 /** Waits until Plan's add form, open now, takes taps: it ignores them at first, as the second tap of a double tap on a row. */
 export const pastTheTapWindow = (page: Page) => page.waitForTimeout(ADD_FORM_TAP_WINDOW_MS)
 
+/**
+ * Puts the guide's seam back (e2e/storage.ts) after a test cleared the site's storage: the next load is a new user
+ * again, and without it the first-launch gate would open the guide.
+ */
+export const keepTheGuideShut = (page: Page) => page.evaluate(() => localStorage.setItem('grit:guide', 'off'))
+
 export const tabBar = (page: Page) => page.getByRole('navigation', { name: 'Main' })
 
 export async function tap(page: Page, name: string, times = 1) {

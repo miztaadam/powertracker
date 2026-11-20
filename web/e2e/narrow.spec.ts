@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
+import { MOTION_ON } from './storage'
 
 // The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
 // screen, on both training sides, at 306 and 320 px (and 390, a common iPhone), the page must not scroll sideways and nothing may reach past
@@ -127,7 +128,7 @@ for (const [label, viewport] of [
   ['130% zoom', { width: Math.floor(375 / 1.3), height: Math.floor(812 / 1.3) }],
 ] as const) {
   test.describe(`${label}, with motion on`, () => {
-    test.use({ viewport, storageState: { cookies: [], origins: [] } })
+    test.use({ viewport, storageState: MOTION_ON })
     test.beforeEach(async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' })
       await openOnWednesday(page)

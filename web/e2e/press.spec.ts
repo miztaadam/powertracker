@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { openOnWednesday, tabBar } from './helpers'
+import { MOTION_ON } from './storage'
 
 // Stage 2's press feedback (src/ui/press.css): a pressed control sinks (scale below 1) with motion on, and never with
 // motion off or when it is disabled. Read from the computed transform while the mouse button is held down on it.
@@ -45,7 +46,7 @@ async function aButton(page: Page): Promise<Locator> {
 }
 
 test.describe('with motion on', () => {
-  test.use({ storageState: { cookies: [], origins: [] } })
+  test.use({ storageState: MOTION_ON })
 
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })

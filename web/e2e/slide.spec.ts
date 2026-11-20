@@ -1,12 +1,13 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { tabBar } from './helpers'
+import { MOTION_ON } from './storage'
 
 // Stage 3, things slide into place (src/ui/viewTransition.ts, src/ui/vt.css): with motion on, Log set, Delete set,
 // opening another exercise, Coach's Apply and Dismiss and Plan's moves run in a view transition. These run with motion
 // on (every other spec runs still) and check that a transition really ran, that no tap is lost to one, and that the
 // header and the tab bar keep still.
 
-test.use({ storageState: { cookies: [], origins: [] } })
+test.use({ storageState: MOTION_ON })
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })

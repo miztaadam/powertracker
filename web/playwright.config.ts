@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
+import { SHARED_STATE } from './e2e/storage'
 
 // The container only has a pre-installed Chromium (no WebKit), so e2e runs in Chromium
 // with the iPhone 13 viewport and touch emulation.
@@ -17,14 +18,9 @@ const SPEED = /@speed/
 export const E2E_BUILD_ID = 'a1b2c3d'
 const env = { GRIT_BUILD_ID: E2E_BUILD_ID }
 
-// Motion off on every e2e page (stage 2): public/mode-head-start.js reads this key and puts data-motion="off" on
-// <html>, so screenshots and position checks run still, as Robolectric does on Android. Set through the browser
-// storage every test context starts with, so no spec has to remember a fixture; a motion-on test clears it with
-// test.use({ storageState: { cookies: [], origins: [] } }). The key is MOTION_KEY in src/ui/modeHeadStart.ts.
-const MOTION_OFF = [4173, 4174, 4175].map((port) => ({
-  origin: `http://localhost:${port}`,
-  localStorage: [{ name: 'grit:motion', value: 'off' }],
-}))
+// Motion off on every e2e page (stage 2), and the guide's first-launch gate shut (1.16): set through the browser storage
+// every test context starts with, so no spec has to remember a fixture. A spec that replaces it takes one of the states
+// in e2e/storage.ts (MOTION_ON for a motion-on test), so it keeps the gate shut too.
 
 export default defineConfig({
   testDir: './e2e',
@@ -36,7 +32,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     ...iphone,
-    storageState: { cookies: [], origins: MOTION_OFF },
+    storageState: SHARED_STATE,
     launchOptions: existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
   },
   webServer: [
