@@ -18,8 +18,9 @@ import kotlinx.datetime.minus
 /**
  * Coming back to a side after time on the other. Applies only while the other side has a session in the last
  * [AWAY_DAYS] days, so a log kept on one side alone is coached exactly as before, and only to a side with a session
- * before today, so a side never trained (left in Settings before any session on it) is not eased back. Then, for
- * an exercise whose
+ * before its return, so a side never trained (left in Settings before any session on it, or first trained on the
+ * session that ended a break) is not eased back. The return is the session that ended the latest break of
+ * [Coach.GAP_DAYS] or more when that falls within those days (1.16), else today. Then, for an exercise whose
  * family has no set on this side in those days:
  * - trained on the other side in them: the target is capped by what those sets support at the target's reps and
  *   RPE (the e1RM estimate, rounded down to a loadable weight); when that cap lowers the weight, the reason gains
@@ -45,9 +46,11 @@ internal object ReturnRule {
         today: LocalDate,
     ): Advice {
         val payload = target.payload as? AdvicePayload.Target ?: return target
-        // A side with no session before today was never trained: there is nothing to come back to.
-        if (history.sessions.none { it.mode == mode && it.date < today }) return target
         val from = today.minus(AWAY_DAYS, DateTimeUnit.DAY)
+        // A side with no session before its return was never trained: there is nothing to come back to. The return
+        // is a recent break's end (a side first trained on it is not eased on the days after), else today.
+        val returnedOn = HistoryStats(history).returnDateAfterGap(today)?.takeIf { it >= from } ?: today
+        if (!Coach.trainedBefore(mode, history, returnedOn)) return target
         val recent = history.sessions.filter { it.date >= from && it.date < today }
         val (here, other) = recent.partition { it.mode == mode }
         if (other.isEmpty()) return target

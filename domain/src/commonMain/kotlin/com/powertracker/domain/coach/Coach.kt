@@ -162,7 +162,14 @@ object Coach {
      * on the return eases nothing (1.16).
      */
     internal fun easesBackIn(reEntry: Advice, side: TrainingMode, history: TrainingHistory, all: HistoryStats): Boolean =
-        trainedBefore(side, history, all.returnDateAfterGap(reEntry.createdAt) ?: reEntry.createdAt)
+        reEntryCounts(side, reEntry.createdAt, history, all)
+
+    /**
+     * Whether a RE_ENTRY created on [createdAt] counts on [side]: [side] has a session before the session that ended
+     * its break ([all]'s return date as of [createdAt]). Both the clamp and the feed read it.
+     */
+    internal fun reEntryCounts(side: TrainingMode, createdAt: LocalDate, history: TrainingHistory, all: HistoryStats): Boolean =
+        trainedBefore(side, history, all.returnDateAfterGap(createdAt) ?: createdAt)
 
     private fun reEntry(stats: HistoryStats, returnDate: LocalDate, today: LocalDate, prior: List<Advice>): Advice? {
         if (today > returnDate.plus(RE_ENTRY_SHOW_DAYS, DateTimeUnit.DAY)) return null

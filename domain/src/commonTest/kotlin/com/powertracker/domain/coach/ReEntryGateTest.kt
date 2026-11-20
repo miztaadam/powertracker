@@ -2,10 +2,12 @@ package com.powertracker.domain.coach
 
 import com.powertracker.domain.HistoryBuilder
 import com.powertracker.domain.Ids
+import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
+import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
@@ -15,6 +17,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -187,5 +190,89 @@ class ReEntryGateTest {
                 }
             }
         }
+    }
+
+    // ---- the feed shows a card only where it counts ----
+
+    @Test
+    fun theFeedShowsEasingBackInOnlyOnASideTrainedBeforeTheBreak() {
+        // Back on day 30 on the bodybuilding side (its first session); powerlifting on day 32 makes the card.
+        val h = history(start) {
+            for (d in listOf(0, 7, 14)) plBench(d)
+            bbBench(30)
+            plBench(32)
+        }
+        val card = evaluateOn(TrainingMode.POWERLIFTING, h, listOf(32)).reEntries().single()
+        assertEquals(day(32), card.createdAt)
+        assertTrue(Coaching.reEntryShows(TrainingMode.POWERLIFTING, card.createdAt, h))
+        assertFalse(Coaching.reEntryShows(TrainingMode.BODYBUILDING, card.createdAt, h))
+
+        val deload = Advice(AdviceType.DELOAD, null, day(32), "Signs of fatigue", 2, AdvicePayload.Deload(), mode = TrainingMode.POWERLIFTING)
+        val stall = Advice(AdviceType.STALL, MainLift.BENCH, day(32), "stall", 3, AdvicePayload.Deload())
+        val stored = listOf(card, deload, stall)
+        assertEquals(stored, Coaching.feedFor(stored, TrainingMode.POWERLIFTING, h))
+        assertEquals(listOf(deload), Coaching.feedFor(stored, TrainingMode.BODYBUILDING, h))
+
+        // A card an older version stored on the never-trained side, on the day it came back or the day after, is
+        // hidden there too; on the side trained before the break it shows.
+        for (createdOn in listOf(30, 31)) {
+            for (old in legacyCards(createdOn)) {
+                assertEquals(emptyList(), Coaching.feedFor(listOf(old), TrainingMode.BODYBUILDING, firstBodybuilding))
+                assertEquals(emptyList(), Coaching.feedFor(listOf(old), TrainingMode.POWERLIFTING, firstPowerlifting))
+                assertEquals(listOf(old), Coaching.feedFor(listOf(old), TrainingMode.POWERLIFTING, firstBodybuilding))
+                assertEquals(listOf(old), Coaching.feedFor(listOf(old), TrainingMode.BODYBUILDING, firstPowerlifting))
+            }
+        }
+    }
+
+    // ---- the return rule reads the same return ----
+
+    private fun squatTarget(today: LocalDate) = Advice(
+        AdviceType.TARGET, MainLift.SQUAT, today, "Coach suggests 190 × 5 @ 8.", 0, AdvicePayload.Target(Ids.SQUAT, 190.0, 5, 8.0),
+    )
+    private val plSquat = PlanItem(4, DayOfWeek.MONDAY, Ids.SQUAT, 3, 5, 8.0, 2)
+    private fun HistoryBuilder.bbSquat(d: Int) =
+        session(d, mode = TrainingMode.BODYBUILDING) { repeat(3) { set(Ids.SQUAT, 100.0, 10, rpe = 8.0) } }
+
+    private fun ease(h: TrainingHistory, d: Int): Advice = ReturnRule.ease(
+        squatTarget(day(d)), plSquat, h.exercises.getValue(Ids.SQUAT), h.copy(sessions = h.sessions.filter { it.date < day(d) }),
+        TrainingMode.POWERLIFTING, settings, day(d),
+    )
+
+    @Test
+    fun theReturnRuleDoesNotEaseASideFirstTrainedOnTheReturn() {
+        // Squats on the bodybuilding side on days 0, 7 and 14; the powerlifting side's first session ends the break on
+        // day 30. Squat is not done on powerlifting since: on the days after, while those squats are in the rule's 28
+        // days, its target is left as it came.
+        val firstTime = history(start) {
+            for (d in listOf(0, 7, 14)) bbSquat(d)
+            plBench(30)
+        }
+        val supported = E1rm.loadFor(E1rm.estimate(100.0, 10, 8.0), 5, 8.0)
+        assertTrue(190.0 > supported, "the case needs a cap that would lower it: $supported")
+        for (d in listOf(31, 35, 42)) assertEquals(squatTarget(day(d)), ease(firstTime, d), "day $d")
+
+        // The same with a powerlifting session before the break: a side trained before it is eased back.
+        val returner = firstTime.copy(sessions = history(start) { plBench(0) }.sessions + firstTime.sessions)
+        for (d in listOf(31, 35, 42)) {
+            val eased = ease(returner, d)
+            assertTrue(eased.target().weightKg < 190.0, "day $d: ${eased.reason}")
+            assertTrue(eased.reason.endsWith(Coach.RE_ENTRY_NOTE), eased.reason)
+        }
+    }
+
+    @Test
+    fun anOldBreakDoesNotStopTheReturnRule() {
+        // The powerlifting side was first trained on the session that ended a break long ago (day 30); squats on the
+        // bodybuilding side every week since day 37. On day 111 that break is outside the rule's 28 days, so the
+        // return is today, and the side, trained before it, is eased back.
+        val h = history(start) {
+            for (d in listOf(0, 7, 14)) bbSquat(d)
+            plBench(30)
+            for (d in 37..107 step 7) bbSquat(d)
+        }
+        val eased = ease(h, 111)
+        assertTrue(eased.target().weightKg < 190.0, eased.reason)
+        assertTrue(eased.reason.endsWith(Coach.RE_ENTRY_NOTE), eased.reason)
     }
 }

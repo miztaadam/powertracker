@@ -4,7 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { planFor } from '../db/catalogue'
 import { getSettings, setTrainingMode, updateSettings, type GritDb } from '../db/db'
 import type { AdviceRow, PlanItemRow, TrainingMode } from '../db/schema'
+import { JsHistory, JsSession, JsSet } from '../domain'
 import { adviceForSide } from '../state/sides'
+import { trainedSides } from '../test/coachFixture'
 import { TODAY, addDays, exerciseNamed, logSet, set, setsOn, targets, todayFixture } from '../test/todayFixture'
 import { CoachScreen } from './coach/CoachScreen'
 import { PlanScreen } from './plan/PlanScreen'
@@ -393,6 +395,9 @@ describe('welcome back needs a side trained before it was left (1.16)', () => {
 })
 
 const advice = (type: string, mode: TrainingMode, payload: string, reason: string): AdviceRow => ({ type, lift: type === 'STALL' ? 'BENCH' : null, createdAt: TODAY, reason, severity: 2, status: 'OPEN', payloadJson: payload, mode })
+/** A log of one squat set per session, each `[days from TODAY, side]`. */
+const jsHistory = (...sessions: [number, TrainingMode][]) =>
+  new JsHistory(sessions.map(([d, mode], i) => new JsSession(i + 1, addDays(TODAY, d), null, null, [new JsSet(1, 100, 5, 8, false, null, true)], mode)), [], [])
 const DELOAD = '{"type":"com.powertracker.domain.model.AdvicePayload.Deload"}'
 const RE_ENTRY = '{"type":"com.powertracker.domain.model.AdvicePayload.ReEntry"}'
 const STALL = '{"type":"com.powertracker.domain.model.AdvicePayload.Accessories","items":[{"exerciseName":"Close-grip bench","sets":3,"repsLow":6,"repsHigh":8}]}'
@@ -400,11 +405,38 @@ const STALL = '{"type":"com.powertracker.domain.model.AdvicePayload.Accessories"
 describe('Coach on the bodybuilding side', () => {
   it('forSide_keepsEveryDeloadAndReEntry_andTheRestOfThatSideOnly', () => {
     const rows = [advice('DELOAD', 'POWERLIFTING', DELOAD, 'd'), advice('RE_ENTRY', 'POWERLIFTING', RE_ENTRY, 'r'), advice('STALL', 'POWERLIFTING', STALL, 's'), advice('TARGET', 'BODYBUILDING', '{}', 't'), { ...advice('STALL', 'POWERLIFTING', STALL, 'old'), mode: undefined }]
-    expect(adviceForSide(rows, 'BODYBUILDING').map((a) => a.reason)).toEqual(['d', 'r', 't'])
-    expect(adviceForSide(rows, 'POWERLIFTING').map((a) => a.reason)).toEqual(['d', 'r', 's', 'old'])
+    // Both sides trained before: the easing back in shows on both.
+    const both = jsHistory([-40, 'POWERLIFTING'], [-40, 'BODYBUILDING'])
+    expect(adviceForSide(rows, 'BODYBUILDING', both).map((a) => a.reason)).toEqual(['d', 'r', 't'])
+    expect(adviceForSide(rows, 'POWERLIFTING', both).map((a) => a.reason)).toEqual(['d', 'r', 's', 'old'])
+  })
+
+  it('forSide_showsEasingBackInOnlyOnASideTrainedBeforeTheBreak', () => {
+    // Powerlifting until 19 days ago; the bodybuilding side's first session ended the break 3 days ago; powerlifting
+    // yesterday made the card. Spec point 10: it shows on powerlifting, not on bodybuilding.
+    const h = jsHistory([-33, 'POWERLIFTING'], [-26, 'POWERLIFTING'], [-19, 'POWERLIFTING'], [-3, 'BODYBUILDING'], [-1, 'POWERLIFTING'])
+    const rows = [{ ...advice('RE_ENTRY', 'POWERLIFTING', RE_ENTRY, 'r'), createdAt: addDays(TODAY, -1) }, advice('DELOAD', 'POWERLIFTING', DELOAD, 'd')]
+    expect(adviceForSide(rows, 'POWERLIFTING', h).map((a) => a.reason)).toEqual(['r', 'd'])
+    expect(adviceForSide(rows, 'BODYBUILDING', h).map((a) => a.reason)).toEqual(['d'])
+  })
+
+  it('theFeedLeavesOutEasingBackInOnASideFirstTrainedOnTheReturn', async () => {
+    for (const d of [-33, -26, -19, -1]) await logSet(db, await session(addDays(TODAY, d), 'POWERLIFTING'), set(squatId, 140, { isTopSet: true }))
+    await logSet(db, await session(addDays(TODAY, -3), 'BODYBUILDING'), set(squatId, 100))
+    await db.advice.add({ ...advice('RE_ENTRY', 'POWERLIFTING', RE_ENTRY, 'Ease back in.'), createdAt: addDays(TODAY, -1) })
+    await onSide('POWERLIFTING')
+    showCoach()
+    expect(await screen.findByText('Ease back in.')).toBeInTheDocument()
+    cleanup()
+    await onSide('BODYBUILDING')
+    showCoach()
+    expect(await screen.findByText('No advice right now. Keep logging.')).toBeInTheDocument()
+    expect(screen.queryByText('Ease back in.')).toBeNull()
   })
 
   it('showsDeloadsAndEasingBackInWhateverTheirSide_butNotThePowerliftingStall', async () => {
+    // Both sides were trained before, so the easing back in counts on both (spec point 10).
+    await trainedSides(db, 'POWERLIFTING', 'BODYBUILDING')
     await db.advice.bulkAdd([advice('DELOAD', 'POWERLIFTING', DELOAD, 'Take a deload week.'), advice('RE_ENTRY', 'BODYBUILDING', RE_ENTRY, 'Ease back in.'), advice('STALL', 'POWERLIFTING', STALL, 'Bench has stalled.')])
     await onSide('BODYBUILDING')
     showCoach()
@@ -591,6 +623,7 @@ describe('no powerlifting wording on the bodybuilding side (fix round ruling E)'
   })
 
   it('theEasingBackInCard_saysAllExercisesAndLastWeights_andThePowerliftingCardIsUnchanged', async () => {
+    await trainedSides(db, 'POWERLIFTING', 'BODYBUILDING')
     await db.advice.add(advice('RE_ENTRY', 'POWERLIFTING', RE_ENTRY, 'Ease back in.'))
     await onSide('BODYBUILDING')
     showCoach()
