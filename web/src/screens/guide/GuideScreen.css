@@ -297,6 +297,10 @@
   flex: none;
 }
 
+.guide-art-gone {
+  display: none;
+}
+
 .guide-example-unseen {
   visibility: hidden;
 }

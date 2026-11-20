@@ -316,7 +316,7 @@ for (const [width, height, phoneFits] of [
       if (OUTLINED.includes(id)) {
         // The phone keeps its least size while the text scrolls, or gives way altogether; never anything between.
         if (phoneFits) expect(room.phone, `${id}: the phone at ${room.phone} px`).toBeGreaterThanOrEqual(OUTLINE_MIN - 0.5)
-        else expect(room.phone >= OUTLINE_MIN - 0.5 || room.art <= 1, `${id}: the phone at ${room.phone} px in ${room.art} px`).toBe(true)
+        else if (room.phone < OUTLINE_MIN - 0.5) await expect(page.locator('.guide-art'), `${id}: a phone of ${room.phone} px, neither its least size nor gone`).toBeHidden()
       } else if (room.scrolls) {
         // WELCOME and SIDE: art, not a phone. The text comes first: the art gives up its room before the text scrolls.
         expect(room.art, `${id}: the text scrolls while the art keeps ${room.art} px`).toBeLessThanOrEqual(1)

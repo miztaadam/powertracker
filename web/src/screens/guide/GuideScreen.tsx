@@ -249,7 +249,8 @@ function GuidePage({ id, mode, motionOn, clock, focusTitle, below, artHeight }: 
         ))}
       </div>
       {/* On the outlined screens the picture's place is one height (spec point 11): the text above takes the rest, and scrolls. */}
-      <div className="guide-art" style={outlined && artHeight != null ? { height: `${artHeight}px` } : undefined}>
+      {/* Given no room at all (large text on a small phone): the picture gives way, its label and padding with it. */}
+      <div className={cx('guide-art', outlined && artHeight === 0 && 'guide-art-gone')} style={outlined && artHeight != null ? { height: `${artHeight}px` } : undefined}>
         {screen.example && (
           <span className="guide-example" data-testid="guide-example">
             <Pill text={EXAMPLE} />
