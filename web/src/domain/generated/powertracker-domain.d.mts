@@ -32,7 +32,8 @@ export declare namespace GritDomain {
             physiqueApplySwap(payloadJson: string, choice: string, plan: Array<JsPlanItem>, exercises: Array<JsExercise>): JsPlanChange;
             physiqueWeeklySets(plan: Array<JsPlanItem>, exercises: Array<JsExercise>, group: string): number;
             muscleProgressRows(history: JsHistory, plan: Array<JsPlanItem>, checkIns: Array<JsCheckIn>, today: string): Array<JsMuscleRow>;
-            welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean): boolean;
+            welcomeBack(leftOn: Nullable<string>, today: string, hasPlan: boolean, firstSessionOn: Nullable<string>): boolean;
+            coachingReEntryShows(mode: string, createdAt: string, history: JsHistory): boolean;
             repsToBeat(item: JsPlanItem, history: JsHistory, setNumber: number, today: string): number;
             repsToBeatWithSkips(item: JsPlanItem, history: JsHistory, setNumber: number, today: string, skips: Array<JsSkip>): number;
             bodybuildingProgress(history: JsHistory, plan: Array<JsPlanItem>, today: string): Array<JsExerciseTrend>;
@@ -107,8 +108,233 @@ export declare namespace GritDomain {
             modeSwitchVeinProgress(front: number, d0: number, len: number): number;
             modeSwitchPulseOpacity(pulseOpacity: number, front: number, len: number): number;
             modeSwitchPulseStart(front: number, len: number): number;
+            guideScreens(): Array<string>;
+            guideScreen(id: string, mode: string): JsGuideScreen;
+            guideSteps(id: string, mode: string): Array<string>;
+            guideStepMs(): number;
+            guideMoveMs(): number;
+            guideFadeMs(): number;
+            guideStepStartMs(index: number): number;
+            guideSettledMs(index: number): number;
+            guideDoneMs(count: number): number;
+            guideEase(x: number): number;
+            guideTapMs(): number;
+            guideTap(step: string): Nullable<string>;
+            guideMotionStartMs(steps: Array<string>, index: number): number;
+            guideFrame(id: string, mode: string, tMs: number): JsGuideFrame;
+            guideSampleToday(): string;
+            guideSampleTemplate(mode: string): JsPlanTemplate;
+            guideSamplePlan(mode: string): Array<JsPlanItem>;
+            guideSampleTodayItems(mode: string): Array<JsPlanItem>;
+            guideSampleExercises(mode: string): Array<JsExercise>;
+            guideSampleTodayEditor(mode: string, step: string, progress: number): JsGuideEditor;
+            guideSampleTodaySet(mode: string): JsGuideTargetStep;
+            guideSampleTargets(mode: string): Array<JsGuideTargetStep>;
+            guideSampleAdvice(mode: string): Array<JsAdvice>;
+            guideSampleProgress(mode: string): JsGuideProgress;
+            guideSideFrame(tMs: number): JsGuideSideFrame;
+            guideSideStill(): JsGuideSideFrame;
+            guideSideLoopMs(): number;
+            guideSideBox(): JsGuideSideBox;
+            guideSampleSwap(mode: string): JsGuideSwap;
+            guideSampleDraft(mode: string, swapped: boolean): JsPlanDraft;
+            guideSampleFilledPlan(mode: string): Array<JsPlanItem>;
+            guideSampleFilledExercises(mode: string): Array<JsExercise>;
+            guideSampleTargetAdvice(mode: string): Array<JsAdvice>;
+            guideSampleTargetHistory(mode: string): JsHistory;
+            guideSampleTargetEditor(mode: string, index: number, progress: number): JsGuideEditor;
+            guideSampleStallTrend(mode: string): Array<JsGuidePoint>;
+            guideSampleStallE1rm(mode: string): Nullable<number>;
+            guideSampleMonthsDate(mode: string, step: string, progress: number): string;
+            guideSampleMonthsHistory(mode: string, until: string): JsHistory;
+            guideSampleMonthsPlan(mode: string): Array<JsPlanItem>;
+            guideSampleMonthsCheckIn(mode: string, step: string, progress: number): Nullable<JsCheckIn>;
             private constructor();
         }
+    }
+}
+export declare class JsGuideLine {
+    constructor(text: string, constants: Array<string>);
+    get text(): string;
+    get constants(): Array<string>;
+    copy(text?: string, constants?: Array<string>): JsGuideLine;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideLine {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideLine;
+    }
+}
+export declare class JsGuideScreen {
+    constructor(id: string, title: string, lines: Array<JsGuideLine>, example: boolean);
+    get id(): string;
+    get title(): string;
+    get lines(): Array<JsGuideLine>;
+    get example(): boolean;
+    copy(id?: string, title?: string, lines?: Array<JsGuideLine>, example?: boolean): JsGuideScreen;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideScreen {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideScreen;
+    }
+}
+export declare class JsGuideTargetStep {
+    constructor(date: string, exerciseId: string, doneWeightKg: number, doneReps: number, doneRpe: number, nextWeightKg: number, nextRepsLow: number, nextRepsHigh: number, note: Nullable<string>);
+    get date(): string;
+    get exerciseId(): string;
+    get doneWeightKg(): number;
+    get doneReps(): number;
+    get doneRpe(): number;
+    get nextWeightKg(): number;
+    get nextRepsLow(): number;
+    get nextRepsHigh(): number;
+    get note(): Nullable<string>;
+    copy(date?: string, exerciseId?: string, doneWeightKg?: number, doneReps?: number, doneRpe?: number, nextWeightKg?: number, nextRepsLow?: number, nextRepsHigh?: number, note?: Nullable<string>): JsGuideTargetStep;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideTargetStep {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideTargetStep;
+    }
+}
+export declare class JsGuidePoint {
+    constructor(date: string, value: number);
+    get date(): string;
+    get value(): number;
+    copy(date?: string, value?: number): JsGuidePoint;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuidePoint {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuidePoint;
+    }
+}
+export declare class JsGuideBest {
+    constructor(exerciseId: string, kg: number);
+    get exerciseId(): string;
+    get kg(): number;
+    copy(exerciseId?: string, kg?: number): JsGuideBest;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideBest {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideBest;
+    }
+}
+export declare class JsGuideProgress {
+    constructor(points: Array<JsGuidePoint>, bests: Array<JsGuideBest>, totalKg: Nullable<number>, laggingMuscle: Nullable<string>);
+    get points(): Array<JsGuidePoint>;
+    get bests(): Array<JsGuideBest>;
+    get totalKg(): Nullable<number>;
+    get laggingMuscle(): Nullable<string>;
+    copy(points?: Array<JsGuidePoint>, bests?: Array<JsGuideBest>, totalKg?: Nullable<number>, laggingMuscle?: Nullable<string>): JsGuideProgress;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideProgress {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideProgress;
+    }
+}
+export declare class JsGuideFrame {
+    constructor(stepIndex: number, step: string, progress: number, done: boolean, tap: Nullable<string>, tapProgress: number);
+    get stepIndex(): number;
+    get step(): string;
+    get progress(): number;
+    get done(): boolean;
+    get tap(): Nullable<string>;
+    get tapProgress(): number;
+    copy(stepIndex?: number, step?: string, progress?: number, done?: boolean, tap?: Nullable<string>, tapProgress?: number): JsGuideFrame;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideFrame {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideFrame;
+    }
+}
+export declare class JsGuideEditor {
+    constructor(weightKg: Nullable<number>, reps: number, rpe: number);
+    get weightKg(): Nullable<number>;
+    get reps(): number;
+    get rpe(): number;
+    copy(weightKg?: Nullable<number>, reps?: number, rpe?: number): JsGuideEditor;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideEditor {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideEditor;
+    }
+}
+export declare class JsGuideSideFrame {
+    constructor(dropMs: number, pumpMs: number);
+    get dropMs(): number;
+    get pumpMs(): number;
+    copy(dropMs?: number, pumpMs?: number): JsGuideSideFrame;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideSideFrame {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideSideFrame;
+    }
+}
+export declare class JsGuideSideBox {
+    constructor(w: number, h: number, srcX: number, srcY: number);
+    get w(): number;
+    get h(): number;
+    get srcX(): number;
+    get srcY(): number;
+    copy(w?: number, h?: number, srcX?: number, srcY?: number): JsGuideSideBox;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideSideBox {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideSideBox;
+    }
+}
+export declare class JsGuideSwap {
+    constructor(day: number, from: string, to: string);
+    get day(): number;
+    get from(): string;
+    get to(): string;
+    copy(day?: number, from?: string, to?: string): JsGuideSwap;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsGuideSwap {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsGuideSwap;
     }
 }
 export declare class JsMotionPoint {

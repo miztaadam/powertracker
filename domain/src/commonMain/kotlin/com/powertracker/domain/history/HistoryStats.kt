@@ -106,10 +106,15 @@ class HistoryStats(private val history: TrainingHistory) {
 
     /**
      * Considering sessions on or before [until]: the later date of the most recent pair of consecutive
-     * session dates at least 14 days apart; null if there is no such gap.
+     * session dates at least [GAP_DAYS] days apart; null if there is no such gap.
      */
     fun returnDateAfterGap(until: LocalDate): LocalDate? {
         val dates = sessions.map { it.date }.filter { it <= until }.distinct()
-        return dates.zipWithNext().lastOrNull { (a, b) -> a.daysUntil(b) >= 14 }?.second
+        return dates.zipWithNext().lastOrNull { (a, b) -> a.daysUntil(b) >= GAP_DAYS }?.second
+    }
+
+    companion object {
+        /** A break this many days or more between sessions is one the lifter returns from (`Coach.GAP_DAYS`). */
+        internal const val GAP_DAYS = 14L
     }
 }

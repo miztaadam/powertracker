@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../db/db'
 import { resolveCatalogue } from '../db/catalogue'
 import { updateSettings } from '../db/db'
-import { advice, insertAdvice, payload, planOf, rx, statuses } from '../test/coachFixture'
+import { advice, insertAdvice, payload, planOf, rx, statuses, trainedSides } from '../test/coachFixture'
 import { TODAY, addDays, baseline, exerciseNamed, plan, todayFixture } from '../test/todayFixture'
 import { grit } from '../domain'
 import { useCoach } from './useCoach'
@@ -35,6 +35,7 @@ async function coach(cards: number) {
 
 describe('useCoach', () => {
   it('cards_leaveOutTargets_andOrderByTypeThenNewest', async () => {
+    await trainedSides(db, 'POWERLIFTING')
     await insertAdvice(
       db,
       advice('WEAK_POINT', 'SQUAT', 'Prioritise it.', payload.weakPoint('SQUAT', 'FLOOR'), { severity: 4 }),

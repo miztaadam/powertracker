@@ -1,0 +1,52 @@
+import type { CSSProperties } from 'react'
+import { PHONE_HEIGHT, sideName } from '../guideLabels'
+import type { PictureDef, PictureProps } from './picture'
+
+/** How far the two sides' panels rise as they fade in (as Android's). */
+export const WELCOME_RISE_PX = 24
+
+/**
+ * The app's mark: the launcher icon (docs/design/logo/b-barbell-grey-icon.svg), its path data unchanged. GRIT, with a
+ * barbell for the I, on graphite.
+ */
+export function GritMark() {
+  return (
+    <svg className="guide-mark" viewBox="0 0 108 108" aria-hidden="true" focusable="false">
+      <path fill="#131518" d="M0,0L108,0L108,108L0,108Z" />
+      <path
+        fill="#F3F4EF"
+        d="M49.78,65.89L47.09,56.24Q47.02,56.1 46.92,56.1L45.73,56.1Q45.55,56.1 45.55,56.27L45.55,65.82Q45.55,66 45.43,66.12 45.31,66.24 45.13,66.24L41.04,66.24Q40.86,66.24 40.74,66.12 40.62,66 40.62,65.82L40.62,42.18Q40.62,42 40.74,41.88 40.86,41.76 41.04,41.76L48.11,41.76Q50.03,41.76 51.53,42.68 53.04,43.61 53.86,45.29 54.68,46.97 54.68,49.14Q54.68,51.2 53.9,52.78 53.11,54.35 51.71,55.22Q51.64,55.26 51.6,55.31 51.57,55.36 51.6,55.43L54.82,65.75L54.86,65.89Q54.86,66.24 54.47,66.24L50.27,66.24Q49.89,66.24 49.78,65.89ZM23.69,59.91L23.69,48.09Q23.69,45.08 25.59,43.28 27.5,41.48 30.65,41.48 33.8,41.48 35.72,43.3 37.65,45.11 37.65,48.12L37.65,49.45Q37.65,49.63 37.52,49.75 37.4,49.87 37.23,49.87L33.13,49.87Q32.96,49.87 32.84,49.75 32.71,49.63 32.71,49.45L32.71,48.05Q32.71,47 32.15,46.36 31.59,45.71 30.65,45.71Q29.74,45.71 29.18,46.36 28.62,47 28.62,48.05L28.62,59.95Q28.62,61 29.18,61.64 29.74,62.29 30.65,62.29Q31.59,62.29 32.15,61.64 32.71,61 32.71,59.95L32.71,57.15Q32.71,56.97 32.54,56.97L31,56.97Q30.82,56.97 30.7,56.85 30.58,56.73 30.58,56.55L30.58,53.44Q30.58,53.27 30.7,53.14 30.82,53.02 31,53.02L37.23,53.02Q37.4,53.02 37.52,53.14 37.65,53.27 37.65,53.44L37.65,59.91Q37.65,62.92 35.72,64.72 33.8,66.52 30.65,66.52 27.5,66.52 25.59,64.72 23.69,62.92 23.69,59.91ZM84.31,42.18L84.31,45.57Q84.31,45.74 84.19,45.87 84.07,45.99 83.89,45.99L79.52,45.99Q79.34,45.99 79.34,46.16L79.34,65.82Q79.34,66 79.22,66.12 79.1,66.24 78.92,66.24L74.83,66.24Q74.66,66.24 74.53,66.12 74.41,66 74.41,65.82L74.41,46.16Q74.41,45.99 74.24,45.99L70.04,45.99Q69.86,45.99 69.74,45.87 69.62,45.74 69.62,45.57L69.62,42.18Q69.62,42 69.74,41.88 69.86,41.76 70.04,41.76L83.89,41.76Q84.07,41.76 84.19,41.88 84.31,42 84.31,42.18ZM45.55,46.16L45.55,52.15Q45.55,52.32 45.73,52.32L47.3,52.32Q48.39,52.32 49.07,51.46 49.75,50.61 49.75,49.17Q49.75,47.7 49.07,46.85 48.39,45.99 47.3,45.99L45.73,45.99Q45.55,45.99 45.55,46.16Z"
+      />
+      <path fill="#7E858F" d="M61.19,39.55L63.15,39.55C63.49,39.55 63.76,39.83 63.76,40.16L63.76,67.84C63.76,68.17 63.49,68.45 63.15,68.45L61.19,68.45C60.85,68.45 60.58,68.17 60.58,67.84L60.58,40.16C60.58,39.83 60.85,39.55 61.19,39.55Z" />
+      <path
+        fill="#B4BAC2"
+        d="M57.15,41.76L67.19,41.76C67.66,41.76 68.05,42.14 68.05,42.61L68.05,45.06C68.05,45.54 67.66,45.92 67.19,45.92L57.15,45.92C56.67,45.92 56.29,45.54 56.29,45.06L56.29,42.61C56.29,42.14 56.67,41.76 57.15,41.76ZM57.15,62.08L67.19,62.08C67.66,62.08 68.05,62.46 68.05,62.94L68.05,65.39C68.05,65.86 67.66,66.24 67.19,66.24L57.15,66.24C56.67,66.24 56.29,65.86 56.29,65.39L56.29,62.94C56.29,62.46 56.67,62.08 57.15,62.08ZM58.86,58.41L65.47,58.41C65.88,58.41 66.21,58.74 66.21,59.14L66.21,60.49C66.21,60.89 65.88,61.22 65.47,61.22L58.86,61.22C58.46,61.22 58.13,60.89 58.13,60.49L58.13,59.14C58.13,58.74 58.46,58.41 58.86,58.41ZM58.86,46.78L65.47,46.78C65.88,46.78 66.21,47.11 66.21,47.51L66.21,48.86C66.21,49.26 65.88,49.59 65.47,49.59L58.86,49.59C58.46,49.59 58.13,49.26 58.13,48.86L58.13,47.51C58.13,47.11 58.46,46.78 58.86,46.78Z"
+      />
+    </svg>
+  )
+}
+
+/**
+ * Screen 1: the mark (`WELCOME_MARK`), then the two sides' colours, powerlifting and bodybuilding, each a panel in its
+ * own background and accent: a plain swatch named by a caption, not a button. They fade in and rise with the move into
+ * `WELCOME_SIDES`. No phone: the art fills the picture's place. No numbers.
+ */
+function WelcomePicture({ step, progress }: PictureProps) {
+  const shown = step === 'WELCOME_SIDES' ? progress : 0
+  const style: CSSProperties = { opacity: shown, transform: shown >= 1 ? undefined : `translateY(${((1 - shown) * WELCOME_RISE_PX).toFixed(2)}px)` }
+  return (
+    <div className="guide-welcome">
+      <GritMark />
+      <div className="guide-welcome-sides" data-testid="guide-welcome-sides" style={style}>
+        {(['POWERLIFTING', 'BODYBUILDING'] as const).map((side) => (
+          <div key={side} className={`guide-side-panel guide-side-${side.toLowerCase()}`} data-testid="guide-side-panel">
+            <span className="guide-side-panel-swatch" />
+            <span className="guide-side-panel-name title-medium">{sideName(side)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export const WELCOME_PICTURE: PictureDef = { Draw: WelcomePicture, outlined: false, height: PHONE_HEIGHT }

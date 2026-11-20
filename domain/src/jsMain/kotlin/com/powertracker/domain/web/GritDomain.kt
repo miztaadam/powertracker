@@ -12,6 +12,10 @@ import com.powertracker.domain.model.forSide
 import com.powertracker.domain.progress.MuscleProgress
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.e1rm.E1rm
+import com.powertracker.domain.guide.Guide
+import com.powertracker.domain.guide.GuideSample
+import com.powertracker.domain.guide.GuideScreenId
+import com.powertracker.domain.guide.GuideStep
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
@@ -264,9 +268,24 @@ object GritDomain {
         MuscleProgress.rows(history.toDomain(), plan.map { it.toDomain() }, checkIns.map { it.toDomain() }, parseDate("today", today))
             .map { it.toJs() }.toTypedArray()
 
-    /** Whether to show the welcome-back card: the side has a plan and was left ([leftOn], ISO date or null) more than 30 days before [today]. */
-    fun welcomeBack(leftOn: String?, today: String, hasPlan: Boolean): Boolean =
-        Coaching.welcomeBack(leftOn?.let { parseDate("leftOn", it) }, parseDate("today", today), hasPlan)
+    /**
+     * Whether to show the welcome-back card ([Coaching.welcomeBack]): the side has a plan, was left ([leftOn], ISO date
+     * or null) more than 30 days before [today], and its earliest session ([firstSessionOn], ISO date, or null when it
+     * has none) is on or before [leftOn].
+     */
+    fun welcomeBack(leftOn: String?, today: String, hasPlan: Boolean, firstSessionOn: String?): Boolean =
+        Coaching.welcomeBack(
+            leftOn?.let { parseDate("leftOn", it) }, parseDate("today", today), hasPlan,
+            firstSessionOn?.let { parseDate("firstSessionOn", it) },
+        )
+
+    /**
+     * Whether a RE_ENTRY card created on [createdAt] (ISO date) shows on [mode]'s side (a `TrainingMode` name)
+     * ([Coaching.reEntryShows]): only a side trained before the session that ended the break. [history] is the
+     * whole log, both sides.
+     */
+    fun coachingReEntryShows(mode: String, createdAt: String, history: JsHistory): Boolean =
+        Coaching.reEntryShows(parseEnum<TrainingMode>("mode", mode), parseDate("createdAt", createdAt), history.toDomain())
 
     /**
      * Reps to put in the reps field for set [setNumber] (1-based) of a bodybuilding [item]: last time's reps for that
@@ -619,6 +638,156 @@ object GritDomain {
 
     /** Where a pulse's bead starts along a [len] long vein, 0..1 of its length; the bead is the next 6%. */
     fun modeSwitchPulseStart(front: Double, len: Double): Double = ModeSwitchMotion.pulseStart(front, len)
+
+    // ---- the guide ----
+
+    /** The guide's 8 screens (`GuideScreenId` names), in order. */
+    fun guideScreens(): Array<String> = Guide.SCREENS.map { it.name }.toTypedArray()
+
+    /** Screen [id] (a `GuideScreenId` name) for [mode]'s side: its title, lines and whether its picture is an example. */
+    fun guideScreen(id: String, mode: String): JsGuideScreen =
+        Guide.screen(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** What screen [id]'s picture shows, step by step (`GuideStep` names), on [mode]'s side. */
+    fun guideSteps(id: String, mode: String): Array<String> =
+        Guide.steps(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode)).map { it.name }.toTypedArray()
+
+    /** How long a picture step holds once its move has ended, in ms. */
+    fun guideStepMs(): Int = Guide.STEP_MS
+
+    /** A step's move, in ms: the web's layout moves take this long. */
+    fun guideMoveMs(): Int = Guide.MOVE_MS
+
+    /** A row new in a step fades in (one gone fades out) this long, in ms. */
+    fun guideFadeMs(): Int = Guide.FADE_MS
+
+    /** When step [index] of a picture starts, in ms from the picture's start. */
+    fun guideStepStartMs(index: Int): Int = Guide.stepStartMs(index)
+
+    /** When step [index] of a picture has settled (its move over), in ms from the picture's start. */
+    fun guideSettledMs(index: Int): Int = Guide.settledMs(index)
+
+    /** When a picture of [count] steps is done (its last step settled), in ms from its start. */
+    fun guideDoneMs(count: Int): Int = Guide.doneMs(count)
+
+    /** The move's curve at [x] (0 to 1 of its time): how far it has gone, 0 to 1. */
+    fun guideEase(x: Double): Double = Guide.ease(x)
+
+    /** The tap ring's time, in ms: the last of the hold before a step that stands for a tap. */
+    fun guideTapMs(): Int = Guide.TAP_MS
+
+    /** The control (a `GuideTap` name) that [step] (a `GuideStep` name) stands for pressing, or null. */
+    fun guideTap(step: String): String? = Guide.tap(parseEnum<GuideStep>("step", step))?.name
+
+    /**
+     * When the motion into step [index] of [steps] (`GuideStep` names, as [guideSteps] gives them) starts, in ms from
+     * the picture's start: its tap ring for a step that stands for a tap, else its move.
+     */
+    fun guideMotionStartMs(steps: Array<String>, index: Int): Int =
+        Guide.motionStartMs(steps.map { parseEnum<GuideStep>("step", it) }, index)
+
+    /** Where screen [id]'s picture on [mode]'s side is [tMs] after it started. */
+    fun guideFrame(id: String, mode: String, tMs: Int): JsGuideFrame =
+        Guide.frame(parseEnum<GuideScreenId>("id", id), parseEnum<TrainingMode>("mode", mode), tMs).toJs()
+
+    /** The sample lifter's fixed today (ISO). */
+    fun guideSampleToday(): String = GuideSample.TODAY.toString()
+
+    /** The 3-day template screen 3 picks for [mode]. */
+    fun guideSampleTemplate(mode: String): JsPlanTemplate = GuideSample.template(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** That template's draft, saved: the sample's plan items, whose exercise ids are [guideSampleExercises]'. */
+    fun guideSamplePlan(mode: String): Array<JsPlanItem> =
+        GuideSample.plan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Screen 4's day, for the guide only: the first of the plan's items on the sample's today, in order. */
+    fun guideSampleTodayItems(mode: String): Array<JsPlanItem> =
+        GuideSample.todayItems(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** The sample's exercises: the ids its plan and advice use. */
+    fun guideSampleExercises(mode: String): Array<JsExercise> =
+        GuideSample.exercises(parseEnum<TrainingMode>("mode", mode)).values.sortedBy { it.id }.map { it.toJs() }.toTypedArray()
+
+    /** What screen 4's lift editor shows at [progress] (0 to 1) through the move into [step] (a `GuideStep` name). */
+    fun guideSampleTodayEditor(mode: String, step: String, progress: Double): JsGuideEditor =
+        GuideSample.todayEditor(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress).toJs()
+
+    /** The set screen 4 logs: the first of [guideSampleTargets]. */
+    fun guideSampleTodaySet(mode: String): JsGuideTargetStep = GuideSample.today(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** One lift, 5 sessions: what was done and the coach's next target. */
+    fun guideSampleTargets(mode: String): Array<JsGuideTargetStep> =
+        GuideSample.targets(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Screen 6's cards, from the real rules, in the rule table's order. */
+    fun guideSampleAdvice(mode: String): Array<JsAdvice> =
+        GuideSample.advice(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** The sample lifter about six months on. */
+    fun guideSampleProgress(mode: String): JsGuideProgress = GuideSample.progress(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    // ---- the other seven pictures (Task 4) ----
+
+    /** Screen 2's loop [tMs] after it started: how far into the drop and the pump each is, in their own ms. */
+    fun guideSideFrame(tMs: Double): JsGuideSideFrame = Guide.sideFrame(tMs.toLong()).toJs()
+
+    /** Screen 2 still (motion off, the shots): the hammer at rest on the cracks, the pump's last beat at its height. */
+    fun guideSideStill(): JsGuideSideFrame = Guide.SIDE_STILL.toJs()
+
+    /** One turn of screen 2's loop, in ms. */
+    fun guideSideLoopMs(): Int = Guide.SIDE_LOOP_MS
+
+    /** Each of screen 2's motion boxes (the units `modeSwitchDropFrame` / `modeSwitchPumpFrame` take) and the pump's start. */
+    fun guideSideBox(): JsGuideSideBox = Guide.sidePumpSource().let { JsGuideSideBox(Guide.SIDE_BOX_W, Guide.SIDE_BOX_H, it.x, it.y) }
+
+    /** Screen 3's one swap: the day (1-7), the draft's exercise and what it becomes. */
+    fun guideSampleSwap(mode: String): JsGuideSwap = GuideSample.swap(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** The template's draft as screen 3 shows it (Monday, Wednesday, Friday); [swapped], with the swap made. */
+    fun guideSampleDraft(mode: String, swapped: Boolean): JsPlanDraft =
+        GuideSample.draft(parseEnum<TrainingMode>("mode", mode), swapped).toJs()
+
+    /** The swapped draft as Use this plan saves it: screen 3's last step; its exercise ids are [guideSampleFilledExercises]'. */
+    fun guideSampleFilledPlan(mode: String): Array<JsPlanItem> =
+        GuideSample.filledPlan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** [guideSampleExercises] with the swapped exercise under the replaced one's id. */
+    fun guideSampleFilledExercises(mode: String): Array<JsExercise> =
+        GuideSample.filledExercises(parseEnum<TrainingMode>("mode", mode)).values.sortedBy { it.id }.map { it.toJs() }.toTypedArray()
+
+    /** Screen 5: the coach's OPEN target behind each [guideSampleTargets] entry, dated the session it is for. */
+    fun guideSampleTargetAdvice(mode: String): Array<JsAdvice> =
+        GuideSample.targetAdvice(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Every session of screen 5's run: what the targets were worked out from. */
+    fun guideSampleTargetHistory(mode: String): JsHistory = GuideSample.targetHistory(parseEnum<TrainingMode>("mode", mode)).toJs()
+
+    /** What the lift's editor shows at [progress] (0 to 1) through the move into screen 5's step [index]. */
+    fun guideSampleTargetEditor(mode: String, index: Int, progress: Double): JsGuideEditor =
+        GuideSample.targetEditor(parseEnum<TrainingMode>("mode", mode), index, progress).toJs()
+
+    /** Screen 6's stall card: its lift's weekly best e1RM up to the sample's today (powerlifting; empty on bodybuilding). */
+    fun guideSampleStallTrend(mode: String): Array<JsGuidePoint> =
+        GuideSample.stallTrend(parseEnum<TrainingMode>("mode", mode)).map { (d, v) -> JsGuidePoint(d.toString(), v) }.toTypedArray()
+
+    /** Screen 6's stall card: its lift's current e1RM (powerlifting; null on bodybuilding). */
+    fun guideSampleStallE1rm(mode: String): Double? = GuideSample.stallE1rm(parseEnum<TrainingMode>("mode", mode))
+
+    /** The day (ISO) screen 7's Progress screen is drawn on at [progress] through the move into [step]: whole weeks. */
+    fun guideSampleMonthsDate(mode: String, step: String, progress: Double): String =
+        GuideSample.monthsDate(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress).toString()
+
+    /** The run's sessions on or before [until] (ISO): what the Progress screen reads then. */
+    fun guideSampleMonthsHistory(mode: String, until: String): JsHistory =
+        GuideSample.monthsHistory(parseEnum<TrainingMode>("mode", mode), parseDate("until", until)).toJs()
+
+    /** The plan the run was logged against: what the bodybuilding Progress screen lists. */
+    fun guideSampleMonthsPlan(mode: String): Array<JsPlanItem> =
+        GuideSample.monthsPlan(parseEnum<TrainingMode>("mode", mode)).map { it.toJs() }.toTypedArray()
+
+    /** Bodybuilding's check-in once screen 7's last move has arrived; null before then and on powerlifting. */
+    fun guideSampleMonthsCheckIn(mode: String, step: String, progress: Double): JsCheckIn? =
+        GuideSample.monthsCheckIn(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress)?.toJs()
 
     private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
         JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)

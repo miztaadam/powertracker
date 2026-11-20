@@ -26,7 +26,6 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
-import com.powertracker.domain.model.forSide
 import com.powertracker.domain.model.on
 import com.powertracker.platform.systemToday
 import kotlinx.coroutines.CancellationException
@@ -112,7 +111,10 @@ class CoachViewModel(
      */
     private val busy = MutableStateFlow(emptySet<Long>())
 
-    /** The feed is the advice of the side the app is on, with every deload and easing back in. */
+    /**
+     * The feed is the advice of the side the app is on, with every deload, and every easing back in from a break this
+     * side was trained before ([Coaching.feedFor]).
+     */
     val state: StateFlow<CoachState> =
         combine(combine(advice.open(), busy, training.checkIns(), ::Triple), training.history(), training.plans(), training.exercises(), settings.settings) { (open, busy, checkIns), history, plans, exercises, s ->
             val mode = s.trainingMode
@@ -120,12 +122,12 @@ class CoachViewModel(
             // The cards' trends and ratios are powerlifting figures: bodybuilding sessions do not touch them (spec §5.3).
             val stats = HistoryStats(history.on(TrainingMode.POWERLIFTING))
             val date = today()
-            val cards = open.forSide(mode)
+            val cards = Coaching.feedFor(open, mode, history)
                 .filter { it.type in FEED_ORDER && it.id !in busy && !expired(it, date) }
                 .sortedWith(compareBy<Advice> { FEED_ORDER.indexOf(it.type) }.thenByDescending { it.createdAt }.thenByDescending { it.id })
                 .mapNotNull { a -> detail(a, stats, date, plan, exercises)?.let { CoachCard(a, it) } }
             CoachState(
-                loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty()),
+                loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty(), Coaching.firstSessionOn(mode, history)),
                 checkInDue = mode == TrainingMode.BODYBUILDING && Coaching.checkInDue(history, plans.bodybuilding, checkIns, date),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())

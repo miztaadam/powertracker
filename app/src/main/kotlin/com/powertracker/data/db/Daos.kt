@@ -34,6 +34,9 @@ interface SessionDao {
     @Query("SELECT * FROM session ORDER BY id") suspend fun all(): List<SessionEntity>
     @Insert suspend fun insertAll(s: List<SessionEntity>)
     @Query("DELETE FROM session") suspend fun clear()
+
+    /** Whether any session was ever started (the guide's first-launch check). */
+    @Query("SELECT EXISTS(SELECT 1 FROM session)") suspend fun any(): Boolean
 }
 
 @Dao
@@ -74,6 +77,9 @@ interface PlanDao {
     @Query("DELETE FROM plan_item") suspend fun clear()
     /** Deletes [mode]'s plan; the other side's rows are kept. */
     @Query("DELETE FROM plan_item WHERE mode = :mode") suspend fun clearSide(mode: TrainingMode)
+
+    /** Whether either side has a plan item (the guide's first-launch check). */
+    @Query("SELECT EXISTS(SELECT 1 FROM plan_item)") suspend fun any(): Boolean
 }
 
 @Dao

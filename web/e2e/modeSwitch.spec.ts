@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { WEDNESDAY, tabBar } from './helpers'
+import { MOTION_ON } from './storage'
 
 // The mode switch animations (1.15): the hammer drop (Bodybuilding mode off) and the pump (on). Every other e2e page
 // runs with motion off (e2e/motion.spec.ts), so these turn it on (spec "Settled" 8). The timing checks hold the
@@ -93,7 +94,7 @@ async function shoot(page: Page, name: string) {
 }
 
 test.describe('with motion on', () => {
-  test.use({ storageState: { cookies: [], origins: [] } })
+  test.use({ storageState: MOTION_ON })
 
   for (const scheme of ['dark', 'light'] as const) {
     test(`the pump: stored at the tap, blue at the third beat (${scheme})`, async ({ page }) => {
@@ -767,7 +768,7 @@ test.describe('mode switch speed', { tag: '@speed' }, () => {
   }
   const pc = (x: number) => `${Math.round(x * 100)} %`
 
-  test.use({ storageState: { cookies: [], origins: [] } })
+  test.use({ storageState: MOTION_ON })
 
   /** A task the app ran: its kind, start and end (performance.now). */
   type Task = [string, number, number]

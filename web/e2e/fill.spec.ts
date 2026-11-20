@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { openOnWednesday, tabBar } from './helpers'
+import { MOTION_ON } from './storage'
 
 // Stage 4, charts that fill in (charts.css, RatioBar.css): with motion on, Progress's lines draw in from the left in
 // 600 ms, the volume bars grow from the baseline 30 ms apart (the strip done by 700 ms) and the ratio markers slide in
@@ -73,7 +74,7 @@ const complete = (page: Page) =>
   })
 
 test.describe('with motion on', () => {
-  test.use({ storageState: { cookies: [], origins: [] } })
+  test.use({ storageState: MOTION_ON })
 
   test.beforeEach(async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })

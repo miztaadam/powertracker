@@ -9,10 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.Tab
+import com.powertracker.ui.guide.GuideScreen
 import com.powertracker.ui.library.CatalogueThumbnails
 import com.powertracker.ui.lock.LockScreen
 import com.powertracker.ui.plan.builder.BuilderStep
@@ -133,11 +135,12 @@ class ScreenshotTest {
     fun planAddForm() = render("plan-add-form", Tab.PLAN) { PlanAddFormShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
+    // Tall enough for the whole screen, the guide's row (1.16) and the version line included.
+    @Config(qualifiers = "w412dp-h1530dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1530dp-xhdpi")
     fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
 
     // The bodybuilding side (bodybuilding mode spec §7): its blue look and label, its own Today, Plan, Coach and Progress.
@@ -158,7 +161,7 @@ class ScreenshotTest {
     fun progressBodybuilding() = render("progress-bodybuilding", Tab.PROGRESS, TrainingMode.BODYBUILDING) { ProgressBodybuildingShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1460dp-xhdpi")
     fun settingsBodybuilding() = render("settings-bodybuilding", null, TrainingMode.BODYBUILDING) {
         SettingsShowcase(bodybuilding = true)
     }
@@ -275,4 +278,58 @@ class ScreenshotTest {
 
     @Test
     fun lockNoScreenLock() = render("lock-no-screen-lock", null) { LockScreen(noDeviceLock = true, onUnlock = {}, onContinue = {}) }
+
+    /** The guide's screen 4 at its last step (motion off shows it), on each side (1.16). */
+    @Test
+    fun guideTodayPowerlifting() = render("guide-today-powerlifting", null) { GuideTodayShowcase(TrainingMode.POWERLIFTING) }
+
+    @Test
+    fun guideTodayBodybuilding() = render("guide-today-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideTodayShowcase(TrainingMode.BODYBUILDING) }
+
+    /** Screen 2 on a first launch, with its two side buttons (1.16, Task 3). */
+    @Test
+    fun guideSideFirstLaunchPowerlifting() = render("guide-side-first-launch-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.SIDE, firstLaunch = true) }
+
+    @Test
+    fun guideSideFirstLaunchBodybuilding() = render("guide-side-first-launch-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.SIDE, firstLaunch = true) }
+
+    /** Screen 8 with no plan on the side (Choose a template; Build my plan on bodybuilding), and with one (Done, See my plan). */
+    @Test
+    fun guideYourTurnNoPlanPowerlifting() = render("guide-your-turn-no-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN) }
+
+    @Test
+    fun guideYourTurnNoPlanBodybuilding() = render("guide-your-turn-no-plan-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.YOUR_TURN) }
+
+    @Test
+    fun guideYourTurnWithPlan() = render("guide-your-turn-with-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN, hasPlan = true) }
+
+    /** The guide's other seven screens at their last step (motion off shows it), on each side (1.16, Task 4). */
+    private fun guide(id: GuideScreenId, mode: TrainingMode) =
+        render("guide-${guideShotName(id)}-${mode.name.lowercase()}", null, mode) { GuideTodayShowcase(mode, id) }
+
+    @Test fun guideWelcomePowerlifting() = guide(GuideScreenId.WELCOME, TrainingMode.POWERLIFTING)
+    @Test fun guideWelcomeBodybuilding() = guide(GuideScreenId.WELCOME, TrainingMode.BODYBUILDING)
+    @Test fun guideSidePowerlifting() = guide(GuideScreenId.SIDE, TrainingMode.POWERLIFTING)
+    @Test fun guideSideBodybuilding() = guide(GuideScreenId.SIDE, TrainingMode.BODYBUILDING)
+    @Test fun guidePlanPowerlifting() = guide(GuideScreenId.PLAN, TrainingMode.POWERLIFTING)
+    @Test fun guidePlanBodybuilding() = guide(GuideScreenId.PLAN, TrainingMode.BODYBUILDING)
+    @Test fun guideTargetsPowerlifting() = guide(GuideScreenId.TARGETS, TrainingMode.POWERLIFTING)
+    @Test fun guideTargetsBodybuilding() = guide(GuideScreenId.TARGETS, TrainingMode.BODYBUILDING)
+    @Test fun guideHoldsBackPowerlifting() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.POWERLIFTING)
+    @Test fun guideHoldsBackBodybuilding() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.BODYBUILDING)
+    @Test fun guideMonthsLaterPowerlifting() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.POWERLIFTING)
+    @Test fun guideMonthsLaterBodybuilding() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.BODYBUILDING)
+    @Test fun guideYourTurnPowerlifting() = guide(GuideScreenId.YOUR_TURN, TrainingMode.POWERLIFTING)
+    @Test fun guideYourTurnBodybuilding() = guide(GuideScreenId.YOUR_TURN, TrainingMode.BODYBUILDING)
 }
+
+/** A guide screen's shot name: "months-later" for MONTHS_LATER. */
+internal fun guideShotName(id: GuideScreenId): String = id.name.lowercase().replace('_', '-')
+
+@Composable
+private fun GuideShowcase(mode: TrainingMode, at: GuideScreenId, firstLaunch: Boolean = false, hasPlan: Boolean = false) =
+    GuideScreen(mode, firstLaunch = firstLaunch, hasPlan = hasPlan, motionOn = false, onPickSide = {}, onClose = {}, startAt = at)
+
+@Composable
+private fun GuideTodayShowcase(mode: TrainingMode, id: GuideScreenId = GuideScreenId.TODAY) =
+    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = id)

@@ -41,6 +41,8 @@ export function InstallCard({ db }: { db: GritDb }) {
   // Hidden until the stored answer has been read, so the card does not flash for someone who said no.
   const [shown, setShown] = useState<Shown>({ dismissed: true, hasLog: false })
   const [note, setNote] = useState<string | null>(null)
+  // "Not now" in this page, its write settled (saved or not).
+  const [answered, setAnswered] = useState(false)
   const exporting = useRef(false)
   useEffect(() => {
     if (standalone) return
@@ -48,7 +50,7 @@ export function InstallCard({ db }: { db: GritDb }) {
     const subscription = liveQuery(() => read(db)).subscribe({ next: setShown, error: () => setShown({ dismissed: true, hasLog: false }) })
     return () => subscription.unsubscribe()
   }, [db, standalone])
-  if (standalone || shown.dismissed) return null
+  if (standalone || shown.dismissed || answered) return null
   const exportNow = () => {
     if (exporting.current) return
     exporting.current = true
@@ -82,9 +84,10 @@ export function InstallCard({ db }: { db: GritDb }) {
         <QuietButton
           text="Not now"
           onClick={() => {
-            // Hidden at once, also if remembering the answer fails.
-            setShown((s) => ({ ...s, dismissed: true }))
-            db.meta.put({ key: INSTALL_DISMISSED_KEY, value: true }).catch(() => {})
+            // Hidden once remembering the answer has settled, so a hidden card is a saved answer; hidden also if it
+            // fails, and kept hidden while this page is open (the stored answer's reads do not bring it back).
+            const hide = () => setAnswered(true)
+            db.meta.put({ key: INSTALL_DISMISSED_KEY, value: true }).then(hide, hide)
           }}
         />
         {shown.hasLog && <SecondaryButton text="Export backup" onClick={exportNow} icon={<UploadIcon />} compact />}

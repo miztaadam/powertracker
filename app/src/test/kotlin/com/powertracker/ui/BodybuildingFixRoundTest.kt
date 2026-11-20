@@ -313,6 +313,8 @@ class BodybuildingFixRoundTest {
     private fun welcomeBackOnBothScreens(): Pair<TodayViewModel, CoachViewModel> {
         runBlocking {
             training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, curl.id, 3, 8, 8.0, 0, BODYBUILDING, 12))
+            // Trained on the bodybuilding side before it was left.
+            training.startSession(today.minus(45, DateTimeUnit.DAY), null, null, BODYBUILDING)
             settings.update { it.copy(trainingMode = BODYBUILDING, bodybuildingLeftOn = today.minus(31, DateTimeUnit.DAY)) }
         }
         val todayVm = TodayViewModel(training, advice, settings) { today }.also { vm -> viewModels += vm; collectors.launch { vm.state.collect {} } }

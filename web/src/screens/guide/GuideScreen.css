@@ -1,0 +1,482 @@
+/* The guide (1.16): full screen over the app, in the tokens of the side shown. */
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow: hidden;
+}
+
+.guide-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-1) var(--space-2);
+}
+
+.guide-pages {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  /* Vertical scrolling of the text stays the browser's; a sideways move is the guide's swipe. */
+  touch-action: pan-y;
+}
+
+.guide-page {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--space-5);
+}
+
+:root:not([data-motion='off']) .guide-page {
+  animation: guide-page-in 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes guide-page-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+/*
+ * The text comes first: it takes the height it needs, and only past the whole page does it scroll; it wraps and is
+ * never cut. The picture takes what it leaves (none at all with large text on a small phone).
+ */
+.guide-text,
+.guide-measure-text {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.guide-title,
+.guide-measure-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.guide-line,
+.guide-measure-line {
+  margin: 0;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* The picture takes what the text leaves, and shrinks to fit it. */
+.guide-art {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Its place, and the measure's copy of it (.guide-measure-art): its padding, the Example label and its gap. */
+.guide-art,
+.guide-measure-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) 0 var(--space-1);
+}
+
+.guide-example {
+  flex: none;
+}
+
+.guide-picture-slot {
+  flex: 1;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.guide-picture {
+  position: relative;
+  /* clip, not hidden: the screen drawn inside may ask to scroll its open card into view, and must not move. */
+  overflow: clip;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+
+.guide-picture-empty {
+  width: 100%;
+  height: 100%;
+}
+
+.guide-phone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  overflow: clip;
+  /* The phone's status bar: the screen's header starts below the frame's rounded corner. */
+  padding-top: 24px;
+  box-sizing: border-box;
+}
+
+/* Rows gone in a step, fading where they were: over the screen, taking nothing. */
+.guide-flip-ghosts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/*
+ * The tap ring (1.16): a thin circle on the control pressed, placed and sized where it is made; it grows as it fades.
+ * In the pressed button's own ink (Log set: a primary button), so it shows on that button on either side and scheme.
+ */
+.guide-tap-ring {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--accent-ink);
+  border-radius: 50%;
+}
+
+/* A ring on a card or an outlined button (screen 3's template and Swap): the side's accent text. */
+.guide-tap-ring-text {
+  border-color: var(--accent-text);
+}
+
+.guide-picture-screen {
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.guide-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+}
+
+.guide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hairline);
+}
+
+.guide-dot-current {
+  background: var(--accent);
+}
+
+.guide-controls,
+.guide-measure-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+/*
+ * Never narrower than their words: rather than a label being cut or one button running over the other, a button that
+ * cannot fit goes to a row of its own (screen 8's "Choose a template" on a 320 px phone). Side by side, Next takes the
+ * rest. Large text keeps Back and Next on one row (below).
+ */
+.guide-controls .gr-btn,
+.guide-measure-controls .gr-btn {
+  min-width: min(max-content, 100%);
+  flex: 1 1 auto;
+}
+
+/* Screen 8's longer words ("Choose a template") wrap inside their button rather than run off a narrow phone. */
+.guide-controls .gr-btn-text,
+.guide-measure-controls .gr-btn-text {
+  white-space: normal;
+  text-align: center;
+}
+
+.guide-controls .guide-next,
+.guide-measure-controls .guide-next {
+  flex-grow: 1000;
+}
+
+/* Screen 8's second button: on a line of its own, under Back and the first. */
+.guide-controls .guide-wide,
+.guide-measure-controls .guide-wide {
+  flex-basis: 100%;
+}
+
+/*
+ * Large text, or a very narrow phone (the controls' content under 280 px; a 320 px phone at the default text size has
+ * 288): Back and Next keep one row, so the text above keeps the room. Their icons go, their padding narrows, and a long
+ * label wraps between its words inside its button (never inside a word). Screen 8's first button sits beside Back when
+ * its longest word fits; its second button keeps its own row. Each stays the buttons' 52 px high.
+ */
+.guide-controls,
+.guide-measure-controls {
+  container-type: inline-size;
+}
+
+@container (max-width: 280px) {
+  .guide-btn:not(.guide-wide) {
+    flex: 1 1 0;
+    min-width: min-content;
+  }
+
+  .guide-btn .gr-btn-icon {
+    display: none;
+  }
+
+  .guide-btn .gr-btn-face {
+    padding-inline: var(--space-2);
+  }
+}
+
+/* Screen 2 on a first launch: the two sides, side by side, each never narrower than its word. */
+.guide-sides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.guide-sides .gr-btn {
+  flex: 1 0 auto;
+  min-width: max-content;
+}
+
+/* Off (Back on screen 1): the app's disabled look, but still focusable (aria-disabled, not disabled). */
+.guide-btn[aria-disabled='true'] {
+  cursor: default;
+}
+
+.guide-btn[aria-disabled='true']:active .gr-btn-face {
+  filter: none;
+}
+
+.guide-btn.gr-btn-primary[aria-disabled='true'] .gr-btn-face,
+.guide-btn.gr-btn-secondary[aria-disabled='true'] .gr-btn-face {
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  color: color-mix(in srgb, var(--text) 38%, transparent);
+}
+
+/* Focused only so a screen reader starts at it when the guide opens: not a control, so no ring. */
+.guide-title:focus {
+  outline: none;
+}
+
+/* A picture drawn on a screen with a bar at its foot (screen 3's draft): the phone's screen is its scrollport. */
+.guide-scrollport {
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+ * One phone size on the outlined screens (spec point 11; screen 8 alone gives up what its taller controls take). Unseen
+ * copies of those screens' texts, of both sets of controls and of the picture's place are laid out here as the pages and
+ * the controls lay them out, each from the top, for one measure.
+ */
+.guide-pages {
+  position: relative;
+}
+
+.guide-measure {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.guide-measure-page,
+.guide-measure-controls,
+.guide-measure-art {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.guide-measure-page {
+  padding: 0 var(--space-5);
+}
+
+/* The controls' own padding (.guide-controls), so a copy is as tall as the controls it stands for. */
+.guide-measure-controls {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+/*
+ * An outlined screen: its picture's place is one height, set from the measure, which leaves the text above room for all
+ * of it; with no room for both, the place is none (.guide-art-gone) and the text takes the page, scrolling if it must.
+ */
+.guide-page-outlined .guide-text {
+  flex: 1 1 0;
+}
+
+.guide-page-outlined .guide-art {
+  flex: none;
+}
+
+.guide-art-gone {
+  display: none;
+}
+
+.guide-example-unseen {
+  visibility: hidden;
+}
+
+/* WELCOME and SIDE: art that is no screen of the app, filling the picture's place with no outline. */
+.guide-picture-art {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: none;
+  container-type: size;
+}
+
+/*
+ * Too little room to draw WELCOME's or SIDE's art whole (large text): it is not drawn, rather than cut or with its two
+ * names running into each other. Its one description stays.
+ */
+@container (max-height: 119px) or (max-width: 199px) {
+  .guide-picture-art > .guide-picture-screen {
+    visibility: hidden;
+  }
+}
+
+/*
+ * Each side in its own colours, whichever side the guide is in (the tokens of tokens.css; a unit test keeps them
+ * equal): its background, surface, hairline and accent.
+ */
+.guide-side-powerlifting {
+  --side-bg: #0b0c0e;
+  --side-surface: #131518;
+  --side-hairline: #262a30;
+  --side-accent: #93979d;
+}
+
+.guide-side-bodybuilding {
+  --side-bg: #070b14;
+  --side-surface: #0d1422;
+  --side-hairline: #1e2a44;
+  --side-accent: #8db8ff;
+}
+
+@media (prefers-color-scheme: light) {
+  .guide-side-powerlifting {
+    --side-bg: #f4f4f0;
+    --side-surface: #ffffff;
+    --side-hairline: #e0e0d9;
+    --side-accent: #4a4d52;
+  }
+
+  .guide-side-bodybuilding {
+    --side-bg: #edf2fa;
+    --side-surface: #ffffff;
+    --side-hairline: #d0dcee;
+    --side-accent: #1f4fa8;
+  }
+}
+
+/* Screen 1: the mark, then under it the two sides' colours. */
+.guide-welcome {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.guide-mark {
+  width: min(50cqw, 40cqh);
+  height: min(50cqw, 40cqh);
+  border-radius: 25%;
+  overflow: hidden;
+}
+
+.guide-welcome-sides {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* A side's colours: a plain swatch, its name under it as a caption. Not a button: no shape of one, no raise, no press. */
+.guide-side-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.guide-side-panel-swatch {
+  width: min(calc((100cqw - var(--space-4)) / 2), 30cqh);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--side-bg);
+  border: 1px solid var(--side-hairline);
+}
+
+.guide-side-panel-swatch::after {
+  content: '';
+  width: 50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--side-accent);
+}
+
+.guide-side-panel-name {
+  color: var(--text);
+}
+
+/* Screen 2: the hammer and the pump, side by side, as large as the place allows with their names under them. */
+.guide-side-loop {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/*
+ * Each side's column is as wide as its box or its name, whichever is wider (review, 1.16): in a low landscape place the
+ * box is narrower than its name, and a column held to the box's width let the two names run into each other. Two flex
+ * columns with a gap never overlap, at any text size; the rule below keeps them inside the art.
+ */
+.guide-side-motion {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/*
+ * The two names side by side need about 190 px (91.6 and 85.5 px of title-medium, and the gap). Narrower than 212 px,
+ * leaving some room for a wider fallback font, SIDE's art is not drawn, as WELCOME's is not below 200 px.
+ */
+@container (max-width: 211px) {
+  .guide-picture-art > .guide-picture-screen:has(.guide-side-loop) {
+    visibility: hidden;
+  }
+}
+
+.guide-side-box {
+  width: min(calc((100cqw - var(--space-4)) / 2), calc((100cqh - 40px) * var(--side-ratio, 0.75)));
+  aspect-ratio: var(--side-ratio, 0.75);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--side-surface);
+}
+
+.guide-side-box svg {
+  display: block;
+}

@@ -498,10 +498,16 @@ class GritDomainTest {
         assertEquals(JsSet(52, 26.0, 11, 8.0, false, null, false), rows[0].bestSets.single().set)
         assertNull(rows[0].goingUp)
 
-        assertFalse(GritDomain.welcomeBack(null, "2026-11-13", true))
-        assertFalse(GritDomain.welcomeBack("2026-10-14", "2026-11-13", true))
-        assertTrue(GritDomain.welcomeBack("2026-10-13", "2026-11-13", true))
-        assertFalse(GritDomain.welcomeBack("2026-10-13", "2026-11-13", false))
-        assertFailsWith<IllegalArgumentException> { GritDomain.welcomeBack("13/10/2026", "2026-11-13", true) }
+        val trained = "2026-09-01"
+        assertFalse(GritDomain.welcomeBack(null, "2026-11-13", true, trained))
+        assertFalse(GritDomain.welcomeBack("2026-10-14", "2026-11-13", true, trained))
+        assertTrue(GritDomain.welcomeBack("2026-10-13", "2026-11-13", true, trained))
+        assertFalse(GritDomain.welcomeBack("2026-10-13", "2026-11-13", false, trained))
+        // A side never trained before it was left: no card.
+        assertFalse(GritDomain.welcomeBack("2026-10-13", "2026-11-13", true, null))
+        assertFalse(GritDomain.welcomeBack("2026-10-13", "2026-11-13", true, "2026-11-12"))
+        assertTrue(GritDomain.welcomeBack("2026-10-13", "2026-11-13", true, "2026-10-13"))
+        assertFailsWith<IllegalArgumentException> { GritDomain.welcomeBack("13/10/2026", "2026-11-13", true, trained) }
+        assertFailsWith<IllegalArgumentException> { GritDomain.welcomeBack("2026-10-13", "2026-11-13", true, "1/9/2026") }
     }
 }

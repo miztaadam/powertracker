@@ -81,6 +81,23 @@ const planSize = (page: Page) =>
       }),
   )
 
+/** The stored advice's statuses, sorted. */
+const adviceStatuses = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<string[]>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onerror = () => fail(request.error)
+        request.onsuccess = () => {
+          const all = request.result.transaction('advice').objectStore('advice').getAll()
+          all.onsuccess = () => {
+            request.result.close()
+            done((all.result as { status: string }[]).map((a) => a.status).sort())
+          }
+        }
+      }),
+  )
+
 /** Buttons and links smaller than 48 px in either direction (to within sub-pixel rounding). */
 const smallTargets = (page: Page) =>
   page.evaluate(() =>
@@ -128,7 +145,9 @@ test('a suggestion changes nothing until it is applied', async ({ page }) => {
   await expect(page.getByText('1 open suggestion')).toBeVisible()
   await expect.poll(() => planSize(page)).toBe(5)
 
-  // Applied and dismissed advice stays gone after a reload.
+  // Applied and dismissed advice stays gone after a reload. The card leaves at the tap, before its status is stored:
+  // reload once both are stored, not while the dismiss is still being written (a busy machine was seen to reload first).
+  await expect.poll(async () => (await adviceStatuses(page)).filter((s) => s !== 'OPEN')).toEqual(['APPLIED', 'DISMISSED'])
   await page.reload()
   await expect(page.getByText('1 open suggestion')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Squat is lagging your deadlift' })).toBeVisible()

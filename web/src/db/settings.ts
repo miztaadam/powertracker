@@ -125,6 +125,22 @@ export function setTrainingMode(db: GritDb, mode: TrainingMode, today: string): 
 }
 
 /**
+ * The side picked on the guide's first launch (1.16): on `mode`'s side as `withTrainingMode` puts it (the bodybuilding
+ * days copied the first time), but with neither side dated as left. A new lifter choosing a side has left nothing.
+ */
+export function withFirstSide(current: AppSettings, mode: TrainingMode): AppSettings {
+  if (current.trainingMode === mode) return current
+  const next: AppSettings = { ...current, trainingMode: mode }
+  if (mode === 'BODYBUILDING' && current.bodybuildingLeftOn == null) next.bodybuildingTrainingDays = [...current.trainingDays]
+  return next
+}
+
+/** Stores `withFirstSide`; resolves to the settings as stored. */
+export function pickFirstSide(db: GritDb, mode: TrainingMode): Promise<AppSettings> {
+  return updateSettings(db, (s) => withFirstSide(s, mode))
+}
+
+/**
  * Forgets the day `mode`'s side was last left, as if it had never been left (the welcome back has been answered).
  * Call it only while that side is on: leaving it stamps the day again. Cleared while the powerlifting side is on,
  * the bodybuilding side would count as never entered and copy the training days again on the next switch.

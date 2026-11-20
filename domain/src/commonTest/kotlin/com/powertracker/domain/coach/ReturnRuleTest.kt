@@ -176,6 +176,52 @@ class ReturnRuleTest {
         )
     }
 
+    @Test
+    fun aPowerliftingSideNeverTrainedIsNotEasedBack() {
+        // Left in Settings before any powerlifting session: only a baseline on that side, and Romanian deadlifts on
+        // the bodybuilding side every week since. Nothing to come back to, so a target is left as it came.
+        val h = history(start) {
+            baseline(Ids.DEADLIFT, 230.0)
+            for (d in 21..49 step 7) session(d, mode = TrainingMode.BODYBUILDING) { repeat(3) { set(RDL, 140.0, 10, rpe = 8.0) } }
+        }.let { it.copy(exercises = it.exercises + (RDL to rdl)) }
+        val incoming = Advice(
+            AdviceType.TARGET, MainLift.DEADLIFT, today, "Coach suggests 190 × 5 @ 8.", 0,
+            AdvicePayload.Target(Ids.DEADLIFT, 190.0, 5, 8.0),
+        )
+        val supported = E1rm.loadFor(E1rm.estimate(140.0, 10, 8.0), 5, 8.0)
+        assertTrue(190.0 > supported, "the case needs a cap that would lower it: $supported")
+        assertEquals(incoming, ReturnRule.ease(incoming, deadliftItem, h.exercises.getValue(Ids.DEADLIFT), h, TrainingMode.POWERLIFTING, settings, today))
+        // Through the coach the side has no top set to progress from, so no target at all, eased or not.
+        assertTrue(Coach.targetsFor(DayOfWeek.MONDAY, h, listOf(deadliftItem), settings, today, emptyList()).isEmpty())
+    }
+
+    @Test
+    fun aBodybuildingSideNeverTrainedIsNotEasedBack() {
+        // Powerlifting every week, DB press among it; the bodybuilding side has no session at all.
+        val h = history(start) {
+            for (d in 21..49 step 7) session(d) { deadlift(180.0, 5); repeat(3) { set(Ids.DB_PRESS, 26.0, 10, rpe = 8.0) } }
+        }
+        val item = PlanItem(9, DayOfWeek.MONDAY, Ids.DB_PRESS, 3, 8, 8.0, 0, TrainingMode.BODYBUILDING, 12)
+        val incoming = Advice(
+            AdviceType.TARGET, null, today, "First time on this side. Coach suggests 40 × 8–12 @ 8.", 0,
+            AdvicePayload.Target(Ids.DB_PRESS, 40.0, 8, 8.0, repsHigh = 12),
+        )
+        assertEquals(incoming, ReturnRule.ease(incoming, item, h.exercises.getValue(Ids.DB_PRESS), h, TrainingMode.BODYBUILDING, settings, today))
+    }
+
+    @Test
+    fun aSideWithASessionIsStillEasedBack() {
+        // The same baseline and week-by-week bodybuilding as the never-trained case, after one powerlifting session.
+        val h = history(start) {
+            baseline(Ids.DEADLIFT, 230.0)
+            session(0) { deadlift(180.0, 5) }
+            for (d in 21..49 step 7) session(d, mode = TrainingMode.BODYBUILDING) { repeat(3) { set(RDL, 140.0, 10, rpe = 8.0) } }
+        }.let { it.copy(exercises = it.exercises + (RDL to rdl)) }
+        val advice = deadliftTarget(h)
+        assertTrue((advice.payload as AdvicePayload.Target).weightKg < progression(h).weightKg)
+        assertTrue(advice.reason.endsWith(Coach.RE_ENTRY_NOTE), advice.reason)
+    }
+
     private companion object {
         const val RDL = 60L
     }

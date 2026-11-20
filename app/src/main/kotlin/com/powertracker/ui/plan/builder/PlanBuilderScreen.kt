@@ -1,5 +1,7 @@
 package com.powertracker.ui.plan.builder
 
+import com.powertracker.ui.today.TapAnchor
+import com.powertracker.ui.today.tapAnchor
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -522,7 +524,7 @@ fun DraftExerciseRow(position: Int, exercise: DraftExercise, fixedReps: Boolean 
             Text(exercise.name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface)
         }
-        if (swappable) SecondaryButton(SWAP, onSwap, Modifier.testTag("swap"), compact = true, label = "$SWAP ${exercise.name}")
+        if (swappable) SecondaryButton(SWAP, onSwap, Modifier.testTag("swap").tapAnchor(TapAnchor.SWAP, exercise.name), compact = true, label = "$SWAP ${exercise.name}")
     }
 }
 

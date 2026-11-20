@@ -8,7 +8,8 @@ import { dayName } from '../../state/weekdayNames'
 import { IconButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { formatRpe } from '../../ui/components/format'
-import { ArrowBackIcon } from '../../ui/components/icons'
+import { ArrowBackIcon, ChevronRightIcon } from '../../ui/components/icons'
+import { GUIDE_ROW, GUIDE_ROW_SUPPORTING, GUIDE_SECTION } from '../guide/guideLabels'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
 import { ChoiceChip, SegmentedChoice } from '../../ui/components/SegmentedChoice'
@@ -26,6 +27,8 @@ import './settings.css'
 export type SettingsScreenProps = {
   db: GritDb
   onBack: () => void
+  /** Opens the guide (1.16), as a replay. */
+  onOpenGuide?: () => void
   /** The real clock, as `YYYY-MM-DD`. Default is the device's local date. */
   today?: () => string
   /** The real clock in milliseconds. */
@@ -47,7 +50,7 @@ const SAVE_FAILED = "Couldn't save — try again."
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value))
 
 /** Every setting, then backup and restore, then the version line. */
-export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }: SettingsScreenProps) {
+export function SettingsScreen({ db, onBack, onOpenGuide = () => {}, today = todayIso, now = Date.now }: SettingsScreenProps) {
   const settings = useSettings(db)
   // The mode switch animation (1.15): the rows follow the side shown, which lags the stored side until the impact or
   // the third beat; the switch itself answers the tap. Closing Settings ends a running animation.
@@ -111,6 +114,16 @@ export function SettingsScreen({ db, onBack, today = todayIso, now = Date.now }:
             />
             <SectionHeader title="Backup" />
             <BackupCard db={db} lastBackupAt={settings.settings.lastBackupAt} storageProtected={settings.storageProtected} safetyCopy={settings.safetyCopy} safetyCopyDate={settings.safetyCopyDate} today={today} now={now} onMessage={say} />
+            {/* The guide (1.16): always here, for a replay. It writes nothing. */}
+            <SectionHeader title={GUIDE_SECTION} />
+            <Group>
+              <button type="button" className="settings-row settings-link" onClick={onOpenGuide} data-testid="settings-guide">
+                <RowLabel label={GUIDE_ROW} supporting={GUIDE_ROW_SUPPORTING} />
+                <span className="settings-chevron" aria-hidden="true">
+                  <ChevronRightIcon />
+                </span>
+              </button>
+            </Group>
             <VersionLine />
           </>
         )}

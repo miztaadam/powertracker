@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
-import { openOnWednesday, readAllTables, seedFlatBench, tap } from './helpers'
+import { keepTheGuideShut, openOnWednesday, readAllTables, seedFlatBench, tap } from './helpers'
 
 test('backupRoundTrip: export, clear site data, import, same data', async ({ page, context }) => {
   await openOnWednesday(page)
@@ -41,6 +41,7 @@ test('backupRoundTrip: export, clear site data, import, same data', async ({ pag
   // Site data cleared, as Safari does after weeks unused: the log is gone.
   const cdp = await context.newCDPSession(page)
   await cdp.send('Storage.clearDataForOrigin', { origin: new URL(page.url()).origin, storageTypes: 'all' })
+  await keepTheGuideShut(page)
   await page.goto('/#/today')
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Ready to train?' })).toBeVisible()

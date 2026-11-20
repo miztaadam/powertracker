@@ -18,7 +18,9 @@ import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.coach.CardDetail
 import com.powertracker.ui.coach.CoachState
@@ -116,11 +118,21 @@ class CoachViewModelTest {
 
     private fun insert(vararg items: Advice) = runBlocking { advice.insert(items.toList()) }
 
+    /** A squat session [daysAgo] days before today on [mode]'s side. */
+    private fun sessionAgo(daysAgo: Int, mode: TrainingMode = TrainingMode.POWERLIFTING) = runBlocking {
+        val id = training.startSession(today.minus(daysAgo, DateTimeUnit.DAY), null, null, mode)
+        training.logSet(id, LoggedSet(id("Squat"), 100.0, 5, 8.0, failed = false, missPoint = null, isTopSet = true))
+    }
+
+    /** The powerlifting side trained well before today: an easing back in counts on it (spec point 10). */
+    private fun trainedBefore() = sessionAgo(40)
+
     private fun weakPoint(lift: MainLift, miss: MissPoint?, reason: String = "Prioritise it.") =
         Advice(AdviceType.WEAK_POINT, lift, today, reason, 4, AdvicePayload.WeakPoint(lift, miss))
 
     @Test
     fun cards_leaveOutTargets_andOrderByTypeThenNewest() {
+        trainedBefore()
         insert(
             weakPoint(MainLift.SQUAT, MissPoint.FLOOR),
             Advice(AdviceType.STALL, MainLift.BENCH, today.minus(3, DateTimeUnit.DAY), "older", 3, AdvicePayload.Accessories(emptyList())),
@@ -210,6 +222,7 @@ class CoachViewModelTest {
     @Test
     fun deloadApply_onlyMarksApplied() {
         runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, id("Squat"), sets = 5, reps = 5, targetRpe = 8.0, order = 0)) }
+        trainedBefore()
         insert(
             Advice(AdviceType.DELOAD, null, today, "Signs of fatigue.", 2, AdvicePayload.Deload()),
             Advice(AdviceType.RE_ENTRY, null, today, "Welcome back.", 20, AdvicePayload.ReEntry()),
@@ -267,6 +280,22 @@ class CoachViewModelTest {
             Thread.sleep(5)
             check(System.currentTimeMillis() < deadline) { "Timed out; messages $messages" }
         }
+    }
+
+    @Test
+    fun feed_showsEasingBackInOnlyOnASideTrainedBeforeTheBreak() {
+        // Powerlifting until 19 days ago; the bodybuilding side's first session ended the break 3 days ago; powerlifting
+        // yesterday made the card. It shows on powerlifting, not on bodybuilding (spec point 10).
+        for (d in listOf(33, 26, 19, 1)) sessionAgo(d)
+        sessionAgo(3, TrainingMode.BODYBUILDING)
+        insert(
+            Advice(AdviceType.RE_ENTRY, null, today.minus(1, DateTimeUnit.DAY), "back", 16, AdvicePayload.ReEntry()),
+            Advice(AdviceType.DELOAD, null, today, "tired", 2, AdvicePayload.Deload()),
+        )
+        val vm = viewModel()
+        assertEquals(listOf("tired", "back"), vm.await { it.cards.size == 2 }.cards.map { it.advice.reason })
+        runBlocking { settings.update { it.copy(trainingMode = TrainingMode.BODYBUILDING) } }
+        assertEquals(listOf("tired"), vm.await { it.cards.size == 1 }.cards.map { it.advice.reason })
     }
 
     @Test

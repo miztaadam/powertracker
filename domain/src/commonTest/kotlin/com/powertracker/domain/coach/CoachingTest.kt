@@ -103,18 +103,28 @@ class CoachingTest {
     @Test
     fun bodybuildingEvaluateGivesOnlyReEntryAndDeloadStampedWithItsSide() {
         // The golden scenario's fatigue checkpoint gives a deload and a bench stall; on the return checkpoint a
-        // re-entry. The bodybuilding side gets the deload and the re-entry, never the stall.
+        // re-entry. The bodybuilding side gets the deload, never the stall. The golden log has no bodybuilding
+        // session, so that side was never trained before the break and gets no re-entry (1.16); the same log kept on
+        // the bodybuilding side gets it.
         for (cp in GoldenScenario.checkpoints) {
             val h = GoldenScenario.historyUntil(cp.today)
             val power = Coach.evaluate(h, GoldenScenario.plan, GoldenScenario.settings, cp.today, emptyList())
             val body = Coaching.evaluate(TrainingMode.BODYBUILDING, h, GoldenScenario.plan, GoldenScenario.settings, cp.today, emptyList())
             assertEquals(
-                power.filter { it.type == AdviceType.DELOAD || it.type == AdviceType.RE_ENTRY }.map { it.copy(mode = TrainingMode.BODYBUILDING) },
+                power.filter { it.type == AdviceType.DELOAD }.map { it.copy(mode = TrainingMode.BODYBUILDING) },
                 body,
                 cp.label,
             )
             assertTrue(body.all { it.mode == TrainingMode.BODYBUILDING })
         }
+        val back = GoldenScenario.checkpoints.single { it.label == "return" }
+        val onBody = GoldenScenario.historyUntil(back.today).let { h -> h.copy(sessions = h.sessions.map { it.copy(mode = TrainingMode.BODYBUILDING) }) }
+        assertEquals(
+            Coach.evaluate(GoldenScenario.historyUntil(back.today), GoldenScenario.plan, GoldenScenario.settings, back.today, emptyList())
+                .filter { it.type == AdviceType.RE_ENTRY }.map { it.copy(mode = TrainingMode.BODYBUILDING) },
+            Coaching.evaluate(TrainingMode.BODYBUILDING, onBody, GoldenScenario.plan, GoldenScenario.settings, back.today, emptyList())
+                .filter { it.type == AdviceType.RE_ENTRY },
+        )
         val fatigue = GoldenScenario.checkpoints.single { it.label == "fatigue" }
         assertEquals(
             listOf(AdviceType.DELOAD),
@@ -200,11 +210,41 @@ class CoachingTest {
     @Test
     fun welcomeBackAfterMoreThanThirtyDaysWithAPlan() {
         val today = LocalDate(2026, 11, 13)
-        assertFalse(Coaching.welcomeBack(null, today, hasPlan = true))
-        assertFalse(Coaching.welcomeBack(today.minus(30, DateTimeUnit.DAY), today, hasPlan = true))
-        assertTrue(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = true))
-        assertFalse(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = false))
-        assertFalse(Coaching.welcomeBack(today, today, hasPlan = true))
+        val trained = today.minus(60, DateTimeUnit.DAY)
+        assertFalse(Coaching.welcomeBack(null, today, hasPlan = true, firstSessionOn = trained))
+        assertFalse(Coaching.welcomeBack(today.minus(30, DateTimeUnit.DAY), today, hasPlan = true, firstSessionOn = trained))
+        assertTrue(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = true, firstSessionOn = trained))
+        assertFalse(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = false, firstSessionOn = trained))
+        assertFalse(Coaching.welcomeBack(today, today, hasPlan = true, firstSessionOn = trained))
+    }
+
+    @Test
+    fun noWelcomeBackToASideNeverTrainedBeforeItWasLeft() {
+        val today = LocalDate(2026, 11, 13)
+        val left = today.minus(40, DateTimeUnit.DAY)
+        // Left in Settings before any session on it: no card, however long ago.
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = null))
+        // Its first session came after it was left (on the return, the card not yet answered): still no card, today
+        // or on any later day.
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = today))
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = today.minus(1, DateTimeUnit.DAY)))
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = left.plus(1, DateTimeUnit.DAY)))
+        // A session on the day it was left, or before, is a side trained and left: the card as before.
+        assertTrue(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = left))
+        assertTrue(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = left.minus(5, DateTimeUnit.DAY)))
+    }
+
+    @Test
+    fun theFirstSessionOnASideIsItsEarliestSessionOnThatSide() {
+        val h = history {
+            session(3, mode = TrainingMode.BODYBUILDING) { set(Ids.CURL, 12.0, 10) }
+            session(5) { squat(100.0, 5) }
+            session(1, mode = TrainingMode.BODYBUILDING) { set(Ids.CURL, 12.0, 10) }
+        }
+        val start = LocalDate(2026, 1, 5)
+        assertEquals(start.plus(1, DateTimeUnit.DAY), Coaching.firstSessionOn(TrainingMode.BODYBUILDING, h))
+        assertEquals(start.plus(5, DateTimeUnit.DAY), Coaching.firstSessionOn(TrainingMode.POWERLIFTING, h))
+        assertEquals(null, Coaching.firstSessionOn(TrainingMode.POWERLIFTING, history { session(0, mode = TrainingMode.BODYBUILDING) { set(Ids.CURL, 12.0, 10) } }))
     }
 }
 

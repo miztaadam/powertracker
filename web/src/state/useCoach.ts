@@ -141,8 +141,9 @@ type StoredPlanItem = PlanItemRow & { id: number }
 type Stored = { today: string; side: TrainingMode; open: StoredAdvice[]; history: JsHistory; plan: StoredPlanItem[]; checkInDue: boolean }
 
 /**
- * The feed of the side the app is on: its own advice, and every deload and easing back in whatever side it was
- * stored for (`adviceForSide`). The cards' figures (trends, ratios) read that side's sessions.
+ * The feed of the side the app is on: its own advice, every deload whatever side it was stored for, and every easing
+ * back in from a break this side was trained before (`adviceForSide`, from the whole log). The cards' figures (trends, ratios) read
+ * that side's sessions.
  */
 async function readStored(db: GritDb, today: string): Promise<Stored> {
   const settings = await getSettings(db)
@@ -150,7 +151,7 @@ async function readStored(db: GritDb, today: string): Promise<Stored> {
   const [open, history, plan, checkIns] = await Promise.all([db.advice.where('status').equals('OPEN').toArray(), loadHistory(db), planFor(db, side), loadCheckIns(db)])
   // Check-ins belong to the bodybuilding side only.
   const checkInDue = side === 'BODYBUILDING' && grit.coachingCheckInDue(history, plan.map(planItemToJs), checkIns.map(checkInToJs), today)
-  return { today, side, open: adviceForSide(open as StoredAdvice[], side), history: historyOn(history, side), plan: plan as StoredPlanItem[], checkInDue }
+  return { today, side, open: adviceForSide(open as StoredAdvice[], side, history), history: historyOn(history, side), plan: plan as StoredPlanItem[], checkInDue }
 }
 
 /** An OPEN deload or re-entry stops counting after two weeks; the domain decides when. */
