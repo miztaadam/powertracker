@@ -20,21 +20,25 @@
 
 ## Global Constraints
 
-- **Version:** 1.17 on both apps, versionCode 28. Room schema 6, Dexie schema 6, backup version 6.
-- **Kg coaching is unchanged.** Every existing domain, Android and web test passes **with no test edited**, except the version pins below; a lifter who never turns this on sees no difference. If any other existing test has to change, stop and report it.
-- **The only existing tests that may be edited,** and only as said (Tasks 4, 5 and 6):
-  - `app/src/test/kotlin/com/powertracker/data/BackupTest.kt`: `v6File_isTooNew` becomes a version 7 file refused as too new.
-  - `BackupFixtureTest.kt`: "what Android writes now" points at `android-v6.json`; `android-v5.json` becomes a frozen fixture.
-  - `web/src/backup/backup.test.ts`: `expect(BACKUP_VERSION).toBe(5)` becomes 6; the hand-made version 6 "too new" file becomes version 7; "what this app writes now" points at `web-v6.json`, with `web-v5.json` and `android-v5.json` frozen.
-  - `web/src/db/db.test.ts`: the test that appends a made-up `{ version: 5 }` after `SCHEMA_VERSIONS` appends the next free number instead.
-  - `web/e2e/backup.spec.ts`: the exported file's `version` is 6 (edited in Task 6, where Playwright can run).
-  - A test that deep-equals a **written** set or exercise row, or an exported backup row, may gain the new key (`unit: 'KG'` / `plateCount: 'OFF'`) in what it expects, and nothing else. Name each such test in the task's report.
+- **Version:** 1.17 on both apps, versionCode 28. Room schema 6, Dexie schema 6 (declared, with no upgrade step), backup version 6.
+- **Kg coaching is unchanged.** Every existing domain, Android and web test passes **with no test edited**, except the version pins listed next; a lifter who never turns this on sees no difference. If any other existing test has to change, stop and report it.
+- **The only existing tests that may be edited,** each only as said (Tasks 4, 5 and 6). They pin the schema or backup version at 5, or read "the fixture this app writes now":
+  - Android `data/BackupTest.kt`:
+    - `v5File_onVersion4Decoder_isTooNew` (363–367): the file it decodes becomes `service.export(1L).copy(version = 5)`, as the version 3 test in that file does; it still expects `TooNew(5)`.
+    - `everyBackup_isVersion5_withOrWithoutSkips` (371–378): both literal 5s become `Backup.VERSION`.
+    - `v6File_isTooNew` (466–470): the made-up file is version 7 and the result `TooNew(7)`.
+  - Android `data/BackupFixtureTest.kt`: `androidFixture` (68) points at `android-v6.json`; `androidFixture_holdsBothSides` (241) expects version 6; `webV5Fixture_restoresOnAndroid_withItsSkips` (319) compares the export with the fixture with its `version` raised to `Backup.VERSION` (a new `asUpgradedV5`, as `asUpgradedV4` does).
+  - Android `data/MigrationTest.kt`: `appDatabase_opensAVersion4File` (318) expects `db.version` 6.
+  - Web `backup/backup.test.ts`: `WEB_FIXTURE` (36) points at `web-v6.json`, with a new `WEB_V5_FIXTURE` for the frozen file; `webFixture_isUpToDate` (498) expects version 6; `everyBackup_isVersion5_withOrWithoutSkips` (870–880) expects 6 in its three places; `v5File_onVersion4Decoder_isTooNew_andVersion6IsTooNewHere` (932–938) reads `WEB_V5_FIXTURE` in its first half, and in its second half the made-up file and the result are version 7.
+  - Web `db/skips.test.ts` (93): `installedVersion` is 6. Web `db/db.test.ts` (433, 435): the made-up version appended after `SCHEMA_VERSIONS` is 7, and so is the version expected.
+  - Web `e2e/backup.spec.ts` (39): the exported file's `version` is 6 (edited in Task 6, where Playwright can run).
+- **No other test changes, because a default is never written** (on both apps): a backup row carries `unit` only for a plate set and `plateCount` only for a plate-counted exercise; the web's stored rows, editors, targets and set inputs carry those keys only when not kg / off. So the frozen-fixture comparisons (`asUpgradedV1`…`V4`, `withSidesAdded`, `v1Restore_convertsOverheadPress`; `withV3Defaults`, `withV4Defaults`, `withV5Defaults`, the web's `asUpgradedV1`) and the row deep-equals (`skips.test.ts` `upgrade4to5_…`, `db.test.ts` `upgrade_noMatch_noChange`, `catalogue.test.ts:48,79`, `TodayScreen.test.tsx:474`, `useToday.test.tsx:151,163,429,520`) pass as they are. If one of them fails, a default is being written somewhere: fix that, not the test.
 - **The 1.16 guide is unchanged:** its text, tests and committed screenshots. The guide draws the real Today screen with a sample that holds Leg press and Lat pulldown, so the plate menu item must not appear there (the seam is in Tasks 7 and 8).
 - **No new sourced number.** The plate rules use only 0.85 (`AdvicePayload.ReEntry.loadFactor`), 0.9 (`AdvicePayload.Deload.loadFactor`), 0.95 and 0.975 (`ProgressionRule.FAILED_SCALE`, `HARD_SCALE`), 12 (`ProgressionRule.MAX_REPS`), 1.30 (`InputValidator.MAX_JUMP_FACTOR`), by name. Training numbers come only from acefitness.org, exrx.net, nsca.com, acsm.org, pmc.ncbi.nlm.nih.gov, powerlifting.sport, and the design's own decided numbers.
-- **Never plates:** squat, bench, deadlift, strict press, their variations (built-in or custom), SMITH exercises, and the three assisted machines (Assisted pull-up, Assisted chin-up, Assisted dip), which stay in kg. Each is the design's own: "Never for a main lift (category SQUAT, BENCH, DEADLIFT or STRICT_PRESS)"; "Not for custom variations …, nor `SMITH` exercises (a bar loaded with plates in kg)"; assisted machines "Decided: not in 1.17; they stay in kg". The plan adds one exclusion of its own: a custom accessory whose name holds "assisted" (Planner's call 3).
+- **Never plates:** squat, bench, deadlift, strict press, their variations (built-in or custom), SMITH exercises, and the three assisted machines (Assisted pull-up, Assisted chin-up, Assisted dip), which stay in kg. Each is the design's own: "Never for a main lift (category SQUAT, BENCH, DEADLIFT or STRICT_PRESS)"; "Not for custom variations …, nor `SMITH` exercises (a bar loaded with plates in kg)"; assisted machines "Decided: not in 1.17; they stay in kg". The plan adds one exclusion of its own: a custom accessory with the word "assisted" in its name (Planner's call 3).
 - **Never mixed:** no code reads a set's number without its unit. A plate set never reaches e1RM, a total, a volume, a record, Known bests, a ratio or a kg rule, and never reads as 0 kg.
 - **History is never rewritten:** changing the setting changes no stored set, no stored target and no backup.
-- **Field naming:** `weightKg` keeps its name everywhere (domain, Room, Dexie, backup JSON, payload JSON). It means "plate number" when the unit beside it is plates. New fields go **last, with a kg / off default**. Find every use with `grep -rn weightKg`.
+- **Field naming:** `weightKg` keeps its name everywhere (domain, Room, Dexie, backup JSON, payload JSON). It means "plate number" when the unit beside it is plates. New fields go **last, with a kg / off default**, and outside Room a default is left out, never written. Find every use with `grep -rn weightKg`.
 - **Generated web domain:** `web/src/domain/generated` is made by `./gradlew :domain:syncWebDomain`, checked by `:domain:checkWebDomain`, committed, and never edited or merged by hand. After any merge that touches `domain/`, regenerate.
 - **Fixed rules:** new commits only (no force-push, no amend); stage files by path; never commit `.claude/`, `CLAUDE.md`, `.superpowers/`; no model names in code or commit bodies; never `playwright install`; e2e with `--trace off`; every web commit passes `npx tsc -b`; the commit trailer comes from the session's latest attribution reminder.
 - **One builder per working tree.** Playwright runs only in the main checkout.
@@ -118,11 +122,11 @@ fun check(weight: Double, reps: Int, lastWeight: Double?, unit: LoadUnit, plateS
 **The rules these functions fix:**
 - **The grid** is 1, 2, 3 … (step 1) or 1, 1½, 2 … (step ½). `up(7.5, 1.0)` is 8 and `down(7.5, 1.0)` is 7.
 - **`eased`** = the lower of `floor(reference × factor, step)` and `down(reference, step)`, never under 1. Compare in whole half-plates (integers), so 10 × 0.9 is 9 and never 8.
-- **`offered`** (Planner's call where the two design rules meet): the row's category is `ACCESSORY`, **and** its name does not hold "assisted" (compared through `Library.normalise`), **and** either `Library.find(name)` lists `MACHINE` or `CABLE` anywhere in its equipment, or `isBuiltIn` is false. So a custom accessory is offered whatever it is called, except one called "assisted …"; a custom row named "Assisted dip" is not offered.
+- **`offered`** (Planner's call where the two design rules meet): the row's category is `ACCESSORY`, **and** its name, after `Library.normalise`, does not hold the word "assisted" (it starts with `assisted` followed by a space or the end, or holds ` assisted`), **and** either `Library.find(name)` lists `MACHINE` or `CABLE` anywhere in its equipment, or `isBuiltIn` is false. So a custom accessory is offered whatever it is called, except one with that word: "Assisted dip", "Machine-assisted dip" and "My assisted row" are not offered; "Unassisted row" is.
 - **`check`:** not on the count's grid → `STEP`; else outside 1..50 → `RANGE`; else `OK`. `OFF` checks as `WHOLE`.
 - **`InputValidator.check` in plates:** high reps as today; a big jump only when `lastWeight != null`, `weight > lastWeight + plateStep` and `weight > lastWeight × MAX_JUMP_FACTOR`. In kg the 5-argument form answers exactly as the 3-argument one. The caller passes a `lastWeight` from the same unit, or null.
 
-**JS bridge:** `JsSet` gains a last `unit: String = "KG"`, `JsExercise` a last `plateCount: String = "OFF"` (left out from JS they take the default, as `mode` does; `toDomain` reads them with `parseEnum`). New exports on `GritDomain`; no existing export changes:
+**JS bridge:** `JsSet` gains a last `unit: String = "KG"`, `JsExercise` a last `plateCount: String = "OFF"` (left out from JS they take the default, as `mode` does; `toDomain` reads them with `parseEnum`; `LoggedSet.toJs()` and `Exercise.toJs()` write them, so `JsBestSet.set` and every history that comes back carry them). New exports on `GritDomain`; no existing export changes:
 
 ```kotlin
 fun plateCountOffered(exercise: JsExercise): Boolean
@@ -138,8 +142,8 @@ fun checkLoadInput(weight: Double, reps: Int, lastWeight: Double?, unit: String,
 ```
 
 - [ ] **Step 1: Write the failing tests** in `PlateStackTest.kt`:
-  - `offered_machineAndCableAccessories_andCustomAccessories`: Lat pulldown, Cable fly (any `CABLE` entry), T-bar row (`MACHINE, BARBELL`), Leg press: true. A custom `ACCESSORY` named "My row machine": true.
-  - `neverOffered_mainLifts_variations_smith_assisted`: each of the four main-lift categories; a built-in and a custom `VARIATION`; a `SMITH` catalogue entry; Assisted pull-up, Assisted chin-up, Assisted dip; a custom accessory named "Assisted dip"; a custom accessory named "assisted row": all false. A dumbbell catalogue accessory: false.
+  - `offered_machineAndCableAccessories_andCustomAccessories`: Lat pulldown, Cable fly (any `CABLE` entry), T-bar row (`MACHINE, BARBELL`), Leg press: true. Custom `ACCESSORY` rows named "My row machine" and "Unassisted row": true.
+  - `neverOffered_mainLifts_variations_smith_assisted`: each of the four main-lift categories; a built-in and a custom `VARIATION`; a `SMITH` catalogue entry; Assisted pull-up, Assisted chin-up, Assisted dip; custom accessories named "Assisted dip", "assisted row", "Machine-assisted dip" and "My assisted row": all false. A dumbbell catalogue accessory: false.
   - `everyMachineOrCableCatalogueEntry_isAnAccessory` (walks `Library.all()`).
   - `unitOf_isKgWhenNotOffered_whateverTheSettingSays`: a `SQUAT` row with `plateCount = WHOLE` is `KG`; Lat pulldown `OFF` → `KG`, `WHOLE` → `PLATES`, `HALF` → `PLATES`.
   - `upAndDown_onEachGrid`: `up(null, 1.0) == 1.0`; `up(7.0, 1.0) == 8.0`; `up(7.0, 0.5) == 7.5`; `up(7.5, 1.0) == 8.0`; `down(7.5, 1.0) == 7.0`; `down(1.0, 1.0) == 1.0`; `down(1.0, 0.5) == 1.0`; `up(50.0, 1.0) == 50.0`.
@@ -153,7 +157,7 @@ fun checkLoadInput(weight: Double, reps: Int, lastWeight: Double?, unit: String,
   - `noLastSetInThisUnit_neverWarns` (Review Focus 3): `check(7.0, 10, null, PLATES, 1.0)` and `check(60.0, 10, null, KG, 1.0)` hold no `BigJump`.
   - `highReps_isUnchanged`: 13 reps in plates → `HighReps`.
   - `kg_throughTheNewForm_equalsTheOldForm` for (130, last 100), (131, last 100), (20, last 0).
-- [ ] **Step 3: Write the failing tests** in `GritDomainPlatesTest.kt`: `aSetBuiltWithoutAUnit_isKg` and `anExerciseBuiltWithoutASetting_isOff` (the seven-argument constructors still work); `plateExports_answerAsPlateStack` (one assertion per export above, from the values in Step 1); `checkLoadInput_inPlates_namesBigJump`.
+- [ ] **Step 3: Write the failing tests** in `GritDomainPlatesTest.kt`: `aSetBuiltWithoutAUnit_isKg` and `anExerciseBuiltWithoutASetting_isOff` (the seven-argument constructors still work); `toJs_carriesUnitAndPlateCount` (a `PLATES` set and a `HALF` exercise through `toDomain().toJs()` come back `"PLATES"` and `"HALF"`; `bodybuildingProgress` on a plate history gives `bestSets[0].set.unit == "PLATES"`); `plateExports_answerAsPlateStack` (one assertion per export above, from the values in Step 1); `checkLoadInput_inPlates_namesBigJump`.
 - [ ] **Step 4: Run** `./gradlew :domain:allTests` — the new tests fail (unresolved references).
 - [ ] **Step 5: Implement** the types, `PlateStack`, the validator form and the bridge. Make `ProgressionRule.MAX_REPS` and `InputValidator.MAX_JUMP_FACTOR` `internal`.
 - [ ] **Step 6: Run** `./gradlew :domain:syncWebDomain :domain:allTests :domain:checkWebDomain :app:testDebugUnitTest`, then in `web/`: `npx tsc -b && npm test` — all pass with no existing test edited.
@@ -161,7 +165,7 @@ fun checkLoadInput(weight: Double, reps: Int, lastWeight: Double?, unit: String,
 
 ### Task 2: Nothing mixes plates with kg (domain)
 
-**Files:** modify `stack/PlateStack.kt`, `model/Advice.kt`, `history/HistoryStats.kt`, `progress/ProgressMath.kt`, `progress/BodybuildingProgress.kt`, `coach/Coach.kt`, `coach/BodybuildingCoach.kt`, `coach/PhysiqueCoach.kt`, `web/JsTypes.kt`, `web/GritDomain.kt`; regenerate. Tests: `stack/UnitsNeverMixTest.kt`, `model/TargetUnitTest.kt`.
+**Files:** modify `stack/PlateStack.kt`, `model/Advice.kt`, `history/HistoryStats.kt`, `coach/FatigueRule.kt`, `progress/ProgressMath.kt`, `progress/BodybuildingProgress.kt`, `coach/Coach.kt`, `coach/BodybuildingCoach.kt`, `coach/PhysiqueCoach.kt`, `web/JsTypes.kt`, `web/GritDomain.kt`; regenerate. Tests: `stack/UnitsNeverMixTest.kt`, `model/TargetUnitTest.kt`.
 
 **Interfaces — Consumes:** Task 1's `LoadUnit`, `PlateStack.unitOf`. **Produces:**
 
@@ -188,14 +192,14 @@ data class Target(..., val repsHigh: Int? = null, val unit: LoadUnit = LoadUnit.
 
 Sessions are kept even when emptied, because the 14-day gap, easing back in and `trainedBefore` count sessions. With no plate set and no setting on, `inCurrentUnits()` returns an equal history, so kg output is unchanged.
 
-**The kg-only guards:** `HistoryStats.weeklyTrend`, `currentE1rm` and `sessionCount`, and `ProgressMath.isCompletedMainSet` (which `prs`, `isNewPr`, `weeklyVolume` and, through `prs`, `knownBest` all use) skip any set whose `unit` is not `KG`. `total` follows through `currentE1rm`. `E1rm` keeps its kg-only signature.
+**The kg-only guards:** `HistoryStats.weeklyTrend`, `currentE1rm` and `sessionCount`, and `ProgressMath.isCompletedMainSet` (which `prs`, `isNewPr`, `weeklyVolume` and, through `prs`, `knownBest` all use) skip any set whose `unit` is not `KG`. `total` follows through `currentE1rm`. `FatigueRule.mainSets`, which feeds its top-set and RPE-rising signals from raw `weightKg`, keeps kg sets only (the design calls `FatigueRule` unchanged, and it is for every real log, since a main lift is never in plates). `E1rm` keeps its kg-only signature.
 
 - [ ] **Step 1: Write the failing tests** in `UnitsNeverMixTest.kt`. Fixture: Lat pulldown with `plateCount = WHOLE`, powerlifting plan item 3 × 8 @ 8.
   - `inCurrentUnits_keepsEverySession_andOnlyCurrentUnitSets`: a session with a kg and a plate set of the exercise keeps one set; a session left with none is still there, with its date.
   - `inCurrentUnits_withNoPlates_changesNothing` (equal to the input).
   - `aKgHistoryThenPlates_givesNoPowerliftingTarget`: three kg sessions, then the setting turned on: `Coaching.targetsFor(POWERLIFTING, …)` has no target for it.
   - `switchingBackToKg_picksTheOldKgSetsUp`: kg sessions, then plate sessions, setting `OFF`: the target's `weightKg` comes from the last kg top set and its `unit` is `KG`.
-  - `aPlateSetOnAMainLift_feedsNoKgFigure` (Review Focus 4): a `SQUAT` set `LoggedSet(…, weightKg = 9.0, reps = 5, …, unit = PLATES)` beside real kg sets: `weeklyTrend`, `currentE1rm`, `ProgressMath.prs`, `isNewPr` (for that set: false), `weeklyVolume`, `knownBest` and `total` equal their values for the history without it; with only that set, `currentE1rm` is null (or the baseline) and `prs` is empty.
+  - `aPlateSetOnAMainLift_feedsNoKgFigure` (Review Focus 4): a `SQUAT` set `LoggedSet(…, weightKg = 9.0, reps = 5, …, unit = PLATES)` beside real kg sets: `weeklyTrend`, `currentE1rm`, `ProgressMath.prs`, `isNewPr` (for that set: false), `weeklyVolume`, `knownBest`, `total` and `FatigueRule.evaluate` (on a history that raises the RPE-rising deload, with a heavier plate "top set" added to its sessions) equal their values for the history without it; with only that set, `currentE1rm` is null (or the baseline) and `prs` is empty.
   - `aPainHold_isReleasedByASetInEitherUnit`: a pain skip, then a kg set of an exercise now in plates: `SkipCoach.held` is false.
   - `stuck_comparesOnlyTheCurrentUnit`: 21 days of kg sessions that would be stuck, then plates turned on: no SWAP.
   - **Stuck in plates: the rule is today's, unchanged.** `PhysiqueCoach.stuck` uses no kg and no e1RM: its baseline is the exercise's last session on or before `today − STUCK_DAYS` (21), and it is stuck when at least two later sessions exist and none `beats` the baseline, where `beats` is a higher heaviest weight, or the same with more reps in total. On a plate exercise that reads "a higher plate, or the same plate with more reps", plate against plate, so nothing replaces anything. Three tests (3 sets each, plan 3 × 8–12):
@@ -232,12 +236,12 @@ internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHig
   3. **`delta > 0.5`, or `delta ≥ −0.5` with `recentJumpWithRisingRpe` (the same window as kg):** repeat: `floor(last, step)` × `max(planned reps, last reps)`. **Planner's call:** the kg rule's repeat falls back to the planned reps; in plates the reps are the progress, so a repeat keeps them, as the pain hold already does.
   4. **Otherwise (on target or easier):** when `last.reps ≥ MAX_REPS` or the planned reps ≥ `MAX_REPS`: `up(last, step)` × the planned reps. Else `floor(last, step)` × `min(max(last.reps + 1, planned reps), MAX_REPS)`. **Planner's call:** the extra rep never aims under the plan's reps.
   - No 5 % cap and no big step.
-- **`ProgressionRule.held`** (pain hold) in plates: the held aim is `floor(last, plateStep)` × `max(planned reps, last reps)`; a target above it (a higher plate, or the same plate with more reps) is replaced by it. `Coach` passes the exercise's step.
+- **`ProgressionRule.held`** (pain hold) has no exercise parameter: it branches on the target payload's `unit`. In plates the held aim is `floor(last, plateStep)` × `max(planned reps, last reps)`; a target above it (a higher plate, or the same plate with more reps) is replaced by it. `Coach` passes the exercise's step.
 - **`Coach.clamp` and `BodybuildingCoach.clamp`:** `capFor` = `eased(reference, factor, step)` from the same fixed reference top set as kg; the target takes the lower of its own plate and each cap. Sets, notes and reps as kg.
 - **Bodybuilding side:** earned → `up(heaviest, step)`; otherwise `floor(heaviest, step)`; the range, the texts and `repsToBeat` as kg.
 - **`firstTimeWeight` in plates:** the heaviest non-missed plate of the exercise on the powerlifting side in the same 28-day window; `eased(…, ReEntry.loadFactor, step)` when that is more than 28 days old and `easeOld`, else `floor(…, step)`. With no plate sets: null. Baselines are never read.
 - **`ReturnRule.ease` in plates:** trained on the other side → cap = `floor(heaviest non-missed plate there in the 28 days, step)`, with the easing note when it lowers the target; not trained on either side → the lower of the target and `eased(last, ReEntry.loadFactor, step)`.
-- **Wording:** every reason prints plates through `fmt(v, unit)`: "Last time: plate 7 × 8 @ 8. Coach suggests plate 7 × 9 @ 8."
+- **Wording:** every reason prints the weight through `fmt(v, unit)` and the RPE through the one-argument `fmt`, as today, so "plate" never follows "@": "Last time: plate 7 × 8 @ 8. Coach suggests plate 7 × 9 @ 8."
 - **`CoachSources.BODYBUILDING_INCREASE`** gets one sentence in its comment, no new source and no number beyond what it already cites: on a plate-counted machine the increase is one step, the smallest change the machine allows, which is often more than the 2–10 % cited; the owner chose one step.
 
 - [ ] **Step 1: Write the failing tests** in `ProgressionRulePlatesTest.kt` (Lat pulldown, `WHOLE` unless said, plan 3 × 8 @ 8; "→" is the target's plate × reps):
@@ -251,6 +255,7 @@ internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHig
   - `aMissedTopSet_stepsDown`: plate 7 missed → 6 × 8 (7 × 0.95 = 6.65), reason starts `"Last time: plate 7 × 8 (missed)."`; `HALF` → 6.5 × 8; plate 1 missed → 1 × 8.
   - `halfStepsTurnedOffAfterAHalf`: last 7.5 × 9 @ 8 with `WHOLE` → 7 × 10; 7.5 × 12 @ 8 → 8 × 8; 7.5 × 8 @ 9 → 7 × 8; 7.5 missed → 7 × 8 (Planner's call: 7.125 rounds down to 7, which is already one whole step under 7½).
   - `belowThePlannedReps_aimsAtThePlan`: last 7 × 6 @ 8 → 7 × 8.
+  - `noReason_putsPlateAfterTheAt`: across every target made in this file and the two below, no reason holds `"@ plate"`.
   - `underAPainHold_noStepAndNoExtraRep`: last 7 × 12 @ 8, held → 7 × 12; last 7 × 9 @ 8, held → 7 × 9; a missed 7 while held → 6 × 8 (a decrease still applies).
 - [ ] **Step 2: Write the failing tests** in `CoachPlatesTest.kt` (through `Coaching.targetsFor(POWERLIFTING, …)`; top set plate 7 before the advice):
   - `deload_isNinetyPercentRoundedDown`: → plate 6, sets 3 → 2, reason ends with `Coach.DELOAD_NOTE`.
@@ -270,6 +275,7 @@ internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHig
   - `firstTimeOnThisSide_takesTheHeaviestGoodPlateFromTheOtherSide`: powerlifting plate sets 8 and 9 in the last 28 days, and a missed 10 → plate 9, reason starts `"First time on this side."`; no e1RM conversion (the reps there do not change it).
   - `firstTime_fromOldPlateSets_isEasedOnce`: the heaviest is 9, 40 days old → 7 (9 × 0.85 = 7.65); `HALF` → 7.5; with a stored easing back in as well, still 7, not lower.
   - `firstTime_withOnlyKgSets_orOnlyABaseline_givesNoTarget`; `aKgHistoryThenPlates_givesNoBodybuildingTarget`.
+  - `aPlateSet_neverTakesABodyweightBranch`: plate 1 × 12, 12, 12 @ 8 earns the step (→ plate 2: `earnedIncrease` refuses 0 kg, never plate 1); first time on this side from a powerlifting plate 1 gives plate 1 (`firstTimeWeight` skips 0 kg sets, never plate 1); `InputValidator.check(3.0, 10, 1.0, PLATES, 1.0)` holds `BigJump(1.0, PLATES)` (the jump check is skipped from 0 kg, never from plate 1).
   - `theFirstEverPlateSet_hasNoTarget_andTheRepsAimIsTheBottomOfTheRange` (`repsToBeat` is 8).
   - `changePlates_changesNoPlateTarget`: every target above is the same with `CoachSettings.changePlates` on and off.
 - [ ] **Step 4: Write the failing tests** in `ReturnRulePlatesTest.kt`: `trainedOnTheOtherSide_capsAtItsHeaviestGoodPlate` (this side's target would be plate 10; the other side's 28 days hold 8 and a missed 11 → plate 8, reason ends with `Coach.RE_ENTRY_NOTE`); `aCapAtOrAboveTheTarget_changesNothing`; `notTrainedOnEitherSide_isEasedByTheStepRule` (last 9 → 7, planned reps).
@@ -293,6 +299,8 @@ data class SetEntity(..., val isTopSet: Boolean, @ColumnInfo(defaultValue = "KG"
 // TrainingRepository.kt: one transaction; with a catalogueName the row is found, restored or inserted first (CatalogueResolver). Returns the row's id.
 suspend fun setPlateCount(exerciseId: Long?, catalogueName: String?, value: PlateCount): Long
 // Backup.kt
+// each new field is LAST and is left out of the JSON when it is the default: @EncodeDefault(EncodeDefault.Mode.NEVER)
+// (the backup writer has encodeDefaults = true, so without it every row would gain the key)
 data class ExerciseDto(..., val archived: Boolean, val plateCount: String = PlateCount.OFF.name)
 data class SetDto(..., val isTopSet: Boolean, val unit: String = LoadUnit.KG.name)
 const val VERSION = 6
@@ -306,13 +314,13 @@ ALTER TABLE exercise ADD COLUMN plateCount TEXT NOT NULL DEFAULT 'OFF'
 
 - **The column defaults are needed twice:** by the migration, and by `SeedCallback`, which inserts the seed exercises with raw `ContentValues` on a fresh install.
 - **Mapping:** `toDomain` / `toEntity` in `TrainingRepository.kt` carry both fields; `addExercise` writes the exercise's setting.
-- **Backup 6:** both keys are always written (the writer encodes defaults); absent means kg / off, so versions 1 to 5 restore unchanged. `toEntity` turns an unknown name into a corrupt file, as the other enums do. `decode` also returns `Corrupt("A plate set below plate 1")` for a set with `unit` `PLATES` and `weightKg < 1`. TARGET payloads stay an opaque string. The `Backup` doc comment gains its line for 6.
+- **Backup 6:** a row carries `unit` only when it is `PLATES` and `plateCount` only when it is `WHOLE` or `HALF`; absent means kg / off. So a log with no plates exports exactly as version 5 did but for the version number, and versions 1 to 5 restore and export again with no new key on any row. `toEntity` turns an unknown name into a corrupt file, as the other enums do. `decode` also returns `Corrupt("A plate set below plate 1")` for a set with `unit` `PLATES` and `weightKg < 1`. TARGET payloads stay an opaque string. The `Backup` doc comment gains its line for 6.
 
 - [ ] **Step 1: Write the failing tests:**
   - `MigrationTest`: `migrate5to6_addsTheTwoColumns_andEveryStoredRowReadsKgAndOff` (a version 5 database with two exercises and three sets, written as version 5 stored them; `runMigrationsAndValidate(name, 6, true, MIGRATION_5_6)`; every `logged_set.unit` is `'KG'`, every `exercise.plateCount` is `'OFF'`, and each `weightKg`, `reps` and name is as written); `allMigrations_1to6_openInTheApp`.
   - `PlateCountStorageTest`: `aFreshInstall_seedsEveryExerciseOff`; `setPlateCount_changesOnlyThatRow_andNoSetOrAdvice` (the sets' and the advice table's rows are equal before and after: history is not rewritten); `setPlateCount_onACatalogueNameWithNoRow_insertsItsRowOnce` (called twice: one row, `HALF`); `aSetLoggedInPlates_keepsItsUnit_throughHistory`; `archiveThenRestore_keepsTheSetting`; `aSwappedInExercise_startsOff`.
-  - `BackupTest`: `version6_roundTripsUnitAndPlateCount`; `versions1to5_restoreWithEverySetKgAndEveryExerciseOff` (each frozen fixture); `aVersion6File_isTooNewForAVersion5Reader` (`decode(text, supportedVersion = 5)` is `TooNew(6)`); `anUnknownUnitOrSettingName_isCorrupt`; `aPlateSetBelowPlateOne_isCorrupt` (Review Focus 4); `aPlateTargetsPayload_comesBackByteForByte`.
-  - `BackupFixtureTest`: the "what Android writes now" fixture becomes `android-v6.json` (its `populate()` gains a `WHOLE` and a `HALF` exercise, plate sets including 7.5, one mixed-unit session and a `PLATES` TARGET); `android-v5.json` joins the frozen list with `androidV5Fixture_restoresWithEverySetKgAndEveryExerciseOff`.
+  - `BackupTest`: `version6_roundTripsUnitAndPlateCount`; `aKgSetAndAnOffExercise_exportWithNoNewKey` (neither row's JSON has `unit` / `plateCount`; a plate set's last key is `"unit":"PLATES"` and a `HALF` exercise's `"plateCount":"HALF"`); `versions1to5_restoreWithEverySetKgAndEveryExerciseOff` (each frozen fixture); `aVersion6File_isTooNewForAVersion5Reader` (`decode(text, supportedVersion = 5)` is `TooNew(6)`); `anUnknownUnitOrSettingName_isCorrupt`; `aPlateSetBelowPlateOne_isCorrupt` (Review Focus 4); `aPlateTargetsPayload_comesBackByteForByte`.
+  - `BackupFixtureTest`: the "what Android writes now" fixture becomes `android-v6.json`. It is what `android-v5.json` holds, with `"version": 6`, plus what `populate()` gains: two more exercises (one `WHOLE`, one `HALF`), plate sets on them including 7.5, one session holding a kg and a plate set of the same exercise, and a `PLATES` TARGET. Only those two exercises carry `plateCount` and only the plate sets carry `unit`; every other row is as in version 5. New tests: `androidFixture_holdsPlates` (those rows are there, and no kg set or off exercise in the file has the key) and `androidV5Fixture_restoresWithEverySetKgAndEveryExerciseOff` (frozen; its export equals `asUpgradedV5` of it). Then make the edits to existing tests that Global Constraints lists for `BackupTest.kt`, `BackupFixtureTest.kt` and `MigrationTest.kt`, and no others.
 - [ ] **Step 2: Run** `./gradlew :app:testDebugUnitTest` — they fail.
 - [ ] **Step 3: Implement.** Build once so Room exports `6.json`.
 - [ ] **Step 4: Write the fixture:** `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`, and check `git status` shows only `android-v6.json` new under `__fixtures__/` (v1 to v5 untouched).
@@ -321,7 +329,7 @@ ALTER TABLE exercise ADD COLUMN plateCount TEXT NOT NULL DEFAULT 'OFF'
 
 ### Task 5: Web storage and backup version 6
 
-**Files:** modify `web/src/db/schema.ts`, `mapping.ts`, `catalogue.ts`, `web/src/backup/format.ts`, `backup.ts`; create `web/src/backup/__fixtures__/web-v6.json`. Tests: `web/src/db/db.test.ts`, `catalogue.test.ts`, `web/src/backup/backup.test.ts`.
+**Files:** modify `web/src/db/schema.ts`, `mapping.ts`, `catalogue.ts`, `web/src/backup/format.ts`, `backup.ts`; create `web/src/backup/__fixtures__/web-v6.json`. Tests: `web/src/db/db.test.ts`, `skips.test.ts` (its version pin only), `catalogue.test.ts`, `web/src/backup/backup.test.ts`.
 
 **Interfaces — Consumes:** `JsSet.unit`, `JsExercise.plateCount`. **Produces:**
 
@@ -329,12 +337,13 @@ ALTER TABLE exercise ADD COLUMN plateCount TEXT NOT NULL DEFAULT 'OFF'
 // schema.ts
 export const LOAD_UNITS = ['KG', 'PLATES'] as const;        export type LoadUnit = (typeof LOAD_UNITS)[number]
 export const PLATE_COUNTS = ['OFF', 'WHOLE', 'HALF'] as const; export type PlateCount = (typeof PLATE_COUNTS)[number]
-export type SetRow = { ...; unit?: LoadUnit }               // absent reads as KG
-export type ExerciseRow = { ...; plateCount?: PlateCount }  // absent reads as OFF
+export type SetRow = { ...; unit?: LoadUnit }               // written only as 'PLATES'; absent reads as KG
+export type ExerciseRow = { ...; plateCount?: PlateCount }  // written only as 'WHOLE' or 'HALF'; absent reads as OFF
 export function setUnit(row: { unit?: LoadUnit }): LoadUnit
 export function plateCountOf(row: { plateCount?: PlateCount }): PlateCount
-// SCHEMA_VERSIONS gains  { version: 6, stores: {}, upgrade: stampKgAndOff }  — no new index
+// SCHEMA_VERSIONS gains  { version: 6, stores: {} }  — no upgrade function and no new index
 // catalogue.ts: one rw transaction over db.exercises; with a catalogueName the row is found, restored or inserted first. Resolves to the row's id.
+// 'OFF' removes the key from the row; it never writes 'OFF'.
 export function setPlateCount(db: GritDb, exerciseId: number | null, catalogueName: string | null, value: PlateCount): Promise<number>
 // format.ts
 export const BACKUP_VERSION = 6
@@ -342,14 +351,14 @@ export type ExerciseDto = { ...; plateCount?: string }
 export type SetDto = { ...; unit?: string }
 ```
 
-- **The upgrade** stamps `unit: 'KG'` on every set and `plateCount: 'OFF'` on every exercise that has none, as version 3 stamped `mode`. `openGritDb` already writes the safety copy first; `safety.ts` is not changed.
-- **Mapping:** `setToJs` / `exerciseToJs` pass `setUnit(r)` / `plateCountOf(r)`; `setFromJs` / `exerciseFromJs` write them. Every new set and exercise row the app writes carries the field.
-- **Backup 6:** the export writes both keys on every row, last, in Android's key order. The parser takes them as optional keys, checks the names against `LOAD_UNITS` / `PLATE_COUNTS`, fills in `KG` / `OFF`, and refuses a `PLATES` set with `weightKg < 1` with the same message as Android. The doc comment gains its line for 6.
+- **Version 6 stamps nothing (Planner's call, against the design's "stamps every set as kg and every exercise as off").** An absent field already reads as kg / off, and existing tests deep-equal rows across a whole upgrade (`skips.test.ts` `upgrade4to5_…`, `db.test.ts` `upgrade_noMatch_noChange`). Version 6 is still declared, so an older app refuses a newer database as it does today. `openGritDb` still writes the safety copy before the version changes; `safety.ts` is not changed.
+- **One rule for every row the app writes:** the field is written only when it is not the default. `setFromJs` writes `unit` only for `PLATES`; `exerciseFromJs` writes `plateCount` only for `WHOLE` / `HALF`; `setToJs` / `exerciseToJs` pass `setUnit(r)` / `plateCountOf(r)`.
+- **Backup 6:** the export writes `unit` only on a plate set and `plateCount` only on a plate-counted exercise, as the row's last key, as Android does. The parser takes them as optional keys, checks the names against `LOAD_UNITS` / `PLATE_COUNTS`, fills in `KG` / `OFF`, and refuses a `PLATES` set with `weightKg < 1` with the same message as Android. The doc comment gains its line for 6.
 
 - [ ] **Step 1: Write the failing tests:**
-  - `db.test.ts`: `upgrade 5 → 6 stamps every set kg and every exercise off, and changes nothing else` (a version 5 database built with the version 5 stores); `a row written without the fields reads as kg and off`; `the safety copy is written before the version 6 upgrade`.
-  - `catalogue.test.ts`: `setPlateCount on a stored row changes only that row`; `setPlateCount with a catalogue name and no row inserts the row once, with the setting`; `no set and no advice row changes` (deep-equal before and after); `a restored archived row keeps its setting`; `an exercise swapped in by a plan change starts off`.
-  - `backup.test.ts`: `version 6 round-trips unit and plateCount`; `versions 1 to 5 restore with every set kg and every exercise off` (each frozen fixture, both apps'); `a version 6 file is too new for a version 5 reader` (`decodeBackup(text, 5)` is `TOO_NEW`, version 6); `an unknown unit or plateCount name is corrupt`; `a plate set below plate 1 is corrupt` (Review Focus 4); `a plate target's payload comes back unchanged`; the "what this app writes now" fixture becomes `web-v6.json` (its builder gains what Task 4's fixture holds); `web-v5.json` joins the frozen list.
+  - `db.test.ts`: `upgrade 5 → 6 changes no row, and every set reads kg and every exercise off` (a version 5 database built with the version 5 stores; every table deep-equals what it held; `setUnit`, `plateCountOf` and `loadHistory` give `KG` / `OFF`); `the installed version is 6`; `the safety copy is written before version 6 is installed`.
+  - `catalogue.test.ts`: `setPlateCount on a stored row changes only that row`; `setPlateCount back to OFF leaves the row exactly as it was before plates` (deep-equal, no `plateCount` key); `a kg set is stored with no unit key and a plate set with unit PLATES`; `setPlateCount with a catalogue name and no row inserts the row once, with the setting`; `no set and no advice row changes` (deep-equal before and after); `a restored archived row keeps its setting`; `an exercise swapped in by a plan change starts off`.
+  - `backup.test.ts`: `version 6 round-trips unit and plateCount`; `a kg set and an off exercise export with no new key`; `versions 1 to 5 restore with every set kg and every exercise off` (each frozen fixture, both apps'); `a version 6 file is too new for a version 5 reader` (`decodeBackup(text, 5)` is `TOO_NEW`, version 6); `an unknown unit or plateCount name is corrupt`; `a plate set below plate 1 is corrupt` (Review Focus 4); `a plate target's payload comes back unchanged`; the "what this app writes now" fixture becomes `web-v6.json`: what `web-v5.json` holds, with `"version": 6`, plus what `buildSampleDb` gains behind a new `plates` option (the same additions as Task 4's fixture: a `WHOLE` and a `HALF` exercise, plate sets including 7.5, one mixed-unit session, a `PLATES` TARGET), with the keys on those rows only; `webFixture_holdsPlates`; `web-v5.json` joins the frozen list and restores through `withV5Defaults` untouched. Then make the edits to existing tests that Global Constraints lists for `backup.test.ts`, `skips.test.ts` and `db.test.ts`, and no others.
 - [ ] **Step 2: Run** `npm test` in `web/` — they fail. **Step 3: Implement.**
 - [ ] **Step 4: Write the fixture:** `UPDATE_FIXTURES=1 npm test`; `git status` shows only `web-v6.json` new under `__fixtures__/`.
 - [ ] **Step 5: Run** `npm test && npx tsc -b` — pass.
@@ -362,14 +371,14 @@ Runs after Tasks 4 and 5 are both merged (it needs both fixtures in one tree).
 **Files:** tests only: `app/src/test/kotlin/com/powertracker/data/BackupFixtureTest.kt`, `web/src/backup/backup.test.ts`.
 
 - [ ] **Step 1: Write the tests:**
-  - Android `webV6Fixture_restoresOnAndroid_withItsPlates`: restore `web-v6.json`, export, and compare with the fixture as the version 5 test does; the plate sets keep `PLATES` and 7.5, the two exercises keep `WHOLE` and `HALF`, the `PLATES` target's payload is unchanged.
-  - Web `restores android-v6.json with its plate sets, settings and plate target`: the same, from Android's file; and `the two version 6 fixtures hold the same keys on a set and on an exercise`. If `web/e2e/backup.spec.ts` still expects version 5, change it to 6 here and run `npx playwright test e2e/backup.spec.ts --trace off`.
+  - Android `webV6Fixture_restoresOnAndroid_withItsPlates`: restore `web-v6.json`, export, and the export equals the fixture (`exportedAt` aside), which holds only if neither app writes a default; the plate sets keep `PLATES` and 7.5, the two exercises keep `WHOLE` and `HALF`, the `PLATES` target's payload is unchanged.
+  - Web `restores android-v6.json with its plate sets, settings and plate target`: the same, from Android's file; and `the two version 6 fixtures hold the same keys`: a plate set from each file has the same keys in the same order, ending in `unit`; a plate-counted exercise from each likewise, ending in `plateCount`; a kg set and an off exercise from each have exactly the version 5 keys. If `web/e2e/backup.spec.ts` still expects version 5, change it to 6 here and run `npx playwright test e2e/backup.spec.ts --trace off`.
 - [ ] **Step 2: Run** `./gradlew :app:testDebugUnitTest` and `npm test` — pass. If either fails, the two formats disagree: fix the app that departs from Task 4's and Task 5's Interfaces, regenerate only that app's v6 fixture, and say so in the commit.
 - [ ] **Step 3: Commit** `test: each app restores the other's version 6 backup`.
 
 ### Task 7: Android Today: the setting, logging and showing plates
 
-**Files:** create `ui/today/PlateCount.kt`; modify `ui/today/SkipToday.kt`, `TodayViewModel.kt`, `TodayScreen.kt`, `ExerciseCard.kt`, `Entry.kt`, `TodayDialogs.kt`, `ui/components/SetRow.kt`, `Format.kt`, `ui/progress/ProgressScreen.kt`, `LiftHistoryScreen.kt`. Tests: new `app/src/test/kotlin/com/powertracker/ui/TodayPlatesViewModelTest.kt`, `ui/PlateCountScreenTest.kt`; add to `ui/today/EntryTest.kt`, `ui/design/ScreenshotTest.kt`.
+**Files:** create `ui/today/PlateCount.kt`; modify `ui/today/SkipToday.kt`, `TodayViewModel.kt`, `TodayScreen.kt`, `ExerciseCard.kt`, `Entry.kt`, `TodayDialogs.kt`, `SessionCards.kt` (the start-session card), `ui/components/SetRow.kt`, `Format.kt`, `ui/progress/ProgressScreen.kt`, `LiftHistoryScreen.kt`. Tests: new `app/src/test/kotlin/com/powertracker/ui/TodayPlatesViewModelTest.kt`, `ui/PlateCountScreenTest.kt`, `ui/PlatesProgressTest.kt`; add to `ui/today/EntryTest.kt`, `ui/design/ScreenshotTest.kt`.
 
 **Interfaces — Consumes:** Tasks 1 to 4. **Produces:**
 
@@ -408,7 +417,7 @@ Test tags: `exercise-menu-plates`, `plate-sheet`, `plate-option-OFF`, `plate-opt
 - A set everywhere: "plate 7 × 12 @ 8"; spoken "Set 1: plate 7 and a half × 12 at RPE 8".
 
 **Behaviour to build:**
-- **A choice takes effect when tapped** (Planner's call); Done only closes. The menu item shows when `item.plateOffered && actions.onCountPlates != null`, on the open card and the folded row, planned or added, with or without sets. Skip today keeps `canSkip`.
+- **A choice takes effect when tapped** (Planner's call); Done only closes. The menu item shows when `item.plateOffered && actions.onCountPlates != null`, on the open card, the folded row **and the start-session card's rows** (`StartSessionCard` in `SessionCards.kt` gains `onCountPlates: ((TodayItem) -> Unit)? = null` beside `onSkipToday`), planned or added, with or without sets. So the setting can be changed before a session starts; `setPlateCount` needs no session. Skip today keeps `canSkip`.
 - **`build`:** `unit = PlateStack.unitOf(exercise)`; the stats are `HistoryStats(history.inCurrentUnits())`; the item's targets are those whose payload `unit` equals it; "the last set today" is the last one **in that unit**; `lastWeightKg` likewise; `perSide` is null in plates; a kept editor whose `unit` differs is ignored.
 - **`setPlateCount`:** `training.setPlateCount(id.takeIf { it > 0 }, catalogueEntry(id)?.name, value)`, then drop the kept editor under the exercise's id and under its stand-in id.
 - **The coach's pass:** its key gains each exercise's `(id, plateCount)`, so a change asks again; `known` and `distinctBy` use `(exerciseId, payload.unit)`. Nothing stored is deleted or rewritten.
@@ -416,7 +425,7 @@ Test tags: `exercise-menu-plates`, `plate-sheet`, `plate-option-OFF`, `plate-opt
 - **The stepper in plates:** − and + through `PlateStack.down / up` with the exercise's step; + on an empty field gives 1; − is off at plate 1 and + at 50; the field shows 7 or 7.5 (Planner's call: the text the parser reads back; "7½" is used everywhere else); typed text is parsed as today, then judged by `PlateStack.check`; the keyboard is whole-number for `PLATE` and decimal for `PLATE_HALF`. The plate picture and its notes are not drawn.
 - **`topSetIndex`** looks only at sets in the item's unit; each logged row prints in its own unit.
 - **A logged set is never edited in another unit.** Neither app can change a logged set's weight, reps or RPE: only its miss point, and deletion. Both act on the stored set and keep its own unit, whatever the exercise's setting is now.
-- **Elsewhere:** `targetHeadline` prints "plate 7 × 8–12 @ 8"; the bodybuilding Progress rows "plate 9 × 10"; exercise history each set in its own unit.
+- **Elsewhere:** `targetHeadline` prints "plate 7 × 8–12 @ 8". On Android the unit already reaches Progress and history, because both hold domain `LoggedSet`s (`ExerciseTrend.bestSets`; `LiftHistoryViewModel`'s rows): only the printing changes. `ProgressScreen.kt`'s best-sets line (389) prints "plate 9 × 10" through `formatLoad`'s plate branch, and `LiftHistoryScreen.kt`'s `SetRow` call (182) passes `row.set.unit`.
 
 - [ ] **Step 1: Write the failing tests** in `TodayPlatesViewModelTest.kt`:
   - `turningPlatesOn_emptiesTheField_whateverWasInIt` (Review Focus 1), three cases: 40 typed and kept in the editor; a kg target applied; a kg set logged today. After `setPlateCount(id, WHOLE)`: `editor.weightKg == null`, `editor.unit == PLATES`.
@@ -429,11 +438,13 @@ Test tags: `exercise-menu-plates`, `plate-sheet`, `plate-option-OFF`, `plate-opt
   - `plateOffered_isFalseForMainLifts_variations_andAssisted`.
   - `topSet_isMarkedAmongThisUnitsSetsOnly` (60 kg, 62.5 kg, then plate 7 and plate 8).
 - [ ] **Step 2: Write the failing tests** in `PlateCountScreenTest.kt` and `EntryTest.kt`:
+  - `theStartSessionCard_offersCountPlates_beforeASession_andTheChoiceIsStored` (no session today; ⋮ on Lat pulldown's row → the item → Whole plates: the exercise's row is `WHOLE`); `theStartSessionCard_withDefaultActions_hasNoPlateItem`.
   - `theMenuItem_showsOnAnOfferedExercise_alsoAfterItsFirstSet_andOnAnAddedOne`; `noMenuItem_onBench_onACustomVariation_onAssistedDip`; `benchWithASet_hasNoMenuAtAll`.
   - `theGuidesToday_hasNoPlateItem`: `TodayContent(state, TodayActions())` with Lat pulldown and a logged set shows no ⋮.
   - `theSheet_marksTheCurrentChoice_andAChoiceCallsOnCountPlates`; `theNote_showsOnlyForANewUnitWithSetsInTheOldOne` (kg → whole with kg sets: the plates sentence; whole → half: none; kg → whole with no sets: none; whole → kg with plate sets: the kg sentence).
   - `theStepper_inWholePlates` (+ on empty → 1; 7 → 8; − at 1 is off) and `inHalfSteps` (7 → 7.5); `afterHalfStepsAreTurnedOff_7AndAHalfGoesTo7And8`; `noPlatePicture_forAPlateExercise`.
   - `theFieldsAccessibleName_isWeightPlates`; `aPlateSetRow_readsPlate7AndAHalf_andSpeaksIt`; `theChip_readsPlate7Times8To12`.
+  - In `PlatesProgressTest.kt`: `bodybuildingProgress_printsPlate9Times10` (a plate-counted exercise's row reads "plate 9 × 10", and a kg exercise's row beside it is as before); `exerciseHistory_printsEachSetInItsOwnUnit` (an exercise with 60 kg × 10 in one session and plate 7 × 10 in a later one: the first row reads "60 kg × 10", the second "plate 7 × 10", and neither is marked a record).
   - `EntryTest`: `plate_whole` ("7" ok; "7.5" → `STEP`, "Whole plates only"; "0" and "51" → `RANGE`, "Plate 1 to 50"); `plate_half` ("7.5" and "7,5" → 7.5; "7.25" → `STEP`, "Whole or half plates").
   - `theTypoDialog_namesPlates`.
   - `aSetLoggedBeforeTheSwitch_keepsItsUnit_whenItsMissPointIsSetOrItIsDeleted`: Today cannot edit a logged set's numbers on either app; it can only set a missed set's miss point (`setMissPoint`) and delete a set (`deleteSet`). With a missed 60 kg set logged, plates turned on and plate 7 logged: setting the kg set's miss point leaves it `KG` at 60 and its row reading "60 kg"; deleting the plate set leaves the kg set as it was; the selected-set line (`doseText`) prints each set in its own unit.
@@ -445,15 +456,18 @@ Test tags: `exercise-menu-plates`, `plate-sheet`, `plate-option-OFF`, `plate-opt
 
 ### Task 8: Web Today: the setting, logging and showing plates
 
-**Files:** create `web/src/screens/today/PlateCount.tsx`; modify `screens/today/SkipToday.tsx`, `ExerciseCard.tsx`, `TodayScreen.tsx`, `TodayDialogs.tsx`, `entry.ts`, `today.css`, `state/useToday.ts`, `ui/components/SetRow.tsx`, `format.ts`, `screens/progress/BodybuildingProgress.tsx`, `ExerciseHistoryScreen.tsx`. Tests: new `screens/today/PlateCount.test.tsx`, `state/useTodayPlates.test.tsx`, `web/e2e/plates.spec.ts`; add to `screens/today/entry.test.ts`, `web/e2e/narrow.spec.ts`.
+**Files:** create `web/src/screens/today/PlateCount.tsx`; modify `screens/today/SkipToday.tsx`, `ExerciseCard.tsx`, `TodayScreen.tsx`, `TodayDialogs.tsx`, `entry.ts`, `today.css`, `state/useToday.ts`, `screens/today/SessionCards.tsx` (the start-session card), `ui/components/SetRow.tsx`, `format.ts`, `state/useProgress.ts`, `screens/progress/BodybuildingProgress.tsx`, `LiftHistoryScreen.tsx` (it draws the exercise history's rows too), `ExerciseHistoryScreen.tsx`. Tests: new `screens/today/PlateCount.test.tsx`, `state/useTodayPlates.test.tsx`, `web/e2e/plates.spec.ts`; add to `screens/today/entry.test.ts`, `state/useProgress.test.ts`, `web/e2e/narrow.spec.ts`.
 
 **Interfaces — Consumes:** Tasks 1 to 3 and 5. **Produces:**
 
 ```ts
 // useToday.ts
-export type SetEditor = { weightKg: number | null; reps: number; rpe: number; unit?: LoadUnit }   // absent: KG (editors kept from before 1.17)
-// Every new field is OPTIONAL (absent: kg / off / not offered), so guideSampleState.ts and the existing Today fixtures compile as they are
-export type Target = { ...; unit?: LoadUnit }                   // parseTarget sets it from payload.unit ?? 'KG'
+// Every new field is OPTIONAL and is PRESENT ONLY WHEN NOT THE DEFAULT: `unit` only as 'PLATES', `plateCount` only as 'WHOLE' / 'HALF',
+// `plateOffered` only as true. So guideSampleState.ts compiles as it is, and the existing deep-equals of editors and items hold.
+export type SetEditor = { weightKg: number | null; reps: number; rpe: number; unit?: LoadUnit }
+export type Target = { ...; unit?: LoadUnit }                   // parseTarget sets it only for a PLATES payload
+// useProgress.ts
+export type BodybuildingRow = { ...; bestSets: { date: string; weightKg: number; reps: number; unit?: LoadUnit }[] }
 export type TodayItem = { ...; unit?: LoadUnit; plateCount?: PlateCount; plateOffered?: boolean }
 export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit }
 // TodayActions gains an OPTIONAL member; useToday always supplies it; a stand-in key creates its catalogue row in the same write
@@ -480,16 +494,19 @@ Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-opti
 - **The seam for the guide:** `TodayContent` works the menu out itself (as it does `canSkip`), and the guide draws `TodayContent` with `NO_TODAY_ACTIONS`. So the plate item is offered only when `item.plateOffered` **and** `actions.setPlateCount` is there; `NO_TODAY_ACTIONS` is not changed and has none.
 - **`setPlateCount`:** `setPlateCount(db, standIn ? null : id, standInEntry(key)?.name ?? null, value)` from Task 5, then delete the kept editors `editor:<date>:<id>` and the stand-in's from `meta` and from local state, then run `coachPass` again and re-read.
 - **`coachPass`:** `known` holds `` `${exerciseId}:${unit}` ``.
+- **Reading a unit** is always `x.unit ?? 'KG'` (one helper); writing one follows the rule above, so a kg editor, target, set input and stored row look exactly as they did in 1.16.1.
+- **Progress and history:** `useProgress.ts` drops the unit where it maps `trend.bestSets` (about lines 185 and 234): it carries `b.set.unit` across (only when `PLATES`), and `BodybuildingProgress.tsx`'s `bestText` prints "plate 9 × 10". `LiftHistoryScreen.tsx`'s `SetRow` call (74) passes the set's unit.
+- **The start-session card:** `StartSessionCard` in `SessionCards.tsx` gains `onCountPlates?: (item: TodayItem) => void` beside `onSkipToday`, offered under the same two conditions as on the cards.
 - **`build`:** as Android's; the last top set comes from `grit.lastTopSet`, which Task 2 made current-unit; an editor whose `unit ?? 'KG'` differs from the item's is ignored (this also covers a second tab and an editor kept across a reload).
 - **Typo check:** `grit.checkLoadInput(set.weightKg, set.reps, lastWeightKg, set.unit, item.plateCount)`.
 - **Stepper and entry:** `grit.plateUp / plateDown / plateCheck / maxPlate`; `inputMode` `numeric` for `plate`, `decimal` for `plateHalf`.
 - **Nothing Chromium-only,** as on the rest of Today.
 
 - [ ] **Step 1: Write the failing tests** in `useTodayPlates.test.tsx`: every test of Task 7 Step 1 under the same names in the web's style, plus `an editor kept in meta from before the switch is not put in the PLATE field after a reload` (Review Focus 1) and `the kept editor rows for the exercise and its stand-in are deleted on a change of unit`. Task 7 Step 2's `aSetLoggedBeforeTheSwitch_keepsItsUnit_whenItsMissPointIsSetOrItIsDeleted` goes here too (the web's `setMissPoint` updates only `missPoint`, so the stored row's `unit` is asserted after it).
-- [ ] **Step 2: Write the failing tests** in `PlateCount.test.tsx` and `entry.test.ts`: Task 7 Step 2's tests under the same names (the 320 px one is Step 5's e2e here), plus `the guide's Today picture has no plate item` (render the guide's Today picture on the bodybuilding side at its last step: no "Options for Lat pulldown" button).
+- [ ] **Step 2: Write the failing tests** in `PlateCount.test.tsx` and `entry.test.ts`: Task 7 Step 2's tests under the same names, the start-session card's two included (the 320 px one is Step 6's e2e here); in `useProgress.test.ts`, `bodybuildingProgress_printsPlate9Times10` and `exerciseHistory_printsEachSetInItsOwnUnit` as in Task 7; `a kg editor, target and set input carry no unit key` (deep-equal to their 1.16.1 shapes); plus `the guide's Today picture has no plate item` (render the guide's Today picture on the bodybuilding side at its last step: no "Options for Lat pulldown" button).
 - [ ] **Step 3: Run** `npm test` — they fail. **Step 4: Implement.** Run `npm test && npx tsc -b && npm run build` — pass, no existing test edited.
 - [ ] **Step 5: Commit** `feat(web): count plates on Today: the setting, the stepper and plate sets`. The branch can be merged from here.
-- [ ] **Step 6 (main checkout only, after the merge): e2e** in `plates.spec.ts`: `count plates end to end` (plan Lat pulldown, start a session, log 60 kg, ⋮ → Count plates on this machine → Whole plates → Done; the field is empty and reads PLATE; + gives 1; type 7, log; the row reads "plate 7 × …"; reload: still plates, the kg set still "60 kg"); `half steps` (7 → 7.5, the row reads "plate 7½"); `no plate item on Bench or on Assisted dip`; `a stand-in gets its row`. In `narrow.spec.ts`: `plates at 320 px and 200 % text` (Review Focus 5): no horizontal scroll, the chip, the stepper and the sheet's choices inside the viewport, Done clickable. Screenshots with the `shoot` helper: `today-plates-<side>-<scheme>`, `plate-sheet-<scheme>`. Run `npx playwright test --trace off`; the committed Today and guide shots are unchanged.
+- [ ] **Step 6 (main checkout only, after the merge): e2e** in `plates.spec.ts`: `count plates end to end` (plan Lat pulldown, start a session, log 60 kg, ⋮ → Count plates on this machine → Whole plates → Done; the field is empty and reads PLATE; + gives 1; type 7, log; the row reads "plate 7 × …"; reload: still plates, the kg set still "60 kg"); `half steps` (7 → 7.5, the row reads "plate 7½"); `no plate item on Bench or on Assisted dip`; `a stand-in gets its row`. In `narrow.spec.ts`: `plates at 320 px and 200 % text` (Review Focus 5): no horizontal scroll, the chip, the stepper and the sheet's choices inside the viewport, Done clickable. Screenshots with a local `shoot` helper defined in `plates.spec.ts`, as the other specs define theirs (there is no shared one): `today-plates-<side>-<scheme>`, `plate-sheet-<scheme>`. Run `npx playwright test --trace off`; the committed Today and guide shots are unchanged.
 - [ ] **Step 7: Commit** `test(web): plates end to end, narrow, shots`.
 
 ### Task 9: Version 1.17, notes, phone checks, full run
@@ -511,9 +528,9 @@ Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-opti
 
 ## Planner's calls (all in one place)
 
-1. **Names:** `LoadUnit { KG, PLATES }`, `PlateCount { OFF, WHOLE, HALF }`; columns `logged_set.unit`, `exercise.plateCount`; the same two keys in Dexie rows, backup JSON and (unit only) the TARGET payload. `weightKg` is not renamed.
+1. **Names:** `LoadUnit { KG, PLATES }`, `PlateCount { OFF, WHOLE, HALF }`; columns `logged_set.unit`, `exercise.plateCount`; the same two keys in Dexie rows, backup JSON and (unit only) the TARGET payload. `weightKg` is not renamed. Outside Room a default is never written: the key is there only for plates.
 2. **"Current unit" is one history filter** (`inCurrentUnits()`), not a unit parameter on each `HistoryStats` call.
-3. **Eligibility where the design's two rules meet:** the row's own category decides; a custom accessory is offered whatever its name, except a name holding "assisted"; the three assisted machines are excluded by name.
+3. **Eligibility where the design's two rules meet:** the row's own category decides; a custom accessory is offered whatever its name, except a name with the word "assisted" ("Unassisted row" is still offered); the three assisted machines are excluded by that same word.
 4. **A stored setting on an exercise that is not offered counts as off** (`unitOf`), so a main lift can never be in plates even from an edited backup.
 5. **Typed plates run from 1 to 50,** with the message "Plate 1 to 50".
 6. **Powerlifting side:** a repeat keeps last time's reps when they are above the plan's; the extra rep never aims under the plan's reps; a logged half with Whole plates on gives the lower whole plate for a repeat, an added rep and a step down.
@@ -522,6 +539,9 @@ Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-opti
 9. **Backups refuse a plate set under plate 1** on both apps.
 10. **The sheet:** a choice applies when tapped; its accessible name is "Count plates on <name>"; the note for going back to kg is "The coach goes back to kg. Your plate sets stay as they are."
 11. **The PLATE field shows 7.5,** while every other place prints "7½".
-12. **The editor carries its unit,** and a kept editor in another unit is ignored as well as deleted.
+12. **The editor carries its unit** (on the web, only when it is plates), and a kept editor in another unit is ignored as well as deleted.
 13. **A pain skip's deletion of that day's OPEN targets is left as it is** (`deleteOpenTargets` on Android and its web twin go by exercise and date, so they take both units' OPEN targets; the coach's pass makes the current unit's again).
 14. **Backup fixtures:** each app writes its own v6 fixture in its storage task; the cross-restore is its own small task after both merge.
+15. **Dexie version 6 stamps nothing,** against the design's "stamps every set as kg and every exercise as off": absent already reads as kg / off, and existing tests deep-equal rows across an upgrade. The version is still declared.
+16. **The plate item is also on the start-session card,** so the setting can be changed before a session starts (the design names only "the exercise's menu on Today").
+17. **`FatigueRule` skips non-kg main-lift sets,** though the design calls it unchanged: it reads raw `weightKg`, and the guard costs a real log nothing.
