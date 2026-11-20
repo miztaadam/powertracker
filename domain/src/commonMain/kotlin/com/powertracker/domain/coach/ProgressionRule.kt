@@ -6,9 +6,11 @@ import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.stack.PlateStack
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.daysUntil
 import kotlin.math.floor
@@ -42,6 +44,7 @@ object ProgressionRule {
     ): Advice? {
         val (lastDate, last) = stats.lastTopSet(item.exerciseId, today) ?: return null
         val previous = stats.previousTopSet(item.exerciseId, today)
+        if (PlateStack.unitOf(exercise) == LoadUnit.PLATES) return plateTarget(item, exercise, last, previous, lastDate, today)
         val plates = settings.changePlates
         val free = isFreeLoad(exercise, last.weightKg)
         val cap = last.weightKg * MAX_INCREASE
@@ -73,20 +76,57 @@ object ProgressionRule {
     }
 
     /**
+     * [target] on a plate-counted exercise (1.17): in plate steps on its own grid, with no 5% cap and no big step.
+     * Missed: [FAILED_SCALE] of the plate, eased ([PlateStack.eased]); 1.5 RPE or more over: [HARD_SCALE], eased; a
+     * little too hard, or a recent step up with RPE rising: the same plate (on the grid) and last time's reps when above
+     * the plan's (the owner's choice: in plates the reps are the progress); otherwise one step up at [MAX_REPS] (or a
+     * plan of [MAX_REPS] or more) back to the planned reps, else one more rep at the same plate, never under the plan's.
+     */
+    private fun plateTarget(
+        item: PlanItem,
+        exercise: Exercise,
+        last: LoggedSet,
+        previous: Pair<LocalDate, LoggedSet>?,
+        lastDate: LocalDate,
+        today: LocalDate,
+    ): Advice {
+        val step = PlateStack.step(exercise.plateCount)
+        val delta = (last.rpe ?: item.targetRpe) - item.targetRpe
+        val (plate, reps) = when {
+            last.failed -> PlateStack.eased(last.weightKg, FAILED_SCALE, step) to item.reps
+            delta >= 1.5 -> PlateStack.eased(last.weightKg, HARD_SCALE, step) to item.reps
+            delta > 0.5 || (delta >= -0.5 && recentJumpWithRisingRpe(last, previous, lastDate)) ->
+                PlateStack.floor(last.weightKg, step) to maxOf(item.reps, last.reps)
+            last.reps >= MAX_REPS || item.reps >= MAX_REPS -> PlateStack.up(last.weightKg, step) to item.reps
+            else -> PlateStack.floor(last.weightKg, step) to minOf(maxOf(last.reps + 1, item.reps), MAX_REPS)
+        }
+        return Advice(
+            type = AdviceType.TARGET,
+            lift = exercise.mainLift,
+            createdAt = today,
+            reason = describe(last, plate, reps, item.targetRpe, LoadUnit.PLATES),
+            severity = 0,
+            payload = AdvicePayload.Target(item.exerciseId, plate, reps, item.targetRpe, unit = LoadUnit.PLATES),
+        )
+    }
+
+    /**
      * [target] (progression's own) while a pain skip holds the exercise ([SkipCoach.held]): the hold blocks increases
      * only. The held aim is the last top set's weight, and its reps when they were above the plan's (reps added by
      * progression), else the planned reps. A target above that aim (more weight, or more reps at the same weight) is
-     * replaced by it; a decrease or a repeat is kept as it is.
+     * replaced by it; a decrease or a repeat is kept as it is. A plate target (its payload's unit) aims at the last
+     * plate on the [plateStep] grid, so a higher plate, or the same plate with more reps, is replaced.
      */
-    fun held(target: Advice, item: PlanItem, stats: HistoryStats, today: LocalDate): Advice {
+    fun held(target: Advice, item: PlanItem, stats: HistoryStats, today: LocalDate, plateStep: Double = 1.0): Advice {
         val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return target
         val payload = target.payload as AdvicePayload.Target
         val reps = maxOf(item.reps, last.reps)
-        val increase = payload.weightKg > last.weightKg || (payload.weightKg == last.weightKg && payload.reps > reps)
+        val aim = if (payload.unit == LoadUnit.PLATES) PlateStack.floor(last.weightKg, plateStep) else last.weightKg
+        val increase = payload.weightKg > aim || (payload.weightKg == aim && payload.reps > reps)
         if (!increase) return target
         return target.copy(
-            reason = describe(last, last.weightKg, reps, item.targetRpe),
-            payload = payload.copy(weightKg = last.weightKg, reps = reps),
+            reason = describe(last, aim, reps, item.targetRpe, payload.unit),
+            payload = payload.copy(weightKg = aim, reps = reps),
         )
     }
 
@@ -145,11 +185,11 @@ object ProgressionRule {
     }
 
     /** The TARGET reason text: what was done last time and what the coach suggests now. */
-    internal fun describe(last: LoggedSet, weightKg: Double, reps: Int, rpe: Double): String =
-        "${lastTime(last)} Coach suggests ${fmt(weightKg)} × $reps @ ${fmt(rpe)}."
+    internal fun describe(last: LoggedSet, weightKg: Double, reps: Int, rpe: Double, unit: LoadUnit = LoadUnit.KG): String =
+        "${lastTime(last)} Coach suggests ${fmt(weightKg, unit)} × $reps @ ${fmt(rpe)}."
 
     private fun lastTime(last: LoggedSet): String {
-        val base = "Last time: ${fmt(last.weightKg)} × ${last.reps}"
+        val base = "Last time: ${fmt(last.weightKg, last.unit)} × ${last.reps}"
         return when {
             last.failed -> "$base (missed)."
             last.rpe == null -> "$base."
@@ -158,4 +198,10 @@ object ProgressionRule {
     }
 
     internal fun fmt(v: Double): String = if (v == floor(v)) v.toLong().toString() else v.toString()
+
+    /** A weight in its unit: kg as [fmt] prints it, a plate as "plate 7½". An RPE is never printed through this. */
+    internal fun fmt(v: Double, unit: LoadUnit): String = when (unit) {
+        LoadUnit.KG -> fmt(v)
+        LoadUnit.PLATES -> PlateStack.text(v)
+    }
 }

@@ -6,6 +6,7 @@ import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.Skip
@@ -14,6 +15,7 @@ import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
 import com.powertracker.domain.model.repsText
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.stack.PlateStack
 import com.powertracker.domain.stack.inCurrentUnits
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -43,7 +45,9 @@ import kotlin.math.roundToLong
  * While a pain skip holds an exercise ([SkipCoach.held]) no increase is earned: the weight repeats and the reps aim
  * carries on from last time ([repsToBeat]) rather than starting again at the low end.
  * Every rule here reads only the sets in each exercise's current unit (1.17); the pain hold and the session dates
- * read the whole log.
+ * read the whole log. On a plate-counted exercise the increase is one step on its grid ([PlateStack.up]), a repeat is
+ * the heaviest plate on the grid, a first time takes the heaviest good plate from the powerlifting side (no e1RM,
+ * no baseline), and the lighter weeks use the step rule ([PlateStack.eased]).
  */
 object BodybuildingCoach {
     /** The size of a weight increase, as a fraction of the last weight. Source: [CoachSources.BODYBUILDING_INCREASE]. */
@@ -143,23 +147,31 @@ object BodybuildingCoach {
         held: Boolean,
     ): Advice? {
         val last = lastSets(item.exerciseId, history, today)
+        val unit = PlateStack.unitOf(exercise)
+        val step = PlateStack.step(exercise.plateCount)
         val (weight, opening) = if (last == null) {
-            firstTimeWeight(item, exercise, history, settings, today, easeOldHistory)?.let { it to FIRST_TIME_TEXT } ?: return null
+            val first = if (unit == LoadUnit.PLATES) {
+                firstTimePlate(item, history, today, easeOldHistory, step)
+            } else {
+                firstTimeWeight(item, exercise, history, settings, today, easeOldHistory)
+            }
+            first?.let { it to FIRST_TIME_TEXT } ?: return null
         } else {
             val heaviest = heaviest(last)
             if (!held && earnedIncrease(last, item)) {
-                increased(heaviest, exercise, settings.changePlates) to "${lastTime(last)} $INCREASE_TEXT"
+                val up = if (unit == LoadUnit.PLATES) PlateStack.up(heaviest, step) else increased(heaviest, exercise, settings.changePlates)
+                up to "${lastTime(last)} $INCREASE_TEXT"
             } else {
-                heaviest to "${lastTime(last)} $REPEAT_TEXT"
+                (if (unit == LoadUnit.PLATES) PlateStack.floor(heaviest, step) else heaviest) to "${lastTime(last)} $REPEAT_TEXT"
             }
         }
         return Advice(
             type = AdviceType.TARGET,
             lift = exercise.mainLift,
             createdAt = today,
-            reason = "$opening ${suggestion(weight, item)}",
+            reason = "$opening ${suggestion(weight, item, unit)}",
             severity = 0,
-            payload = AdvicePayload.Target(item.exerciseId, weight, item.reps, item.targetRpe, repsHigh = item.repsHigh),
+            payload = AdvicePayload.Target(item.exerciseId, weight, item.reps, item.targetRpe, repsHigh = item.repsHigh, unit = unit),
             mode = TrainingMode.BODYBUILDING,
         )
     }
@@ -205,6 +217,26 @@ object BodybuildingCoach {
     }
 
     /**
+     * [firstTimeWeight] for a plate-counted exercise: the heaviest plate done without a miss on the powerlifting side
+     * in the same 28-day window, with no e1RM and no rep conversion, on the [step] grid; eased by the re-entry factor
+     * ([PlateStack.eased]) when that history is more than 28 days old and [easeOld]. Null with no plate set there:
+     * baselines (main lifts, in kg) are never read.
+     */
+    private fun firstTimePlate(item: PlanItem, history: TrainingHistory, today: LocalDate, easeOld: Boolean, step: Double): Double? {
+        val recentFrom = today.minus(FIRST_TIME_DAYS, DateTimeUnit.DAY)
+        val dated = history.sessions
+            .filter { it.mode == TrainingMode.POWERLIFTING && it.date < today }
+            .flatMap { s -> s.sets.map { s.date to it } }
+            .filter { (_, set) -> set.exerciseId == item.exerciseId && !set.failed }
+        if (dated.isEmpty()) return null
+        val latest = dated.maxOf { it.first }
+        val end = if (latest >= recentFrom) today else latest.plus(1, DateTimeUnit.DAY)
+        val from = end.minus(FIRST_TIME_DAYS, DateTimeUnit.DAY)
+        val best = dated.filter { it.first >= from && it.first < end }.maxOf { it.second.weightKg }
+        return if (easeOld && latest < recentFrom) PlateStack.eased(best, AdvicePayload.ReEntry().loadFactor, step) else PlateStack.floor(best, step)
+    }
+
+    /**
      * The nearest loadable weight not above [kg] on this side: a free load on the [FREE_STEP_KG] grid anchored on
      * [anchorKg] (never below 0), a barbell load on the plate grid as the powerlifting side rounds it.
      */
@@ -238,15 +270,15 @@ object BodybuildingCoach {
         fun reps(s: LoggedSet) = if (s.failed) "${s.reps} (missed)" else "${s.reps}"
         val weights = sets.map { it.weightKg }.distinct()
         val body = if (weights.size == 1) {
-            "${ProgressionRule.fmt(weights.single())} × ${sets.joinToString(", ") { reps(it) }}"
+            "${ProgressionRule.fmt(weights.single(), sets.first().unit)} × ${sets.joinToString(", ") { reps(it) }}"
         } else {
-            sets.joinToString(", ") { "${ProgressionRule.fmt(it.weightKg)} × ${reps(it)}" }
+            sets.joinToString(", ") { "${ProgressionRule.fmt(it.weightKg, it.unit)} × ${reps(it)}" }
         }
         return "Last time: $body."
     }
 
-    private fun suggestion(weightKg: Double, item: PlanItem) =
-        "Coach suggests ${ProgressionRule.fmt(weightKg)} × ${repsText(item.reps, item.repsHigh)} @ ${ProgressionRule.fmt(item.targetRpe)}."
+    private fun suggestion(weightKg: Double, item: PlanItem, unit: LoadUnit) =
+        "Coach suggests ${ProgressionRule.fmt(weightKg, unit)} × ${repsText(item.reps, item.repsHigh)} @ ${ProgressionRule.fmt(item.targetRpe)}."
 
     /**
      * The deload and easing-back-in clamps, as the powerlifting coach applies them: the weight is capped at the
@@ -276,6 +308,8 @@ object BodybuildingCoach {
             // side) the suggested weight itself.
             val reference = (side.lastTopSet(item.exerciseId, referenceDate) ?: side.lastTopSet(item.exerciseId, target.createdAt))
                 ?.second?.weightKg ?: payload.weightKg
+            // A plate: the step rule, at least one step down, never under plate 1.
+            if (PlateStack.unitOf(exercise) == LoadUnit.PLATES) return PlateStack.eased(reference, factor, PlateStack.step(exercise.plateCount))
             val free = ProgressionRule.isFreeLoad(exercise, reference)
             return roundDown(reference * factor, reference, free, settings.changePlates)
         }
@@ -297,7 +331,7 @@ object BodybuildingCoach {
         if (reEntry != null || easedByReturn) notes += Coach.RE_ENTRY_NOTE
         val base = if (easedByReturn) target.reason.removeSuffix(Coach.RE_ENTRY_NOTE) else target.reason
         return target.copy(
-            reason = ReturnRule.withSuggestion(base, weight, payload.reps, payload.repsHigh, payload.rpe) + notes,
+            reason = ReturnRule.withSuggestion(base, weight, payload.reps, payload.repsHigh, payload.rpe, payload.unit) + notes,
             payload = payload.copy(weightKg = weight, sets = sets),
         )
     }

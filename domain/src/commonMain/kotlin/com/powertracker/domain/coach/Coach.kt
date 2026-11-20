@@ -7,12 +7,14 @@ import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
+import com.powertracker.domain.stack.PlateStack
 import com.powertracker.domain.stack.inCurrentUnits
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -147,7 +149,7 @@ object Coach {
             val lift = exercise.mainLift
             if (lift != null && !hasMinimumHistory(lift, stats, history)) return@mapNotNull null
             val free = ProgressionRule.target(item, exercise, currentStats, settings, today) ?: return@mapNotNull null
-            val target = if (SkipCoach.held(item.exerciseId, skips, history, today)) ProgressionRule.held(free, item, currentStats, today) else free
+            val target = if (SkipCoach.held(item.exerciseId, skips, history, today)) ProgressionRule.held(free, item, currentStats, today, PlateStack.step(exercise.plateCount)) else free
             val eased = ReturnRule.ease(target, item, exercise, current, TrainingMode.POWERLIFTING, settings, today)
             clamp(eased, item, exercise, currentStats, all, settings, today, deload, reEntry)
         }
@@ -274,6 +276,7 @@ object Coach {
         if (deload == null && reEntry == null) return target
         val (_, last) = stats.lastTopSet(item.exerciseId, today) ?: return target
         val payload = target.payload as AdvicePayload.Target
+        val plates = PlateStack.unitOf(exercise) == LoadUnit.PLATES
 
         /**
          * [factor] of a fixed reference: the top set from before [advice] was created (so a week of lighter
@@ -288,6 +291,8 @@ object Coach {
                 advice.createdAt
             }
             val reference = (stats.lastTopSet(item.exerciseId, referenceDate)?.second ?: last).weightKg
+            // A plate: the step rule, at least one step down, never under plate 1.
+            if (plates) return PlateStack.eased(reference, factor, PlateStack.step(exercise.plateCount))
             val free = ProgressionRule.isFreeLoad(exercise, reference)
             return ProgressionRule.roundDown(reference * factor, reference, free, settings.changePlates)
         }
@@ -310,7 +315,7 @@ object Coach {
         // A lighter week does the planned reps, not progression's extra rep.
         val reps = item.reps
         return target.copy(
-            reason = ProgressionRule.describe(last, weight, reps, payload.rpe) + notes,
+            reason = ProgressionRule.describe(last, weight, reps, payload.rpe, payload.unit) + notes,
             payload = payload.copy(weightKg = weight, reps = reps, sets = sets),
         )
     }
