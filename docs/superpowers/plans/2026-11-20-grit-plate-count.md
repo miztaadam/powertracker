@@ -14,13 +14,21 @@
 - **versionCode is 28,** not 27: 1.16.1 already took 27 (`app/build.gradle.kts`).
 - **Android has stand-ins too.** `TodayViewModel` shows a catalogue exercise added on Today under a negative id with no row until its first set (`standInId`, `catalogueEntry`). Choosing plates there must create the row, as on the web.
 - **`ProgressionRule.MAX_REPS` and `InputValidator.MAX_JUMP_FACTOR` are `private`.** Task 1 makes both `internal`, as 1.16 did for the other constants. No value changes.
-- **The web backup lives in `web/src/backup/`** (`format.ts`, `backup.ts`), and the two apps test each other's backups through shared fixtures in `web/src/backup/__fixtures__/` (see Tasks 4 to 6).
+- **The two apps test each other's backups** through shared fixtures in `web/src/backup/__fixtures__/`, which the design does not mention (see Tasks 4 to 6).
+- **"Every existing backup test passes unchanged" cannot hold.** Existing tests pin the newest version at 5 and feed a version 6 file expecting "too new". The edits allowed are listed under Global Constraints.
 - **A custom row can carry a catalogue name** (`CatalogueResolver.resolve` reuses a row "whoever made it"), so the two "offered" rules can both apply to one row. Task 1 settles which wins.
 
 ## Global Constraints
 
 - **Version:** 1.17 on both apps, versionCode 28. Room schema 6, Dexie schema 6, backup version 6.
-- **Kg coaching is unchanged.** Every existing domain, Android and web test passes **with no test edited**; a lifter who never turns this on sees no difference. If an existing test has to change, stop and report it.
+- **Kg coaching is unchanged.** Every existing domain, Android and web test passes **with no test edited**, except the version pins below; a lifter who never turns this on sees no difference. If any other existing test has to change, stop and report it.
+- **The only existing tests that may be edited,** and only as said (Tasks 4, 5 and 6):
+  - `app/src/test/kotlin/com/powertracker/data/BackupTest.kt`: `v6File_isTooNew` becomes a version 7 file refused as too new.
+  - `BackupFixtureTest.kt`: "what Android writes now" points at `android-v6.json`; `android-v5.json` becomes a frozen fixture.
+  - `web/src/backup/backup.test.ts`: `expect(BACKUP_VERSION).toBe(5)` becomes 6; the hand-made version 6 "too new" file becomes version 7; "what this app writes now" points at `web-v6.json`, with `web-v5.json` and `android-v5.json` frozen.
+  - `web/src/db/db.test.ts`: the test that appends a made-up `{ version: 5 }` after `SCHEMA_VERSIONS` appends the next free number instead.
+  - `web/e2e/backup.spec.ts`: the exported file's `version` is 6 (edited in Task 6, where Playwright can run).
+  - A test that deep-equals a **written** set or exercise row, or an exported backup row, may gain the new key (`unit: 'KG'` / `plateCount: 'OFF'`) in what it expects, and nothing else. Name each such test in the task's report.
 - **The 1.16 guide is unchanged:** its text, tests and committed screenshots. The guide draws the real Today screen with a sample that holds Leg press and Lat pulldown, so the plate menu item must not appear there (the seam is in Tasks 7 and 8).
 - **No new sourced number.** The plate rules use only 0.85 (`AdvicePayload.ReEntry.loadFactor`), 0.9 (`AdvicePayload.Deload.loadFactor`), 0.95 and 0.975 (`ProgressionRule.FAILED_SCALE`, `HARD_SCALE`), 12 (`ProgressionRule.MAX_REPS`), 1.30 (`InputValidator.MAX_JUMP_FACTOR`), by name. Training numbers come only from acefitness.org, exrx.net, nsca.com, acsm.org, pmc.ncbi.nlm.nih.gov, powerlifting.sport, and the design's own decided numbers.
 - **Never plates:** squat, bench, deadlift, strict press, their variations (built-in or custom), SMITH exercises, and the three assisted machines (Assisted pull-up, Assisted chin-up, Assisted dip), which stay in kg.
@@ -63,7 +71,7 @@ The five likeliest ways this bites a lifter, most likely first. Each has a test 
 | 1 → 2 → 3 | Domain, one at a time (each regenerates `web/src/domain/generated`, which two branches cannot both change) | one worktree, or the main checkout |
 | 4 ∥ 5 | Android storage and backup ∥ web storage and backup | two worktrees |
 | 6 | Each app restores the other's version 6 backup | main checkout, after 4 and 5 are merged |
-| 7 ∥ 8 | Android Today ∥ web Today | two worktrees; Task 8's Playwright step runs in the main checkout after its merge |
+| 7 ∥ 8 | Android Today ∥ web Today | two worktrees; Task 8's Step 6 (Playwright) runs in the main checkout after its merge |
 | 9 | Release | main checkout |
 
 Tasks 4, 5, 7 and 8 change nothing under `domain/`. If one finds it must, it stops and reports: the domain change goes in alone, serially, with its own regeneration.
@@ -217,7 +225,7 @@ internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHig
 - **Powerlifting side, `ProgressionRule.target`,** with `delta = (last.rpe ?: targetRpe) − targetRpe`, checked in this order:
   1. **Missed:** `eased(last, FAILED_SCALE, step)` × the planned reps.
   2. **`delta ≥ 1.5`:** `eased(last, HARD_SCALE, step)` × the planned reps.
-  3. **`delta > 0.5`, or `recentJumpWithRisingRpe`:** repeat: `floor(last, step)` × `max(planned reps, last reps)`. **Planner's call:** the kg rule's repeat falls back to the planned reps; in plates the reps are the progress, so a repeat keeps them, as the pain hold already does.
+  3. **`delta > 0.5`, or `delta ≥ −0.5` with `recentJumpWithRisingRpe` (the same window as kg):** repeat: `floor(last, step)` × `max(planned reps, last reps)`. **Planner's call:** the kg rule's repeat falls back to the planned reps; in plates the reps are the progress, so a repeat keeps them, as the pain hold already does.
   4. **Otherwise (on target or easier):** when `last.reps ≥ MAX_REPS` or the planned reps ≥ `MAX_REPS`: `up(last, step)` × the planned reps. Else `floor(last, step)` × `min(max(last.reps + 1, planned reps), MAX_REPS)`. **Planner's call:** the extra rep never aims under the plan's reps.
   - No 5 % cap and no big step.
 - **`ProgressionRule.held`** (pain hold) in plates: the held aim is `floor(last, plateStep)` × `max(planned reps, last reps)`; a target above it (a higher plate, or the same plate with more reps) is replaced by it. `Coach` passes the exercise's step.
@@ -234,7 +242,7 @@ internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHig
   - `aPlanOfTwelveOrMoreReps_earnsTheStepEachTime`: plan 3 × 12, last 7 × 12 @ 8 → 8 × 12; plan 3 × 15, last 7 × 15 @ 8 → 8 × 15.
   - `oneStepIsNotCappedAtFivePercent`: last 2 × 12 @ 8 → 3 × 8.
   - `aLittleTooHard_repeats`: 7 × 8 @ 9 → 7 × 8; 7 × 10 @ 9 → 7 × 10.
-  - `aRecentStepUpWithRpeRising_repeats`: previous 6 × 12 @ 8 ten days before, last 7 × 8 @ 8.5 → 7 × 8.
+  - `aRecentStepUpWithRpeRising_repeats`: previous 6 × 12 @ 8 ten days before, last 7 × 8 @ 8.5 → 7 × 8; but last 7 × 8 @ 7 after previous 6 × 12 @ 6.5 (delta −1, as kg) → 7 × 9.
   - `farTooHard_stepsDown`: 7 × 8 @ 9.5 → 6 × 8 (7 × 0.975 = 6.825); `HALF` → 6.5 × 8.
   - `aMissedTopSet_stepsDown`: plate 7 missed → 6 × 8 (7 × 0.95 = 6.65), reason starts `"Last time: plate 7 × 8 (missed)."`; `HALF` → 6.5 × 8; plate 1 missed → 1 × 8.
   - `halfStepsTurnedOffAfterAHalf`: last 7.5 × 9 @ 8 with `WHOLE` → 7 × 10; 7.5 × 12 @ 8 → 8 × 8; 7.5 × 8 @ 9 → 7 × 8; 7.5 missed → 7 × 8 (Planner's call: 7.125 rounds down to 7, which is already one whole step under 7½).
@@ -351,7 +359,7 @@ Runs after Tasks 4 and 5 are both merged (it needs both fixtures in one tree).
 
 - [ ] **Step 1: Write the tests:**
   - Android `webV6Fixture_restoresOnAndroid_withItsPlates`: restore `web-v6.json`, export, and compare with the fixture as the version 5 test does; the plate sets keep `PLATES` and 7.5, the two exercises keep `WHOLE` and `HALF`, the `PLATES` target's payload is unchanged.
-  - Web `restores android-v6.json with its plate sets, settings and plate target`: the same, from Android's file; and `the two version 6 fixtures hold the same keys on a set and on an exercise`.
+  - Web `restores android-v6.json with its plate sets, settings and plate target`: the same, from Android's file; and `the two version 6 fixtures hold the same keys on a set and on an exercise`. If `web/e2e/backup.spec.ts` still expects version 5, change it to 6 here and run `npx playwright test e2e/backup.spec.ts --trace off`.
 - [ ] **Step 2: Run** `./gradlew :app:testDebugUnitTest` and `npm test` — pass. If either fails, the two formats disagree: fix the app that departs from Task 4's and Task 5's Interfaces, regenerate only that app's v6 fixture, and say so in the commit.
 - [ ] **Step 3: Commit** `test: each app restores the other's version 6 backup`.
 
@@ -438,11 +446,12 @@ Test tags: `exercise-menu-plates`, `plate-sheet`, `plate-option-OFF`, `plate-opt
 ```ts
 // useToday.ts
 export type SetEditor = { weightKg: number | null; reps: number; rpe: number; unit?: LoadUnit }   // absent: KG (editors kept from before 1.17)
-export type Target = { ...; unit: LoadUnit }                    // parseTarget reads payload.unit ?? 'KG'
-export type TodayItem = { ...; unit: LoadUnit; plateCount: PlateCount; plateOffered: boolean }
-export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit: LoadUnit }
-// TodayActions gains: a stand-in key creates its catalogue row in the same write
-setPlateCount: (itemKey: number, value: PlateCount) => Promise<void>
+// Every new field is OPTIONAL (absent: kg / off / not offered), so guideSampleState.ts and the existing Today fixtures compile as they are
+export type Target = { ...; unit?: LoadUnit }                   // parseTarget sets it from payload.unit ?? 'KG'
+export type TodayItem = { ...; unit?: LoadUnit; plateCount?: PlateCount; plateOffered?: boolean }
+export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit }
+// TodayActions gains an OPTIONAL member; useToday always supplies it; a stand-in key creates its catalogue row in the same write
+setPlateCount?: (itemKey: number, value: PlateCount) => Promise<void>
 // SkipToday.tsx: the ⋮ button renders when either callback is given
 export function SkipMenu(props: { name: string; onSkipToday?: () => void; onCountPlates?: () => void }): JSX.Element
 // PlateCount.tsx
@@ -462,7 +471,7 @@ export function formatLoad(value: number, unit: LoadUnit): string   // KG: `${fo
 Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-option-OFF|WHOLE|HALF`, `plate-note`, `plate-done`). The sheet is a `dialog` named "Count plates on <name>" holding a `radiogroup` named by the question; the menu entry is a `menuitem`.
 
 **Wording and behaviour** are Task 7's, word for word, with these web specifics:
-- **The seam for the guide:** `TodayScreen` passes `onCountPlates` only for an item with `plateOffered`; the guide's pictures pass none.
+- **The seam for the guide:** `TodayContent` works the menu out itself (as it does `canSkip`), and the guide draws `TodayContent` with `NO_TODAY_ACTIONS`. So the plate item is offered only when `item.plateOffered` **and** `actions.setPlateCount` is there; `NO_TODAY_ACTIONS` is not changed and has none.
 - **`setPlateCount`:** `setPlateCount(db, standIn ? null : id, standInEntry(key)?.name ?? null, value)` from Task 5, then delete the kept editors `editor:<date>:<id>` and the stand-in's from `meta` and from local state, then run `coachPass` again and re-read.
 - **`coachPass`:** `known` holds `` `${exerciseId}:${unit}` ``.
 - **`build`:** as Android's; the last top set comes from `grit.lastTopSet`, which Task 2 made current-unit; an editor whose `unit ?? 'KG'` differs from the item's is ignored (this also covers a second tab and an editor kept across a reload).
@@ -473,8 +482,9 @@ Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-opti
 - [ ] **Step 1: Write the failing tests** in `useTodayPlates.test.tsx`: every test of Task 7 Step 1 under the same names in the web's style, plus `an editor kept in meta from before the switch is not put in the PLATE field after a reload` (Review Focus 1) and `the kept editor rows for the exercise and its stand-in are deleted on a change of unit`.
 - [ ] **Step 2: Write the failing tests** in `PlateCount.test.tsx` and `entry.test.ts`: Task 7 Step 2's tests under the same names (the 320 px one is Step 5's e2e here), plus `the guide's Today picture has no plate item` (render the guide's Today picture on the bodybuilding side at its last step: no "Options for Lat pulldown" button).
 - [ ] **Step 3: Run** `npm test` — they fail. **Step 4: Implement.** Run `npm test && npx tsc -b && npm run build` — pass, no existing test edited.
-- [ ] **Step 5 (main checkout only, after this branch is merged): e2e** in `plates.spec.ts`: `count plates end to end` (plan Lat pulldown, start a session, log 60 kg, ⋮ → Count plates on this machine → Whole plates → Done; the field is empty and reads PLATE; + gives 1; type 7, log; the row reads "plate 7 × …"; reload: still plates, the kg set still "60 kg"); `half steps` (7 → 7.5, the row reads "plate 7½"); `no plate item on Bench or on Assisted dip`; `a stand-in gets its row`. In `narrow.spec.ts`: `plates at 320 px and 200 % text` (Review Focus 5): no horizontal scroll, the chip, the stepper and the sheet's choices inside the viewport, Done clickable. Screenshots with the `shoot` helper: `today-plates-<side>-<scheme>`, `plate-sheet-<scheme>`. Run `npx playwright test --trace off`; the committed Today and guide shots are unchanged.
-- [ ] **Step 6: Commit** `feat(web): count plates on Today: the setting, the stepper and plate sets` (Step 5's spec and shots are a second commit, `test(web): plates end to end, narrow, shots`).
+- [ ] **Step 5: Commit** `feat(web): count plates on Today: the setting, the stepper and plate sets`. The branch can be merged from here.
+- [ ] **Step 6 (main checkout only, after the merge): e2e** in `plates.spec.ts`: `count plates end to end` (plan Lat pulldown, start a session, log 60 kg, ⋮ → Count plates on this machine → Whole plates → Done; the field is empty and reads PLATE; + gives 1; type 7, log; the row reads "plate 7 × …"; reload: still plates, the kg set still "60 kg"); `half steps` (7 → 7.5, the row reads "plate 7½"); `no plate item on Bench or on Assisted dip`; `a stand-in gets its row`. In `narrow.spec.ts`: `plates at 320 px and 200 % text` (Review Focus 5): no horizontal scroll, the chip, the stepper and the sheet's choices inside the viewport, Done clickable. Screenshots with the `shoot` helper: `today-plates-<side>-<scheme>`, `plate-sheet-<scheme>`. Run `npx playwright test --trace off`; the committed Today and guide shots are unchanged.
+- [ ] **Step 7: Commit** `test(web): plates end to end, narrow, shots`.
 
 ### Task 9: Version 1.17, notes, phone checks, full run
 
