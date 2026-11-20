@@ -6928,8 +6928,8 @@ function Guide() {
   this.m1v_1 = 1.0;
   this.n1v_1 = 280;
   this.o1v_1 = 1180;
-  this.p1v_1 = 180.0;
-  this.q1v_1 = 320.0;
+  this.p1v_1 = 390.0;
+  this.q1v_1 = 520.0;
   this.r1v_1 = 0.8743589743589744;
   this.s1v_1 = 0.9407894736842105;
   this.t1v_1 = toList_0(get_entries_0());
@@ -6972,7 +6972,7 @@ protoOf(Guide).m1x = function () {
   return numberToInt(this.d1x()) + 900 | 0;
 };
 protoOf(Guide).n1x = function () {
-  return new Point_0(180.0 * 0.8743589743589744, 320.0 * 0.9407894736842105);
+  return new Point_0(390.0 * 0.8743589743589744, 520.0 * 0.9407894736842105);
 };
 protoOf(Guide).o1x = function (tMs) {
   // Inline function 'kotlin.Long.rem' call
@@ -45128,7 +45128,7 @@ protoOf(GritDomain).guideSideLoopMs = function () {
 protoOf(GritDomain).guideSideBox = function () {
   // Inline function 'kotlin.let' call
   var it = Guide_getInstance().n1x();
-  return new JsGuideSideBox(180.0, 320.0, it.x39_1, it.y39_1);
+  return new JsGuideSideBox(390.0, 520.0, it.x39_1, it.y39_1);
 };
 protoOf(GritDomain).guideSampleSwap = function (mode) {
   var tmp = GuideSample_getInstance();

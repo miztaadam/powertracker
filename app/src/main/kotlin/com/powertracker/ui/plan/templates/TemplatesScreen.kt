@@ -1,5 +1,7 @@
 package com.powertracker.ui.plan.templates
 
+import com.powertracker.ui.today.TapAnchor
+import com.powertracker.ui.today.tapAnchor
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -215,7 +217,7 @@ private fun TemplateList(templates: List<PlanTemplate>, actions: TemplatesAction
 private fun TemplateRow(template: PlanTemplate, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     PtCard(
-        Modifier.fillMaxWidth().testTag("template-${template.id}"),
+        Modifier.fillMaxWidth().testTag("template-${template.id}").tapAnchor(TapAnchor.TEMPLATE, template.id),
         spacing = Space.xs,
         onClickLabel = "Open ${template.name}",
         onClick = onClick,
@@ -308,7 +310,7 @@ private fun DraftBar(state: TemplatesState, actions: TemplatesActions) {
                 val halves = labelFitsHalf(USE_THIS_PLAN, maxWidth)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                     SecondaryButton("Back", actions.onBack, (if (halves) Modifier.weight(1f) else Modifier).testTag("templates-back"), enabled = !state.saving)
-                    PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("templates-use"), enabled = state.canUse)
+                    PrimaryButton(USE_THIS_PLAN, actions.onUse, Modifier.weight(1f).testTag("templates-use").tapAnchor(TapAnchor.USE_THIS_PLAN), enabled = state.canUse)
                 }
             }
         }

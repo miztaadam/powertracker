@@ -1,5 +1,7 @@
 package com.powertracker.ui.plan
 
+import com.powertracker.ui.today.TapAnchor
+import com.powertracker.ui.today.tapAnchor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -422,7 +424,8 @@ fun PlanContent(
                     Column(Modifier.padding(horizontal = Space.xs), verticalArrangement = Arrangement.spacedBy(Space.m)) {
                         val bodybuilding = state.mode == TrainingMode.BODYBUILDING
                         Text(if (bodybuilding) EMPTY_BODYBUILDING_PLAN else EMPTY_POWERLIFTING_PLAN, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
-                        PrimaryButton(CHOOSE_A_TEMPLATE, onTemplates, Modifier.fillMaxWidth().testTag("choose-template"))
+                        // The guide finds it for its tap ring (draws nothing in the app).
+                        PrimaryButton(CHOOSE_A_TEMPLATE, onTemplates, Modifier.fillMaxWidth().testTag("choose-template").tapAnchor(TapAnchor.CHOOSE_TEMPLATE))
                         if (bodybuilding) SecondaryButton(BUILD_MY_PLAN, onBuild, Modifier.fillMaxWidth().testTag("build-my-plan"))
                     }
                 }

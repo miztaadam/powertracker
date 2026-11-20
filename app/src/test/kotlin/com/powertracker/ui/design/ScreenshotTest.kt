@@ -288,10 +288,10 @@ class ScreenshotTest {
 
     /** Screen 2 on a first launch, with its two side buttons (1.16, Task 3). */
     @Test
-    fun guideSidePowerlifting() = render("guide-side-first-launch-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.SIDE, firstLaunch = true) }
+    fun guideSideFirstLaunchPowerlifting() = render("guide-side-first-launch-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.SIDE, firstLaunch = true) }
 
     @Test
-    fun guideSideBodybuilding() = render("guide-side-first-launch-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.SIDE, firstLaunch = true) }
+    fun guideSideFirstLaunchBodybuilding() = render("guide-side-first-launch-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.SIDE, firstLaunch = true) }
 
     /** Screen 8 with no plan on the side (Choose a template; Build my plan on bodybuilding), and with one (Done, See my plan). */
     @Test
@@ -302,12 +302,34 @@ class ScreenshotTest {
 
     @Test
     fun guideYourTurnWithPlan() = render("guide-your-turn-with-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN, hasPlan = true) }
+
+    /** The guide's other seven screens at their last step (motion off shows it), on each side (1.16, Task 4). */
+    private fun guide(id: GuideScreenId, mode: TrainingMode) =
+        render("guide-${guideShotName(id)}-${mode.name.lowercase()}", null, mode) { GuideTodayShowcase(mode, id) }
+
+    @Test fun guideWelcomePowerlifting() = guide(GuideScreenId.WELCOME, TrainingMode.POWERLIFTING)
+    @Test fun guideWelcomeBodybuilding() = guide(GuideScreenId.WELCOME, TrainingMode.BODYBUILDING)
+    @Test fun guideSidePowerlifting() = guide(GuideScreenId.SIDE, TrainingMode.POWERLIFTING)
+    @Test fun guideSideBodybuilding() = guide(GuideScreenId.SIDE, TrainingMode.BODYBUILDING)
+    @Test fun guidePlanPowerlifting() = guide(GuideScreenId.PLAN, TrainingMode.POWERLIFTING)
+    @Test fun guidePlanBodybuilding() = guide(GuideScreenId.PLAN, TrainingMode.BODYBUILDING)
+    @Test fun guideTargetsPowerlifting() = guide(GuideScreenId.TARGETS, TrainingMode.POWERLIFTING)
+    @Test fun guideTargetsBodybuilding() = guide(GuideScreenId.TARGETS, TrainingMode.BODYBUILDING)
+    @Test fun guideHoldsBackPowerlifting() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.POWERLIFTING)
+    @Test fun guideHoldsBackBodybuilding() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.BODYBUILDING)
+    @Test fun guideMonthsLaterPowerlifting() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.POWERLIFTING)
+    @Test fun guideMonthsLaterBodybuilding() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.BODYBUILDING)
+    @Test fun guideYourTurnPowerlifting() = guide(GuideScreenId.YOUR_TURN, TrainingMode.POWERLIFTING)
+    @Test fun guideYourTurnBodybuilding() = guide(GuideScreenId.YOUR_TURN, TrainingMode.BODYBUILDING)
 }
+
+/** A guide screen's shot name: "months-later" for MONTHS_LATER. */
+internal fun guideShotName(id: GuideScreenId): String = id.name.lowercase().replace('_', '-')
 
 @Composable
 private fun GuideShowcase(mode: TrainingMode, at: GuideScreenId, firstLaunch: Boolean = false, hasPlan: Boolean = false) =
     GuideScreen(mode, firstLaunch = firstLaunch, hasPlan = hasPlan, motionOn = false, onPickSide = {}, onClose = {}, startAt = at)
 
 @Composable
-private fun GuideTodayShowcase(mode: TrainingMode) =
-    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = GuideScreenId.TODAY)
+private fun GuideTodayShowcase(mode: TrainingMode, id: GuideScreenId = GuideScreenId.TODAY) =
+    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = id)
