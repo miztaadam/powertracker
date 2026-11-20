@@ -422,20 +422,41 @@ class BodybuildingCoachTest {
 
     @Test
     fun aBreakWithOldPowerliftingHistoryIsEasedOnce() {
-        // Bench 100 × 5 @ 8 on day 4, nothing since; day 56. The break's re-entry eases the first-time weight once:
-        // 82.5 × 0.85 rounded down, not 82.5 × 0.85 × 0.85 (about 72%).
+        // Bench 100 × 5 @ 8 on day 4, nothing since; day 56. The first-time weight from history that old is eased
+        // once: 82.5 × 0.85 rounded down, not 82.5 × 0.85 × 0.85 (about 72%). The side was never trained, so the
+        // break's re-entry clamp does not apply (1.16) and the reason does not say easing back in.
         val h = history(start) { session(4) { bench(100.0, 5, rpe = 8.0) } }
         val day = start.plus(56, DateTimeUnit.DAY)
         val advice = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, day, emptyList()).single()
         val once = ProgressionRule.roundDown(82.5 * AdvicePayload.ReEntry().loadFactor, 82.5, free = false, changePlates = false)
         assertEquals(70.0, once)
         assertEquals(once, advice.target().weightKg)
-        assertEquals("First time on this side. Coach suggests 70 × 8–12 @ 8. Easing back in: lighter load.", advice.reason)
+        assertEquals("First time on this side. Coach suggests 70 × 8–12 @ 8.", advice.reason)
         // A deload on top still applies: fewer sets, and never heavier.
         val deload = Advice(AdviceType.DELOAD, null, day, "Signs of fatigue", 2, AdvicePayload.Deload())
         val both = BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, day, listOf(deload)).single()
         assertEquals(2, both.target().sets)
         assertTrue(both.target().weightKg <= once)
+    }
+
+    @Test
+    fun aBreakDoesNotEaseASideNeverTrained() {
+        // Bench on the powerlifting side on days 0, 7 and 14, nothing since; the bodybuilding side has no session.
+        // Day 30 is the lifter's first day back after 16 days away, but this side has nothing to come back to: its
+        // first-time weight is the one a day without a break gives (day 20, same 28-day window of bench), unclamped.
+        val h = history(start) { for (d in listOf(0, 7, 14)) session(d) { bench(100.0, 5, rpe = 8.0) } }
+        fun on(d: Int, prior: List<Advice> = emptyList()) =
+            BodybuildingCoach.targetsFor(DayOfWeek.MONDAY, h, listOf(item(Ids.BENCH)), settings, start.plus(d, DateTimeUnit.DAY), prior).single()
+        val noBreak = on(20)
+        val back = on(30)
+        assertEquals(noBreak.target(), back.target())
+        assertTrue(!back.reason.contains("Easing back in"), back.reason)
+        // Nor does a stored easing back in, which belongs to the lifter.
+        val reEntry = Advice(AdviceType.RE_ENTRY, null, start.plus(30, DateTimeUnit.DAY), "Welcome back", 16, AdvicePayload.ReEntry())
+        assertEquals(noBreak.target(), on(30, listOf(reEntry)).target())
+        // A deload still applies: fewer sets.
+        val deload = Advice(AdviceType.DELOAD, null, start.plus(30, DateTimeUnit.DAY), "Signs of fatigue", 2, AdvicePayload.Deload())
+        assertEquals(2, on(30, listOf(deload)).target().sets)
     }
 
     @Test

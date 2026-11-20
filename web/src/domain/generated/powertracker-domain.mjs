@@ -1443,69 +1443,100 @@ protoOf(BodybuildingCoach).g1l = function (day, history, plan, settings, today, 
   var deload = Coach_getInstance().u1l(AdviceType_DELOAD_getInstance(), priorAdvice, today);
   var lastSession = all.v1l(today);
   var firstDayBack = !(lastSession == null) && compare(fromInt(daysUntil(lastSession, today)), new Long(14, 0)) >= 0;
-  var tmp0_elvis_lhs = Coach_getInstance().u1l(AdviceType_RE_ENTRY_getInstance(), priorAdvice, today);
-  var reEntry = tmp0_elvis_lhs == null ? firstDayBack ? new Advice(AdviceType_RE_ENTRY_getInstance(), null, today, '', 0, new ReEntry()) : null : tmp0_elvis_lhs;
+  var tmp0 = history.o1i_1;
+  var tmp$ret$0;
+  $l$block_0: {
+    // Inline function 'kotlin.collections.any' call
+    var tmp;
+    if (isInterface(tmp0, Collection)) {
+      tmp = tmp0.m();
+    } else {
+      tmp = false;
+    }
+    if (tmp) {
+      tmp$ret$0 = false;
+      break $l$block_0;
+    }
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (element.w1i_1.equals(TrainingMode_BODYBUILDING_getInstance()) && element.s1i_1.a10(today) < 0) {
+        tmp$ret$0 = true;
+        break $l$block_0;
+      }
+    }
+    tmp$ret$0 = false;
+  }
+  var trained = tmp$ret$0;
+  var tmp_0;
+  if (!trained) {
+    tmp_0 = null;
+  } else {
+    var tmp0_elvis_lhs = Coach_getInstance().u1l(AdviceType_RE_ENTRY_getInstance(), priorAdvice, today);
+    tmp_0 = tmp0_elvis_lhs == null ? firstDayBack ? new Advice(AdviceType_RE_ENTRY_getInstance(), null, today, '', 0, new ReEntry()) : null : tmp0_elvis_lhs;
+  }
+  var reEntry = tmp_0;
   // Inline function 'kotlin.collections.filter' call
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = plan.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    if (element.q1h_1.equals(day) && element.w1h_1.equals(TrainingMode_BODYBUILDING_getInstance())) {
-      destination.i(element);
+  var _iterator__ex2g4s_0 = plan.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var element_0 = _iterator__ex2g4s_0.l();
+    if (element_0.q1h_1.equals(day) && element_0.w1h_1.equals(TrainingMode_BODYBUILDING_getInstance())) {
+      destination.i(element_0);
     }
   }
   // Inline function 'kotlin.collections.sortedBy' call
   // Inline function 'kotlin.comparisons.compareBy' call
-  var tmp = BodybuildingCoach$targetsFor$lambda;
-  var tmp$ret$4 = new sam$kotlin_Comparator$0(tmp);
+  var tmp_1 = BodybuildingCoach$targetsFor$lambda;
+  var tmp$ret$6 = new sam$kotlin_Comparator$0(tmp_1);
   // Inline function 'kotlin.collections.mapNotNull' call
-  var tmp0 = sortedWith(destination, tmp$ret$4);
+  var tmp0_0 = sortedWith(destination, tmp$ret$6);
   // Inline function 'kotlin.collections.mapNotNullTo' call
   var destination_0 = ArrayList_init_$Create$();
   // Inline function 'kotlin.collections.forEach' call
-  var _iterator__ex2g4s_0 = tmp0.j();
-  while (_iterator__ex2g4s_0.k()) {
-    var element_0 = _iterator__ex2g4s_0.l();
-    var tmp$ret$9;
-    $l$block_0: {
-      var tmp0_safe_receiver = history.p1i_1.t1(element_0.r1h_1);
-      var tmp_0;
+  var _iterator__ex2g4s_1 = tmp0_0.j();
+  while (_iterator__ex2g4s_1.k()) {
+    var element_1 = _iterator__ex2g4s_1.l();
+    var tmp$ret$11;
+    $l$block_2: {
+      var tmp0_safe_receiver = history.p1i_1.t1(element_1.r1h_1);
+      var tmp_2;
       if (tmp0_safe_receiver == null) {
-        tmp_0 = null;
+        tmp_2 = null;
       } else {
         // Inline function 'kotlin.takeUnless' call
-        var tmp_1;
+        var tmp_3;
         if (!tmp0_safe_receiver.o1j_1) {
-          tmp_1 = tmp0_safe_receiver;
+          tmp_3 = tmp0_safe_receiver;
         } else {
-          tmp_1 = null;
+          tmp_3 = null;
         }
-        tmp_0 = tmp_1;
+        tmp_2 = tmp_3;
       }
-      var tmp1_elvis_lhs = tmp_0;
-      var tmp_2;
+      var tmp1_elvis_lhs = tmp_2;
+      var tmp_4;
       if (tmp1_elvis_lhs == null) {
-        tmp$ret$9 = null;
-        break $l$block_0;
+        tmp$ret$11 = null;
+        break $l$block_2;
       } else {
-        tmp_2 = tmp1_elvis_lhs;
+        tmp_4 = tmp1_elvis_lhs;
       }
-      var exercise = tmp_2;
-      var held = SkipCoach_instance.g1m(element_0.r1h_1, skips, history, today);
-      var tmp2_elvis_lhs = target(BodybuildingCoach_getInstance(), element_0, exercise, history, settings, today, reEntry == null, held);
-      var tmp_3;
+      var exercise = tmp_4;
+      var held = SkipCoach_instance.g1m(element_1.r1h_1, skips, history, today);
+      var tmp2_elvis_lhs = target(BodybuildingCoach_getInstance(), element_1, exercise, history, settings, today, reEntry == null, held);
+      var tmp_5;
       if (tmp2_elvis_lhs == null) {
-        tmp$ret$9 = null;
-        break $l$block_0;
+        tmp$ret$11 = null;
+        break $l$block_2;
       } else {
-        tmp_3 = tmp2_elvis_lhs;
+        tmp_5 = tmp2_elvis_lhs;
       }
-      var target_0 = tmp_3;
-      var eased = ReturnRule_getInstance().h1m(target_0, element_0, exercise, history, TrainingMode_BODYBUILDING_getInstance(), settings, today);
-      tmp$ret$9 = withoutAddWeight(BodybuildingCoach_getInstance(), clamp(BodybuildingCoach_getInstance(), eased, element_0, exercise, side, all, settings, deload, reEntry), element_0, history, today);
+      var target_0 = tmp_5;
+      var eased = ReturnRule_getInstance().h1m(target_0, element_1, exercise, history, TrainingMode_BODYBUILDING_getInstance(), settings, today);
+      tmp$ret$11 = withoutAddWeight(BodybuildingCoach_getInstance(), clamp(BodybuildingCoach_getInstance(), eased, element_1, exercise, side, all, settings, deload, reEntry), element_1, history, today);
     }
-    var tmp0_safe_receiver_0 = tmp$ret$9;
+    var tmp0_safe_receiver_0 = tmp$ret$11;
     if (tmp0_safe_receiver_0 == null)
       null;
     else {
