@@ -875,6 +875,77 @@ Spec: `docs/superpowers/specs/2026-11-18-grit-mode-switch-animations-design.md`;
 - In the drop mutants, the pump medians rose too, and nobody knows why.
 - `tools/render-mode-switch-sounds.js` has no test.
 
+## Done: 1.16, the guide (both apps)
+Spec: `docs/superpowers/specs/2026-11-19-grit-guide-design.md`; plan: `docs/superpowers/plans/2026-11-19-grit-guide.md`. The reports: `.superpowers/sdd/2026-11-16-grit-look/116-*.md` (not committed).
+
+**What the lifter gets:**
+- **A guide to Grit, in eight short screens:** what Grit is, the two sides, the plan, logging a set on Today, how the coach moves targets, when it holds back, what months of training look like, and where to start. Each screen has a small moving picture: from screen 3 on, the real app with a made-up sample lifter, marked "Example" where it shows numbers. Skip, Back and Next on every screen, dots for where you are, and a swipe between screens.
+- **On a new install it opens by itself, once:** only when there are no sessions and no plan on either side, so a lifter who updates doesn't get it unasked. Screen 2 really picks your side there (with no animation), and the screens after it describe that side. Screen 8 opens that side's templates (and on bodybuilding offers Build my plan). Skipping or finishing it means it doesn't open again on that device.
+- **Replay it any time from Settings** (on Plan), under Help: **Guide**, "See how Grit works". A replay changes nothing: it never touches your side, plan or log; with a plan, screen 8 offers Done and See my plan.
+- **Android, the Today screen:** the tick now draws itself in when you log a set, and the "Skipped today" line slides up into place when you skip. Neither plays when a screen opens, comes back or scrolls, nor with animations off.
+- **Welcome back and easing back in now apply only to a side you had trained before the break.** A side you switched away from before ever training it isn't greeted as returning, and its first targets aren't eased. Picking a side on the first launch doesn't count as leaving the other one.
+- **On the web, at large text the guide shows its text without pictures** where both don't fit, and the text scrolls only if it still doesn't fit. Back and Next stay on one row.
+- With reduce motion (or the app's motion off), each screen shows its end at once.
+
+**The owner's decisions:**
+- The eight screens, and that screen 2 sets the real side on a new install (option A).
+- Smoother motion: the pictures flow between steps; the guide feeds in-between values (a weight counting up, a chart drawing in).
+- The three extras: the tick drawing in, a tap ring on the button just before its result (guide only), and the "Skipped today" line rising in. The tick and the line are on Android's real Today screen too; the web's real Today is unchanged.
+- Welcome back needs a side trained before it was left (spec point 10), with its stored card gated the same way.
+- The pictures' layout (spec point 11): WELCOME and SIDE are art with no phone outline; WELCOME's side colours are plain panels, not buttons; one phone size on the six screens that have one; no page keeps room for screen 8's second button.
+- Large text on the web: the text first (reversing the same day's least-size rule).
+
+**My calls** (the spec's "Settled after the builder check", and while building):
+1. **"New user"** means no sessions and no plan items on either side. "Seen" is kept on the device (web `meta` `guide:seen`; Android its own settings key outside `AppSettings`), not in backups, and kept by a restore.
+2. **iPhone:** the Home Screen app has its own storage, so a lifter who opens Grit in Safari and then installs it sees the guide once in each. In a browser tab the guide comes first, the install card after it.
+3. **Coach text** says what the coach does in plain words, each number built from the code's own constant (a test fails if they differ), and names no sources.
+4. **Screen 2's picture** is a short silent loop of the 1.15 hammer and pump, drawn with the mode switch's own paint code (moved into a shared file on each app, behaviour unchanged). No sound or vibration.
+5. **The first-launch side pick dates no side as left** (spec point 9). The Settings switch is unchanged.
+6. **The pictures are the real screens' own content,** shown small with sample state: `TodayContent`, `PlanContent`, `TemplatesContent`, `CoachContent`, `ProgressContent`.
+7. **No phone below 112 CSS px** on the web: where a phone would be smaller, there is none. WELCOME's and SIDE's art is drawn whole or not at all (not below 120 × 200 px; SIDE not below 212 px wide, so its two names fit).
+8. **Version** 1.16, versionCode 26. No database change (Room v5, Dexie v5).
+
+**The rule table's findings** (the comment at the top of `domain/.../guide/Guide.kt`):
+- Each side's screens show only the rules that side's coach runs: stall and weak-point advice on powerlifting only; swaps and check-ins on bodybuilding only. On powerlifting, screen 7 ends on the bests and the total.
+- **The pain hold has no day count:** after a pain skip the exercise's weight doesn't go up until it is next logged. The day counts belong to other rules: 14 days off for easing back in, 21 days between deloads and before a stuck bodybuilding exercise gets a swap, 28 days between check-ins.
+- The deload's 21-day wait applies only after an applied deload, so the guide doesn't state it. The weak-point rule has no line (screen 6's word budget). `ProgressionRule`'s numbers are now named constants, with no behaviour change.
+
+**Where the apps differ (accepted):**
+- **Large text:** Android keeps the phone at its size and the text scrolls; the web drops the phone where it and the full text don't both fit, and Back and Next keep one row without their icons.
+- **The tick:** on Android it is the real Today screen's, over 280 ms. On the web it is the guide's own stand-in, drawn over its row's 150 ms fade, so it isn't drawn before the set's numbers.
+- **The smooth motion:** Android's real screens already animate, and the guide inherits that. The web's real screens animate only from taps, so the guide adds its own layout animation. MONTHS_LATER's chart draw-in on the web is the real screen's CSS, played once in real time, not on the guide's clock.
+- **The swipe:** Android's is the pager's drag, with the page following the finger; the web's moves a screen once a sideways swipe passes 50 px.
+- **Screen 8's size:** the web measures both sets of controls (a narrow phone can wrap "Choose a template" onto a row of its own), and screen 8 is smaller by their difference only. Android takes one button's height.
+- **Landscape at the default text size (web):** no phone on the six outlined screens below about 154 px of room for it (664 × 390, 667 × 375, 568 × 320); the text shows in full.
+
+**Speed:** the structural checks are hard (the guide's chunk isn't loaded before it opens; no layout reads per step; screen 2's loop runs nothing on a held clock). The time to the first screen's title only reports, and asserts its 300 ms limit only when it is under 150 ms on the machine, as the owner chose for 1.15's timing.
+
+**Review fixes before the release:**
+- **Web SIDE in a low landscape place:** at 664 × 390 the two names "Powerlifting" and "Bodybuilding" ran into each other. Each side's column is now as wide as its box or its name, whichever is wider, and below 212 px the art isn't drawn.
+- **Coach:** an easing-back-in card that doesn't count on bodybuilding (made on powerlifting for a break bodybuilding wasn't trained before) no longer holds back that side's stuck-exercise swap for 21 days. One that counts still does.
+- **Web install card:** "Not now" hides the card once the answer is saved (or the save fails), so a reload straight after can't bring it back.
+
+**Tests:**
+- **New, domain:** `GuideTest`, `GuideSampleTest` (the copy's numbers from the constants, the sample lifter inside the coach's own rules), `GuideBridgeTest`, `ReEntryGateTest`, `ReEntryStuckTest`.
+- **New, Android:** `GuideScreenTest`, `GuidePicturesTest`, `GuideFirstLaunchTest`, `MainActivityGuideTest`, the tick and skipped-line tests on Today, and the guide's shots in `ScreenshotTest`.
+- **New, web:** `GuideScreen.test.tsx`, `pictures.test.tsx`, `guideSeen.test.ts`, `e2e/guide.spec.ts` (first launch, the seam, replays writing nothing, every picture's first and last step on a held clock, reduce motion, 200 % text on three phones, the outline sizes, landscape SIDE, the speed report), and the install card's save order.
+- **Changed:** every e2e storage state now comes from `e2e/storage.ts` (seven specs' `test.use` lines), and a guard test fails on one written by hand; `MainActivityLockTest` marks the guide seen in its setup; `coach.spec.ts` waits for the stored statuses before reloading; a test that pinned the old welcome back after the Settings switch now asserts none.
+
+**Version:** Android 1.16 (versionCode 26), web 1.16. Settings shots re-shot on both apps (the Guide row).
+
+**Untested:**
+- **Safari/WebKit and Firefox.** Only Chromium was available. The web guide's art needs container queries (`cqw`, `cqh`: Safari 16 and later) and `:has()` (Safari 15.4); the web tick needs `stroke-dashoffset` on a `pathLength` path.
+- **Real phones:** the first launch in Safari and on the Home Screen, real browser text scaling or zoom (the e2e halves the viewport for 200 %), a real screen reader, the Android tick at large font sizes, and the swipe.
+- Landscape at large text.
+
+**Follow-ups:**
+- **`vibrateOnTaps` resets on an Android restore** (found while planning; not part of this work).
+- **23 real web Today shots** in `docs/design/web/screens/` render differently on this machine (the steppers' fields at slightly different widths), from before this work. None was re-shot.
+- The guide's web shots are not byte-stable between runs (SVG anti-aliasing in SIDE, a level or two elsewhere); only real changes are committed.
+- Three pushed merge commits on the branch (`058df64`, `7e33e2a`, `7c60549`) fail `tsc -b` until `2869f92`. Skip them when bisecting.
+- Spec point 11 doesn't state WELCOME's and SIDE's least room (120 × 200 px; SIDE 212 px wide).
+- A skip ring (a tap ring on Skip today's menu) was not built; it could be anchored as Log set's is.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
