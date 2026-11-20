@@ -946,6 +946,29 @@ Spec: `docs/superpowers/specs/2026-11-19-grit-guide-design.md`; plan: `docs/supe
 - Spec point 11 doesn't state WELCOME's and SIDE's least room (120 × 200 px; SIDE 212 px wide).
 - A skip ring (a tap ring on Skip today's menu) was not built; it could be anchored as Log set's is.
 
+## Done: 1.16.1, Known bests show the best (both apps)
+
+**What the lifter gets:**
+- **Each Known bests row on Plan shows the lift's best** under its name: "Best e1RM 182.5 kg". It is the higher of the best you typed and your best logged estimate ever (the same number as Progress's Records and Lift history's "Best e1RM"), from powerlifting sessions only, to the half kilo. A lift with neither shows no line, and its row looks exactly as before.
+- **With Settings → Progress → Strict press on, strict press is always in Known bests.** Before, it was there only once the lift had an exercise of its own (added to a plan or a session, or made by the strict press upgrade from an "Overhead press" or similar), so with the switch on and no such exercise it was missing. Now its Set best makes that exercise (as picking it from the catalogue does) and stores the best, together or not at all.
+
+**The owner's decisions:**
+- The figure: the higher of typed and lifted, one shared domain function (`ProgressMath.knownBest`, `grit.knownBest` on the web), not Progress's 28-day "current" figure.
+- The words: "Best e1RM", Progress's own term.
+- The switch off hides nothing: a strict press that has an exercise keeps its row and its best, as before 1.16.1, because the coach uses that best whatever the switch says.
+
+**My calls:**
+1. With the switch on and no strict press exercise, the row is the catalogue's "Strict press", stored nowhere (id 0) until its Set best. An exercise in the strict press category under any name, archived or not, counts as having one, so the switch never adds a second row.
+2. Several strict press exercises (the upgrade can leave aliases such as "OHP" in the category) each keep their row, as before. They all show the same figure, the lift's. Their typed bests are one per exercise, and the latest typed one is the lift's (as on Progress), so a Set best on one of them changes the line on all of them, even to a lower number. Archived main lifts still show, as before.
+3. **Web precache limit raised to 3 MiB** (`vite.config.ts`). The main chunk passed the PWA plugin's 2 MiB default (1.16: 2,095.89 kB; 1.16.1: 2,097.53 kB), which fails the build.
+
+**Tests:**
+- **Domain:** `ProgressMathTest` (no best; typed only; lifted beats typed; typed beats lifted; the all-time record; failed sets, variations and bodybuilding sessions ignored; the latest typed best of the lift's own exercises) and `GritDomainTest`.
+- **Android:** `KnownBestsViewModelTest`, and `KnownBestsScreenTest` (the line after Set best; the switch on with no exercise, then its Set best; the switch off; a two-line name at 320 dp with Set best beside it). New shot: `docs/design/screens/plan-known-bests-{dark,light}.png`.
+- **Web:** `KnownBests.test.tsx` (the same cases). In `e2e/plan.spec.ts`, not run here: Known bests with bests set and the switch on, on dark and light, with the shot `plan-known-bests-{dark,light}.png`, and a 320 × 568 check of a two-line name beside Set best.
+
+**Version:** Android 1.16.1 (versionCode 27), web 1.16.1. No database change (Room v5, Dexie v5). Shots with no best are unchanged: Android's `plan-*.png` re-rendered byte for byte the same.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
