@@ -409,14 +409,29 @@ async function setBest(page: Page, lift: string, text: string) {
   await expect(dialog).toHaveCount(0)
 }
 
-/** Each Known bests row whose name or best line reaches the Set best button, or whose button leaves the phone. */
+/**
+ * Each Known bests row whose name or best line reaches the Set best button, measured on the glyphs themselves (a
+ * Range's client rects over every text node of the row's text column, so text spilling out of its box counts), any
+ * of whose text boxes is narrower than its text (scrollWidth > clientWidth), or whose button leaves the phone.
+ */
 const crowdedBests = (page: Page) =>
   page.evaluate(() =>
     Array.from(document.querySelectorAll<HTMLElement>('.plan-best')).flatMap((row) => {
+      const name = row.getAttribute('aria-label')
       const button = row.querySelector('button')!.getBoundingClientRect()
-      const texts = Array.from(row.querySelectorAll<HTMLElement>('.title-medium, .body-small'))
-      const found = texts.filter((t) => t.getBoundingClientRect().right > button.left + 0.5).map((t) => `${row.getAttribute('aria-label')}: "${t.textContent}" runs under Set best`)
-      if (button.right > window.innerWidth + 0.5) found.push(`${row.getAttribute('aria-label')}: Set best leaves the phone`)
+      const column = row.querySelector<HTMLElement>('.plan-grow')!
+      const found: string[] = []
+      const walker = document.createTreeWalker(column, NodeFilter.SHOW_TEXT)
+      for (let node = walker.nextNode(); node != null; node = walker.nextNode()) {
+        const range = document.createRange()
+        range.selectNodeContents(node)
+        const right = Math.max(...Array.from(range.getClientRects(), (r) => r.right))
+        if (right > button.left + 0.5) found.push(`${name}: "${node.textContent}" runs under Set best (to ${Math.round(right)}, button at ${Math.round(button.left)})`)
+      }
+      for (const box of [column, ...Array.from(column.querySelectorAll<HTMLElement>('*'))]) {
+        if (box.scrollWidth > box.clientWidth + 1) found.push(`${name}: "${box.textContent}" is wider than its box`)
+      }
+      if (button.right > window.innerWidth + 0.5) found.push(`${name}: Set best leaves the phone`)
       return found
     }),
   )
@@ -455,13 +470,19 @@ for (const scheme of ['dark', 'light'] as const) {
   })
 }
 
+/** A name with no space to break at: too wide for a 320 px row's text column on one line. */
+const UNBROKEN = 'Seatedstrictpressfromthesafetypins'
+
 test.describe('on a 320 × 568 phone', () => {
   test.use({ viewport: { width: 320, height: 568 } })
 
+  // Proof by hand: remove `overflow-wrap: anywhere;` from `.plan-best-text` in src/screens/plan/plan.css and the
+  // unbroken name runs under Set best, so `crowdedBests` names it.
   test('a Known bests row keeps Set best beside a two-line name and its best', async ({ page }) => {
     await openPlan(page, MOCKUP_PLAN)
-    // A strict press under its own long name (as the strict press upgrade keeps other names), with a typed best.
-    await page.evaluate(async () => {
+    // Strict press under long names of its own (as the strict press upgrade keeps other names), each with a typed
+    // best: one with spaces, and one with none, which wraps only by `overflow-wrap: anywhere`.
+    await page.evaluate(async (names) => {
       const db = await new Promise<IDBDatabase>((done, fail) => {
         const request = indexedDB.open('grit')
         request.onsuccess = () => done(request.result)
@@ -472,11 +493,13 @@ test.describe('on a 320 × 568 phone', () => {
         tx.oncomplete = () => done()
         tx.onerror = () => fail(tx.error)
       })
-      const add = tx.objectStore('exercises').add({ name: 'Seated strict press from the safety pins', category: 'STRICT_PRESS', parentLift: null, muscles: [], isBuiltIn: false, archived: false })
-      add.onsuccess = () => tx.objectStore('baselines').put({ exerciseId: add.result as number, e1rmKg: 72.5, date: '2026-11-11' })
+      for (const name of names) {
+        const add = tx.objectStore('exercises').add({ name, category: 'STRICT_PRESS', parentLift: null, muscles: [], isBuiltIn: false, archived: false })
+        add.onsuccess = () => tx.objectStore('baselines').put({ exerciseId: add.result as number, e1rmKg: 72.5, date: '2026-11-11' })
+      }
       await settled
       db.close()
-    })
+    }, ['Seated strict press from the safety pins', UNBROKEN])
     await page.reload()
     await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
     await strictPressOn(page)
@@ -492,6 +515,11 @@ test.describe('on a 320 × 568 phone', () => {
     const name = (await long.locator('.title-medium').boundingBox())!
     const squatName = (await page.getByRole('group', { name: 'Squat', exact: true }).locator('.title-medium').boundingBox())!
     expect(name.height).toBeGreaterThan(squatName.height * 1.5)
+    // The unbroken name wraps too, and keeps its best line under it.
+    const unbroken = page.getByRole('group', { name: UNBROKEN })
+    await unbroken.scrollIntoViewIfNeeded()
+    await expect(unbroken).toContainText('Best e1RM 72.5 kg')
+    expect((await unbroken.locator('.title-medium').boundingBox())!.height).toBeGreaterThan(squatName.height * 1.5)
     expect(await crowdedBests(page)).toEqual([])
     expect(await overflowing(page)).toEqual([])
     // Every Set best is still a full target (the rest of Plan's targets at this width are narrow.spec.ts's).
