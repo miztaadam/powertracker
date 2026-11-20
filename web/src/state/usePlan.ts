@@ -1,7 +1,7 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addPlanItem, deletePlanItem, planFor, planItemsOn, resolveCatalogue, updatePlanItem } from '../db/catalogue'
-import { activeTrainingDays, getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
+import { activeTrainingDays, getSettings, historyOf, type AppSettings, type GritDb } from '../db/db'
 import { exerciseToJs } from '../db/mapping'
 import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
 import { grit, type JsHistory } from '../domain'
@@ -102,7 +102,8 @@ export const MAX_PLAN_REPS = 20
 /** The most reps the top of a range (the bodybuilding side) can ask for. */
 export const MAX_RANGE_REPS = 30
 
-type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[]; history: JsHistory }
+/** `history` is null unless Known bests' figures were asked for and the side is powerlifting. */
+type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[]; history: JsHistory | null }
 
 const STRICT_PRESS = 'STRICT_PRESS'
 
@@ -139,16 +140,22 @@ async function activeSide(db: GritDb): Promise<TrainingMode> {
   return (await getSettings(db)).trainingMode
 }
 
-async function readStored(db: GritDb): Promise<Stored> {
-  const [settings, exercises, sessions, sets, history] = await Promise.all([
+/**
+ * One read of everything Plan shows. With `withBests` (Plan itself), and only on the powerlifting side, it also builds
+ * the history Known bests' figures come from, from the same sessions and sets plus the baselines, so a logged set or a
+ * typed best reads again.
+ */
+async function readStored(db: GritDb, withBests: boolean): Promise<Stored> {
+  const [settings, exercises, sessions, sets, baselines] = await Promise.all([
     getSettings(db),
     db.exercises.toArray(),
-    db.sessions.toArray(),
+    db.sessions.orderBy('date').toArray(),
     db.sets.orderBy('id').toArray(),
-    loadHistory(db),
+    withBests ? db.baselines.toArray() : null,
   ])
   const plan = await planFor(db, settings.trainingMode)
   const recentIds = recentExerciseIds(sessions.map((s) => ({ id: s.id as number, date: s.date, sets: sets.filter((set) => set.sessionId === s.id) })))
+  const history = baselines != null && settings.trainingMode === 'POWERLIFTING' ? historyOf(sessions, sets, exercises, baselines) : null
   return { plan: plan as PlanItem[], exercises: exercises as PlanExercise[], settings, recentIds, history }
 }
 
@@ -168,7 +175,7 @@ function build({ plan, exercises, settings, recentIds, history }: Stored): Omit<
     exercises: exercises.filter((e) => !e.archived),
     recentIds,
     mainExercises,
-    bests: knownBests(mainExercises, history),
+    bests: history == null ? {} : knownBests(mainExercises, history),
     defaultRpe: settings.defaultRpe,
     trainingDays,
     side: settings.trainingMode,
@@ -212,17 +219,20 @@ async function sliding(slide: { arm: () => void; disarm: () => void }, write: ()
 
 const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], bests: {}, defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
 
-/** The weekly plan, read live from the database, and the edits the Plan screen makes to it. */
-export function usePlan(db: GritDb, today: () => string): PlanState & PlanActions {
+/**
+ * The weekly plan, read live from the database, and the edits the Plan screen makes to it. `knownBests` (Plan's own
+ * use) also works out each Known bests row's figure on the powerlifting side; without it `bests` stays empty.
+ */
+export function usePlan(db: GritDb, today: () => string, { knownBests: withBests = false }: { knownBests?: boolean } = {}): PlanState & PlanActions {
   const [stored, setStored] = useState<Stored | null>(null)
   const [readError, setReadError] = useState<unknown>(null)
   // Stage 3: the read after an add, a move or a delete on the Plan screen slides the rows into place (the rows of each
   // day, in order, are its shape). Every other read lands at once: "Add to plan" on the Exercises tab never slides.
   const [slide] = useState(() => slideNextChange<Stored | null>(setStored, rowOrder))
   useEffect(() => {
-    const subscription = liveQuery(() => readStored(db)).subscribe({ next: slide.next, error: setReadError })
+    const subscription = liveQuery(() => readStored(db, withBests)).subscribe({ next: slide.next, error: setReadError })
     return () => subscription.unsubscribe()
-  }, [db, slide])
+  }, [db, slide, withBests])
   // A failed read is for the app's error boundary, not for an empty screen that looks like no plan.
   if (readError != null) throw readError
 

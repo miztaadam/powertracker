@@ -191,6 +191,14 @@ export async function loadHistory(db: GritDb, exceptSetId?: number): Promise<JsH
   ])
   // With `exceptSetId`: the history as it was before that set was logged.
   const sets = exceptSetId == null ? allSets : allSets.filter((s) => s.id !== exceptSetId)
+  return historyOf(sessions, sets, exercises, baselines)
+}
+
+/**
+ * The domain's history from rows already read: what `loadHistory` reads, for a caller that has read them itself.
+ * `sessions` in date order, `sets` in id order, as `loadHistory` reads them.
+ */
+export function historyOf(sessions: readonly SessionRow[], sets: readonly SetRow[], exercises: readonly ExerciseRow[], baselines: readonly BaselineRow[]): JsHistory {
   const bySession = new Map<number, SetRow[]>()
   for (const s of sets) {
     const list = bySession.get(s.sessionId) ?? []
