@@ -245,101 +245,193 @@ for (const side of SIDES) {
   }
 }
 
-// What 200% text does to a phone: everything is laid out in half its width and height (as pictures.spec does). The
-// iPhone the e2e runs as (390 × 664), the narrowest phones (320 × 568), and a tall phone (390 × 844). Spec point 11, as on
-// Android: on the outlined screens the phone keeps its least size (OUTLINE_MIN) and the text scrolls above it, a region
-// the keyboard and a screen reader reach. Where the phone at that size and two lines of text do not both fit with the
-// controls (200% on the two smaller phones), the picture gives way: it is drawn at its least size or not at all.
-for (const [width, height, phoneFits] of [
-  [390, 664, false],
-  [320, 568, false],
-  [390, 844, true],
+// What 200% text does to a phone: everything is laid out in half its width and height (as pictures.spec does). Spec
+// point 11 (owner, 2026-11-20): where the picture and the full text do not both fit, the picture goes and the text shows
+// in full, scrolling only if it still does not fit (a region the keyboard and a screen reader reach); Back and Next keep
+// one row, and on screen 8 Back sits beside its first button, so the text keeps the room.
+
+/** Opens the guide on `side` (a replay) with an empty database, or with one plan item on that side. */
+async function openGuideWith(page: Page, side: Side, plan: boolean) {
+  await page.clock.setFixedTime(WEDNESDAY)
+  await page.goto('/#/today')
+  await expect(tabBar(page)).toBeVisible()
+  await page.evaluate(
+    async ({ side, plan }) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems', 'settings'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      tx.objectStore('settings').put({ key: 'trainingMode', value: side })
+      if (plan) {
+        const exercises = await new Promise<{ id: number; name: string }[]>((done) => {
+          const all = tx.objectStore('exercises').getAll()
+          all.onsuccess = () => done(all.result)
+        })
+        tx.objectStore('planItems').add({ weekday: 3, exerciseId: exercises.find((e) => e.name === 'Bench')!.id, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: side })
+      }
+      await settled
+      db.close()
+    },
+    { side, plan },
+  )
+  await page.reload()
+  await expect(tabBar(page)).toBeVisible()
+  if (side === 'BODYBUILDING') await expect(page.locator('html')).toHaveAttribute('data-mode', 'bodybuilding')
+  await page.evaluate(() => {
+    window.location.hash = '#/guide'
+  })
+  await expect(page.getByTestId('guide')).toBeVisible()
+}
+
+/**
+ * The checks of one screen at large text: every control whole, on screen, at least 44 px high and covering none other;
+ * Back beside Next (screen 8: beside its first button), its second button under them; no text cut across; the
+ * picture shown only beside the full text, and gone whenever the text scrolls; scrolling text a region the keyboard
+ * reaches and scrolls to its last line.
+ */
+async function checkLargeText(page: Page, id: string, side: Side, plan: boolean) {
+  const last = id === 'YOUR_TURN'
+  const buttons = lastButtons(side, plan)
+  const controls: [string, string][] = [
+    ['guide-skip', SKIP],
+    ['guide-back', BACK],
+    ['guide-next', last ? buttons.primary[0] : NEXT],
+  ]
+  if (last && buttons.secondary != null) controls.push(['guide-last-secondary', buttons.secondary[0]])
+  const viewport = page.viewportSize()!
+  const screenBox = { x: 0, y: 0, width: viewport.width, height: viewport.height }
+  const boxes: Box[] = []
+  for (const [testId, label] of controls) {
+    const control = page.getByTestId(testId)
+    const text = control.locator('.gr-btn-text')
+    // The label reads in full: not cut to "Ba…", and drawn inside its own button, on screen.
+    await expect(text).toHaveText(label)
+    const [scrollWidth, clientWidth] = await text.evaluate((el) => [el.scrollWidth, el.clientWidth])
+    expect(scrollWidth, `${id}: ${label} is cut`).toBeLessThanOrEqual(clientWidth!)
+    const button = (await control.boundingBox())!
+    const words = (await text.boundingBox())!
+    expect(within(words, button), `${id}: ${label} runs out of its button`).toBe(true)
+    expect(within(button, screenBox), `${id}: ${label} is off screen: ${JSON.stringify(button)} in ${JSON.stringify(screenBox)}`).toBe(true)
+    expect(button.height, `${id}: ${label} is ${button.height} px high`).toBeGreaterThanOrEqual(44)
+    boxes.push(button)
+  }
+  // No control covers another.
+  for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) expect(overlap(boxes[a]!, boxes[b]!), `${id}: ${controls[a]![1]} and ${controls[b]![1]} overlap`).toBe(false)
+  // Back and Next (or screen 8's first button) side by side on one row; the second button on a row of its own below.
+  const [back, next] = [boxes[1]!, boxes[2]!]
+  expect(Math.abs(back.y - next.y), `${id}: Back at ${back.y}, ${controls[2]![1]} at ${next.y}`).toBeLessThan(1)
+  expect(back.x + back.width, `${id}: Back is left of ${controls[2]![1]}`).toBeLessThanOrEqual(next.x + 0.5)
+  if (boxes[3] != null) expect(boxes[3].y, `${id}: the second button under them`).toBeGreaterThanOrEqual(back.y + back.height - 0.5)
+  // The title and lines wrap: nothing runs past the side of the page.
+  const cut = await page.locator('.guide-title, .guide-line').evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth + 0.5).map((el) => el.textContent))
+  expect(cut, id).toEqual([])
+  const room = await page.evaluate(() => {
+    const text = document.querySelector<HTMLElement>('.guide-text')!
+    const art = document.querySelector<HTMLElement>('.guide-art')!
+    const style = getComputedStyle(art)
+    return {
+      scrolls: text.scrollHeight > text.clientHeight + 1,
+      scrollable: getComputedStyle(text).overflowY === 'auto',
+      shown: style.display !== 'none',
+      art: art.getBoundingClientRect().height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom),
+    }
+  })
+  expect(room.scrollable, id).toBe(true)
+  if (OUTLINED.includes(id)) {
+    // A phone only beside the full text, at least its least size; otherwise none, nothing of it left behind.
+    if (room.shown) {
+      expect(room.scrolls, `${id}: the text scrolls beside a phone`).toBe(false)
+      expect((await picture(page).boundingBox())!.height, `${id}: a phone below its least size`).toBeGreaterThanOrEqual(OUTLINE_MIN - 0.5)
+    }
+  } else if (room.scrolls) {
+    // WELCOME and SIDE: art, not a phone. The text comes first: the art gives up its room before the text scrolls.
+    expect(room.art, `${id}: the text scrolls while the art keeps ${room.art} px`).toBeLessThanOrEqual(1)
+  }
+  const text = page.getByTestId('guide-text')
+  // The title always shows whole in the text's box.
+  expect(within((await page.getByTestId('guide-title').boundingBox())!, (await text.boundingBox())!), `${id}: the title is not in view`).toBe(true)
+  if (room.scrolls) {
+    // The scrolling text is a region named by its title, in the tab order (after Skip), and the keyboard scrolls it
+    // to its last line.
+    await expect(page.getByRole('region', { name: grit.guideScreen(id, side).title })).toHaveCount(1)
+    await page.getByTestId('guide-skip').focus()
+    await page.keyboard.press('Tab')
+    await expect(text).toBeFocused()
+    await page.keyboard.press('End')
+    await expect.poll(() => text.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1), id).toBe(true)
+    const [lastLine, box] = [(await page.locator('.guide-line').last().boundingBox())!, (await text.boundingBox())!]
+    expect(lastLine.y + lastLine.height, `${id}: the last line is reached`).toBeLessThanOrEqual(box.y + box.height + 1)
+    await text.evaluate((el) => el.scrollTo(0, 0))
+  } else {
+    await expect(text).not.toHaveAttribute('tabindex', '0')
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+}
+
+// The iPhone the e2e runs as (390 × 664), the narrowest phones (320 × 568), and a tall phone (390 × 844): every screen.
+for (const [width, height] of [
+  [390, 664],
+  [320, 568],
+  [390, 844],
 ] as const) {
-  // The text box scrolls when it is taller than its share; across, it wraps and is never cut.
-  test(`guide_atTwiceTheTextSize_onA${width}x${height}Phone_keepsItsControlsWhole_cutsNoText_andThePhoneAtItsLeastSize${phoneFits ? '' : 'OrNone'}`, async ({ page }) => {
-    await page.clock.setFixedTime(WEDNESDAY)
+  test(`guide_atTwiceTheTextSize_onA${width}x${height}Phone_keepsItsControlsOnOneRow_cutsNoText_andShowsThePictureOnlyBesideTheFullText`, async ({ page }) => {
     await page.setViewportSize({ width: Math.floor(width / 2), height: Math.floor(height / 2) })
-    await page.goto('/#/today')
-    await expect(tabBar(page)).toBeVisible()
-    await page.evaluate(() => {
-      window.location.hash = '#/guide'
-    })
-    await expect(page.getByTestId('guide')).toBeVisible()
+    await openGuideWith(page, 'POWERLIFTING', false)
     const screens = grit.guideScreens()
     for (const [i, id] of screens.entries()) {
       await expect(page.getByTestId('guide-title')).toHaveText(grit.guideScreen(id, 'POWERLIFTING').title)
-      const controls: [string, string][] = [
-        ['guide-skip', SKIP],
-        ['guide-back', BACK],
-        // An empty database: screen 8 has no plan to show, so its first button is Choose a template.
-        ['guide-next', i === screens.length - 1 ? lastButtons('POWERLIFTING', false).primary[0] : NEXT],
-      ]
-      const viewport = page.viewportSize()!
-      const screenBox = { x: 0, y: 0, width: viewport.width, height: viewport.height }
-      const boxes: Box[] = []
-      for (const [testId, label] of controls) {
-        const control = page.getByTestId(testId)
-        const text = control.locator('.gr-btn-text')
-        // The label reads in full: not cut to "Ba…", and drawn inside its own button, on screen.
-        await expect(text).toHaveText(label)
-        const [scrollWidth, clientWidth] = await text.evaluate((el) => [el.scrollWidth, el.clientWidth])
-        expect(scrollWidth, `${id}: ${label} is cut`).toBeLessThanOrEqual(clientWidth!)
-        const button = (await control.boundingBox())!
-        const words = (await text.boundingBox())!
-        expect(within(words, button), `${id}: ${label} runs out of its button`).toBe(true)
-        expect(within(button, screenBox), `${id}: ${label} is off screen: ${JSON.stringify(button)} in ${JSON.stringify(screenBox)}`).toBe(true)
-        boxes.push(button)
-      }
-      // No control covers another.
-      for (const [a, b] of [
-        [0, 1],
-        [0, 2],
-        [1, 2],
-      ] as const)
-        expect(overlap(boxes[a]!, boxes[b]!), `${id}: ${controls[a]![1]} and ${controls[b]![1]} overlap`).toBe(false)
-      // The title and lines wrap: nothing runs past the side of the page.
-      const cut = await page.locator('.guide-title, .guide-line').evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth + 0.5).map((el) => el.textContent))
-      expect(cut, id).toEqual([])
-      const room = await page.evaluate(() => {
-        const text = document.querySelector<HTMLElement>('.guide-text')!
-        const art = document.querySelector<HTMLElement>('.guide-art')!
-        const style = getComputedStyle(art)
-        const phone = art.querySelector<HTMLElement>('[data-testid="guide-picture"]')
-        return {
-          scrolls: text.scrollHeight > text.clientHeight + 1,
-          scrollable: getComputedStyle(text).overflowY === 'auto',
-          art: art.getBoundingClientRect().height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom),
-          phone: phone == null ? 0 : phone.getBoundingClientRect().height,
-        }
-      })
-      expect(room.scrollable, id).toBe(true)
-      if (OUTLINED.includes(id)) {
-        // The phone keeps its least size while the text scrolls, or gives way altogether; never anything between.
-        if (phoneFits) expect(room.phone, `${id}: the phone at ${room.phone} px`).toBeGreaterThanOrEqual(OUTLINE_MIN - 0.5)
-        else if (room.phone < OUTLINE_MIN - 0.5) await expect(page.locator('.guide-art'), `${id}: a phone of ${room.phone} px, neither its least size nor gone`).toBeHidden()
-      } else if (room.scrolls) {
-        // WELCOME and SIDE: art, not a phone. The text comes first: the art gives up its room before the text scrolls.
-        expect(room.art, `${id}: the text scrolls while the art keeps ${room.art} px`).toBeLessThanOrEqual(1)
-      }
-      if (room.scrolls) {
-        // The scrolling text is a region named by its title, in the tab order (after Skip), and the keyboard scrolls it
-        // to its last line.
-        const text = page.getByTestId('guide-text')
-        await expect(page.getByRole('region', { name: grit.guideScreen(id, 'POWERLIFTING').title })).toHaveCount(1)
-        await page.getByTestId('guide-skip').focus()
-        await page.keyboard.press('Tab')
-        await expect(text).toBeFocused()
-        await page.keyboard.press('End')
-        await expect.poll(() => text.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1), id).toBe(true)
-        const [lastLine, box] = [(await page.locator('.guide-line').last().boundingBox())!, (await text.boundingBox())!]
-        expect(lastLine.y + lastLine.height, `${id}: the last line is reached`).toBeLessThanOrEqual(box.y + box.height + 1)
-      } else {
-        await expect(page.getByTestId('guide-text')).not.toHaveAttribute('tabindex', '0')
-      }
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      await checkLargeText(page, id, 'POWERLIFTING', false)
       if (i < screens.length - 1) await page.getByTestId('guide-next').click()
     }
   })
+}
+
+// At the default text size nothing changed (2026-11-20): the phone sizes measured in the browser, the five screens' and
+// screen 8's with each set of buttons, on the narrowest phones and on the iPhone the e2e runs as.
+for (const [width, height, five, oneRow, plan, buildMyPlan] of [
+  [320, 568, [71.2, 168], [47.5, 112], [47.5, 112], [47.5, 112]],
+  [390, 664, [123.8, 292], [123.8, 292], [100, 236], [100, 236]],
+] as const) {
+  test(`the outline at the default text size keeps its measured sizes (${width} × ${height})`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    for (const [side, hasPlan, last] of [
+      ['POWERLIFTING', false, oneRow],
+      ['POWERLIFTING', true, plan],
+      ['BODYBUILDING', false, buildMyPlan],
+    ] as const) {
+      await openGuideWith(page, side, hasPlan)
+      for (const id of OUTLINED) {
+        await nextTo(page, id, side)
+        await expect(picture(page)).toBeVisible()
+        const box = (await picture(page).boundingBox())!
+        const [w, h] = id === 'YOUR_TURN' ? last : five
+        expect(Math.abs(box.width - w) < 0.6 && Math.abs(box.height - h) < 0.6, `${sideName(side)}, ${hasPlan ? 'a plan' : 'no plan'}, ${id}: ${box.width} x ${box.height}, not ${w} x ${h}`).toBe(true)
+      }
+      await page.goto('/#/today')
+    }
+  })
+}
+
+// Screen 8 at 200% on a 320 × 568 phone, its tallest controls: its text still shows, on both sides, with and without a
+// plan (bodybuilding with none has Build my plan under Back and Choose a template).
+for (const side of SIDES) {
+  for (const plan of [false, true]) {
+    test(`guide_atTwiceTheTextSize_onA320x568Phone_screen8ShowsItsText (${sideName(side)}, ${plan ? 'a plan' : 'no plan'})`, async ({ page }) => {
+      await page.setViewportSize({ width: 160, height: 284 })
+      await openGuideWith(page, side, plan)
+      await nextTo(page, 'YOUR_TURN', side)
+      await checkLargeText(page, 'YOUR_TURN', side, plan)
+      // The title, and the start of the text under it, in view before any scrolling.
+      const [text, title] = [(await page.getByTestId('guide-text').boundingBox())!, (await page.getByTestId('guide-title').boundingBox())!]
+      expect(text.height, `the text's box is ${text.height} px`).toBeGreaterThanOrEqual(title.height + 8)
+    })
+  }
 }
 
 test.describe('with motion on', () => {

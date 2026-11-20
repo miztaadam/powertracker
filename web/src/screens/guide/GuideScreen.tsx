@@ -285,13 +285,13 @@ const makeInert = (el: HTMLDivElement | null) => el?.setAttribute('inert', '')
  * per step. Null until first measured, and where nothing can observe a size (jsdom): the pictures then simply take what
  * their text leaves.
  */
-function OutlineMeasure({ screens, controls, lastPrimary, lastSecondary, onArt }: { screens: readonly string[]; controls: RefObject<HTMLDivElement | null>; lastPrimary: string; lastSecondary: string | null; onArt: Dispatch<SetStateAction<OutlineArt | null>> }) {
+function OutlineMeasure({ screens, mode, controls, lastPrimary, lastSecondary, onArt }: { screens: readonly string[]; mode: TrainingMode; controls: RefObject<HTMLDivElement | null>; lastPrimary: string; lastSecondary: string | null; onArt: Dispatch<SetStateAction<OutlineArt | null>> }) {
   const host = useRef<HTMLDivElement | null>(null)
   const setHost = useCallback((el: HTMLDivElement | null) => {
     host.current = el
     makeInert(el)
   }, [])
-  const texts = useMemo(() => (['POWERLIFTING', 'BODYBUILDING'] as const).flatMap((side) => OUTLINED(screens).map((id) => grit.guideScreen(id, side))), [screens])
+  const texts = useMemo(() => (['POWERLIFTING', 'BODYBUILDING'] as const).flatMap((side) => OUTLINED(screens).map((id) => ({ id, side, screen: grit.guideScreen(id, side) }))), [screens])
   useEffect(() => {
     const el = host.current
     const live = controls.current
@@ -302,6 +302,7 @@ function OutlineMeasure({ screens, controls, lastPrimary, lastSecondary, onArt }
       const art = outlineArt({
         budget: el.clientHeight + live.offsetHeight,
         tallest,
+        lastText: el.querySelector<HTMLElement>(`.guide-measure-page[data-screen="YOUR_TURN"][data-side="${mode}"] .guide-measure-text`)?.offsetHeight ?? 0,
         standardControls: height('.guide-measure-controls-standard'),
         lastControls: height('.guide-measure-controls-last'),
         chrome: height('.guide-measure-art'),
@@ -325,11 +326,11 @@ function OutlineMeasure({ screens, controls, lastPrimary, lastSecondary, onArt }
       observer.disconnect()
       fonts?.removeEventListener?.('loadingdone', measure)
     }
-  }, [onArt, controls, lastPrimary, lastSecondary])
+  }, [onArt, controls, mode, lastPrimary, lastSecondary])
   return (
     <div className="guide-measure" ref={setHost} aria-hidden="true">
-      {texts.map((screen, i) => (
-        <div key={i} className="guide-measure-page">
+      {texts.map(({ id, side, screen }) => (
+        <div key={`${side}-${id}`} className="guide-measure-page" data-screen={id} data-side={side}>
           {/* Their own class names, so nothing that looks for the page's text finds these copies. */}
           <div className="guide-measure-text">
             <h1 className="guide-measure-title headline-medium">{screen.title}</h1>
@@ -427,7 +428,7 @@ export function GuideScreen({ mode, firstLaunch, hasPlan, motionOn, onPickSide, 
           start.current = null
         }}
       >
-        <OutlineMeasure screens={screens} controls={controls} lastPrimary={buttons.primary[0]} lastSecondary={buttons.secondary?.[0] ?? null} onArt={setArt} />
+        <OutlineMeasure screens={screens} mode={mode} controls={controls} lastPrimary={buttons.primary[0]} lastSecondary={buttons.secondary?.[0] ?? null} onArt={setArt} />
         {/* Keyed by screen: a new page starts its picture from the first step, and slides in with motion on. */}
         <GuidePage
           key={id}

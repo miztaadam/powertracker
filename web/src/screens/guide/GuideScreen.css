@@ -184,8 +184,9 @@
 }
 
 /*
- * Never narrower than their words: with large text on a narrow phone, Next goes under Back (each then the full width)
- * rather than either label being cut or one button running over the other. Side by side, Next takes the rest.
+ * Never narrower than their words: rather than a label being cut or one button running over the other, a button that
+ * cannot fit goes to a row of its own (screen 8's "Choose a template" on a 320 px phone). Side by side, Next takes the
+ * rest. Large text keeps Back and Next on one row (below).
  */
 .guide-controls .gr-btn,
 .guide-measure-controls .gr-btn {
@@ -209,6 +210,32 @@
 .guide-controls .guide-wide,
 .guide-measure-controls .guide-wide {
   flex-basis: 100%;
+}
+
+/*
+ * Large text, or a very narrow phone (the controls' content under 280 px; a 320 px phone at the default text size has
+ * 288): Back and Next keep one row, so the text above keeps the room. Their icons go, their padding narrows, and a long
+ * label wraps between its words inside its button (never inside a word). Screen 8's first button sits beside Back when
+ * its longest word fits; its second button keeps its own row. Each stays the buttons' 52 px high.
+ */
+.guide-controls,
+.guide-measure-controls {
+  container-type: inline-size;
+}
+
+@container (max-width: 280px) {
+  .guide-btn:not(.guide-wide) {
+    flex: 1 1 0;
+    min-width: min-content;
+  }
+
+  .guide-btn .gr-btn-icon {
+    display: none;
+  }
+
+  .guide-btn .gr-btn-face {
+    padding-inline: var(--space-2);
+  }
 }
 
 /* Screen 2 on a first launch: the two sides, side by side, each never narrower than its word. */
@@ -286,8 +313,8 @@
 }
 
 /*
- * An outlined screen: its picture's place is one height, set from the measure (never below the phone's least height);
- * the text above takes the rest and scrolls.
+ * An outlined screen: its picture's place is one height, set from the measure, which leaves the text above room for all
+ * of it; with no room for both, the place is none (.guide-art-gone) and the text takes the page, scrolling if it must.
  */
 .guide-page-outlined .guide-text {
   flex: 1 1 0;
