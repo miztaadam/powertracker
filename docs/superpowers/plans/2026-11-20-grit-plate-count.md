@@ -233,7 +233,7 @@ internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHig
 - **Powerlifting side, `ProgressionRule.target`,** with `delta = (last.rpe ?: targetRpe) − targetRpe`, checked in this order:
   1. **Missed:** `eased(last, FAILED_SCALE, step)` × the planned reps.
   2. **`delta ≥ 1.5`:** `eased(last, HARD_SCALE, step)` × the planned reps.
-  3. **`delta > 0.5`, or `delta ≥ −0.5` with `recentJumpWithRisingRpe` (the same window as kg):** repeat: `floor(last, step)` × `max(planned reps, last reps)`. **Planner's call:** the kg rule's repeat falls back to the planned reps; in plates the reps are the progress, so a repeat keeps them, as the pain hold already does.
+  3. **`delta > 0.5`, or `delta ≥ −0.5` with `recentJumpWithRisingRpe` (the same window as kg):** repeat: `floor(last, step)` × `max(planned reps, last reps)`. **Decided by the owner (2026-11-20):** the kg rule's repeat falls back to the planned reps; in plates the reps are the progress, so a repeat keeps them, as the pain hold already does.
   4. **Otherwise (on target or easier):** when `last.reps ≥ MAX_REPS` or the planned reps ≥ `MAX_REPS`: `up(last, step)` × the planned reps. Else `floor(last, step)` × `min(max(last.reps + 1, planned reps), MAX_REPS)`. **Planner's call:** the extra rep never aims under the plan's reps.
   - No 5 % cap and no big step.
 - **`ProgressionRule.held`** (pain hold) has no exercise parameter: it branches on the target payload's `unit`. In plates the held aim is `floor(last, plateStep)` × `max(planned reps, last reps)`; a target above it (a higher plate, or the same plate with more reps) is replaced by it. `Coach` passes the exercise's step.
@@ -533,7 +533,7 @@ Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-opti
 3. **Eligibility where the design's two rules meet:** the row's own category decides; a custom accessory is offered whatever its name, except a name with the word "assisted" ("Unassisted row" is still offered); the three assisted machines are excluded by that same word.
 4. **A stored setting on an exercise that is not offered counts as off** (`unitOf`), so a main lift can never be in plates even from an edited backup.
 5. **Typed plates run from 1 to 50,** with the message "Plate 1 to 50".
-6. **Powerlifting side:** a repeat keeps last time's reps when they are above the plan's; the extra rep never aims under the plan's reps; a logged half with Whole plates on gives the lower whole plate for a repeat, an added rep and a step down.
+6. **Powerlifting side:** a repeat keeps last time's reps when they are above the plan's (the owner confirmed this on 2026-11-20); the extra rep never aims under the plan's reps; a logged half with Whole plates on gives the lower whole plate for a repeat, an added rep and a step down.
 7. **No 5 % cap in plates** (the design implies it; the plan states it).
 8. **The typo check** gets a second form and a new JS export (`checkLoadInput`) instead of a changed `checkInput`, so each task ends green.
 9. **Backups refuse a plate set under plate 1** on both apps.
