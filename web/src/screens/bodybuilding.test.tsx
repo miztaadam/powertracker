@@ -346,6 +346,42 @@ describe('welcome back needs a side trained before it was left (1.16)', () => {
     await waitFor(() => expect(screen.queryByText(WELCOME)).toBeNull())
   })
 
+  /**
+   * Settings 45 days ago: into bodybuilding, and the next day back out (dating that side). Bench on the powerlifting
+   * side 30, 23 and 16 days ago, nothing since; today into bodybuilding again, with bench in its plan. `trainedFirst`
+   * logs a bodybuilding bench session 50 days ago, before any of it.
+   */
+  async function backToBodybuildingAfterABreak(trainedFirst: boolean) {
+    const benchId = (await exerciseNamed(db, 'Bench')).id
+    if (trainedFirst) {
+      const id = await session(addDays(TODAY, -50), 'BODYBUILDING')
+      for (let i = 0; i < 3; i++) await logSet(db, id, set(benchId, 60, { reps: 10 }))
+    }
+    await setTrainingMode(db, 'BODYBUILDING', addDays(TODAY, -45))
+    await setTrainingMode(db, 'POWERLIFTING', addDays(TODAY, -44))
+    for (const d of [-30, -23, -16]) await logSet(db, await session(addDays(TODAY, d), 'POWERLIFTING'), set(benchId, 100, { isTopSet: true }))
+    await setTrainingMode(db, 'BODYBUILDING', TODAY)
+    await planOn('BODYBUILDING', benchId)
+  }
+
+  it('noCard_noEasing_forABodybuildingSideNeverTrained_afterABreak', async () => {
+    await backToBodybuildingAfterABreak(false)
+    showToday()
+    await waitFor(async () => expect(await targets(db)).toHaveLength(1))
+    const [target] = await targets(db)
+    // The first-time weight from the recent bench, not eased back for the 16 days away.
+    expect(target!.reason).not.toContain('Easing back in')
+    expect(JSON.parse(target!.payloadJson).weightKg).toBe(82.5)
+    expect(screen.queryByText(WELCOME)).toBeNull()
+  })
+
+  it('cardAndEasing_forABodybuildingSideTrainedBeforeItWasLeft_afterABreak', async () => {
+    await backToBodybuildingAfterABreak(true)
+    showToday()
+    expect(await screen.findByText(WELCOME)).toBeInTheDocument()
+    await waitFor(async () => expect(await easing()).toHaveLength(1))
+  })
+
   it('neverSwitching_noCard_andNoEasing', async () => {
     for (const d of [-14, -7, -2]) await logSet(db, await session(addDays(TODAY, d), 'POWERLIFTING'), set(squatId, 140, { isTopSet: true }))
     await planOn('POWERLIFTING', squatId)

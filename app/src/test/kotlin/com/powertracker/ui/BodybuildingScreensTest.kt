@@ -406,6 +406,46 @@ class BodybuildingScreensTest {
         assertNull(runBlocking { settings.settings.first() }.powerliftingLeftOn)
     }
 
+    /**
+     * Settings 45 days ago: into bodybuilding, and the next day back out (dating that side). Bench on the powerlifting
+     * side 30, 23 and 16 days ago, nothing since; today into bodybuilding again, with bench in its plan. [trainedFirst]
+     * logs a bodybuilding bench session 50 days ago, before any of it.
+     */
+    private fun backToBodybuildingAfterABreak(trainedFirst: Boolean) {
+        if (trainedFirst) session(today.minus(50, DateTimeUnit.DAY), BODYBUILDING, set(bench, 60.0, 10), set(bench, 60.0, 10), set(bench, 60.0, 10))
+        runBlocking {
+            settings.setTrainingMode(BODYBUILDING, today.minus(45, DateTimeUnit.DAY))
+            settings.setTrainingMode(POWERLIFTING, today.minus(44, DateTimeUnit.DAY))
+        }
+        for (d in listOf(30, 23, 16)) session(today.minus(d, DateTimeUnit.DAY), POWERLIFTING, topSet(bench, 100.0, 5))
+        runBlocking { settings.setTrainingMode(BODYBUILDING, today) }
+        save(bbItem(bench))
+    }
+
+    @Test
+    fun today_noWelcomeBack_andNoEasing_toABodybuildingSideNeverTrained_afterABreak() {
+        backToBodybuildingAfterABreak(trainedFirst = false)
+        val vm = todayVm()
+        await("suggestion") { vm.state.value.items.firstOrNull()?.suggestion != null }
+        assertFalse(vm.state.value.welcomeBack)
+        val suggestion = vm.state.value.items.single().suggestion!!
+        // The first-time weight from the recent bench, not eased back for the 16 days away.
+        assertTrue(listOf(suggestion.reason).noneEasing())
+        assertEquals(82.5, (suggestion.payload as AdvicePayload.Target).weightKg, 0.0)
+        assertFalse(coachVm().await { true }.welcomeBack)
+    }
+
+    @Test
+    fun today_welcomeBack_andEasing_toABodybuildingSideTrainedBeforeItWasLeft_afterABreak() {
+        backToBodybuildingAfterABreak(trainedFirst = true)
+        val vm = todayVm()
+        await("welcome") { vm.state.value.welcomeBack }
+        await("suggestion") { vm.state.value.items.firstOrNull()?.suggestion != null }
+        val suggestion = vm.state.value.items.single().suggestion!!
+        assertTrue(suggestion.reason, suggestion.reason.endsWith("Easing back in: lighter load."))
+        assertTrue((suggestion.payload as AdvicePayload.Target).weightKg < 60.0)
+    }
+
     @Test
     fun today_neverSwitching_noWelcomeBack_andNoEasing() {
         for (d in listOf(14, 7)) session(today.minus(d, DateTimeUnit.DAY), POWERLIFTING, topSet(squat, 140.0, 5))
