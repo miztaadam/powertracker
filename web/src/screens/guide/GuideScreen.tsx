@@ -255,8 +255,8 @@ function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly str
     const el = host.current
     if (el == null || typeof ResizeObserver === 'undefined') return
     const measure = () => {
-      const tallest = Math.max(0, ...[...el.querySelectorAll<HTMLElement>('.guide-text')].map((t) => t.offsetHeight))
-      const button = el.querySelector<HTMLElement>('.guide-btn')?.offsetHeight ?? 0
+      const tallest = Math.max(0, ...[...el.querySelectorAll<HTMLElement>('.guide-measure-text')].map((t) => t.offsetHeight))
+      const button = el.querySelector<HTMLElement>('.gr-btn')?.offsetHeight ?? 0
       const gap = parseFloat(getComputedStyle(el.querySelector<HTMLElement>('.guide-measure-controls')!).rowGap) || 0
       const room = shown.current ? 0 : button + gap
       onArt(Math.max(0, Math.floor(el.clientHeight - tallest - room)))
@@ -269,10 +269,11 @@ function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly str
     <div className="guide-measure" ref={host} aria-hidden="true">
       {texts.map((screen, i) => (
         <div key={i} className="guide-measure-page">
-          <div className="guide-text">
-            <h1 className="guide-title headline-medium">{screen.title}</h1>
+          {/* Their own class names, so nothing that looks for the page's text finds these copies. */}
+          <div className="guide-measure-text">
+            <h1 className="guide-measure-title headline-medium">{screen.title}</h1>
             {screen.lines.map((line) => (
-              <p key={line.text} className="guide-line body-large">
+              <p key={line.text} className="guide-measure-line body-large">
                 {line.text}
               </p>
             ))}
@@ -280,7 +281,7 @@ function OutlineMeasure({ screens, secondShown, onArt }: { screens: readonly str
         </div>
       ))}
       <div className="guide-measure-controls">
-        <span className="gr-btn label-large gr-btn-secondary guide-btn guide-wide">
+        <span className="gr-btn label-large gr-btn-secondary guide-measure-btn">
           <span className="gr-btn-face">
             <span className="gr-btn-text">{SEE_MY_PLAN}</span>
           </span>

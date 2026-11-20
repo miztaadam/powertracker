@@ -1334,6 +1334,8 @@ test.describe('the seven other pictures, with motion on', () => {
         await at(grit.guideStepStartMs(i) + FRAME_MS)
         await expect(picture(page)).toHaveAttribute('data-stepindex', String(i))
         const moving = await reads()
+        // The counter counts: the step change itself reads the rows' boxes, once before and once after it.
+        expect(moving - held, `${id} step ${i}: reads at the step change`).toBeGreaterThan(0)
         await at(grit.guideSettledMs(i) + 100)
         expect((await reads()) - moving, `${id} step ${i}: reads during its move and hold`).toBe(0)
       }

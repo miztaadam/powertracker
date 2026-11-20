@@ -49,7 +49,8 @@
  * The text comes first: it takes the height it needs, and only past the whole page does it scroll; it wraps and is
  * never cut. The picture takes what it leaves (none at all with large text on a small phone).
  */
-.guide-text {
+.guide-text,
+.guide-measure-text {
   flex: 0 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -58,12 +59,14 @@
   gap: var(--space-2);
 }
 
-.guide-title {
+.guide-title,
+.guide-measure-title {
   margin: 0;
   overflow-wrap: anywhere;
 }
 
-.guide-line {
+.guide-line,
+.guide-measure-line {
   margin: 0;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
@@ -266,6 +269,16 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+/* Screen 8's second button as it is laid out: the full width, its words free to wrap. */
+.guide-measure-btn {
+  flex-basis: 100%;
+}
+
+.guide-measure-btn .gr-btn-text {
+  white-space: normal;
+  text-align: center;
 }
 
 /* An outlined screen: its picture's place is one height, set from the measure; the text above takes the rest and scrolls. */
