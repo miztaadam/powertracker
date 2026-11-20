@@ -263,7 +263,7 @@ export function isNewUser(db: GritDb): Promise<boolean>          // sessions.cou
 export const GUIDE_KEY = 'grit:guide'                            // localStorage; 'off' keeps the first-launch gate shut (the seam, like MOTION_KEY)
 ```
 
-**The web seam:** `playwright.config.ts`'s shared `storageState` gains `{ name: 'grit:guide', value: 'off' }` beside `grit:motion`. The guide's own first-launch tests override it with `test.use`. Vitest tests that render `App` set the same key in the shared setup file. No existing test file is edited.
+**The web seam:** `playwright.config.ts`'s shared `storageState` gains `{ name: 'grit:guide', value: 'off' }` beside `grit:motion`. The guide's own first-launch tests override it with `test.use`. Vitest tests that render `App` set the same key in the shared setup file. ~~No existing test file is edited.~~ **Amended while building:** seven specs replace the shared state wholesale for motion on, which would drop the key; every state now comes from `e2e/storage.ts` (`SHARED_STATE`, `MOTION_ON`, `NEW_DEVICE`), those seven `test.use` lines use `MOTION_ON`, and a guard test fails on any state written out by hand. `MainActivityLockTest` marks "seen" in its own setup.
 
 **The two conditions** (keep them separate):
 - `firstLaunch` = the guide was opened by the first-launch gate (`!seen && isNewUser`). Only then does screen 2 show the two side buttons, and only then is "seen" written, when the guide closes by any exit.
@@ -276,7 +276,7 @@ export const GUIDE_KEY = 'grit:guide'                            // localStorage
   - `seenIsReadFirst_soASeenDeviceRunsNoDataQuery` (Android: the DAO is not called when seen).
   - `screen2_onFirstLaunch_setsTheRealSide_withNoAnimationSoundOrVibration`: `setTrainingMode` is called with the pick; the mode-switch controller's `start` / `flip` is never called.
   - `screen2_pickingTheSideAlreadyOn_writesNothing`.
-  - `pickingBodybuildingOnFirstLaunch_thenFirstVisitingPowerlifting_showsNoWelcomeBackOrEasing`: the pick stamps `powerliftingLeftOn`, as the Settings switch does; a side with no sessions must not greet the lifter as returning. If it does, stop and report: that would be an existing behaviour of the Settings switch too.
+  - `pickingBodybuildingOnFirstLaunch_thenFirstVisitingPowerlifting_showsNoWelcomeBackOrEasing`: ~~the pick stamps `powerliftingLeftOn`, as the Settings switch does~~ **amended (spec point 9):** the first-launch pick dates no side as left (a new lifter has left nothing); the Settings switch is unchanged. Pinned: pick bodybuilding, 40 days later switch to powerlifting in Settings and give it a plan: no welcome back, no easing. Also pinned: picking the side already on writes nothing beyond "seen".
   - `screen2_onAReplay_showsNoButtons`.
   - `killedAfterTheSidePick_reopensOnScreen1_withTheSideKept` (Review Focus 1).
   - `screen8_withNoPlan_opensThatSidesTemplateList`; on bodybuilding `buildMyPlan_opensTheBuilder`.
