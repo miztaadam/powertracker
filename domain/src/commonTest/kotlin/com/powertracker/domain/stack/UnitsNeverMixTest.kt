@@ -137,7 +137,8 @@ class UnitsNeverMixTest {
         val payload = target.payload as AdvicePayload.Target
         assertEquals(LoadUnit.KG, payload.unit)
         assertTrue(target.reason.startsWith("Last time: 60 × 8 @ 8."), target.reason)
-        assertTrue(payload.weightKg >= 60.0 && payload.weightKg <= 63.0, "${payload.weightKg}")
+        // 60 kg on target, a free load: 2.5 kg more, under the 5% cap (63).
+        assertEquals(62.5, payload.weightKg)
     }
 
     // ---- kg figures ----
