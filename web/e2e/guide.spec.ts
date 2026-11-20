@@ -349,9 +349,17 @@ async function checkLargeText(page: Page, id: string, side: Side, plan: boolean)
       expect(room.scrolls, `${id}: the text scrolls beside a phone`).toBe(false)
       expect((await picture(page).boundingBox())!.height, `${id}: a phone below its least size`).toBeGreaterThanOrEqual(OUTLINE_MIN - 0.5)
     }
-  } else if (room.scrolls) {
+  } else {
     // WELCOME and SIDE: art, not a phone. The text comes first: the art gives up its room before the text scrolls.
-    expect(room.art, `${id}: the text scrolls while the art keeps ${room.art} px`).toBeLessThanOrEqual(1)
+    if (room.scrolls) expect(room.art, `${id}: the text scrolls while the art keeps ${room.art} px`).toBeLessThanOrEqual(1)
+    // Drawn whole or not at all: its names inside it, never running into each other.
+    const art = picture(page).locator('.guide-picture-screen')
+    if (await art.isVisible()) {
+      const frame = (await picture(page).boundingBox())!
+      const names = await Promise.all((await art.locator('.guide-side-panel-name').all()).map(async (n) => (await n.boundingBox())!))
+      for (const name of names) expect(within(name, frame), `${id}: a side's name runs out of the art`).toBe(true)
+      if (names.length === 2) expect(overlap(names[0]!, names[1]!), `${id}: the two names run into each other`).toBe(false)
+    }
   }
   const text = page.getByTestId('guide-text')
   // The title always shows whole in the text's box.

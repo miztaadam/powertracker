@@ -343,6 +343,16 @@
 }
 
 /*
+ * Too little room to draw WELCOME's or SIDE's art whole (large text): it is not drawn, rather than cut or with its two
+ * names running into each other. Its one description stays.
+ */
+@container (max-height: 119px) or (max-width: 199px) {
+  .guide-picture-art > .guide-picture-screen {
+    visibility: hidden;
+  }
+}
+
+/*
  * Each side in its own colours, whichever side the guide is in (the tokens of tokens.css; a unit test keeps them
  * equal): its background, surface, hairline and accent.
  */
