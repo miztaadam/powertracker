@@ -131,6 +131,7 @@
    - **The "Skipped today" line rises in.** On Android the real Today screen gets it too. On the web the guide's line already fades in and gains the same rise.
    Each plays on the event only (never on open, restore, or scrolling back into view), and each is off under the app's motion setting and reduced motion.
 9. **The first-launch side pick dates no side as left (2026-11-19, while building Task 3).** The pick sets the real side, as the Settings switch does, but does not stamp the side it leaves: a new lifter choosing a side has left nothing. Stamping it made a never-trained side greet the lifter as returning once it got a plan (more than 30 days on). The Settings switch itself is unchanged by this point.
+10. **Welcome back needs a side trained before it was left (owner, 2026-11-19: "Yes include that fix").** The welcome-back card and easing back in show only on a side that was trained on or before the day it was left. A side the lifter switched away from before ever training it is not greeted as returning, and its first targets are not eased. A first bodybuilding weight worked out from old powerlifting history is still set at 85%, but is no longer labelled "Easing back in".
 
 ## Left to the builder
 - **The shape of the guide's definition** in the domain, and how each picture is drawn: reusing the real screens' components with sample state where that's clean, or drawn mock-ups.
