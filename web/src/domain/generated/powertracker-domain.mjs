@@ -2484,8 +2484,8 @@ protoOf(Coaching).z1o = function (skip, skips, history, plan, today, priorAdvice
 protoOf(Coaching).a1p = function (payload, choice, mode, plan, exercises) {
   return SkipCoach_instance.a1p(payload, choice, mode, plan, exercises);
 };
-protoOf(Coaching).b1p = function (leftOn, today, hasPlan) {
-  return hasPlan && !(leftOn == null) && daysUntil(leftOn, today) > 30;
+protoOf(Coaching).b1p = function (leftOn, today, hasPlan, firstSessionOn) {
+  return hasPlan && !(leftOn == null) && !(firstSessionOn == null) && firstSessionOn.a10(leftOn) <= 0 && daysUntil(leftOn, today) > 30;
 };
 var Coaching_instance;
 function Coaching_getInstance() {
@@ -5484,29 +5484,55 @@ protoOf(ReturnRule).h1m = function (target, item, exercise, history, mode, setti
     tmp_0 = tmp0_elvis_lhs;
   }
   var payload = tmp_0;
+  var tmp0 = history.o1i_1;
+  var tmp$ret$0;
+  $l$block_0: {
+    // Inline function 'kotlin.collections.none' call
+    var tmp_1;
+    if (isInterface(tmp0, Collection)) {
+      tmp_1 = tmp0.m();
+    } else {
+      tmp_1 = false;
+    }
+    if (tmp_1) {
+      tmp$ret$0 = true;
+      break $l$block_0;
+    }
+    var _iterator__ex2g4s = tmp0.j();
+    while (_iterator__ex2g4s.k()) {
+      var element = _iterator__ex2g4s.l();
+      if (element.w1i_1.equals(mode) && element.s1i_1.a10(today) < 0) {
+        tmp$ret$0 = false;
+        break $l$block_0;
+      }
+    }
+    tmp$ret$0 = true;
+  }
+  if (tmp$ret$0)
+    return target;
   var from = minus(today, new Long(28, 0), Companion_getInstance().dz_1);
   // Inline function 'kotlin.collections.filter' call
-  var tmp0 = history.o1i_1;
+  var tmp0_0 = history.o1i_1;
   // Inline function 'kotlin.collections.filterTo' call
   var destination = ArrayList_init_$Create$();
-  var _iterator__ex2g4s = tmp0.j();
-  while (_iterator__ex2g4s.k()) {
-    var element = _iterator__ex2g4s.l();
-    if (element.s1i_1.a10(from) >= 0 && element.s1i_1.a10(today) < 0) {
-      destination.i(element);
+  var _iterator__ex2g4s_0 = tmp0_0.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var element_0 = _iterator__ex2g4s_0.l();
+    if (element_0.s1i_1.a10(from) >= 0 && element_0.s1i_1.a10(today) < 0) {
+      destination.i(element_0);
     }
   }
   var recent = destination;
   // Inline function 'kotlin.collections.partition' call
   var first = ArrayList_init_$Create$();
   var second = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_0 = recent.j();
-  while (_iterator__ex2g4s_0.k()) {
-    var element_0 = _iterator__ex2g4s_0.l();
-    if (element_0.w1i_1.equals(mode)) {
-      first.i(element_0);
+  var _iterator__ex2g4s_1 = recent.j();
+  while (_iterator__ex2g4s_1.k()) {
+    var element_1 = _iterator__ex2g4s_1.l();
+    if (element_1.w1i_1.equals(mode)) {
+      first.i(element_1);
     } else {
-      second.i(element_0);
+      second.i(element_1);
     }
   }
   var _destruct__k2r9zo = new Pair(first, second);
@@ -5520,14 +5546,14 @@ protoOf(ReturnRule).h1m = function (target, item, exercise, history, mode, setti
     return target;
   var plates = settings.f1j_1;
   // Inline function 'kotlin.collections.filter' call
-  var tmp0_0 = ease$familySets(family_0, other);
+  var tmp0_1 = ease$familySets(family_0, other);
   // Inline function 'kotlin.collections.filterTo' call
   var destination_0 = ArrayList_init_$Create$();
-  var _iterator__ex2g4s_1 = tmp0_0.j();
-  while (_iterator__ex2g4s_1.k()) {
-    var element_1 = _iterator__ex2g4s_1.l();
-    if (!element_1.b1j_1) {
-      destination_0.i(element_1);
+  var _iterator__ex2g4s_2 = tmp0_1.j();
+  while (_iterator__ex2g4s_2.k()) {
+    var element_2 = _iterator__ex2g4s_2.l();
+    if (!element_2.b1j_1) {
+      destination_0.i(element_2);
     }
   }
   var elsewhere = destination_0;
@@ -5555,19 +5581,19 @@ protoOf(ReturnRule).h1m = function (target, item, exercise, history, mode, setti
     return target.n1i(VOID, VOID, VOID, this.y1k(target.b1i_1, cap, payload.j1i_1, payload.m1i_1, payload.k1i_1) + ' Easing back in: lighter load.', VOID, payload.z1k(VOID, cap));
   }
   var tmp1_elvis_lhs = (new HistoryStats(on(history, mode))).f1l(item.r1h_1, today);
-  var tmp_1;
+  var tmp_2;
   if (tmp1_elvis_lhs == null) {
     return target;
   } else {
-    tmp_1 = tmp1_elvis_lhs;
+    tmp_2 = tmp1_elvis_lhs;
   }
-  var last = tmp_1.hb();
+  var last = tmp_2.hb();
   var factor = (new ReEntry()).w1j_1;
   var free_0 = ProgressionRule_getInstance().e1k(exercise, last.y1i_1);
-  var tmp0_1 = payload.i1i_1;
+  var tmp0_2 = payload.i1i_1;
   // Inline function 'kotlin.comparisons.minOf' call
   var b = roundDown(this, mode, last.y1i_1 * factor, last.y1i_1, free_0, plates);
-  var weight = Math.min(tmp0_1, b);
+  var weight = Math.min(tmp0_2, b);
   var reps = item.t1h_1;
   return target.n1i(VOID, VOID, VOID, this.y1k(target.b1i_1, weight, reps, payload.m1i_1, payload.k1i_1) + ' Easing back in: lighter load.', VOID, payload.z1k(VOID, weight, reps));
 };
@@ -42632,7 +42658,7 @@ protoOf(GritDomain).muscleProgressRows = function (history, plan, checkIns, toda
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination_1);
 };
-protoOf(GritDomain).welcomeBack = function (leftOn, today, hasPlan) {
+protoOf(GritDomain).welcomeBack = function (leftOn, today, hasPlan, firstSessionOn) {
   var tmp = Coaching_instance;
   var tmp_0;
   if (leftOn == null) {
@@ -42641,7 +42667,16 @@ protoOf(GritDomain).welcomeBack = function (leftOn, today, hasPlan) {
     // Inline function 'kotlin.let' call
     tmp_0 = parseDate('leftOn', leftOn);
   }
-  return tmp.b1p(tmp_0, parseDate('today', today), hasPlan);
+  var tmp_1 = tmp_0;
+  var tmp_2 = parseDate('today', today);
+  var tmp_3;
+  if (firstSessionOn == null) {
+    tmp_3 = null;
+  } else {
+    // Inline function 'kotlin.let' call
+    tmp_3 = parseDate('firstSessionOn', firstSessionOn);
+  }
+  return tmp.b1p(tmp_1, tmp_2, hasPlan, tmp_3);
 };
 protoOf(GritDomain).repsToBeat = function (item, history, setNumber, today) {
   return BodybuildingCoach_getInstance().j1m(toDomain_2(item), toDomain_6(history), setNumber, parseDate('today', today));

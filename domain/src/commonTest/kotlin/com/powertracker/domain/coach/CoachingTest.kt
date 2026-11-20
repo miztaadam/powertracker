@@ -200,11 +200,41 @@ class CoachingTest {
     @Test
     fun welcomeBackAfterMoreThanThirtyDaysWithAPlan() {
         val today = LocalDate(2026, 11, 13)
-        assertFalse(Coaching.welcomeBack(null, today, hasPlan = true))
-        assertFalse(Coaching.welcomeBack(today.minus(30, DateTimeUnit.DAY), today, hasPlan = true))
-        assertTrue(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = true))
-        assertFalse(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = false))
-        assertFalse(Coaching.welcomeBack(today, today, hasPlan = true))
+        val trained = today.minus(60, DateTimeUnit.DAY)
+        assertFalse(Coaching.welcomeBack(null, today, hasPlan = true, firstSessionOn = trained))
+        assertFalse(Coaching.welcomeBack(today.minus(30, DateTimeUnit.DAY), today, hasPlan = true, firstSessionOn = trained))
+        assertTrue(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = true, firstSessionOn = trained))
+        assertFalse(Coaching.welcomeBack(today.minus(31, DateTimeUnit.DAY), today, hasPlan = false, firstSessionOn = trained))
+        assertFalse(Coaching.welcomeBack(today, today, hasPlan = true, firstSessionOn = trained))
+    }
+
+    @Test
+    fun noWelcomeBackToASideNeverTrainedBeforeItWasLeft() {
+        val today = LocalDate(2026, 11, 13)
+        val left = today.minus(40, DateTimeUnit.DAY)
+        // Left in Settings before any session on it: no card, however long ago.
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = null))
+        // Its first session came after it was left (on the return, the card not yet answered): still no card, today
+        // or on any later day.
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = today))
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = today.minus(1, DateTimeUnit.DAY)))
+        assertFalse(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = left.plus(1, DateTimeUnit.DAY)))
+        // A session on the day it was left, or before, is a side trained and left: the card as before.
+        assertTrue(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = left))
+        assertTrue(Coaching.welcomeBack(left, today, hasPlan = true, firstSessionOn = left.minus(5, DateTimeUnit.DAY)))
+    }
+
+    @Test
+    fun theFirstSessionOnASideIsItsEarliestSessionOnThatSide() {
+        val h = history {
+            session(3, mode = TrainingMode.BODYBUILDING) { set(Ids.CURL, 12.0, 10) }
+            session(5) { squat(100.0, 5) }
+            session(1, mode = TrainingMode.BODYBUILDING) { set(Ids.CURL, 12.0, 10) }
+        }
+        val start = LocalDate(2026, 1, 5)
+        assertEquals(start.plus(1, DateTimeUnit.DAY), Coaching.firstSessionOn(TrainingMode.BODYBUILDING, h))
+        assertEquals(start.plus(5, DateTimeUnit.DAY), Coaching.firstSessionOn(TrainingMode.POWERLIFTING, h))
+        assertEquals(null, Coaching.firstSessionOn(TrainingMode.POWERLIFTING, history { session(0, mode = TrainingMode.BODYBUILDING) { set(Ids.CURL, 12.0, 10) } }))
     }
 }
 
