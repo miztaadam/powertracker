@@ -102,6 +102,7 @@ import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
 import com.powertracker.ui.plan.builder.PLAN_OPTIONS
 import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
 import com.powertracker.ui.plan.templates.CHOOSE_A_TEMPLATE
+import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.today.SlidingColumnItems
@@ -137,6 +138,9 @@ private const val MAX_PLAN_REPS = 20
  * that picked the exercise, so the second tap of a double tap on the row would otherwise land on it.
  */
 internal const val ADD_FORM_TAP_WINDOW_MS = 300L
+
+/** A Known bests row's line (1.16.1), in Progress's own term: "Best e1RM 182.5 kg". [kg] is already to the half kilo. */
+fun knownBestText(kg: Double): String = "Best e1RM ${formatKg(kg)} kg"
 
 fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
 
@@ -447,7 +451,13 @@ fun PlanContent(
                         for (lift in state.mainExercises) {
                             SoftDivider()
                             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(lift.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                                // The name, and under it the lift's best once it has one; with none, the row is as before.
+                                Column(Modifier.weight(1f)) {
+                                    Text(lift.name, style = MaterialTheme.typography.titleMedium)
+                                    state.bests[lift.id]?.let { kg ->
+                                        Text(knownBestText(kg), style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
+                                    }
+                                }
                                 SecondaryButton("Set best", { onSetBaseline(lift) }, compact = true, modifier = Modifier.testTag("baseline-${lift.name}"))
                             }
                         }

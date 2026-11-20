@@ -388,3 +388,143 @@ test.describe('on a 375 px iPhone', () => {
     await expect(page.getByRole('button', { name: 'Export backup' })).toBeVisible()
   })
 })
+
+// ---- 1.16.1: Known bests show each lift's best, and strict press once its switch is on ----
+
+/** Turns the strict press switch on (or off) in Settings and comes back to Plan. */
+async function strictPressOn(page: Page, on = true) {
+  await page.getByRole('button', { name: 'Settings' }).click()
+  await page.getByText('Show it on Progress and add it to your total.').click()
+  await expect(page.getByRole('switch', { name: 'Strict press' })).toBeChecked({ checked: on })
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
+}
+
+/** Types a known best for `lift` through its Set best. */
+async function setBest(page: Page, lift: string, text: string) {
+  await page.getByRole('group', { name: lift, exact: true }).getByRole('button', { name: 'Set best' }).click()
+  const dialog = page.getByRole('dialog', { name: `Known best: ${lift}` })
+  await dialog.getByRole('textbox', { name: 'Estimated 1RM (kg)' }).fill(text)
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect(dialog).toHaveCount(0)
+}
+
+/**
+ * Each Known bests row whose name or best line reaches the Set best button, measured on the glyphs themselves (a
+ * Range's client rects over every text node of the row's text column, so text spilling out of its box counts), any
+ * of whose text boxes is narrower than its text (scrollWidth > clientWidth), or whose button leaves the phone.
+ */
+const crowdedBests = (page: Page) =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>('.plan-best')).flatMap((row) => {
+      const name = row.getAttribute('aria-label')
+      const button = row.querySelector('button')!.getBoundingClientRect()
+      const column = row.querySelector<HTMLElement>('.plan-grow')!
+      const found: string[] = []
+      const walker = document.createTreeWalker(column, NodeFilter.SHOW_TEXT)
+      for (let node = walker.nextNode(); node != null; node = walker.nextNode()) {
+        const range = document.createRange()
+        range.selectNodeContents(node)
+        const right = Math.max(...Array.from(range.getClientRects(), (r) => r.right))
+        if (right > button.left + 0.5) found.push(`${name}: "${node.textContent}" runs under Set best (to ${Math.round(right)}, button at ${Math.round(button.left)})`)
+      }
+      for (const box of [column, ...Array.from(column.querySelectorAll<HTMLElement>('*'))]) {
+        if (box.scrollWidth > box.clientWidth + 1) found.push(`${name}: "${box.textContent}" is wider than its box`)
+      }
+      if (button.right > window.innerWidth + 0.5) found.push(`${name}: Set best leaves the phone`)
+      return found
+    }),
+  )
+
+for (const scheme of ['dark', 'light'] as const) {
+  test(`Known bests: each lift's best, strict press with its switch on (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openPlan(page, MOCKUP_PLAN)
+    await page.setViewportSize(narrowPhone)
+    // Switch off and no strict press row: the three lifts, no lines.
+    await expect(page.getByRole('group', { name: 'Strict press' })).toHaveCount(0)
+    await expect(page.locator('.plan-bests').getByText(/^Best e1RM /)).toHaveCount(0)
+
+    await strictPressOn(page)
+    await expect(page.getByRole('group', { name: 'Strict press' })).toBeVisible()
+    await setBest(page, 'Squat', '182,5')
+    await setBest(page, 'Bench', '120')
+    await setBest(page, 'Strict press', '72.5')
+
+    for (const [lift, line] of [['Squat', 'Best e1RM 182.5 kg'], ['Bench', 'Best e1RM 120 kg'], ['Strict press', 'Best e1RM 72.5 kg']] as const) {
+      await expect(page.getByRole('group', { name: lift, exact: true })).toContainText(line)
+    }
+    await expect(page.getByRole('group', { name: 'Deadlift' }).getByText(/^Best e1RM /)).toHaveCount(0)
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+    expect(await crowdedBests(page)).toEqual([])
+
+    // The owner's look: written as plan-known-bests-{dark,light}.png (test-results/screens/, or with
+    // UPDATE_SCREENSHOTS=1 docs/design/web/screens/).
+    await shoot(page, `plan-known-bests-${scheme}`, 1300)
+
+    // The switch off again keeps its row and its best (the coach still uses it), as for any strict press with a row.
+    await strictPressOn(page, false)
+    await page.reload()
+    await expect(page.getByRole('group', { name: 'Strict press' })).toContainText('Best e1RM 72.5 kg')
+  })
+}
+
+/** A name with no space to break at: too wide for a 320 px row's text column on one line. */
+const UNBROKEN = 'Seatedstrictpressfromthesafetypins'
+
+test.describe('on a 320 × 568 phone', () => {
+  test.use({ viewport: { width: 320, height: 568 } })
+
+  // Proof by hand: remove `overflow-wrap: anywhere;` from `.plan-best-text` in src/screens/plan/plan.css and the
+  // unbroken name runs under Set best, so `crowdedBests` names it.
+  test('a Known bests row keeps Set best beside a two-line name and its best', async ({ page }) => {
+    await openPlan(page, MOCKUP_PLAN)
+    // Strict press under long names of its own (as the strict press upgrade keeps other names), each with a typed
+    // best: one with spaces, and one with none, which wraps only by `overflow-wrap: anywhere`.
+    await page.evaluate(async (names) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'baselines'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      for (const name of names) {
+        const add = tx.objectStore('exercises').add({ name, category: 'STRICT_PRESS', parentLift: null, muscles: [], isBuiltIn: false, archived: false })
+        add.onsuccess = () => tx.objectStore('baselines').put({ exerciseId: add.result as number, e1rmKg: 72.5, date: '2026-11-11' })
+      }
+      await settled
+      db.close()
+    }, ['Seated strict press from the safety pins', UNBROKEN])
+    await page.reload()
+    await expect(page.getByRole('heading', { level: 1, name: 'Plan' })).toBeVisible()
+    await strictPressOn(page)
+    await setBest(page, 'Squat', '182.5')
+
+    const long = page.getByRole('group', { name: 'Seated strict press from the safety pins' })
+    await long.scrollIntoViewIfNeeded()
+    await expect(long).toContainText('Best e1RM 72.5 kg')
+    await expect(page.getByRole('group', { name: 'Squat', exact: true })).toContainText('Best e1RM 182.5 kg')
+    // The switch on adds no second strict press: this one is it.
+    await expect(page.getByRole('group', { name: 'Strict press', exact: true })).toHaveCount(0)
+    // Its name takes two lines, beside the button.
+    const name = (await long.locator('.title-medium').boundingBox())!
+    const squatName = (await page.getByRole('group', { name: 'Squat', exact: true }).locator('.title-medium').boundingBox())!
+    expect(name.height).toBeGreaterThan(squatName.height * 1.5)
+    // The unbroken name wraps too, and keeps its best line under it.
+    const unbroken = page.getByRole('group', { name: UNBROKEN })
+    await unbroken.scrollIntoViewIfNeeded()
+    await expect(unbroken).toContainText('Best e1RM 72.5 kg')
+    expect((await unbroken.locator('.title-medium').boundingBox())!.height).toBeGreaterThan(squatName.height * 1.5)
+    expect(await crowdedBests(page)).toEqual([])
+    expect(await overflowing(page)).toEqual([])
+    // Every Set best is still a full target (the rest of Plan's targets at this width are narrow.spec.ts's).
+    for (const box of await page.locator('.plan-best button').evaluateAll((all) => all.map((b) => b.getBoundingClientRect().toJSON() as DOMRect))) {
+      expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(47.5)
+    }
+  })
+})

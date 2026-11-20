@@ -151,7 +151,7 @@ describe('Undo of a plan replace', () => {
   it('undo_isOnOfferForTheUsualSnackbarTime_only', () => {
     vi.useFakeTimers()
     try {
-      const state: PlanState = { loading: false, sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
+      const state: PlanState = { loading: false, sections: [], exercises: [], recentIds: [], mainExercises: [], bests: {}, defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
       const undo = { mode: 'POWERLIFTING', items: [], skipLinks: [], days: [], replacedBy: [] } as PlanSnapshot
       const onUndoReplace = vi.fn(async () => 'restored' as const)
       render(<PlanContent state={state} actions={{} as PlanActions} onOpenSettings={() => {}} message={{ text: 'Plan set: 3-day powerlifting.', undo }} onUndoReplace={onUndoReplace} />)

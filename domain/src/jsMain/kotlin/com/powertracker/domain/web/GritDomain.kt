@@ -388,6 +388,10 @@ object GritDomain {
     fun prs(history: JsHistory, lift: String): Array<JsPr> =
         ProgressMath.prs(history.toDomain(), parseLift("lift", lift)).map { it.toJs() }.toTypedArray()
 
+    /** Plan's known best of [lift]: the higher of the latest typed best and the best logged e1RM (ProgressMath.knownBest). */
+    fun knownBest(history: JsHistory, lift: String): Double? =
+        ProgressMath.knownBest(history.toDomain(), parseLift("lift", lift))
+
     /** Whether [set], about to be logged on [date] in a [mode] session, is a new best (ProgressMath.isNewPr). */
     fun isNewPr(history: JsHistory, set: JsSet, date: String, mode: String): Boolean =
         ProgressMath.isNewPr(history.toDomain(), set.toDomain(), parseDate("date", date), parseEnum<TrainingMode>("mode", mode))

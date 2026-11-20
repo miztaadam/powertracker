@@ -266,15 +266,28 @@ private fun day(day: DayOfWeek, vararg rows: Triple<String, Pair<Int, Int>, Doub
 )
 
 @Composable
-fun PlanShowcase() {
-    val state = PlanUiState(
-        sections = listOf(
-            day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Bench", 4 to 6, 7.5), Triple("Barbell row", 3 to 8, 8.0)),
-            day(DayOfWeek.WEDNESDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Close-grip bench", 3 to 5, 8.0)),
-            day(DayOfWeek.FRIDAY, Triple("Bench", 3 to 5, 8.0), Triple("Pause squat", 3 to 4, 7.5)),
-        ),
-        mainExercises = listOf(exercise(1, "Squat", Category.SQUAT), exercise(2, "Bench", Category.BENCH), exercise(3, "Deadlift", Category.DEADLIFT)),
-    )
+fun PlanShowcase(knownBests: Boolean = false) {
+    val main = listOf(exercise(1, "Squat", Category.SQUAT), exercise(2, "Bench", Category.BENCH), exercise(3, "Deadlift", Category.DEADLIFT))
+    val state = if (knownBests) {
+        // 1.16.1: the strict press switch on, a best for each lift (typed or lifted), and one lift without one yet.
+        PlanUiState(
+            sections = listOf(
+                day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Strict press", 3 to 5, 8.0)),
+                day(DayOfWeek.THURSDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Bench", 4 to 6, 7.5)),
+            ),
+            mainExercises = main + exercise(4, "Strict press", Category.STRICT_PRESS),
+            bests = mapOf(1L to 182.5, 2L to 120.0, 4L to 72.5),
+        )
+    } else {
+        PlanUiState(
+            sections = listOf(
+                day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Bench", 4 to 6, 7.5), Triple("Barbell row", 3 to 8, 8.0)),
+                day(DayOfWeek.WEDNESDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Close-grip bench", 3 to 5, 8.0)),
+                day(DayOfWeek.FRIDAY, Triple("Bench", 3 to 5, 8.0), Triple("Pause squat", 3 to 4, 7.5)),
+            ),
+            mainExercises = main,
+        )
+    }
     PlanContent(state, onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {})
 }
 

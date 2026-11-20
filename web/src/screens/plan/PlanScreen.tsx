@@ -9,7 +9,7 @@ import { usePlan, type DaySection, type PlanActions, type PlanDraft, type PlanEx
 import { dayName } from '../../state/weekdayNames'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
-import { formatRpe } from '../../ui/components/format'
+import { formatKg, formatRpe } from '../../ui/components/format'
 import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, ReplayIcon, SettingsIcon, ViewAgendaIcon } from '../../ui/components/icons'
 import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
@@ -41,7 +41,7 @@ export type PlanScreenProps = {
 
 /** The weekly template: one card per training day, then the known bests. */
 export function PlanScreen({ db, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown, today = todayIso }: PlanScreenProps) {
-  const plan = usePlan(db, today)
+  const plan = usePlan(db, today, { knownBests: true })
   // The snapshot's own side, whichever side Plan is showing.
   const undoReplace = (undo: PlanSnapshot) => restorePlan(db, undo.mode, undo)
   return (
@@ -73,6 +73,9 @@ export const EMPTY_BODYBUILDING_PLAN = 'Your bodybuilding plan is empty. Add exe
 export const EMPTY_POWERLIFTING_PLAN = 'Your plan is empty. Start from a template or add exercises to each day.'
 
 export const CHOOSE_A_TEMPLATE = 'Choose a template'
+
+/** A Known bests row's line (1.16.1), in Progress's own term: "Best e1RM 182.5 kg". `kg` is already to the half kilo. */
+export const knownBestText = (kg: number): string => `Best e1RM ${formatKg(kg)} kg`
 
 /** A message for Plan's snackbar from elsewhere, and the plan replace its Undo takes back, if any (1.14.1). */
 export type PlanMessage = { text: string; undo?: PlanSnapshot }
@@ -197,7 +200,7 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onCho
               <p className="plan-muted body-small">Tell the coach your current maxes so it can advise from day one.</p>
               {state.mainExercises.map((lift) => (
                 <div key={lift.id} className="plan-best" role="group" aria-label={lift.name}>
-                  <span className="plan-grow title-medium">{lift.name}</span>
+                  <KnownBestName name={lift.name} best={state.bests[lift.id]} />
                   <SecondaryButton text="Set best" onClick={() => setDialog({ kind: 'baseline', lift })} compact />
                 </div>
               ))}
@@ -294,6 +297,17 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onCho
         onDismiss={() => (failures > 0 ? setFailures(0) : setNote(null))}
       />
     </section>
+  )
+}
+
+/** A Known bests row's name, and under it the lift's best once it has one; with none, the row is as before 1.16.1. */
+function KnownBestName({ name, best }: { name: string; best: number | undefined }) {
+  if (best == null) return <span className="plan-grow title-medium">{name}</span>
+  return (
+    <span className="plan-grow plan-best-text">
+      <span className="title-medium">{name}</span>
+      <span className="plan-muted body-small">{knownBestText(best)}</span>
+    </span>
   )
 }
 

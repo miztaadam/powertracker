@@ -1,10 +1,11 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { addPlanItem, deletePlanItem, planFor, planItemsOn, updatePlanItem } from '../db/catalogue'
-import { activeTrainingDays, getSettings, type AppSettings, type GritDb } from '../db/db'
+import { addPlanItem, deletePlanItem, planFor, planItemsOn, resolveCatalogue, updatePlanItem } from '../db/catalogue'
+import { activeTrainingDays, getSettings, historyOf, type AppSettings, type GritDb } from '../db/db'
 import { exerciseToJs } from '../db/mapping'
 import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
-import { grit } from '../domain'
+import { grit, type JsHistory } from '../domain'
+import { toHalfKg } from './useProgress'
 import { slideNextChange } from '../ui/viewTransition'
 import { DEFAULT_SETS, createCustomExercise, defaultReps, recentExerciseIds, type CustomExercise, type PickerEntry } from './exercisePicker'
 
@@ -24,8 +25,17 @@ export type PlanState = {
   exercises: PlanExercise[]
   /** Exercise ids, most recently logged first, for the picker's "Your exercises". */
   recentIds: number[]
-  /** The squat, bench and deadlift themselves, for "Set best". */
+  /**
+   * The main lifts' own exercises (squat, bench, deadlift and, once it has a row, strict press), for "Set best". With
+   * the strict press switch on and no strict press row yet, the catalogue's strict press (`CATALOGUE_STRICT_PRESS`, id
+   * 0) comes last: its Set best makes its row.
+   */
   mainExercises: PlanExercise[]
+  /**
+   * The best e1RM of each row's lift to the half kilo (`grit.knownBest`: the higher of the typed best and the best
+   * logged), by exercise id. A row with no best has no entry and shows no line.
+   */
+  bests: Readonly<Record<number, number>>
   defaultRpe: number
   /** The days the lifter trains on this side (1 = Monday), from Settings; a day can have plan items without being one. */
   trainingDays: number[]
@@ -75,7 +85,11 @@ export type PlanActions = {
   move: (item: PlanItem, direction: -1 | 1) => Promise<void>
   /** Creates a custom exercise and resolves to it as a picker entry, ready to `add` or `save`. A catalogue name gives the catalogue's entry. */
   addCustomExercise: (exercise: CustomExercise) => Promise<PickerEntry>
-  /** Stores a known best for a main lift. Values `parseBaselineKg` would not accept are ignored. */
+  /**
+   * Stores a known best for a main lift. Values `parseBaselineKg` would not accept are ignored. Id 0 is the catalogue's
+   * strict press, stored nowhere yet: its row is found, restored or made as any catalogue pick's is, in the same
+   * transaction as the best.
+   */
   setBaseline: (exerciseId: number, text: string) => Promise<void>
 }
 
@@ -88,21 +102,65 @@ export const MAX_PLAN_REPS = 20
 /** The most reps the top of a range (the bodybuilding side) can ask for. */
 export const MAX_RANGE_REPS = 30
 
-type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[] }
+/** `history` is null unless Known bests' figures were asked for and the side is powerlifting. */
+type Stored = { plan: PlanItem[]; exercises: PlanExercise[]; settings: AppSettings; recentIds: number[]; history: JsHistory | null }
+
+const STRICT_PRESS = 'STRICT_PRESS'
+
+/** The catalogue's strict press as a Known bests row before it has a row of its own: stored nowhere (id 0). */
+export function catalogueStrictPress(): PlanExercise {
+  const entry = grit.findInLibrary(grit.liftLabel(STRICT_PRESS))
+  if (!entry) throw new Error('Strict press is missing from the catalogue')
+  return { id: 0, name: entry.name, category: entry.category, parentLift: entry.parentLift ?? null, muscles: [...entry.muscles], isBuiltIn: true, archived: false }
+}
+
+/** The Known bests rows: the stored main lifts, then the catalogue's strict press while the switch is on and it has no row. */
+export function knownBestRows(exercises: readonly PlanExercise[], showStrictPress: boolean): PlanExercise[] {
+  const stored = exercises.filter((e) => grit.isMainLift(exerciseToJs(e)))
+  const hasPress = stored.some((e) => grit.mainLiftOf(exerciseToJs(e)) === STRICT_PRESS)
+  return showStrictPress && !hasPress ? [...stored, catalogueStrictPress()] : stored
+}
+
+/** Each stored row's best (`grit.knownBest` of its lift, to the half kilo, as Progress rounds), by id. */
+export function knownBests(rows: readonly PlanExercise[], history: JsHistory): Record<number, number> {
+  const byLift = new Map<string, number | null>()
+  const bests: Record<number, number> = {}
+  for (const row of rows) {
+    const lift = grit.mainLiftOf(exerciseToJs(row))
+    if (row.id === 0 || lift == null) continue
+    if (!byLift.has(lift)) byLift.set(lift, grit.knownBest(history, lift) ?? null)
+    const kg = byLift.get(lift)
+    if (kg != null) bests[row.id] = toHalfKg(kg)
+  }
+  return bests
+}
 
 /** The side the app is on, whose plan the Plan screen (and "Add to plan" on the Exercises tab) reads and edits. */
 async function activeSide(db: GritDb): Promise<TrainingMode> {
   return (await getSettings(db)).trainingMode
 }
 
-async function readStored(db: GritDb): Promise<Stored> {
-  const [settings, exercises, sessions, sets] = await Promise.all([getSettings(db), db.exercises.toArray(), db.sessions.toArray(), db.sets.orderBy('id').toArray()])
+/**
+ * One read of everything Plan shows. With `withBests` (Plan itself), and only on the powerlifting side, it also builds
+ * the history Known bests' figures come from, from the same sessions and sets plus the baselines, so a logged set or a
+ * typed best reads again.
+ */
+async function readStored(db: GritDb, withBests: boolean): Promise<Stored> {
+  const [settings, exercises, sessions, sets, baselines] = await Promise.all([
+    getSettings(db),
+    db.exercises.toArray(),
+    db.sessions.orderBy('date').toArray(),
+    db.sets.orderBy('id').toArray(),
+    withBests ? db.baselines.toArray() : null,
+  ])
   const plan = await planFor(db, settings.trainingMode)
   const recentIds = recentExerciseIds(sessions.map((s) => ({ id: s.id as number, date: s.date, sets: sets.filter((set) => set.sessionId === s.id) })))
-  return { plan: plan as PlanItem[], exercises: exercises as PlanExercise[], settings, recentIds }
+  const history = baselines != null && settings.trainingMode === 'POWERLIFTING' ? historyOf(sessions, sets, exercises, baselines) : null
+  return { plan: plan as PlanItem[], exercises: exercises as PlanExercise[], settings, recentIds, history }
 }
 
-function build({ plan, exercises, settings, recentIds }: Stored): Omit<PlanState, 'loading'> {
+function build({ plan, exercises, settings, recentIds, history }: Stored): Omit<PlanState, 'loading'> {
+  const mainExercises = knownBestRows(exercises, settings.showStrictPress)
   const names = new Map(exercises.map((e) => [e.id, e.name]))
   const trainingDays = activeTrainingDays(settings)
   const weekdays = [...new Set([...trainingDays, ...plan.map((p) => p.weekday)])].sort((a, b) => a - b)
@@ -116,7 +174,8 @@ function build({ plan, exercises, settings, recentIds }: Stored): Omit<PlanState
     })),
     exercises: exercises.filter((e) => !e.archived),
     recentIds,
-    mainExercises: exercises.filter((e) => grit.isMainLift(exerciseToJs(e))),
+    mainExercises,
+    bests: history == null ? {} : knownBests(mainExercises, history),
     defaultRpe: settings.defaultRpe,
     trainingDays,
     side: settings.trainingMode,
@@ -158,19 +217,22 @@ async function sliding(slide: { arm: () => void; disarm: () => void }, write: ()
   }
 }
 
-const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
+const EMPTY: Omit<PlanState, 'loading'> = { sections: [], exercises: [], recentIds: [], mainExercises: [], bests: {}, defaultRpe: 8, trainingDays: [], side: 'POWERLIFTING' }
 
-/** The weekly plan, read live from the database, and the edits the Plan screen makes to it. */
-export function usePlan(db: GritDb, today: () => string): PlanState & PlanActions {
+/**
+ * The weekly plan, read live from the database, and the edits the Plan screen makes to it. `knownBests` (Plan's own
+ * use) also works out each Known bests row's figure on the powerlifting side; without it `bests` stays empty.
+ */
+export function usePlan(db: GritDb, today: () => string, { knownBests: withBests = false }: { knownBests?: boolean } = {}): PlanState & PlanActions {
   const [stored, setStored] = useState<Stored | null>(null)
   const [readError, setReadError] = useState<unknown>(null)
   // Stage 3: the read after an add, a move or a delete on the Plan screen slides the rows into place (the rows of each
   // day, in order, are its shape). Every other read lands at once: "Add to plan" on the Exercises tab never slides.
   const [slide] = useState(() => slideNextChange<Stored | null>(setStored, rowOrder))
   useEffect(() => {
-    const subscription = liveQuery(() => readStored(db)).subscribe({ next: slide.next, error: setReadError })
+    const subscription = liveQuery(() => readStored(db, withBests)).subscribe({ next: slide.next, error: setReadError })
     return () => subscription.unsubscribe()
-  }, [db, slide])
+  }, [db, slide, withBests])
   // A failed read is for the app's error boundary, not for an empty screen that looks like no plan.
   if (readError != null) throw readError
 
@@ -244,7 +306,15 @@ export function usePlan(db: GritDb, today: () => string): PlanState & PlanAction
     async (exerciseId, text) => {
       const e1rmKg = grit.parseBaselineKg(text)
       if (e1rmKg == null) return
-      await db.baselines.put({ exerciseId, e1rmKg, date: today() })
+      if (exerciseId !== 0) {
+        await db.baselines.put({ exerciseId, e1rmKg, date: today() })
+        return
+      }
+      // The catalogue's strict press: its row and its best land together or not at all.
+      await db.transaction('rw', db.exercises, db.baselines, async () => {
+        const id = await resolveCatalogue(db, catalogueStrictPress().name)
+        await db.baselines.put({ exerciseId: id, e1rmKg, date: today() })
+      })
     },
     [db, today],
   )

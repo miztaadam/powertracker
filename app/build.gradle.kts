@@ -16,8 +16,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // Bump together with "version" in web/package.json for each update; a web test catches a mismatch.
-        versionCode = 26
-        versionName = "1.16"
+        versionCode = 27
+        versionName = "1.16.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
