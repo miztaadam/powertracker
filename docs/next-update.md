@@ -916,7 +916,7 @@ Spec: `docs/superpowers/specs/2026-11-19-grit-guide-design.md`; plan: `docs/supe
 - **The smooth motion:** Android's real screens already animate, and the guide inherits that. The web's real screens animate only from taps, so the guide adds its own layout animation. MONTHS_LATER's chart draw-in on the web is the real screen's CSS, played once in real time, not on the guide's clock.
 - **The swipe:** Android's is the pager's drag, with the page following the finger; the web's moves a screen once a sideways swipe passes 50 px.
 - **Screen 8's size:** the web measures both sets of controls (a narrow phone can wrap "Choose a template" onto a row of its own), and screen 8 is smaller by their difference only. Android takes one button's height.
-- **Landscape at the default text size (web):** no phone on the six outlined screens below about 154 px of room for it (664 × 390, 667 × 375, 568 × 320); the text shows in full.
+- **Landscape at the default text size (web):** no phone on the six outlined screens below about 154 px of room for it (844 × 390, 664 × 390, 667 × 375, 568 × 320); the text shows in full.
 
 **Speed:** the structural checks are hard (the guide's chunk isn't loaded before it opens; no layout reads per step; screen 2's loop runs nothing on a held clock). The time to the first screen's title only reports, and asserts its 300 ms limit only when it is under 150 ms on the machine, as the owner chose for 1.15's timing.
 

@@ -159,13 +159,13 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Mode switch vibration: iPhones don't let web apps vibrate, so nothing buzzes; the animation plays as normal.
 - [ ] Mode switch with Reduce Motion on: no animation, the look changes at once, and the sound still plays.
 - [ ] Mode switch, skip: during either animation, tap anywhere outside the switch. It jumps to the end and the tap does nothing else. Flip the switch again mid-animation: the running one ends and the other plays, on the side of the last flip.
-- [ ] Guide, a new install in Safari: open Grit in a Safari tab with no data. The guide opens on "Welcome to Grit" before anything else, and the install card shows only after it. Close Safari's tab and open Grit again: it does not open again.
-- [ ] Guide on the Home Screen: add Grit to the Home Screen and open it. The installed app starts empty, so the guide opens there once too, and not again after closing and reopening.
+- [ ] Guide, a new install in Safari: open Grit in a Safari tab with no data. The guide opens on "Welcome to Grit" before anything else, and the install card shows only after it. Finish it or tap Skip, then close Safari's tab and open Grit again: it does not open again. (Closed before the end, it opens again next time: it counts as seen only once it closes.)
+- [ ] Guide on the Home Screen: add Grit to the Home Screen and open it. The installed app starts empty, so the guide opens there once too. Finish it or tap Skip, then close and reopen the app: it does not open again.
 - [ ] Guide, the side pick: on that first launch, screen 2 has Powerlifting and Bodybuilding buttons. Tap Bodybuilding: the look turns blue at once, with no animation and no sound, and screens 3 to 8 talk about bodybuilding. On screen 8, Choose a template opens the bodybuilding templates.
 - [ ] Guide, Skip: on a new install, tap Skip on any screen. Today shows, and the guide does not open again.
-- [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Go to the end and tap Done: your side, plan and log are as they were.
+- [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Go to the end and leave it (Done with a plan; without one, Skip, since Choose a template opens the templates): your side, plan and log are as they were.
 - [ ] Guide with Reduce Motion on: each picture shows its end at once, and screen 2's hammer and pump stand still.
-- [ ] Guide at large text (Settings, Display & Brightness, Text Size, or Safari's page zoom): no word is cut, Back and Next stay on screen, and where the pictures don't fit the text shows without them.
+- [ ] Guide at large text (in Safari, aA, zoom to 200%; Grit's text is fixed in size, so the iPhone's Text Size setting does not enlarge it): no word is cut, Back and Next stay on screen, and where the pictures don't fit the text shows without them.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -205,12 +205,12 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Mode switch sound: each animation has its own sound, in time with the hits, at the media volume.
 - [ ] Mode switch with Remove animations on (Settings, Accessibility): no animation, the look changes at once, and the vibration and the sound still play.
 - [ ] Mode switch, skip: during either animation, tap anywhere outside the switch. It jumps to the end and the tap does nothing else. Flip the switch again mid-animation: the running one ends and the other plays, on the side of the last flip.
-- [ ] Guide, a new install: open Grit in Chrome with no data. The guide opens before anything else, and the install card shows only after it. Open Grit again: it does not open again.
+- [ ] Guide, a new install: open Grit in Chrome with no data. The guide opens before anything else, and the install card shows only after it. Finish it or tap Skip, then open Grit again: it does not open again. (Closed before the end, it opens again next time.)
 - [ ] Guide, the side pick: on that first launch, screen 2 has Powerlifting and Bodybuilding buttons. Tap Bodybuilding: the look turns blue at once, with no animation, sound or buzz, and screens 3 to 8 talk about bodybuilding. On screen 8, Choose a template opens the bodybuilding templates.
 - [ ] Guide, Skip: on a new install, tap Skip on any screen. Today shows, and the guide does not open again.
-- [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Go to the end and tap Done: your side, plan and log are as they were.
+- [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Go to the end and leave it (Done with a plan; without one, Skip, since Choose a template opens the templates): your side, plan and log are as they were.
 - [ ] Guide with reduce motion on: each picture shows its end at once, and screen 2's hammer and pump stand still.
-- [ ] Guide at large text (the phone's font size or Chrome's text scaling): no word is cut, Back and Next stay on screen, and where the pictures don't fit the text shows without them.
+- [ ] Guide at large text (Chrome's page zoom at 200%, or pinch to zoom): no word is cut, Back and Next stay on screen, and where the pictures don't fit the text shows without them.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
@@ -244,10 +244,10 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Mode switch sound: each animation has its own sound, in time with the hits, at the media volume. In silent or vibrate mode, no sound. The very first switch after installing (the pump) has its sound too.
 - [ ] Mode switch with Remove animations on (Settings, Accessibility): no animation, the look changes at once, and the vibration and the sound still play.
 - [ ] Mode switch, skip: during either animation, tap anywhere outside the switch. It jumps to the end and the tap does nothing else. Flip the switch again mid-animation: the running one ends and the other plays, on the side of the last flip.
-- [ ] Guide, a new install: install Grit fresh and open it. The guide opens on "Welcome to Grit". Close Grit and open it again: it does not open again.
+- [ ] Guide, a new install: install Grit fresh and open it. The guide opens on "Welcome to Grit". Finish it or tap Skip, then close Grit and open it again: it does not open again. (Closed before the end, it opens again on screen 1, with the side you picked kept.)
 - [ ] Guide, the side pick: on that first launch, screen 2 has Powerlifting and Bodybuilding buttons. Tap Bodybuilding: the look turns blue at once, with no animation, sound or buzz, and screens 3 to 8 talk about bodybuilding. On screen 8, Choose a template opens the bodybuilding templates, and Back from them lands on Plan.
 - [ ] Guide, Skip: on a new install, tap Skip on any screen. Today shows, and the guide does not open again.
-- [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Swipe through to the end and tap Done: your side, plan and log are as they were.
+- [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Swipe through to the end and leave it (Done with a plan; without one, Skip, since Choose a template opens the templates): your side, plan and log are as they were.
 - [ ] Guide with Remove animations on (Settings, Accessibility): each picture shows its end at once, and screen 2's hammer and pump stand still.
 - [ ] Guide at large text (font size one or two steps up): no word is cut, Back and Next stay on screen, and the text scrolls beside the picture.
 - [ ] Today: log a set. Its tick draws itself in. Skip an exercise: the "Skipped today" line slides up into place. Open Today again: both are simply there, with no animation.
