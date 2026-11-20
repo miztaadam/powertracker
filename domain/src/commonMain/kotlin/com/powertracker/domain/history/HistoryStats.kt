@@ -2,6 +2,7 @@ package com.powertracker.domain.history
 
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -24,7 +25,8 @@ class HistoryStats(private val history: TrainingHistory) {
     /**
      * Best e1RM per ISO week (Monday start) for the lift, from sessions on or before [until].
      * Main-lift sets count in full; VARIATION sets of that parentLift count at x0.9 (trend only).
-     * Failed sets are excluded. Weeks with no qualifying sets are omitted. Sorted ascending.
+     * Failed sets are excluded, and so is any set not in kg (a guard: a main lift never counts plates). Weeks with no
+     * qualifying sets are omitted. Sorted ascending.
      */
     fun weeklyTrend(lift: MainLift, until: LocalDate): List<WeeklyPoint> {
         val best = mutableMapOf<LocalDate, Double>()
@@ -32,7 +34,7 @@ class HistoryStats(private val history: TrainingHistory) {
             if (session.date > until) continue
             val week = session.date.mondayOfWeek()
             for (set in session.sets) {
-                if (set.failed || liftOf(set) != lift) continue
+                if (set.failed || set.unit != LoadUnit.KG || liftOf(set) != lift) continue
                 val factor = when (categoryOf(set)) {
                     Category.VARIATION -> 0.9
                     Category.SQUAT, Category.BENCH, Category.DEADLIFT, Category.STRICT_PRESS -> 1.0
@@ -46,7 +48,7 @@ class HistoryStats(private val history: TrainingHistory) {
     }
 
     /**
-     * Best e1RM from non-failed main-lift sets only (never variations) within (until - days, until].
+     * Best e1RM from non-failed kg main-lift sets only (never variations) within (until - days, until].
      * With no such sets, falls back to the latest Baseline (date <= until) of the lift's main exercise;
      * null if there is none either.
      */
@@ -55,7 +57,7 @@ class HistoryStats(private val history: TrainingHistory) {
         val best = sessions
             .filter { it.date > from && it.date <= until }
             .flatMap { it.sets }
-            .filter { !it.failed && history.exercises[it.exerciseId]?.let { e -> e.isMainLift && e.mainLift == lift } == true }
+            .filter { !it.failed && it.unit == LoadUnit.KG && history.exercises[it.exerciseId]?.let { e -> e.isMainLift && e.mainLift == lift } == true }
             .maxOfOrNull { E1rm.estimate(it.weightKg, it.reps, it.rpe) }
         if (best != null) return best
         val mainIds = history.exercises.values.filter { it.isMainLift && it.mainLift == lift }.map { it.id }.toSet()
@@ -65,9 +67,9 @@ class HistoryStats(private val history: TrainingHistory) {
             ?.e1rmKg
     }
 
-    /** Number of sessions containing at least one main-lift (not variation) set of [lift]. */
+    /** Number of sessions containing at least one kg main-lift (not variation) set of [lift]. */
     fun sessionCount(lift: MainLift): Int = sessions.count { s ->
-        s.sets.any { set -> history.exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true }
+        s.sets.any { set -> set.unit == LoadUnit.KG && history.exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true }
     }
 
     /**

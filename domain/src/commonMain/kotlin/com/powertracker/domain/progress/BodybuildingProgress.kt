@@ -4,6 +4,7 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.stack.inCurrentUnits
 import kotlinx.datetime.LocalDate
 
 /**
@@ -26,10 +27,10 @@ object BodybuildingProgress {
      * One row per distinct exercise in the bodybuilding plan, in plan order (weekday, then the day's order), for
      * sessions on or before [today]. Missed sets never count. A session's best set is the one with the most reps at
      * its heaviest weight. Going up: the newest session's heaviest weight is above the one before's, or the same with
-     * more reps in total.
+     * more reps in total. Only sets in each exercise's current unit count, so plate is compared with plate (1.17).
      */
     fun rows(history: TrainingHistory, plan: List<PlanItem>, today: LocalDate): List<ExerciseTrend> {
-        val sessions = history.sessions
+        val sessions = history.inCurrentUnits().sessions
             .filter { it.mode == TrainingMode.BODYBUILDING && it.date <= today }
             .sortedBy { it.date }
         return plan

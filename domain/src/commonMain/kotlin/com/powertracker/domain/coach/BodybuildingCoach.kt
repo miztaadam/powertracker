@@ -14,6 +14,7 @@ import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
 import com.powertracker.domain.model.repsText
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.stack.inCurrentUnits
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -41,6 +42,8 @@ import kotlin.math.roundToLong
  * No lift is special here: there is no minimum history and no main-lift rule.
  * While a pain skip holds an exercise ([SkipCoach.held]) no increase is earned: the weight repeats and the reps aim
  * carries on from last time ([repsToBeat]) rather than starting again at the low end.
+ * Every rule here reads only the sets in each exercise's current unit (1.17); the pain hold and the session dates
+ * read the whole log.
  */
 object BodybuildingCoach {
     /** The size of a weight increase, as a fraction of the last weight. Source: [CoachSources.BODYBUILDING_INCREASE]. */
@@ -66,7 +69,8 @@ object BodybuildingCoach {
         skips: List<Skip> = emptyList(),
     ): List<Advice> {
         val all = HistoryStats(history)
-        val side = HistoryStats(history.on(TrainingMode.BODYBUILDING))
+        val current = history.inCurrentUnits()
+        val side = HistoryStats(current.on(TrainingMode.BODYBUILDING))
         val deload = Coach.activeAdvice(AdviceType.DELOAD, priorAdvice, today)
         val lastSession = all.lastSessionDate(today)
         val firstDayBack = lastSession != null && lastSession.daysUntil(today) >= Coach.GAP_DAYS
@@ -83,10 +87,10 @@ object BodybuildingCoach {
                 val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
                 // The break's re-entry clamp eases a first-time weight itself: never a second 0.85.
                 val held = SkipCoach.held(item.exerciseId, skips, history, today)
-                val target = target(item, exercise, history, settings, today, easeOldHistory = reEntry == null, held = held)
+                val target = target(item, exercise, current, settings, today, easeOldHistory = reEntry == null, held = held)
                     ?: return@mapNotNull null
-                val eased = ReturnRule.ease(target, item, exercise, history, TrainingMode.BODYBUILDING, settings, today)
-                withoutAddWeight(clamp(eased, item, exercise, side, all, settings, deload, reEntry), item, history, today)
+                val eased = ReturnRule.ease(target, item, exercise, current, TrainingMode.BODYBUILDING, settings, today)
+                withoutAddWeight(clamp(eased, item, exercise, side, all, settings, deload, reEntry), item, current, today)
             }
     }
 
@@ -96,7 +100,8 @@ object BodybuildingCoach {
      * skip in [skips] holds the exercise there is no increase, so no return to the low end either.
      */
     fun repsToBeat(item: PlanItem, history: TrainingHistory, setNumber: Int, today: LocalDate, skips: List<Skip> = emptyList()): Int {
-        val last = lastSets(item.exerciseId, history, today) ?: return item.reps
+        // Last time's sets in the current unit; the pain hold reads every set.
+        val last = lastSets(item.exerciseId, history.inCurrentUnits(), today) ?: return item.reps
         if (earnedIncrease(last, item) && !SkipCoach.held(item.exerciseId, skips, history, today)) return item.reps
         val set = last.getOrNull(setNumber - 1) ?: return item.reps
         return minOf(set.reps + 1, high(item))

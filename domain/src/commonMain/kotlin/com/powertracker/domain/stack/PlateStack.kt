@@ -6,6 +6,7 @@ import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.PlateCount
+import com.powertracker.domain.model.TrainingHistory
 import kotlin.math.ceil
 import kotlin.math.floor as floorOf
 import kotlin.math.roundToLong
@@ -105,4 +106,24 @@ object PlateStack {
     private fun halves(step: Double): Long = (step * 2).roundToLong().coerceAtLeast(1L)
 
     private fun fromHalves(h: Long): Double = h / 2.0
+}
+
+/**
+ * The same sessions, each holding only the sets logged in their exercise's current unit ([PlateStack.unitOf]); a set
+ * whose exercise has no row counts as kg. No session is dropped, even when emptied: the 14-day gap, easing back in and
+ * "trained before" count sessions. With no plate set and no setting on, this history itself is returned.
+ */
+fun TrainingHistory.inCurrentUnits(): TrainingHistory {
+    val anyPlates = sessions.any { s -> s.sets.any { it.unit != LoadUnit.KG } } ||
+        exercises.values.any { it.plateCount != PlateCount.OFF }
+    if (!anyPlates) return this
+    val units = HashMap<Long, LoadUnit>()
+    fun unitOf(exerciseId: Long): LoadUnit =
+        units.getOrPut(exerciseId) { exercises[exerciseId]?.let(PlateStack::unitOf) ?: LoadUnit.KG }
+    var changed = false
+    val kept = sessions.map { session ->
+        val sets = session.sets.filter { it.unit == unitOf(it.exerciseId) }
+        if (sets.size == session.sets.size) session else session.copy(sets = sets).also { changed = true }
+    }
+    return if (changed) copy(sessions = kept) else this
 }

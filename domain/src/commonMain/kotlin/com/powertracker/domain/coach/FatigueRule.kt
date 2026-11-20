@@ -4,6 +4,7 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
@@ -74,8 +75,9 @@ object FatigueRule {
 
     private fun liftNames(lifts: List<MainLift>) = lifts.joinToString(" and ") { liftLabel(it).lowercase() }
 
+    /** The session's kg main-lift sets (a guard: a main lift never counts plates, and these signals read kg). */
     private fun mainSets(session: LoggedSession, history: TrainingHistory): List<LoggedSet> =
-        session.sets.filter { history.exercises[it.exerciseId]?.isMainLift == true }
+        session.sets.filter { it.unit == LoadUnit.KG && history.exercises[it.exerciseId]?.isMainLift == true }
 
     private fun topSet(sets: List<LoggedSet>): LoggedSet? =
         sets.lastOrNull { it.isTopSet } ?: sets.filter { !it.failed }.maxByOrNull { it.weightKg }

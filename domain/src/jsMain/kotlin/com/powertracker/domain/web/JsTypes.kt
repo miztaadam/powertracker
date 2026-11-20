@@ -215,6 +215,8 @@ data class JsAdvicePayload(
     val skipId: Int? = null,
     /** Skipped: a `SkipReason` name, or null when the skip gave no reason. */
     val skipReason: String? = null,
+    /** Target: what [weightKg] means, a `LoadUnit` name ("KG", also for every payload stored before 1.17, or "PLATES"). */
+    val unit: String? = null,
 )
 
 /**
@@ -580,7 +582,7 @@ internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
     return when (payload) {
         is AdvicePayload.Target -> JsAdvicePayload(
             "Target", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), weightKg = payload.weightKg,
-            reps = payload.reps, rpe = payload.rpe, sets = payload.sets, repsHigh = payload.repsHigh,
+            reps = payload.reps, rpe = payload.rpe, sets = payload.sets, repsHigh = payload.repsHigh, unit = payload.unit.name,
         )
         is AdvicePayload.Accessories -> JsAdvicePayload(
             "Accessories",

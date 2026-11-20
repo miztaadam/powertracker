@@ -48,6 +48,7 @@ import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.domain.stack.PlateStack
+import com.powertracker.domain.stack.inCurrentUnits
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.domain.validation.InputWarning
 import kotlinx.datetime.isoDayNumber
@@ -480,11 +481,12 @@ object GritDomain {
     fun isMainLift(exercise: JsExercise): Boolean = exercise.toDomain().isMainLift
 
     /**
-     * The top set of the latest session strictly before [before] that has the exercise: the flagged set, else the
-     * heaviest good set, else the heaviest. Null when it was never logged before then.
+     * The top set of the latest session strictly before [before] that has the exercise in its current unit (1.17):
+     * the flagged set, else the heaviest good set, else the heaviest. Null when it was never logged in that unit
+     * before then.
      */
     fun lastTopSet(history: JsHistory, exerciseId: Int, before: String): JsSet? =
-        HistoryStats(history.toDomain()).lastTopSet(exerciseId.toLong(), parseDate("before", before))?.second?.toJs()
+        HistoryStats(history.toDomain().inCurrentUnits()).lastTopSet(exerciseId.toLong(), parseDate("before", before))?.second?.toJs()
 
     /** True once open advice of [type] created on [createdAt] no longer counts on [today] (a deload or re-entry after 14 days). */
     fun openAdviceExpired(type: String, createdAt: String, today: String): Boolean =

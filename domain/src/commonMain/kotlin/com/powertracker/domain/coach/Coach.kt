@@ -13,6 +13,7 @@ import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
+import com.powertracker.domain.stack.inCurrentUnits
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -117,6 +118,9 @@ object Coach {
      * weight, or a rep at the same weight, the target repeats its latest top set instead ([ProgressionRule.held]); a
      * decrease still applies. The
      * return rule and the clamps still apply after that.
+     * Progression, the pain hold's repeat, the return rule and the clamps read only the sets in each exercise's
+     * current unit (1.17), so after a change of unit an exercise has no target until a set in the new unit exists; the
+     * pain hold itself, minimum history and the session dates read the whole log.
      * Does not dedupe against prior TARGET advice: the app does that.
      */
     fun targetsFor(
@@ -130,6 +134,8 @@ object Coach {
     ): List<Advice> {
         val all = HistoryStats(history)
         val stats = powerliftingStats(history, all)
+        val current = history.inCurrentUnits()
+        val currentStats = if (current === history) stats else powerliftingStats(current, HistoryStats(current))
         val deload = activeAdvice(AdviceType.DELOAD, priorAdvice, today)
         val lastSession = all.lastSessionDate(today)
         val firstDayBack = lastSession != null && lastSession.daysUntil(today) >= GAP_DAYS
@@ -140,10 +146,10 @@ object Coach {
             val exercise = history.exercises[item.exerciseId]?.takeUnless { it.archived } ?: return@mapNotNull null
             val lift = exercise.mainLift
             if (lift != null && !hasMinimumHistory(lift, stats, history)) return@mapNotNull null
-            val free = ProgressionRule.target(item, exercise, stats, settings, today) ?: return@mapNotNull null
-            val target = if (SkipCoach.held(item.exerciseId, skips, history, today)) ProgressionRule.held(free, item, stats, today) else free
-            val eased = ReturnRule.ease(target, item, exercise, history, TrainingMode.POWERLIFTING, settings, today)
-            clamp(eased, item, exercise, stats, all, settings, today, deload, reEntry)
+            val free = ProgressionRule.target(item, exercise, currentStats, settings, today) ?: return@mapNotNull null
+            val target = if (SkipCoach.held(item.exerciseId, skips, history, today)) ProgressionRule.held(free, item, currentStats, today) else free
+            val eased = ReturnRule.ease(target, item, exercise, current, TrainingMode.POWERLIFTING, settings, today)
+            clamp(eased, item, exercise, currentStats, all, settings, today, deload, reEntry)
         }
     }
 

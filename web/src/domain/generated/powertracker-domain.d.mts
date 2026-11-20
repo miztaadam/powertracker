@@ -1073,7 +1073,7 @@ export declare namespace JsNewExercise {
     }
 }
 export declare class JsAdvicePayload {
-    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>, skipId?: Nullable<number>, skipReason?: Nullable<string>);
+    constructor(kind: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>, skipId?: Nullable<number>, skipReason?: Nullable<string>, unit?: Nullable<string>);
     get kind(): string;
     get exerciseId(): Nullable<number>;
     get weightKg(): Nullable<number>;
@@ -1096,7 +1096,8 @@ export declare class JsAdvicePayload {
     get alternatives(): Array<string>;
     get skipId(): Nullable<number>;
     get skipReason(): Nullable<string>;
-    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>, skipId?: Nullable<number>, skipReason?: Nullable<string>): JsAdvicePayload;
+    get unit(): Nullable<string>;
+    copy(kind?: string, exerciseId?: Nullable<number>, weightKg?: Nullable<number>, reps?: Nullable<number>, rpe?: Nullable<number>, sets?: Nullable<number>, items?: Array<JsPrescription>, volumeFactor?: Nullable<number>, loadFactor?: Nullable<number>, lift?: Nullable<string>, missPoint?: Nullable<string>, repsHigh?: Nullable<number>, group?: Nullable<string>, addSets?: Array<JsSetAddition>, newExercise?: Nullable<JsNewExercise>, weeklyBefore?: Nullable<number>, weeklyAfter?: Nullable<number>, name?: Nullable<string>, since?: Nullable<string>, alternatives?: Array<string>, skipId?: Nullable<number>, skipReason?: Nullable<string>, unit?: Nullable<string>): JsAdvicePayload;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

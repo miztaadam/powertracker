@@ -2,6 +2,7 @@ package com.powertracker.domain.progress
 
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
@@ -19,9 +20,12 @@ fun weekStart(date: LocalDate): LocalDate = date.mondayOfWeek()
 
 /** The figures the Progress screens derive from history. Pure, shared with the web app. */
 object ProgressMath {
-    /** True for a completed set of the competition lift itself: variations and failed sets never count. */
+    /**
+     * True for a completed kg set of the competition lift itself: variations, failed sets and (a guard: a main lift
+     * never counts plates) any set not in kg never count.
+     */
     fun TrainingHistory.isCompletedMainSet(set: LoggedSet, lift: MainLift): Boolean =
-        !set.failed && exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true
+        !set.failed && set.unit == LoadUnit.KG && exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift == lift } == true
 
     /**
      * Every personal record of [lift], oldest first: each completed main-lift set whose e1RM beats

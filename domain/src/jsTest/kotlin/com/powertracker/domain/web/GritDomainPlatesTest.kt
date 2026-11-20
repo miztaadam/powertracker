@@ -79,6 +79,38 @@ class GritDomainPlatesTest {
     }
 
     @Test
+    fun advicePayload_carriesTheUnit() {
+        val old = """{"type":"com.powertracker.domain.model.AdvicePayload.Target","exerciseId":5,"weightKg":60.0,"reps":8,"rpe":8.0}"""
+        val plate = """{"type":"com.powertracker.domain.model.AdvicePayload.Target","exerciseId":5,"weightKg":7.5,"reps":8,"rpe":8.0,"unit":"PLATES"}"""
+        assertEquals("KG", GritDomain.advicePayload(old)?.unit)
+        assertEquals("PLATES", GritDomain.advicePayload(plate)?.unit)
+        assertEquals(7.5, GritDomain.advicePayload(plate)?.weightKg)
+        assertEquals(null, GritDomain.advicePayload("""{"type":"com.powertracker.domain.model.AdvicePayload.ReEntry"}""")?.unit)
+    }
+
+    @Test
+    fun lastTopSet_isInTheCurrentUnit() {
+        fun history(count: String) = JsHistory(
+            arrayOf(
+                JsSession(1, "2026-11-10", null, null, arrayOf(JsSet(5, 60.0, 10, 8.0, false, null, true)), "POWERLIFTING"),
+                JsSession(2, "2026-11-13", null, null, arrayOf(JsSet(5, 7.0, 10, 8.0, false, null, true, "PLATES")), "POWERLIFTING"),
+                JsSession(3, "2026-11-16", null, null, arrayOf(JsSet(5, 65.0, 8, 8.0, false, null, true)), "POWERLIFTING"),
+            ),
+            arrayOf(pulldown.copy(plateCount = count)),
+            emptyArray(),
+        )
+        val inPlates = GritDomain.lastTopSet(history("WHOLE"), 5, "2026-11-20")
+        assertEquals("PLATES", inPlates?.unit)
+        assertEquals(7.0, inPlates?.weightKg)
+        val inKg = GritDomain.lastTopSet(history("OFF"), 5, "2026-11-20")
+        assertEquals("KG", inKg?.unit)
+        assertEquals(65.0, inKg?.weightKg)
+        // Plates on with only kg sets: nothing to fill the field from.
+        val kgOnly = JsHistory(arrayOf(history("WHOLE").sessions[0]), arrayOf(pulldown.copy(plateCount = "HALF")), emptyArray())
+        assertEquals(null, GritDomain.lastTopSet(kgOnly, 5, "2026-11-20"))
+    }
+
+    @Test
     fun checkLoadInput_inPlates_namesBigJump() {
         assertContentEquals(arrayOf("BIG_JUMP"), GritDomain.checkLoadInput(5.0, 10, 3.0, "PLATES", "WHOLE"))
         assertContentEquals(emptyArray(), GritDomain.checkLoadInput(4.0, 10, 3.0, "PLATES", "WHOLE"))
