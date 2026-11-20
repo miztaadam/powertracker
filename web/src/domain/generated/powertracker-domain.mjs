@@ -172,7 +172,6 @@ import {
   listOfNotNull1v4ggfackvuny as listOfNotNull_0,
   sortedDescending1829b1te0xwte as sortedDescending,
   toList2zksu85ukrmi as toList_1,
-  maxOrNull5i0eu9xqz7pb as maxOrNull,
   sum2ku6kbgxq0lee as sum,
   isFinite2t9l5a275mxm6 as isFinite,
   trim11nh7r46at6sx as trim,
@@ -41924,7 +41923,14 @@ protoOf(ProgressMath).o3k = function (history, lift) {
   var typed = tmp0_safe_receiver_0 == null ? null : tmp0_safe_receiver_0.r1j_1;
   var tmp1_safe_receiver = lastOrNull(this.l3k(on(history, TrainingMode_POWERLIFTING_getInstance()), lift));
   var lifted = tmp1_safe_receiver == null ? null : tmp1_safe_receiver.e3k_1;
-  return maxOrNull(listOfNotNull([typed, lifted]));
+  var tmp_0;
+  if (typed == null || lifted == null) {
+    tmp_0 = typed == null ? lifted : typed;
+  } else {
+    // Inline function 'kotlin.comparisons.maxOf' call
+    tmp_0 = Math.max(typed, lifted);
+  }
+  return tmp_0;
 };
 protoOf(ProgressMath).f22 = function (stats, until, includeStrictPress) {
   var included = includeStrictPress ? plus_2(this.e22_1, MainLift_STRICT_PRESS_getInstance()) : this.e22_1;

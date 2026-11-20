@@ -87,7 +87,7 @@ object ProgressMath {
             .maxByOrNull { it.date }
             ?.e1rmKg
         val lifted = prs(history.on(TrainingMode.POWERLIFTING), lift).lastOrNull()?.e1rmKg
-        return listOfNotNull(typed, lifted).maxOrNull()
+        return if (typed == null || lifted == null) typed ?: lifted else maxOf(typed, lifted)
     }
 
     private val SBD = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
