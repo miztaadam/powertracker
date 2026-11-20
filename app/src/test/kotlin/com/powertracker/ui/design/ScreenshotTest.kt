@@ -135,11 +135,12 @@ class ScreenshotTest {
     fun planAddForm() = render("plan-add-form", Tab.PLAN) { PlanAddFormShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
+    // Tall enough for the whole screen, the guide's row (1.16) and the version line included.
+    @Config(qualifiers = "w412dp-h1530dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1530dp-xhdpi")
     fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
 
     // The bodybuilding side (bodybuilding mode spec §7): its blue look and label, its own Today, Plan, Coach and Progress.
@@ -160,7 +161,7 @@ class ScreenshotTest {
     fun progressBodybuilding() = render("progress-bodybuilding", Tab.PROGRESS, TrainingMode.BODYBUILDING) { ProgressBodybuildingShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1330dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1460dp-xhdpi")
     fun settingsBodybuilding() = render("settings-bodybuilding", null, TrainingMode.BODYBUILDING) {
         SettingsShowcase(bodybuilding = true)
     }
@@ -284,7 +285,28 @@ class ScreenshotTest {
 
     @Test
     fun guideTodayBodybuilding() = render("guide-today-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideTodayShowcase(TrainingMode.BODYBUILDING) }
+
+    /** Screen 2 on a first launch, with its two side buttons (1.16, Task 3). */
+    @Test
+    fun guideSidePowerlifting() = render("guide-side-first-launch-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.SIDE, firstLaunch = true) }
+
+    @Test
+    fun guideSideBodybuilding() = render("guide-side-first-launch-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.SIDE, firstLaunch = true) }
+
+    /** Screen 8 with no plan on the side (Choose a template; Build my plan on bodybuilding), and with one (Done, See my plan). */
+    @Test
+    fun guideYourTurnNoPlanPowerlifting() = render("guide-your-turn-no-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN) }
+
+    @Test
+    fun guideYourTurnNoPlanBodybuilding() = render("guide-your-turn-no-plan-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.YOUR_TURN) }
+
+    @Test
+    fun guideYourTurnWithPlan() = render("guide-your-turn-with-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN, hasPlan = true) }
 }
+
+@Composable
+private fun GuideShowcase(mode: TrainingMode, at: GuideScreenId, firstLaunch: Boolean = false, hasPlan: Boolean = false) =
+    GuideScreen(mode, firstLaunch = firstLaunch, hasPlan = hasPlan, motionOn = false, onPickSide = {}, onClose = {}, startAt = at)
 
 @Composable
 private fun GuideTodayShowcase(mode: TrainingMode) =

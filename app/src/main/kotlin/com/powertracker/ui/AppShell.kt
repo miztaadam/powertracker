@@ -41,7 +41,16 @@ import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.TrainingMode
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.powertracker.ui.guide.GuideExit
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.rememberCoroutineScope
 import com.powertracker.ui.checkin.CheckInScreen
 import com.powertracker.ui.coach.CoachScreen
 import com.powertracker.ui.guide.GuideScreen
@@ -86,19 +95,51 @@ object Routes {
     fun templates(mode: TrainingMode) = "templates/${mode.name}"
     /** The bodybuilding side's check-in (stage 3). */
     const val CHECK_IN = "checkIn"
-    /** The guide (1.16): full screen, no tab bar. Nothing opens it by itself yet. */
+    /** The guide (1.16): full screen, no tab bar. Opened by the first launch, or from Settings as a replay. */
     const val GUIDE = "guide"
 }
 
+/**
+ * [guideOnFirstLaunch] turns on the guide's first-launch gate (1.16). Off unless asked for: MainActivity asks; every
+ * test that draws the shell keeps it off, as its empty database is exactly a new user who has not seen the guide.
+ */
 @Composable
-fun AppShell(container: AppContainer) = AppShell(container.training, container.advice, container.settings, container.backup)
+fun AppShell(container: AppContainer, guideOnFirstLaunch: Boolean = false) =
+    AppShell(container.training, container.advice, container.settings, container.backup, guideOnFirstLaunch)
 
 /** The tabs and the screens behind them, over the app's repositories. */
 @Composable
-fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: SettingsRepository, backup: BackupService) {
+fun AppShell(
+    training: TrainingRepository,
+    advice: AdviceRepository,
+    settings: SettingsRepository,
+    backup: BackupService,
+    guideOnFirstLaunch: Boolean = false,
+) {
     val nav = rememberNavController()
     val current by nav.currentBackStackEntryAsState()
     val route = current?.destination?.route
+    val scope = rememberCoroutineScope()
+
+    // The first-launch gate: read "seen" first, and only if not seen ask whether this is a new user (no session and no
+    // plan item on either side); then open the guide, as a first launch. Decided once per start of the shell (kept
+    // across a rotation); while it decides, nothing of the app shows, so Today never flashes before the guide.
+    var gate by rememberSaveable { mutableStateOf(if (guideOnFirstLaunch) Gate.DECIDING else Gate.SHUT) }
+    // The guide on screen is the first launch's (picks the side, writes "seen" on any exit), not a replay.
+    var firstLaunchGuide by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (gate != Gate.DECIDING) return@LaunchedEffect
+        val open = !settings.guideSeen.first() && training.isNewUser()
+        // Navigation is the main thread's, once the host has its graph (its first entry, Today, is there).
+        withContext(Dispatchers.Main.immediate) {
+            if (open) {
+                nav.currentBackStackEntryFlow.first()
+                firstLaunchGuide = true
+                nav.navigate(Routes.GUIDE) { launchSingleTop = true }
+            }
+            gate = Gate.SHUT
+        }
+    }
 
     fun openTab(tab: Tab) = nav.navigate(tab.route) {
         popUpTo(nav.graph.findStartDestination().id) { saveState = true }
@@ -115,8 +156,41 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
     var planUndo by remember { mutableStateOf<PlanSnapshot?>(null) }
     fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
 
+    // Screen 8 asks whether the side now on has a plan.
+    val plans by remember(training) { training.plans() }.collectAsState(initial = null)
+
+    /**
+     * The guide has been left by [exit]. A first launch's guide writes "seen" here, whichever way it was left (Skip,
+     * Back, Done or a plan button); a replay writes nothing. Each exit leaves the guide first, so Back from what it
+     * opens never returns to it: the template list and the builder sit over Plan.
+     */
+    fun leaveGuide(exit: GuideExit, side: TrainingMode) {
+        if (firstLaunchGuide) {
+            firstLaunchGuide = false
+            scope.launch { settings.markGuideSeen() }
+        }
+        nav.popBackStack(Routes.GUIDE, inclusive = true)
+        // To Plan: back down to it when the guide was opened over it (a replay from Settings), else its tab.
+        fun toPlan() {
+            if (!nav.popBackStack(Tab.PLAN.route, inclusive = false)) openTab(Tab.PLAN)
+        }
+        when (exit) {
+            GuideExit.SKIPPED, GuideExit.DONE -> Unit
+            GuideExit.SEE_PLAN -> toPlan()
+            GuideExit.CHOOSE_TEMPLATE -> {
+                toPlan()
+                nav.navigate(Routes.templates(side)) { launchSingleTop = true }
+            }
+            GuideExit.BUILD_PLAN -> {
+                toPlan()
+                nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true }
+            }
+        }
+    }
+
     // The mode switch animations draw over everything here, tab bar included (1.15).
     ModeSwitchHost {
+    Box {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -216,20 +290,32 @@ fun AppShell(training: TrainingRepository, advice: AdviceRepository, settings: S
                 ExerciseHistoryScreen(training, entry.arguments?.getString("id")?.toLongOrNull() ?: 0L, onBack = { nav.popBackStack() })
             }
             composable(Routes.SETTINGS) {
-                SettingsScreen(settings, backup, onBack = { nav.popBackStack() })
+                SettingsScreen(settings, backup, onBack = { nav.popBackStack() }, onOpenGuide = { nav.navigate(Routes.GUIDE) { launchSingleTop = true } })
             }
             composable(Routes.GUIDE) {
-                // A replay: it picks no side and writes nothing; every exit goes back. The first launch and screen 8's
-                // plan buttons come with Task 3.
+                val side = mode ?: TrainingMode.POWERLIFTING
+                val first = firstLaunchGuide
                 GuideScreen(
-                    mode ?: TrainingMode.POWERLIFTING, firstLaunch = false, hasPlan = false, motionOn = LocalMotion.current,
-                    onPickSide = {}, onClose = { nav.popBackStack() },
+                    side, firstLaunch = first, hasPlan = plans?.of(side)?.isNotEmpty() == true, motionOn = LocalMotion.current,
+                    // The first launch's pick sets the real side, the same setting as the Settings switch, but dates
+                    // no side as left (a new lifter has left nothing), with no animation, sound or vibration: the mode
+                    // switch's controller is never asked. The side already on is never written.
+                    onPickSide = { pick -> if (first && pick != mode) scope.launch { settings.pickFirstSide(pick) } },
+                    onClose = { exit -> leaveGuide(exit, side) },
                 )
             }
         }
     }
+        // While the gate decides, and until the first launch's guide is up, a blank screen in the app's background.
+        if (gate == Gate.DECIDING || (firstLaunchGuide && route != Routes.GUIDE)) {
+            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).testTag("guide-gate"))
+        }
+    }
     }
 }
+
+/** The first-launch gate: deciding whether the guide opens, or shut. */
+private enum class Gate { DECIDING, SHUT }
 
 /** The five-tab bottom bar. The current tab gets the accent indicator; everything else stays quiet. */
 @Composable

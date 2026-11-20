@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -60,6 +61,8 @@ import com.powertracker.ui.components.QuietButton
 import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
+import com.powertracker.ui.plan.templates.CHOOSE_A_TEMPLATE
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -72,6 +75,19 @@ const val BACK = "Back"
 const val NEXT = "Next"
 const val DONE = "Done"
 const val EXAMPLE = "Example"
+const val SEE_MY_PLAN = "See my plan"
+
+/** Screen 2's buttons on a first launch: each side by its name. */
+fun sideName(mode: TrainingMode) = if (mode == TrainingMode.BODYBUILDING) "Bodybuilding" else "Powerlifting"
+
+/** Screen 8's buttons (Task 3): with no plan on the side on, [CHOOSE_A_TEMPLATE] and on bodybuilding [BUILD_MY_PLAN]; else Done and See my plan. */
+internal data class LastButtons(val primary: Pair<String, GuideExit>, val secondary: Pair<String, GuideExit>?)
+
+internal fun lastButtons(mode: TrainingMode, hasPlan: Boolean): LastButtons = when {
+    hasPlan -> LastButtons(DONE to GuideExit.DONE, SEE_MY_PLAN to GuideExit.SEE_PLAN)
+    mode == TrainingMode.BODYBUILDING -> LastButtons(CHOOSE_A_TEMPLATE to GuideExit.CHOOSE_TEMPLATE, BUILD_MY_PLAN to GuideExit.BUILD_PLAN)
+    else -> LastButtons(CHOOSE_A_TEMPLATE to GuideExit.CHOOSE_TEMPLATE, null)
+}
 
 /** What the row of dots says: the one screen shown of how many. */
 fun dotsLabel(index: Int, count: Int) = "Screen ${index + 1} of $count"
@@ -147,9 +163,10 @@ fun rememberGuideClock(): GuideClock = TickingGuideClock
 /**
  * The guide (1.16): [Guide.SCREENS] in a horizontal pager, a row of dots, Skip at the top right, Back and Next at the
  * bottom; a swipe or the system Back works too. [mode] is the side whose copy and colours it shows. With [motionOn]
- * false every picture shows its last step, still. Writes nothing: what an exit does is the caller's ([onClose]).
- * [firstLaunch], [hasPlan] and [onPickSide] are for screens 2 and 8 (Task 3); [startAt] opens it on a later screen
- * (the screenshots).
+ * false every picture shows its last step, still. Writes nothing: what an exit and a side pick do is the caller's
+ * ([onClose], [onPickSide]). Only on a [firstLaunch] does screen 2 offer the two sides; picking the side already on
+ * calls nothing. Screen 8 offers what [lastButtons] gives for [hasPlan]. [startAt] opens it on a later screen (the
+ * screenshots and tests).
  */
 @Composable
 fun GuideScreen(
@@ -167,6 +184,7 @@ fun GuideScreen(
     val pager = rememberPagerState(initialPage = screens.indexOf(startAt)) { screens.size }
     val scope = rememberCoroutineScope()
     val close by rememberUpdatedState(onClose)
+    val pick by rememberUpdatedState(onPickSide)
     BackHandler { close(GuideExit.SKIPPED) }
 
     fun go(page: Int) {
@@ -211,33 +229,57 @@ fun GuideScreen(
                 // With motion off: the last step, still.
                 val t = if (motionOn) elapsed else Guide.doneMs(steps.size)
                 val frame = Guide.frame(steps, t)
-                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t)
+                GuidePage(id, mode, current = page == current, frame = frame, elapsedMs = t) {
+                    if (firstLaunch && id == GuideScreenId.SIDE) SideButtons(mode) { if (it != mode) pick(it) }
+                }
             }
         }
         Dots(current, screens.size, Modifier.align(Alignment.CenterHorizontally).padding(vertical = Space.m))
-        Row(
+        val buttons = remember(mode, hasPlan) { lastButtons(mode, hasPlan) }
+        Column(
             Modifier.fillMaxWidth().padding(horizontal = Space.gutter).padding(bottom = Space.l),
-            horizontalArrangement = Arrangement.spacedBy(Space.s),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(Space.s),
         ) {
-            SecondaryButton(
-                BACK, { go(current - 1) }, Modifier.testTag("guide-back"),
-                enabled = current > 0, icon = Icons.AutoMirrored.Filled.ArrowBack,
-            )
-            // Screen 8's own buttons come with the first launch (Task 3); until then its Next is Done.
-            PrimaryButton(
-                if (last) DONE else NEXT,
-                { if (last) close(GuideExit.DONE) else go(current + 1) },
-                Modifier.weight(1f).testTag("guide-next"),
-                icon = if (last) Icons.Filled.Check else Icons.AutoMirrored.Filled.ArrowForward,
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.s), verticalAlignment = Alignment.CenterVertically) {
+                SecondaryButton(
+                    BACK, { go(current - 1) }, Modifier.testTag("guide-back"),
+                    enabled = current > 0, icon = Icons.AutoMirrored.Filled.ArrowBack,
+                )
+                // On screen 8, Next becomes its first button: Choose a template, or Done with a plan.
+                PrimaryButton(
+                    if (last) buttons.primary.first else NEXT,
+                    { if (last) close(buttons.primary.second) else go(current + 1) },
+                    Modifier.weight(1f).testTag("guide-next"),
+                    icon = if (last) Icons.Filled.Check else Icons.AutoMirrored.Filled.ArrowForward,
+                )
+            }
+            // Below it: Build my plan (bodybuilding, no plan), or See my plan.
+            val secondary = buttons.secondary
+            if (last && secondary != null) {
+                SecondaryButton(secondary.first, { close(secondary.second) }, Modifier.fillMaxWidth().testTag("guide-last-secondary"))
+            }
+        }
+    }
+}
+
+/** Screen 2 on a first launch: the two sides, the one on drawn as chosen. A tap sets the real side (the caller's). */
+@Composable
+private fun SideButtons(mode: TrainingMode, onPick: (TrainingMode) -> Unit) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+        for (side in TrainingMode.entries) {
+            val tag = Modifier.weight(1f).testTag("guide-side-${side.name.lowercase()}").semantics { selected = side == mode }
+            if (side == mode) {
+                PrimaryButton(sideName(side), { onPick(side) }, tag, icon = Icons.Filled.Check)
+            } else {
+                SecondaryButton(sideName(side), { onPick(side) }, tag)
+            }
         }
     }
 }
 
 /** One screen: its title and lines from the domain, then its picture, which shrinks to leave the text its room. */
 @Composable
-private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame, elapsedMs: Int) {
+private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, frame: GuideFrame, elapsedMs: Int, below: @Composable () -> Unit = {}) {
     val screen = remember(id, mode) { Guide.screen(id, mode) }
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = Space.gutter)) {
         val textRoom = maxHeight * 0.6f
@@ -262,6 +304,7 @@ private fun GuidePage(id: GuideScreenId, mode: TrainingMode, current: Boolean, f
                 // The label sits above the picture, outside its single description.
                 if (screen.example) Pill(EXAMPLE, if (current) Modifier.testTag("guide-example") else Modifier)
                 GuidePicture(id, mode, frame, Modifier.weight(1f, fill = false), elapsedMs = elapsedMs)
+                below()
             }
         }
     }

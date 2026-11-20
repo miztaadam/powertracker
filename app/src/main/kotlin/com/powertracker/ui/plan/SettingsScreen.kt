@@ -35,6 +35,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -129,6 +131,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     today: () -> LocalDate = ::systemToday,
     now: () -> Long = System::currentTimeMillis,
+    onOpenGuide: () -> Unit = {},
 ) {
     val settings by settingsRepo.settings.collectAsState(initial = AppSettings())
     val scope = rememberCoroutineScope()
@@ -194,6 +197,7 @@ fun SettingsScreen(
         snackbar = snackbar,
         // Not a plain copy: switching sides dates the side left and, the first time, copies the training days.
         onTrainingMode = { mode -> scope.launch { settingsRepo.setTrainingMode(mode, today()) } },
+        onOpenGuide = onOpenGuide,
     )
 
     pendingRestore?.let { pending ->
@@ -228,6 +232,11 @@ fun restoreWarningBody(losing: List<TrainingMode>): String {
 
 const val RESTORE_ANYWAY = "Restore anyway"
 
+/** The guide's row (1.16) and the section it sits in. */
+const val GUIDE_SECTION = "Help"
+const val GUIDE_ROW = "Guide"
+const val GUIDE_ROW_SUPPORTING = "See how Grit works"
+
 /**
  * The question before a restore. When the backup would remove a side's plan ([losing] is not empty) it is the warning
  * (1.14.1), with Restore anyway and Cancel; otherwise it is "Replace all data?" as before. [onConfirm] restores; Cancel,
@@ -257,6 +266,7 @@ fun SettingsContent(
     /** The installed build's version name; only tests pass another. */
     versionName: String = BuildConfig.VERSION_NAME,
     onTrainingMode: (TrainingMode) -> Unit = {},
+    onOpenGuide: () -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
     // While a mode switch animation runs, the rows are the side the theme shows (it lags the stored side until the
@@ -390,6 +400,19 @@ fun SettingsContent(
                 )
                 SecondaryButton("Export backup", onExport, Modifier.fillMaxWidth(), icon = Icons.Filled.Upload)
                 SecondaryButton("Restore backup", onRestore, Modifier.fillMaxWidth(), icon = Icons.Filled.Download)
+            }
+
+            // The guide (1.16): always here, for a replay. It writes nothing.
+            SectionHeader(GUIDE_SECTION, Modifier.padding(top = Space.m))
+            Group {
+                Row(
+                    Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpenGuide).testTag("settings-guide"),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                ) {
+                    RowLabel(GUIDE_ROW, GUIDE_ROW_SUPPORTING, Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = scheme.onSurfaceVariant)
+                }
             }
 
             // Last of all: which version this is, and who made it. Plain text, read once without the dots.

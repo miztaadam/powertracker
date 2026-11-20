@@ -102,6 +102,9 @@ open class TrainingRepository(private val db: AppDatabase) {
      * Both sides' plans, watched together: a screen that follows the side picks one from each emission, so a switch
      * never opens a new query and the side and its plan always arrive together.
      */
+    /** No session and no plan item on either side ([isNewUser]): the guide's first launch. */
+    open suspend fun isNewUser(): Boolean = isNewUser(db.sessions(), db.plan())
+
     fun plans(): Flow<Plans> = combine(plan(TrainingMode.POWERLIFTING), plan(TrainingMode.BODYBUILDING), ::Plans)
 
     fun setsForSession(sessionId: Long): Flow<List<StoredSet>> =

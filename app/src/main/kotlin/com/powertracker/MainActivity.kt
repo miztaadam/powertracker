@@ -37,7 +37,7 @@ class MainActivity : FragmentActivity() {
         }
         setContent {
             ModeTheme(container.settings.settings) {
-                LockGateHost(gate, onUnlock = ::askToUnlock, onContinue = ::open) { AppShell(container) }
+                LockGateHost(gate, onUnlock = ::askToUnlock, onContinue = ::open) { AppShell(container, guideOnFirstLaunch = true) }
             }
         }
     }

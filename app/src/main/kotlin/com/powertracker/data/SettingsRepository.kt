@@ -1,6 +1,7 @@
 package com.powertracker.data
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -78,6 +79,16 @@ data class AppSettings(
         return left.copy(trainingMode = mode, bodybuildingTrainingDays = days)
     }
 
+    /**
+     * On [mode]'s side as [withTrainingMode] puts it (the bodybuilding days copied the first time), but with neither
+     * side dated as left: the guide's first-launch pick (1.16). The side already on changes nothing.
+     */
+    fun withFirstSide(mode: TrainingMode): AppSettings {
+        if (mode == trainingMode) return this
+        val days = if (mode == TrainingMode.BODYBUILDING && bodybuildingLeftOn == null) trainingDays else bodybuildingTrainingDays
+        return copy(trainingMode = mode, bodybuildingTrainingDays = days)
+    }
+
     /** [mode]'s side as if never left (its welcome back has been answered). */
     fun withoutLeftOn(mode: TrainingMode): AppSettings = when (mode) {
         TrainingMode.POWERLIFTING -> copy(powerliftingLeftOn = null)
@@ -101,10 +112,32 @@ class SettingsRepository(context: Context) {
     suspend fun setTrainingMode(mode: TrainingMode, today: LocalDate) = update { it.withTrainingMode(mode, today) }
 
     /**
+     * The side picked on the guide's first launch (1.16): on [mode]'s side as [AppSettings.withFirstSide] says, so no
+     * side is dated as left. A new lifter choosing a side for the first time has left nothing.
+     */
+    suspend fun pickFirstSide(mode: TrainingMode) = update { it.withFirstSide(mode) }
+
+    /**
      * Forgets the day [mode]'s side was last left. Call it only while that side is on: leaving it stamps the day again.
      * Cleared for the bodybuilding side while the powerlifting side is on, the next switch would copy the days again.
      */
     suspend fun clearLeftOn(mode: TrainingMode) = update { it.withoutLeftOn(mode) }
+
+    /**
+     * Whether the guide has been seen on this device (1.16): written once, when the guide opened by the first launch
+     * closes. A key of its own in this store, outside AppSettings: not in a backup, and kept by a restore.
+     */
+    val guideSeen: Flow<Boolean> = store.data.map { it[GUIDE_SEEN] ?: false }.distinctUntilChanged()
+
+    suspend fun markGuideSeen() {
+        store.edit { it[GUIDE_SEEN] = true }
+    }
+
+    /** For tests: the store is one per process, so a test starting as a new device forgets "seen" first. */
+    @VisibleForTesting
+    internal suspend fun forgetGuideSeen() {
+        store.edit { it.remove(GUIDE_SEEN) }
+    }
 
     suspend fun update(f: (AppSettings) -> AppSettings) {
         store.edit { prefs -> prefs.write(f(prefs.toAppSettings())) }
@@ -126,6 +159,7 @@ class SettingsRepository(context: Context) {
         val POWERLIFTING_LEFT_ON = stringPreferencesKey("powerliftingLeftOn")
         val BODYBUILDING_LEFT_ON = stringPreferencesKey("bodybuildingLeftOn")
         val VIBRATE_ON_TAPS = booleanPreferencesKey("vibrateOnTaps")
+        val GUIDE_SEEN = booleanPreferencesKey("guide_seen")
 
         fun Preferences.toAppSettings(): AppSettings {
             val d = AppSettings()

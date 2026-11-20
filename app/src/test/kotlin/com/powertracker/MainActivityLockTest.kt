@@ -52,7 +52,12 @@ class MainActivityLockTest {
     }
 
     private fun launch(appLock: Boolean): ActivityScenario<MainActivity> {
-        runBlocking { SettingsRepository(app).update { AppSettings(appLock = appLock) } }
+        runBlocking {
+            val settings = SettingsRepository(app)
+            settings.update { AppSettings(appLock = appLock) }
+            // The empty database is a new user: this device has seen the guide, so the first-launch gate stays shut.
+            settings.markGuideSeen()
+        }
         return ActivityScenario.launch(MainActivity::class.java).also { scenario = it }
     }
 
