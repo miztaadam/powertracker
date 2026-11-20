@@ -41,7 +41,7 @@ export type PlanScreenProps = {
 
 /** The weekly template: one card per training day, then the known bests. */
 export function PlanScreen({ db, onOpenSettings, onBuildPlan, onChooseTemplate, message, onMessageShown, today = todayIso }: PlanScreenProps) {
-  const plan = usePlan(db, today)
+  const plan = usePlan(db, today, { knownBests: true })
   // The snapshot's own side, whichever side Plan is showing.
   const undoReplace = (undo: PlanSnapshot) => restorePlan(db, undo.mode, undo)
   return (
