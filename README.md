@@ -210,7 +210,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Guide, Skip: on a new install, tap Skip on any screen. Today shows, and the guide does not open again.
 - [ ] Guide replay: Plan, Settings, Help, Guide ("See how Grit works"). It opens on screen 1 with no side buttons on screen 2. Go to the end and leave it (Done with a plan; without one, Skip, since Choose a template opens the templates): your side, plan and log are as they were.
 - [ ] Guide with reduce motion on: each picture shows its end at once, and screen 2's hammer and pump stand still.
-- [ ] Guide at large text (Chrome's page zoom at 200%, or pinch to zoom): no word is cut, Back and Next stay on screen, and where the pictures don't fit the text shows without them.
+- [ ] Guide at large text (Chrome's page zoom at 200%, in Chrome's settings under Accessibility): no word is cut, Back and Next stay on screen, and where the pictures don't fit the text shows without them.
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
