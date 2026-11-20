@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { planFor } from '../db/catalogue'
-import { getSettings, updateSettings, type GritDb } from '../db/db'
+import { getSettings, setTrainingMode, updateSettings, type GritDb } from '../db/db'
 import type { AdviceRow, PlanItemRow, TrainingMode } from '../db/schema'
 import { adviceForSide } from '../state/sides'
 import { TODAY, addDays, exerciseNamed, logSet, set, setsOn, targets, todayFixture } from '../test/todayFixture'
@@ -241,6 +241,8 @@ describe('Today on the bodybuilding side', () => {
 describe('welcome back', () => {
   it('after31DaysAway_showsOnCoachAndToday_andResumeClearsIt', async () => {
     await planOn('BODYBUILDING', curlId)
+    // Trained on the bodybuilding side before it was left.
+    await session(addDays(TODAY, -45), 'BODYBUILDING')
     await onSide('BODYBUILDING', { bodybuildingLeftOn: addDays(TODAY, -31) })
     showCoach()
     expect(await screen.findByText('Welcome back to the better side.')).toBeInTheDocument()
@@ -261,6 +263,7 @@ describe('welcome back', () => {
 
   it('myGoalsHaveChanged_clearsItAndOpensPlan', async () => {
     await planOn('POWERLIFTING', squatId)
+    await session(addDays(TODAY, -50), 'POWERLIFTING')
     await onSide('POWERLIFTING', { powerliftingLeftOn: addDays(TODAY, -40), bodybuildingLeftOn: null })
     const onOpenPlan = vi.fn()
     showCoach(onOpenPlan)
@@ -271,6 +274,7 @@ describe('welcome back', () => {
 
   it('noCard_onFirstEntry_after30Days_orWithNoPlan', async () => {
     await planOn('BODYBUILDING', curlId)
+    await session(addDays(TODAY, -70), 'BODYBUILDING')
     // First entry: never left.
     await onSide('BODYBUILDING', { bodybuildingLeftOn: null })
     showCoach()
@@ -287,6 +291,68 @@ describe('welcome back', () => {
     showToday()
     await screen.findByText('Ready to train?')
     expect(screen.queryByText('Welcome back to the better side.')).toBeNull()
+  })
+})
+
+describe('welcome back needs a side trained before it was left (1.16)', () => {
+  const WELCOME = 'Welcome back to the better side.'
+
+  /** Curls on the bodybuilding side 20, 13 and 7 days before TODAY. */
+  async function recentBodybuilding() {
+    for (const d of [-20, -13, -7]) await logSet(db, await session(addDays(TODAY, d), 'BODYBUILDING'), set(curlId, 12, { reps: 10 }))
+  }
+
+  /** Settings, 40 days ago: powerlifting to bodybuilding (the switch dates the side it leaves); bodybuilding since; back today. */
+  async function leftFortyDaysAgoAndBackToday() {
+    await setTrainingMode(db, 'BODYBUILDING', addDays(TODAY, -40))
+    await recentBodybuilding()
+    await setTrainingMode(db, 'POWERLIFTING', TODAY)
+  }
+
+  const easing = async () => (await targets(db)).filter((t) => t.reason.includes('Easing back in'))
+
+  it('noCard_noEasing_forAPowerliftingSideLeftInSettingsBeforeEverTrainingIt', async () => {
+    await leftFortyDaysAgoAndBackToday()
+    await planOn('POWERLIFTING', squatId)
+    expect((await getSettings(db)).powerliftingLeftOn).toBe(addDays(TODAY, -40))
+    showToday()
+    await screen.findByText('Ready to train?')
+    // Let the coach pass run before reading what it stored.
+    await new Promise((r) => setTimeout(r, 100))
+    expect(screen.queryByText(WELCOME)).toBeNull()
+    expect(await easing()).toEqual([])
+    cleanup()
+    showCoach()
+    await screen.findByText('Nothing open')
+    expect(screen.queryByText(WELCOME)).toBeNull()
+    cleanup()
+    // Its first session today, the left date still set: no card tomorrow either.
+    await logSet(db, await session(TODAY, 'POWERLIFTING'), set(squatId, 100, { isTopSet: true }))
+    render(<CoachScreen db={db} today={() => addDays(TODAY, 1)} onOpenPlan={() => {}} />)
+    await screen.findByText('Coach')
+    await new Promise((r) => setTimeout(r, 100))
+    expect(screen.queryByText(WELCOME)).toBeNull()
+  })
+
+  it('cardAndEasing_forAPowerliftingSideTrainedBeforeItWasLeft_andAnsweringClearsIt', async () => {
+    for (const d of [-60, -53, -46]) await logSet(db, await session(addDays(TODAY, d), 'POWERLIFTING'), set(squatId, 140, { isTopSet: true }))
+    await leftFortyDaysAgoAndBackToday()
+    await planOn('POWERLIFTING', squatId)
+    showToday()
+    expect(await screen.findByText(WELCOME)).toBeInTheDocument()
+    await waitFor(async () => expect(await easing()).toHaveLength(1))
+    await userEvent.click(screen.getByRole('button', { name: 'Resume my plan' }))
+    await waitFor(async () => expect((await getSettings(db)).powerliftingLeftOn).toBeNull())
+    await waitFor(() => expect(screen.queryByText(WELCOME)).toBeNull())
+  })
+
+  it('neverSwitching_noCard_andNoEasing', async () => {
+    for (const d of [-14, -7, -2]) await logSet(db, await session(addDays(TODAY, d), 'POWERLIFTING'), set(squatId, 140, { isTopSet: true }))
+    await planOn('POWERLIFTING', squatId)
+    showToday()
+    await waitFor(async () => expect(await targets(db)).toHaveLength(1))
+    expect(await easing()).toEqual([])
+    expect(screen.queryByText(WELCOME)).toBeNull()
   })
 })
 
@@ -559,6 +625,7 @@ describe('the welcome-back card clears everywhere at once (fix round ruling F)',
 
   it('answeringItOnToday_removesItFromCoach', async () => {
     await planOn('BODYBUILDING', curlId)
+    await session(addDays(TODAY, -45), 'BODYBUILDING')
     await onSide('BODYBUILDING', { bodybuildingLeftOn: addDays(TODAY, -31) })
     const { today, coach } = both()
     await coach.findByText('Welcome back to the better side.')
@@ -569,6 +636,7 @@ describe('the welcome-back card clears everywhere at once (fix round ruling F)',
 
   it('answeringItOnCoach_removesItFromToday', async () => {
     await planOn('BODYBUILDING', curlId)
+    await session(addDays(TODAY, -45), 'BODYBUILDING')
     await onSide('BODYBUILDING', { bodybuildingLeftOn: addDays(TODAY, -31) })
     const { today, coach } = both()
     await today.findByText('Welcome back to the better side.')

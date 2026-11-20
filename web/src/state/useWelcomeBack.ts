@@ -2,11 +2,14 @@ import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { planFor } from '../db/catalogue'
 import { clearLeftOn, getSettings, type GritDb } from '../db/db'
-import type { TrainingMode } from '../db/schema'
+import { sideOf, type TrainingMode } from '../db/schema'
 import { grit } from '../domain'
 
 export type WelcomeBack = {
-  /** True while the card is due: this side has a plan and was left more than 30 days ago (spec §7.7). */
+  /**
+   * True while the card is due: this side has a plan, was left more than 30 days ago (spec §7.7), and has a session
+   * from before it was left (1.16: a side left in Settings before any session on it has nothing to come back to).
+   */
   show: boolean
   /** "Resume my plan": the card goes; the first week back is eased in by the coach. */
   resume: () => Promise<void>
@@ -25,7 +28,9 @@ async function readStored(db: GritDb, today: string): Promise<Stored> {
   // A side entered for the first time has never been left: no card.
   if (leftOn == null) return { show: false, side }
   const hasPlan = (await planFor(db, side)).length > 0
-  return { show: grit.welcomeBack(leftOn, today, hasPlan), side }
+  // The side's earliest session: sessions are one per date, so the first by date on this side.
+  const first = await db.sessions.orderBy('date').filter((s) => sideOf(s) === side).first()
+  return { show: grit.welcomeBack(leftOn, today, hasPlan, first?.date ?? null), side }
 }
 
 /**
