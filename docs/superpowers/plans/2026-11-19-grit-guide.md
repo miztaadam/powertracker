@@ -225,6 +225,7 @@ The owner approved all three from a looping sketch (spec, "Amended while plannin
 - **Motion off.** The app's motion setting and the system's reduced motion turn all three off, on the real screen and in the guide. Tested on both.
 - **The guide's clock.** In the guide each effect is driven by the guide's time, so a held clock holds it and a replay replays it. On Android, if the real screen's tick runs on its own animation clock, the frame strip must still show it mid-draw.
 - **Web's paint rule, amended for the tick only:** the check's line may animate `stroke-dashoffset`; everything else stays transform and opacity. The ring and the rise are transform and opacity.
+  - **Accepted exception (2026-11-20):** screen 2's art is the 1.15 mode-switch art reused as it is (`web/src/ui/motion/modeSwitchPaint.ts`), which writes SVG attributes on each frame of its loop. It reads no layout (pinned by the e2e `guide_noLayoutReadsPerStep (side)`) and is not changed for the guide.
 - **Ring anchor.** First try to find the button without touching the real screen (web: a query inside the phone frame at the step change, one read; Android: an existing test tag or semantics). Only if that fails, add a marker to the real screen that draws nothing.
 - **At rest nothing changes.** The committed real-Today shots (Android and web) must be byte-for-byte unchanged, or the report says why not.
 
