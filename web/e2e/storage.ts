@@ -25,6 +25,3 @@ export const MOTION_ON = withItems([GUIDE_OFF])
 
 /** A new device as a lifter meets it: motion off for steady checks, and the first-launch gate open. Only the guide's own first-launch tests. */
 export const NEW_DEVICE = withItems([MOTION_OFF])
-
-/** A new device with motion on: the guide's own first-launch tests in motion. */
-export const NEW_DEVICE_MOTION_ON = withItems([])

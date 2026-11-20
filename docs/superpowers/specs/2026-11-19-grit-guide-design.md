@@ -130,7 +130,7 @@
    - **A tap ring** pulses once on the button just before its result appears. It shows only in the guide. Android may add a marker to the real screen so the guide can find the button; the marker draws nothing.
    - **The "Skipped today" line rises in.** On Android the real Today screen gets it too. On the web the guide's line already fades in and gains the same rise.
    Each plays on the event only (never on open, restore, or scrolling back into view), and each is off under the app's motion setting and reduced motion.
-9. **The first-launch side pick dates no side as left (2026-11-19, while building Task 3).** The pick sets the real side, as the Settings switch does, but does not stamp the side it leaves: a new lifter choosing a side has left nothing. Stamping it made a never-trained side greet the lifter as returning once it got a plan (more than 30 days on). The Settings switch is unchanged; its own case (a new lifter switching sides in Settings, then back a month later with a plan, is greeted) is a separate question for the owner.
+9. **The first-launch side pick dates no side as left (2026-11-19, while building Task 3).** The pick sets the real side, as the Settings switch does, but does not stamp the side it leaves: a new lifter choosing a side has left nothing. Stamping it made a never-trained side greet the lifter as returning once it got a plan (more than 30 days on). The Settings switch itself is unchanged by this point.
 
 ## Left to the builder
 - **The shape of the guide's definition** in the domain, and how each picture is drawn: reusing the real screens' components with sample state where that's clean, or drawn mock-ups.

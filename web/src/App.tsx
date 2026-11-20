@@ -134,7 +134,7 @@ function useHasPlan(db: GritDb, mode: TrainingMode): boolean | null {
  * go back where it was opened from, or to Today; a plan button leaves the guide for Plan, then opens the template list
  * or the builder over it, so the browser's Back from either lands on Plan, never on the guide.
  */
-function GuideRoute({ db, firstLaunch }: { db: GritDb; firstLaunch: boolean }) {
+function GuideRoute({ db, firstLaunch, onFailed }: { db: GritDb; firstLaunch: boolean; onFailed: () => void }) {
   const mode = useContext(TrainingModeContext)
   const hasPlan = useHasPlan(db, mode)
   // Read once: reduced motion and the e2e flag both put data-motion="off" on <html> before the app starts.
@@ -157,7 +157,13 @@ function GuideRoute({ db, firstLaunch }: { db: GritDb; firstLaunch: boolean }) {
   // Screen 8 waits for the plan to be read, so its buttons never change under a finger.
   if (hasPlan == null) return <BlankScreen />
   return (
-    <GuideChunkBoundary onFailed={close}>
+    <GuideChunkBoundary
+      onFailed={() => {
+        // A guide that could not load was not seen: the gate's owner shuts it for this page without writing "seen".
+        onFailed()
+        close()
+      }}
+    >
       <Suspense fallback={<BlankScreen />}>
         <GuideScreen mode={mode} firstLaunch={firstLaunch} hasPlan={hasPlan} motionOn={motionOn} onPickSide={onPickSide} onClose={onClose} />
       </Suspense>
@@ -197,7 +203,7 @@ const leaveBuilder = () => leave({ tab: 'plan' })
  * The app itself: the screens, the tab bar and what docks above it. Rendered only while Grit is unlocked. Memoised:
  * a change of the side shown (the mode switch's moment) redraws only what reads it, not every screen's parent.
  */
-const Shell = memo(function Shell({ db, rest, registerSW, firstLaunchGuide }: { db: GritDb; rest: Rest; registerSW?: RegisterSW; firstLaunchGuide: boolean }) {
+const Shell = memo(function Shell({ db, rest, registerSW, firstLaunchGuide, onGuideFailed }: { db: GritDb; rest: Rest; registerSW?: RegisterSW; firstLaunchGuide: boolean; onGuideFailed: () => void }) {
   const route = useRoute()
   const update = useUpdatePrompt(db, registerSW)
   // Kept here, above the screens: the session is the same one on the Today and Exercises tabs, and an
@@ -226,7 +232,7 @@ const Shell = memo(function Shell({ db, rest, registerSW, firstLaunchGuide }: { 
   return (
     <>
       {guide ? (
-        <GuideRoute db={db} firstLaunch={firstLaunchGuide} />
+        <GuideRoute db={db} firstLaunch={firstLaunchGuide} onFailed={onGuideFailed} />
       ) : (
         <>
           <div className="shell" style={{ '--rest-dock-height': `${dockHeight}px` } as CSSProperties}>
@@ -309,8 +315,14 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
       stale = true
     }
   }, [db, gate])
+  // The guide failed to load (its chunk): shut for this page, and not seen, so a new user is shown it next time.
+  const guideFailed = useRef(false)
+  const onGuideFailed = useCallback(() => {
+    guideFailed.current = true
+    setGate((g) => (g === 'open' ? 'shut' : g))
+  }, [])
   useEffect(() => {
-    if (db == null || gate !== 'open') return
+    if (db == null || gate !== 'open' || guideFailed.current) return
     if (onGuide) {
       gateEntered.current = true
       return
@@ -330,7 +342,7 @@ function Opened({ dbName, schemaVersions, registerSW }: AppProps) {
   }
   return (
     <TrainingModeContext.Provider value={mode}>
-      <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} firstLaunchGuide={gate === 'open'} />}</LockGateHost>
+      <LockGateHost db={db}>{privateMode ? <PrivateModeScreen db={db} onContinue={continueAnyway} /> : <Shell db={db} rest={rest} registerSW={registerSW} firstLaunchGuide={gate === 'open'} onGuideFailed={onGuideFailed} />}</LockGateHost>
     </TrainingModeContext.Provider>
   )
 }

@@ -156,8 +156,6 @@ fun AppShell(
     var planUndo by remember { mutableStateOf<PlanSnapshot?>(null) }
     fun goalsChanged() = if (mode == TrainingMode.BODYBUILDING) nav.navigate(Routes.PLAN_BUILDER) { launchSingleTop = true } else openTab(Tab.PLAN)
 
-    // Screen 8 asks whether the side now on has a plan.
-    val plans by remember(training) { training.plans() }.collectAsState(initial = null)
 
     /**
      * The guide has been left by [exit]. A first launch's guide writes "seen" here, whichever way it was left (Skip,
@@ -295,6 +293,8 @@ fun AppShell(
             composable(Routes.GUIDE) {
                 val side = mode ?: TrainingMode.POWERLIFTING
                 val first = firstLaunchGuide
+                // Screen 8 asks whether the side now on has a plan: read only while the guide is open.
+                val plans by remember(training) { training.plans() }.collectAsState(initial = null)
                 GuideScreen(
                     side, firstLaunch = first, hasPlan = plans?.of(side)?.isNotEmpty() == true, motionOn = LocalMotion.current,
                     // The first launch's pick sets the real side, the same setting as the Settings switch, but dates

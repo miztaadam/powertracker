@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { App } from './App'
 import type { GritDb } from './db/db'
 import { todayFixture } from './test/todayFixture'
+import { GUIDE_KEY, GUIDE_SEEN_KEY } from './screens/guide/guideSeen'
 
 /*
  * The guide is a chunk of its own (1.16). If it cannot be loaded (offline before the service worker has it, a stale
@@ -43,5 +44,21 @@ it('aGuideChunkThatFailsToLoad_closesTheGuideAsSkipped_writesNothing_andTheAppSh
   expect(await screen.findByRole('navigation', { name: 'Main' })).toBeInTheDocument()
   expect(screen.queryByTestId('guide')).toBeNull()
   expect(screen.queryByRole('heading', { name: /^Grit couldn't/ })).toBeNull()
+  expect(await everything()).toEqual(before)
+})
+
+it('onAFirstLaunch_aGuideChunkThatFailsToLoad_writesNoSeen_soANewUserIsShownItNextTime', async () => {
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+  window.addEventListener('error', swallow)
+  // A new device: the first-launch gate open (the shared setup shuts it).
+  localStorage.removeItem(GUIDE_KEY)
+  const before = await everything()
+  render(<App dbName={fx.name} />)
+  // The gate opens the guide; its chunk fails; the app shows, and the guide does not open again in this page.
+  expect(await screen.findByRole('navigation', { name: 'Main' })).toBeInTheDocument()
+  await new Promise((done) => setTimeout(done, 300))
+  expect(screen.queryByTestId('guide')).toBeNull()
+  expect(window.location.hash).not.toBe('#/guide')
+  expect(await db.meta.get(GUIDE_SEEN_KEY)).toBeUndefined()
   expect(await everything()).toEqual(before)
 })
