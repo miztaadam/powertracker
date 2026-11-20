@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GritDb } from '../../db/db'
 import { decodeBackup } from '../../backup/backup'
 import { TODAY, startSession, todayFixture } from '../../test/todayFixture'
-import { InstallCard } from './InstallCard'
+import { INSTALL_DISMISSED_KEY, InstallCard } from './InstallCard'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -26,6 +26,8 @@ const MOVE = /The installed app keeps its own log, apart from Safari's, and star
 /** Android: Chrome's installed app shares this browser's storage, so there is nothing to move, only a copy to keep. */
 const SHARED_ANDROID = 'Your log stays in this browser, so the installed app opens with it. Export a backup now and then to keep a copy.'
 const settled = () => new Promise((done) => setTimeout(done, 50))
+/** A write of `meta` held until the test lets it land (Dexie's own promise type, which a plain one stands in for). */
+type Held = ReturnType<GritDb['meta']['put']>
 
 describe('InstallCard', () => {
   it('installCard_onlyInBrowserNotStandalone', async () => {
@@ -49,6 +51,47 @@ describe('InstallCard', () => {
     cleanup()
 
     render(<InstallCard db={db} />)
+    await settled()
+    expect(screen.queryByText(COPY)).toBeNull()
+  })
+
+  it('installCard_notNow_hidesOnlyOnceTheAnswerIsSaved', async () => {
+    let land!: () => void
+    const put = db.meta.put.bind(db.meta)
+    const spy = vi.spyOn(db.meta, 'put').mockImplementationOnce(
+      (row) =>
+        new Promise<string>((done, fail) => {
+          land = () => put(row).then(done, fail)
+        }) as Held,
+    )
+    render(<InstallCard db={db} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Not now' }))
+    expect(spy).toHaveBeenCalledTimes(1)
+    // The write has not landed: the card is still there.
+    await settled()
+    expect(screen.getByText(COPY)).toBeInTheDocument()
+    land()
+    await waitFor(() => expect(screen.queryByText(COPY)).toBeNull())
+    expect((await db.meta.get(INSTALL_DISMISSED_KEY))?.value).toBe(true)
+  })
+
+  it('installCard_notNow_stillHides_whenSavingTheAnswerFails', async () => {
+    let fail!: () => void
+    vi.spyOn(db.meta, 'put').mockImplementationOnce(
+      () =>
+        new Promise<string>((_done, reject) => {
+          fail = () => reject(new Error('quota'))
+        }) as Held,
+    )
+    render(<InstallCard db={db} />)
+    await userEvent.click(await screen.findByRole('button', { name: 'Not now' }))
+    await settled()
+    expect(screen.getByText(COPY)).toBeInTheDocument()
+    fail()
+    await waitFor(() => expect(screen.queryByText(COPY)).toBeNull())
+    // Nothing was saved, and the card stays away while this page is open, also when the log changes.
+    expect(await db.meta.get(INSTALL_DISMISSED_KEY)).toBeUndefined()
+    await startSession(db, TODAY)
     await settled()
     expect(screen.queryByText(COPY)).toBeNull()
   })
