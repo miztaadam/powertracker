@@ -169,11 +169,12 @@ object Guide {
     val SIDE_LOOP_MS: Int get() = SIDE_PUMP_CUT_MS.toInt() + STEP_MS
 
     /**
-     * Each motion's box, in the mode switch's own units (dp): a phone's shape, smaller than the prototype's 390 x 760
-     * screen, so the hammer and the veins fill it. The apps scale it to the room they have.
+     * Each motion's box, in the mode switch's own units (dp): the prototype's 390-wide screen, so the hammer and the
+     * veins keep their size against it (a narrower box crops the hammer to its head), cut to its lower part, where the
+     * hammer lands and the pump starts. The apps scale it down to the room they have.
      */
-    const val SIDE_BOX_W: Double = 180.0
-    const val SIDE_BOX_H: Double = 320.0
+    const val SIDE_BOX_W: Double = 390.0
+    const val SIDE_BOX_H: Double = 520.0
 
     /** Where the pump starts in its box: where the switch sits on the prototype's screen, in proportion. */
     fun sidePumpSource(): Point = Point(SIDE_BOX_W * SIDE_SRC_X, SIDE_BOX_H * SIDE_SRC_Y)
