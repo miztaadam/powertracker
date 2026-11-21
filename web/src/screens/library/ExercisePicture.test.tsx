@@ -246,6 +246,46 @@ describe('exercise pictures', () => {
     vi.unstubAllGlobals()
   })
 
+  it('exercisesTab_listThatDoesNotScroll_measuresNearFromTheBoxThatDoes', () => {
+    // 1.17.2: on a very narrow screen the Exercises tab's list does not scroll on its own; the screen round it does.
+    const made: (IntersectionObserverInit | undefined)[] = []
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(_: unknown, options?: IntersectionObserverInit) {
+          made.push(options)
+        }
+        observe() {}
+        unobserve() {}
+      },
+    )
+    const boxAt = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 160, width: 160, height, x: 0, y: top, toJSON: () => ({}) })
+    // The screen is 200 px tall; the list is as tall as all its rows (it does not scroll), so every row is inside it.
+    const spy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('screen-box')) return boxAt(0, 200)
+      if (this.classList.contains('lib-scroll')) return boxAt(0, 20000)
+      return boxAt(Number((this as HTMLElement).dataset.top ?? 0), 64)
+    })
+    render(
+      <div className="screen-box" style={{ overflowY: 'auto' }}>
+        <ul className="lib-scroll" style={{ overflowY: 'visible' }}>
+          <li className="lib-row" data-top="100">
+            <ExerciseThumbnail name="Bench" />
+          </li>
+          <li className="lib-row" data-top="5000">
+            <ExerciseThumbnail name="Squat" />
+          </li>
+        </ul>
+      </div>,
+    )
+    const [nearTile, farTile] = thumbnails() as [HTMLElement, HTMLElement]
+    expect(nearTile.childElementCount).toBe(1)
+    expect(farTile.childElementCount).toBe(0)
+    expect(made).toEqual([{ root: document.querySelector('.screen-box'), rootMargin: '600px 0px' }])
+    spy.mockRestore()
+    vi.unstubAllGlobals()
+  })
+
   it('exercisesTab_coldList_drawsOnlyTheNearTiles_fromBuildTimeData_withoutTheDomain', async () => {
     // A fresh domain and fresh drawings, as at start-up, and every catalogue exercise in one scrolling list, with the
     // lifter's own exercise among them.
