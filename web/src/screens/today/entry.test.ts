@@ -86,3 +86,26 @@ describe('entryMessage', () => {
     expect(entryMessage('rpe', 'empty')).toBeUndefined()
   })
 })
+
+// 1.17: a plate number on a plate-counted machine (Android's EntryTest `plate_whole`, `plate_half`).
+describe('plates', () => {
+  it('plate_whole', () => {
+    expect(parseEntry('7', 'plate')).toEqual({ ok: true, value: 7 })
+    expect(parseEntry('7.5', 'plate')).toEqual({ ok: false, reason: 'step' })
+    expect(entryMessage('plate', 'step')).toBe('Whole plates only')
+    expect(parseEntry('0', 'plate')).toEqual({ ok: false, reason: 'range' })
+    expect(parseEntry('51', 'plate')).toEqual({ ok: false, reason: 'range' })
+    expect(entryMessage('plate', 'range')).toBe('Plate 1 to 50')
+    expect(parseEntry('seven', 'plate')).toEqual({ ok: false, reason: 'nan' })
+  })
+
+  it('plate_half', () => {
+    expect(parseEntry('7.5', 'plateHalf')).toEqual({ ok: true, value: 7.5 })
+    expect(parseEntry('7,5', 'plateHalf')).toEqual({ ok: true, value: 7.5 })
+    expect(parseEntry('8', 'plateHalf')).toEqual({ ok: true, value: 8 })
+    expect(parseEntry('7.25', 'plateHalf')).toEqual({ ok: false, reason: 'step' })
+    expect(entryMessage('plateHalf', 'step')).toBe('Whole or half plates')
+    expect(parseEntry('0.5', 'plateHalf')).toEqual({ ok: false, reason: 'range' })
+    expect(entryMessage('plateHalf', 'range')).toBe('Plate 1 to 50')
+  })
+})

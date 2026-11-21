@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import type { SkipReason } from '../../db/schema'
 import type { SkippedToday } from '../../state/useToday'
 import { QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
-import { SkipNextIcon } from '../../ui/components/icons'
-import { Menu } from '../../ui/components/Menu'
+import { SkipNextIcon, TuneIcon } from '../../ui/components/icons'
+import { Menu, type MenuItem } from '../../ui/components/Menu'
+import { COUNT_PLATES } from './PlateCount'
+import { SHEET_TAP_WINDOW_MS, useEarlyTapGuard } from './tapGuard'
 import './today.css'
 
 // Skipping a planned exercise for today (1.13, skip-a-planned-exercise spec, "What you see on Today"). The Android app's
@@ -31,19 +32,20 @@ export const SKIP_ANSWERS: readonly [text: string, reason: SkipReason | null][] 
   ['Just skip', null],
 ]
 
+/** How long, in ms, the reason sheet ignores taps on its answers once it is open (see `SHEET_TAP_WINDOW_MS`). */
+export const SKIP_SHEET_TAP_WINDOW_MS = SHEET_TAP_WINDOW_MS
+
 /**
- * How long, in ms, the reason sheet ignores taps on its answers once it is open: it opens under the finger
- * that chose Skip today, where a double tap's second tap would land (as Plan's add form, ADD_FORM_TAP_WINDOW_MS). Counted
- * from the end of its slide up, as on Android, so the slide does not use the moment up; taps meanwhile are ignored too.
+ * The row menu (⋮): Skip today with `onSkipToday`, and Count plates on this machine under it with `onCountPlates` (1.17).
+ * It shows when either is given, and draws nothing when neither is.
  */
-export const SKIP_SHEET_TAP_WINDOW_MS = 300
-
-/** The time now, on the clock events are stamped with (as Plan's add form reads it). */
-const eventClock = () => new Event('now').timeStamp
-
-/** The row menu (⋮), with its one item, Skip today. */
-export function SkipMenu({ name, onSkipToday }: { name: string; onSkipToday: () => void }) {
-  return <Menu label={exerciseOptions(name)} items={[{ text: SKIP_TODAY, icon: <SkipNextIcon />, onSelect: onSkipToday }]} />
+export function SkipMenu({ name, onSkipToday, onCountPlates }: { name: string; onSkipToday?: () => void; onCountPlates?: () => void }) {
+  const items: MenuItem[] = [
+    ...(onSkipToday ? [{ text: SKIP_TODAY, icon: <SkipNextIcon />, onSelect: onSkipToday }] : []),
+    ...(onCountPlates ? [{ text: COUNT_PLATES, icon: <TuneIcon />, onSelect: onCountPlates, testId: 'exercise-menu-plates' }] : []),
+  ]
+  if (items.length === 0) return null
+  return <Menu label={exerciseOptions(name)} items={items} />
 }
 
 export type SkipReasonSheetProps = {
@@ -60,30 +62,11 @@ export type SkipReasonSheetProps = {
  * (Enter, Space, Escape) is not held, as on Plan's add form.
  */
 export function SkipReasonSheet({ name, onReason, onDismiss }: SkipReasonSheetProps) {
-  // When the sheet finished sliding up, on the events' clock; null while it is still moving.
-  const [openedAt, setOpenedAt] = useState<number | null>(null)
-  const taps = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    let gone = false
-    const panel = taps.current?.querySelector('.gr-dialog')
-    const moving = panel?.getAnimations?.() ?? []
-    Promise.all(moving.map((a) => a.finished.catch(() => {}))).then(() => {
-      if (!gone) setOpenedAt(eventClock())
-    })
-    return () => {
-      gone = true
-    }
-  }, [])
+  // Only the answers are held: a tap outside cancels at once, as on Android, since nothing is stored by it.
+  const taps = useEarlyTapGuard('.today-skip-answers')
   const title = skipSheetTitle(name)
-  // A click made by a tap (detail 1 or more) on an answer, while the sheet slides up or too soon after, stops here.
-  const holdEarlyTaps = (e: MouseEvent<HTMLDivElement>) => {
-    if (e.detail === 0 || (openedAt != null && e.timeStamp - openedAt >= SKIP_SHEET_TAP_WINDOW_MS)) return
-    const target = e.target as Element
-    // Only the answers: a tap outside cancels at once, as on Android, since nothing is stored by it.
-    if (target.closest('.today-skip-answers') != null) e.stopPropagation()
-  }
   return (
-    <div ref={taps} className="today-skip-taps" onClickCapture={holdEarlyTaps}>
+    <div ref={taps.ref} className="today-skip-taps" onClickCapture={taps.onClickCapture}>
       <Dialog
         open
         variant="sheet"

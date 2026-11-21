@@ -1,6 +1,11 @@
+import { cleanup, render, screen } from '@testing-library/react'
+import { createElement } from 'react'
 import { describe, expect, it } from 'vitest'
 import { JsExercise, JsHistory, JsSession, JsSet } from '../domain'
+import { BodybuildingProgressContent, trendRowName } from '../screens/progress/BodybuildingProgress'
+import { ExerciseHistoryContent } from '../screens/progress/ExerciseHistoryScreen'
 import { addDays } from './isoDate'
+import { buildExerciseHistory, buildLiftHistory } from './useLiftHistory'
 import { buildBodybuildingProgress, buildProgress, type ChartRange } from './useProgress'
 
 // Ported from Android's ProgressViewModelBuildTest.
@@ -252,5 +257,71 @@ describe('buildBodybuildingProgress', () => {
     expect(buildBodybuildingProgress(empty, [], today, [checkIn(today)]).checkedIn).toBe(true)
     // As on Android: a check-in dated after today does not count yet.
     expect(buildBodybuildingProgress(empty, [], today, [checkIn(addDays(today, 1))]).checkedIn).toBe(false)
+  })
+})
+
+// 1.17: a plate-counted machine on Progress and in the exercise history (Android's PlatesProgressTest).
+describe('plates on Progress and in history', () => {
+  const pulldown = new JsExercise(5, 'Lat pulldown', 'ACCESSORY', null, ['LATS'], true, false, 'WHOLE')
+  const curl = new JsExercise(6, 'Curl', 'ACCESSORY', null, ['BICEPS'], true, false)
+  const bbPlan = [pulldown, curl].map((e, i) => ({ id: i + 1, weekday: 3, exerciseId: e.id, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: i, mode: 'BODYBUILDING' as const }))
+  const plate = (e: JsExercise, n: number, reps: number) => new JsSet(e.id, n, reps, 8, false, null, false, 'PLATES')
+  const kg = (e: JsExercise, n: number, reps: number) => new JsSet(e.id, n, reps, 8, false, null, false)
+  const bbHistory = (...sessions: [string, JsSet[]][]) =>
+    new JsHistory(
+      sessions.map(([date, sets], i) => new JsSession(i + 1, date, null, null, sets, 'BODYBUILDING')),
+      [pulldown, curl],
+      [],
+    )
+
+  it('bodybuildingProgress_printsPlate9Times10', () => {
+    const h = bbHistory([addDays(today, -7), [plate(pulldown, 8, 10), kg(curl, 20, 10)]], [addDays(today, -2), [plate(pulldown, 9, 10), kg(curl, 22, 10)]])
+    const rows = buildBodybuildingProgress(h, bbPlan, today).rows
+    const [pulldownRow, curlRow] = rows
+    expect(pulldownRow!.bestSets).toStrictEqual([
+      { date: addDays(today, -7), weightKg: 8, reps: 10, unit: 'PLATES' },
+      { date: addDays(today, -2), weightKg: 9, reps: 10, unit: 'PLATES' },
+    ])
+    // A kg row is as it was: no unit key at all.
+    expect(curlRow!.bestSets).toStrictEqual([
+      { date: addDays(today, -7), weightKg: 20, reps: 10 },
+      { date: addDays(today, -2), weightKg: 22, reps: 10 },
+    ])
+    expect(trendRowName(pulldownRow!)).toBe('Lat pulldown. plate 8 × 10, plate 9 × 10. Going up. Open history')
+    expect(trendRowName(curlRow!)).toBe('Curl. 20 × 10, 22 × 10. Going up. Open history')
+    // A half is spoken as the set rows speak it.
+    const half = buildBodybuildingProgress(bbHistory([addDays(today, -2), [plate(pulldown, 7.5, 10)]]), bbPlan, today).rows[0]!
+    expect(trendRowName(half)).toBe('Lat pulldown. plate 7 and a half × 10. Open history')
+    render(createElement(BodybuildingProgressContent, { state: { loading: false, rows, bodyParts: [], checkedIn: false }, onOpenExercise: () => {} }))
+    const lines = [...document.querySelectorAll('.bb-row-sets')].map((el) => el.textContent)
+    expect(lines).toEqual(['plate 8 × 10 · plate 9 × 10', '20 × 10 · 22 × 10'])
+    cleanup()
+  })
+
+  it('exerciseHistory_printsEachSetInItsOwnUnit', () => {
+    // A kg session, then plates turned on and a plate session.
+    const h = bbHistory([addDays(today, -14), [kg(pulldown, 60, 10)]], [addDays(today, -7), [plate(pulldown, 7, 10)]])
+    const state = buildExerciseHistory(h, pulldown.id)
+    render(createElement(ExerciseHistoryContent, { state, onBack: () => {} }))
+    const [plates, kgs] = state.sessions
+    expect(plates!.groups[0]!.sets.map((s) => [s.set.unit, s.isPr])).toEqual([['PLATES', false]])
+    expect(kgs!.groups[0]!.sets.map((s) => [s.set.unit, s.isPr])).toEqual([['KG', false]])
+    expect(screen.getByText('Set 1: plate 7 × 10 at RPE 8, done')).toBeInTheDocument()
+    expect(screen.getByText('Set 1: 60 kg × 10 at RPE 8, done')).toBeInTheDocument()
+    expect(screen.getByText('plate 7')).toBeInTheDocument()
+    expect(screen.getByText('60')).toBeInTheDocument()
+    expect(screen.queryByText('PR')).toBeNull()
+    cleanup()
+  })
+
+  it('a plate set that matches a record is never marked as it', () => {
+    // A squat set in plates (only a hand-edited backup could hold one) logged before the kg set that made the record.
+    const squatRow = new JsExercise(1, 'Squat', 'SQUAT', null, [], true, false)
+    const h = new JsHistory([new JsSession(1, addDays(today, -2), null, null, [new JsSet(1, 100, 5, 8, false, null, false, 'PLATES'), new JsSet(1, 100, 5, 8, false, null, false)])], [squatRow], [])
+    const state = buildLiftHistory(h, 'SQUAT', today)
+    expect(state.sessions[0]!.groups[0]!.sets.map((s) => [s.set.unit, s.isPr])).toEqual([
+      ['PLATES', false],
+      ['KG', true],
+    ])
   })
 })

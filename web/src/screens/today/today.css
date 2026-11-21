@@ -418,3 +418,71 @@
   min-height: var(--touch);
   color: var(--text-secondary);
 }
+
+/*
+ * The plate sheet (1.17): the question, three radio choices with their hints, an optional note and Done. Every line
+ * wraps; the sheet's panel scrolls, so at any text size nothing is cut and Done is reached by scrolling.
+ */
+.today-plate-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.today-plate-question {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.today-plate-options {
+  display: flex;
+  flex-direction: column;
+}
+
+.today-plate-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: var(--touch);
+  padding: var(--space-1) 0;
+  cursor: pointer;
+}
+
+.today-plate-radio {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.today-plate-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-3);
+  min-width: 0;
+}
+
+.today-plate-label {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.today-plate-hint {
+  color: var(--text-muted);
+}
+
+.today-plate-note {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.today-plate-done {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2);
+}

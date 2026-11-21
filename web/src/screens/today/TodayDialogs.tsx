@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { PendingLog } from '../../state/useToday'
 import { PrimaryButton, QuietButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
-import { formatKg } from '../../ui/components/format'
+import { setUnit } from '../../db/schema'
+import { formatKg, formatLoad } from '../../ui/components/format'
 import { TextField } from '../../ui/components/TextField'
 import './today.css'
 
@@ -57,13 +58,17 @@ export function NumberEntryDialog({ title, label, unit, initial, min = 0, max, w
 
 export type TypoDialogProps = { pending: PendingLog; onConfirm: () => void; onEdit: () => void }
 
-/** "Did you mean…?" — shown before a set that looks like a typo is saved. */
+/**
+ * "Did you mean…?" — shown before a set that looks like a typo is saved. A plate set reads "Did you mean plate 12 × 10?"
+ * (1.17); the weight it jumps from is always in the set's own unit.
+ */
 export function TypoDialog({ pending, onConfirm, onEdit }: TypoDialogProps) {
   const { set, warnings, lastWeightKg } = pending
+  const unit = setUnit(set)
   return (
     <Dialog
       open
-      title={`Did you mean ${formatKg(set.weightKg)} kg × ${set.reps}?`}
+      title={`Did you mean ${formatLoad(set.weightKg, unit)} × ${set.reps}?`}
       onDismiss={onEdit}
       actions={
         <>
@@ -75,7 +80,7 @@ export function TypoDialog({ pending, onConfirm, onEdit }: TypoDialogProps) {
       <div className="today-dialog-lines">
         {warnings.map((warning) => (
           <p key={warning}>
-            {warning === 'HIGH_REPS' ? `${set.reps} reps is a lot for one set.` : lastWeightKg != null ? `That is a big jump from ${formatKg(lastWeightKg)} kg.` : 'That is a big jump.'}
+            {warning === 'HIGH_REPS' ? `${set.reps} reps is a lot for one set.` : lastWeightKg != null ? `That is a big jump from ${formatLoad(lastWeightKg, unit)}.` : 'That is a big jump.'}
           </p>
         ))}
         <p className="today-muted">Nothing is saved yet.</p>

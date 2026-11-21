@@ -80,6 +80,8 @@ export function SessionCard({ session }: { session: HistorySession }) {
               state={row.set.failed ? 'failed' : 'done'}
               isTopSet={row.set.isTopSet}
               isPr={row.isPr}
+              // Each set in its own unit (1.17): the exercise history lists kg and plate sets alike.
+              unit={row.set.unit === 'PLATES' ? 'PLATES' : undefined}
             />
           ))}
         </div>
