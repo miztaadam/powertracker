@@ -257,7 +257,8 @@ const onGrid = (t: Target, plateCount: PlateCount | undefined) => setUnit(t) !==
  * Whether [plate] can be stored (1.17.1): a whole or half plate from plate 1 to the highest plate, whatever the exercise's
  * setting now, as a restore checks it. Off the setting's grid is fine (a logged half stands with whole plates on).
  */
-const storablePlate = (plate: number) => grit.plateCheck(plate, 'HALF') === 'OK'
+// The bounds too, so a number no check can judge (NaN, from a damaged kept row) is never stored either.
+const storablePlate = (plate: number) => plate >= 1 && plate <= grit.maxPlate() && grit.plateCheck(plate, 'HALF') === 'OK'
 
 /** The TARGET advice stored for `date` on `side`, in every status, oldest first. Each side has its own targets. */
 function todaysTargets(advice: AdviceRow[], date: string, side: TrainingMode): Stored['targets'] {

@@ -348,7 +348,8 @@ test.describe('plates at 320 px and 200 % text', () => {
 
 // 1.17.1: Today itself on a 320 px phone at 200 % text (laid out at 160 × 284), in kg and in plates, with a session
 // open, the coach's chip showing and after a set is logged with the rest bar up: the page does not scroll sideways and
-// nothing reaches past the screen. The whole page is checked, with the parts still left to the owner named below.
+// nothing reaches past the screen. The whole page is checked in those states (not before the session starts), with
+// the parts still left to the owner named below.
 /**
  * Not yet held to this check at this size, each a design choice handed back to the owner (1.17.1 report): the tab
  * bar's labels ("Progress", "Exercises" clipped), the screen header (the date eyebrow, the side's label and the title
