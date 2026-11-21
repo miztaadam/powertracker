@@ -9,6 +9,15 @@ const SW_PATH = resolve(process.cwd(), 'dist-update/sw.js')
 test.use({ baseURL: 'http://localhost:4175' })
 test.describe.configure({ mode: 'serial' })
 
+// The private copy is the build this run tests (playwright.config.ts makes it fresh each run): the same index.html
+// and sw.js as dist, and what 4175 serves is that copy.
+test.beforeAll(async ({ request }) => {
+  const dist = (file: string) => readFileSync(resolve(process.cwd(), 'dist', file), 'utf8')
+  expect(readFileSync(resolve(process.cwd(), 'dist-update/index.html'), 'utf8'), 'dist-update is stale: rebuild it').toBe(dist('index.html'))
+  expect(readFileSync(SW_PATH, 'utf8'), 'dist-update is stale: rebuild it').toBe(dist('sw.js'))
+  expect(await (await request.get('http://localhost:4175/index.html')).text(), 'the server on 4175 serves another build').toBe(dist('index.html'))
+})
+
 test('updateDoesNotReloadDuringSession', async ({ page }) => {
   const original = readFileSync(SW_PATH, 'utf8')
   try {
