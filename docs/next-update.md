@@ -1005,6 +1005,7 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 - **A repeat keeps the reps earned** on the powerlifting side (the kg rule's repeat goes back to the planned reps).
 - **The "Update Grit to carry on" guard goes in 1.17.**
 - **The ⋮ menu is the way in.** There is no shortcut on the field label.
+- **Switching back to kg builds on the old kg number** (2026-11-21): plate sessions count as training, so an old kg top set is not eased for its age when the exercise was trained in plates meanwhile. Fourteen days with no sessions, or a lighter week, still ease it. The design's "as if plates had been a break" wording is corrected to match.
 
 **My calls** (the plan's Planner's calls, then the calls made while building):
 1. **Names:** `LoadUnit { KG, PLATES }` and `PlateCount { OFF, WHOLE, HALF }`; the columns and keys are `unit` and `plateCount`. `weightKg` keeps its name everywhere and means the plate number beside `PLATES`. Renaming it would have touched every store, backup and payload.
