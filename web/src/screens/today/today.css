@@ -95,11 +95,33 @@
   gap: var(--space-3);
 }
 
+/*
+ * The open card's ⓘ and ⋮ (1.17.1): one group, spaced as the head spaces its parts, kept at the right. On one line the
+ * title already pushes them there; when the head wraps they move as one and stay right.
+ */
+.today-card-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: inherit;
+  margin-left: auto;
+}
+
 /* The open card's title (1.13): beside the pill and the buttons when it fits, else on a line of its own above them. */
 .today-card-title {
   flex: 1 1 auto;
   min-width: 0;
   max-width: 100%;
+}
+
+/*
+ * A name of one word too long for its card breaks inside it, and only then (1.17.1), on the open card, a folded row and
+ * the start card's plan line: every other name is as before.
+ */
+.today-card-title .today-name,
+.today-row .today-name,
+.today-plan-line .today-name {
+  overflow-wrap: break-word;
 }
 
 
@@ -485,4 +507,271 @@
   display: flex;
   flex-direction: column;
   margin-top: var(--space-2);
+}
+
+/*
+ * 1.17.1: a 320 px phone at 200 % text (laid out about 160 px wide), with the owner's choices. Below the narrowest layout
+ * held to the checks at normal text (246 px, 130 % zoom on a 320 px phone), so nothing changes at any other size; and in
+ * the app only (.shell-main, .shell-rest), so the guide's pictures of Today are drawn as before. Nothing is cut and
+ * nothing overlaps: text wraps at its spaces, rows of buttons stack, and the screen's and cards' sides are a little
+ * narrower so the card has room. The tab bar's part is in TabBar.css.
+ */
+@media (max-width: 239px) {
+  /* Room: the screen's sides 8 px (were 16), the cards' 12 px (were 16); the header's text lines up with the cards. */
+  .shell-main .today-screen > .screen-body {
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .today-screen .gr-card {
+    padding: min(var(--card-padding, var(--space-5)), var(--space-4));
+  }
+
+  /* The header: the date may wrap; the title and the side's label are whole, and Finish goes under them. */
+  .shell-main .today-screen > .gr-screen-header {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .today-screen > .gr-screen-header > .gr-screen-header-text {
+    flex-basis: 100%;
+  }
+
+  .shell-main .today-screen .today-finish {
+    margin-right: 0;
+  }
+
+  /* Eyebrows on Today (the date, "Wednesday · 1 exercise", "Coach suggests", a stepper's caption) wrap, never cut. */
+  .shell-main .today-screen .eyebrow {
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: normal;
+  }
+
+  /* Button words wrap at a space; each button keeps its height. */
+  .shell-main .today-screen .gr-btn-text {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  /* The buttons that take a card's whole width have their faces' sides a little tighter (they are wider than before). */
+  .shell-main .today-screen .today-log .gr-btn-face,
+  .shell-main .today-screen .install-actions .gr-btn-face,
+  .shell-main .today-screen .gr-advice-actions .gr-btn-face,
+  .shell-main .today-screen .today-start .gr-btn-face {
+    padding-inline: var(--space-3);
+  }
+
+  /* Rows of buttons stack, each as wide as its card: the backup reminder's, the install card's, Missed and Log set. */
+  .shell-main .today-screen .gr-advice-actions,
+  .shell-main .today-screen .install-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shell-main .today-log {
+    flex-wrap: wrap;
+  }
+
+  .shell-main .today-log > .gr-btn {
+    flex: 1 1 100%;
+  }
+
+  /* The start card: the plan line and the names wrap; Bodyweight goes over its button; the readiness numbers wrap. */
+  .shell-main .today-screen .today-pair-second,
+  .shell-main .today-screen .today-plan-suggestion .today-ellipsis {
+    white-space: normal;
+  }
+
+  .shell-main .today-screen .today-plan-suggestion {
+    align-items: flex-start;
+  }
+
+  .shell-main .today-screen .today-plan-suggestion .today-ellipsis {
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  /* A plan line: the name beside the menu, then the coach's line and the plan under them, each the card's whole width. */
+  .shell-main .today-screen .today-plan-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-2);
+    row-gap: var(--space-1);
+    align-items: center;
+  }
+
+  .shell-main .today-screen .today-plan-line > .today-pair,
+  .shell-main .today-screen .today-plan-line .today-pair-first {
+    display: contents;
+  }
+
+  .shell-main .today-screen .today-plan-line .today-name {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .shell-main .today-screen .today-plan-line > :last-child {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .shell-main .today-screen .today-plan-line .today-plan-suggestion,
+  .shell-main .today-screen .today-plan-line .today-pair-second {
+    grid-column: 1 / -1;
+  }
+
+  /* The summary's tiles one over the other. */
+  .shell-main .today-screen .today-summary-stats {
+    flex-direction: column;
+  }
+
+  .shell-main .today-screen .today-checkin {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .shell-main .today-screen .today-readiness-chips {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+  }
+
+  /* Each keeps its 48 px target, so two fit a row: three rows, 2 + 2 + 1, each chip half the row. */
+  .shell-main .today-screen .today-readiness-chips > .gr-chip {
+    flex: 0 0 calc((100% - var(--space-3)) / 2);
+    min-width: var(--touch);
+  }
+
+  /*
+   * A logged set: the load (weight × reps) on its first line, and the effort (@ RPE) with the done mark on the next, in
+   * the same type. A load too long for its line ("plate 12½ × 12") breaks once, after the weight.
+   */
+  .shell-main .gr-card:has(.today-card-head) .gr-set-visual {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: center;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-line {
+    display: contents;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-index {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-load {
+    grid-row: 1;
+    grid-column: 2 / 4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-load > *,
+  .shell-main .gr-card:has(.today-card-head) .gr-set-effort {
+    white-space: nowrap;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-effort {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  /* The @ starts its line: no space before it there. */
+  .shell-main .gr-card:has(.today-card-head) .gr-set-effort > .gr-set-at {
+    margin-left: 0;
+  }
+
+  /* A third line, under the effort, for the pills: Top set, or Failed (no room beside "@ 10" and the mark). */
+  .shell-main .gr-card:has(.today-card-head) .gr-set-pills,
+  .shell-main .gr-card:has(.today-card-head) .gr-set-visual > .gr-pill {
+    grid-row: 3;
+    grid-column: 2 / 4;
+    justify-self: start;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-spacer {
+    display: none;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-dot {
+    grid-row: 2;
+    grid-column: 3;
+  }
+
+  /* A folded row: its plan and its count wrap under the name, the plan at its spaces, and the row's sides are narrower. */
+  .shell-main .today-screen .today-row-card .today-row {
+    padding-inline: var(--space-4) var(--space-2);
+  }
+
+  .shell-main .today-screen .today-row .today-pair-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+
+  .shell-main .today-screen .today-row .today-pair-second {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .shell-main .today-screen .today-row-plan {
+    white-space: normal;
+  }
+
+  /* Where a set stalled or was slow: the question over its three points, and the points one over the other, each the
+     row's width and 48 px tall. */
+  .shell-main .today-screen .today-miss {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding-left: 0;
+  }
+
+  .shell-main .today-screen .today-miss .gr-segmented {
+    flex-direction: column;
+    padding: var(--space-2);
+  }
+
+  /* A long point ("Off the shoulders") wraps at its spaces inside its segment, which grows with it. */
+  .shell-main .today-screen .today-miss .gr-segment-face {
+    white-space: normal;
+    text-align: center;
+    padding-block: var(--space-2);
+  }
+
+  /* Stretch and squeeze: the label over its line, so the line has the card's width. */
+  .shell-main .today-screen .today-cue {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  /* The bar picture's words go under the bar. */
+  .shell-main .gr-card:has(.today-card-head) .gr-plates {
+    flex-wrap: wrap;
+  }
+
+  /* The bar itself narrows with its box rather than reach past it. */
+  .shell-main .gr-card:has(.today-card-head) .gr-plates-bar {
+    flex-shrink: 1;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* The rest bar in two columns, in its own order: the clock and −30 s, then +30 s and Skip. */
+  .shell-rest .gr-rest-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    padding-left: var(--space-4);
+  }
+
+  /* The bar picture's words go under the bar, and its caption wraps rather than end in "…". */
+  .shell-main .gr-card:has(.today-card-head) .gr-plates-caption {
+    white-space: normal;
+  }
 }

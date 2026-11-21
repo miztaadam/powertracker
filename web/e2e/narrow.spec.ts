@@ -345,3 +345,339 @@ test.describe('plates at 320 px and 200 % text', () => {
     await expect(sheet).toBeHidden()
   })
 })
+
+// 1.17.1: Today itself on a 320 px phone at 200 % text (laid out at 160 × 284), in kg and in plates on both sides, in
+// every state of the day: nothing planned; not started (with the install, backup and start cards); started with the
+// coach's chip; after Apply; after a set is logged with the rest bar up; after Finish. Checked on the whole page with
+// `overflowing`, and with `alsoBroken` for what it does not see.
+
+/**
+ * What `overflowing` does not see, on the screen, the rest bar and the tab bar:
+ * - anything of the rest bar reaching past the screen, or its text not fitting its box;
+ * - a button, link, field or chip overlapping another one, or overlapping text, or text overlapping text, inside the
+ *   screen (more than 1 px each way; one inside the other does not count; a stepper's caption action, laid over its figure by design, is left out);
+ * - a button, link, field or chip reaching past the card (or the rest bar) it sits in;
+ * - text squeezed to nothing (an element holding text that is drawn 0 px wide or high), or spilling out of its own box;
+ * - a word broken across lines. The rule: in any text, a run of four or more characters with no space, hyphen or dash
+ *   in it must sit on one line. Text broken letter by letter breaks every such word; text that wraps at its spaces
+ *   breaks none.
+ */
+const alsoBroken = (page: Page) =>
+  page.evaluate(() => {
+    const found: string[] = []
+    const name = (el: Element) => `${el.tagName.toLowerCase()}.${el.getAttribute('class') ?? ''}`
+    const shown = (el: Element) => {
+      if (el.closest('.sr-only, .gr-tab-label')) return false
+      const style = getComputedStyle(el)
+      const box = el.getBoundingClientRect()
+      return style.visibility !== 'hidden' && style.opacity !== '0' && box.width > 0 && box.height > 0
+    }
+    for (const el of document.querySelectorAll<HTMLElement>('.shell-rest, .shell-rest *')) {
+      if (!shown(el)) continue
+      const box = el.getBoundingClientRect()
+      if (box.right > window.innerWidth + 0.5 || box.left < -0.5) found.push(`outside ${name(el)}`)
+      if (el.matches('p, span, .gr-btn-text') && el.children.length === 0 && el.scrollWidth > el.clientWidth + 1) found.push(`clipped ${name(el)}: ${el.textContent}`)
+    }
+    const everything = [...document.querySelectorAll<HTMLElement>('.shell-main *, .shell-rest *, .gr-tabbar *')]
+    for (const el of everything) {
+      if (el.closest('.sr-only, .gr-tab-label') || getComputedStyle(el).display === 'none') continue
+      const holdsText = [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim() !== '')
+      const box = el.getBoundingClientRect()
+      if (holdsText && (box.width < 1 || box.height < 1)) found.push(`squeezed ${name(el)}: ${el.textContent}`)
+    }
+    const all = everything.filter(shown)
+    // A stepper's caption action (the RPE info button) is laid over the caption's line and reaches over the figure by
+    // design, at every width (its 48 px target): it is not held to the overlap rule.
+    const controls = all.filter((el) => el.matches('button, a, input, label.gr-chip, [role="menuitem"]'))
+    const designedOver = (a: Element, b: Element) => a.closest('.gr-stepper-action') != null || b.closest('.gr-stepper-action') != null
+    const texts = all.filter((el) => [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim() !== ''))
+    // Text spilling out of its own box (a pill squeezed into a narrow grid column draws past it), any element but inline ones.
+    for (const el of texts) {
+      const style = getComputedStyle(el)
+      if (style.display === 'inline' || ['auto', 'scroll'].includes(style.overflowX)) continue
+      if (el.scrollWidth > el.clientWidth + 1) found.push(`spills ${name(el)}: ${el.textContent}`)
+    }
+    // Within one region only: the screen scrolls under the rest bar and the tab bar.
+    const region = (el: Element) => el.closest('.shell-main, .shell-rest, .gr-tabbar')
+    // Text over text too (a pill over a set's numbers), each pair once.
+    for (const [i, a] of texts.entries()) {
+      const ra = a.getBoundingClientRect()
+      for (const b of texts.slice(i + 1)) {
+        if (a.contains(b) || b.contains(a) || region(a) !== region(b) || designedOver(a, b)) continue
+        const rb = b.getBoundingClientRect()
+        const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
+        const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
+        if (x > 1 && y > 1) found.push(`overlap ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}" × ${name(b)} "${(b.textContent ?? '').trim().slice(0, 20)}"`)
+      }
+    }
+    for (const a of controls) {
+      const ra = a.getBoundingClientRect()
+      const box = a.parentElement?.closest('.gr-card, .gr-rest')?.getBoundingClientRect()
+      if (box && (ra.left < box.left - 0.5 || ra.right > box.right + 0.5)) found.push(`outside its card ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}"`)
+      for (const b of [...controls, ...texts]) {
+        if (a === b || a.contains(b) || b.contains(a) || region(a) !== region(b) || designedOver(a, b)) continue
+        const rb = b.getBoundingClientRect()
+        const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
+        const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
+        if (x > 1 && y > 1) found.push(`overlap ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}" × ${name(b)} "${(b.textContent ?? '').trim().slice(0, 20)}"`)
+      }
+    }
+    for (const el of texts) {
+      for (const node of el.childNodes) {
+        if (node.nodeType !== Node.TEXT_NODE) continue
+        const text = node.textContent!
+        for (const m of text.matchAll(/[^\s\-‐–—]{4,}/g)) {
+          const range = document.createRange()
+          range.setStart(node, m.index)
+          range.setEnd(node, m.index + m[0].length)
+          const lines = new Set([...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top)))
+          if (lines.size > 1) found.push(`broken word ${name(el)}: ${m[0]}`)
+        }
+      }
+    }
+    return [...new Set(found)]
+  })
+
+/** Everything wrong at this size: `overflowing` and `alsoBroken`. */
+const wrong = async (page: Page) => [...(await overflowing(page)), ...(await alsoBroken(page))]
+
+/** The day's plan on `side`: Bench (kg) or Lat pulldown on half steps (plates), planned on Wednesdays, with four weeks of history. */
+async function seedToday(page: Page, side: 'POWERLIFTING' | 'BODYBUILDING', plates: boolean) {
+  await page.evaluate(
+    async ({ side, plates }) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems', 'settings', 'sessions', 'sets'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      const add = (store: string, row: unknown) =>
+        new Promise<number>((done) => {
+          const request = tx.objectStore(store).add(row)
+          request.onsuccess = () => done(request.result as number)
+        })
+      const all = await new Promise<{ id: number; name: string }[]>((done) => {
+        const request = tx.objectStore('exercises').getAll()
+        request.onsuccess = () => done(request.result)
+      })
+      const id = plates
+        ? await add('exercises', { name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['LATS', 'BICEPS'], isBuiltIn: true, archived: false, plateCount: 'HALF' })
+        : all.find((e) => e.name === 'Bench')!.id
+      const bodybuilding = side === 'BODYBUILDING'
+      await add('planItems', { weekday: 3, exerciseId: id, sets: 3, reps: 8, ...(bodybuilding ? { repsHigh: 12 } : {}), targetRpe: 8, order: 0, mode: side })
+      tx.objectStore('settings').put({ key: 'trainingMode', value: side })
+      for (const date of ['2026-10-14', '2026-10-21', '2026-10-28', '2026-11-04']) {
+        const day = await add('sessions', { date, bodyweightKg: null, readiness: null, mode: side })
+        for (const reps of bodybuilding ? [12, 11, 10] : [5, 5, 5])
+          await add('sets', { sessionId: day, exerciseId: id, weightKg: plates ? 12.5 : 112.5, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false, ...(plates ? { unit: 'PLATES' } : {}) })
+      }
+      await settled
+      db.close()
+    },
+    { side, plates },
+  )
+  await page.reload()
+  await expect(tabBar(page)).toBeVisible()
+}
+
+test.describe('Today at 320 px and 200 % text', () => {
+  test.use({ viewport: { width: 160, height: 284 } })
+
+  for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
+    test(`nothing planned, ${side.toLowerCase()} side, fits`, async ({ page }) => {
+      await openOnWednesday(page)
+      if (side === 'BODYBUILDING') await bodybuilding(page)
+      await expect(page.getByText('Nothing planned', { exact: true })).toBeVisible()
+      expect(await wrong(page)).toEqual([])
+    })
+
+    for (const load of ['kg', 'plates'] as const) {
+      test(`Today in ${load}, ${side.toLowerCase()} side, fits all day`, async ({ page }) => {
+        await openOnWednesday(page)
+        await seedToday(page, side, load === 'plates')
+        // Not started: the install card, the backup card and the start card.
+        await expect(page.getByRole('heading', { name: 'Install Grit' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Back up your log' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Ready to train?' })).toBeVisible()
+        expect(await wrong(page), 'not started').toEqual([])
+        // The readiness numbers keep their 48 px targets, so they take three rows: 2 + 2 + 1.
+        const chips = await page.locator('.today-readiness-chips > .gr-chip').evaluateAll((all) => all.map((c) => c.getBoundingClientRect()).map((r) => ({ top: Math.round(r.top), width: r.width, height: r.height })))
+        expect(new Set(chips.map((c) => c.top)).size, 'readiness rows').toBe(3)
+        for (const c of chips) expect(Math.min(c.width, c.height), 'a readiness target').toBeGreaterThanOrEqual(48)
+
+        await tap(page, 'Start session')
+        await expect(page.locator('.gr-suggestion')).toBeVisible()
+        expect(await wrong(page), 'with the chip').toEqual([])
+        // The header reads as before: the title, then the side's label, then Finish (in that order in the page).
+        const order = await page.locator('.gr-screen-header').evaluate((header) =>
+          [...header.querySelectorAll('h1, .gr-mode-label, button')].map((el) => (el.matches('h1') ? 'title' : el.matches('button') ? el.textContent : 'side')),
+        )
+        expect(order).toEqual(side === 'BODYBUILDING' ? ['side', 'title', 'Finish'] : ['title', 'Finish'])
+
+        await page.locator('.gr-suggestion').getByRole('button', { name: 'Apply' }).click()
+        await expect(page.locator('.gr-suggestion')).toHaveCount(0)
+        expect(await wrong(page), 'applied').toEqual([])
+
+        await tap(page, 'Log set 1')
+        await expect(page.getByRole('timer')).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+        expect(await wrong(page), 'a set logged, the rest bar up').toEqual([])
+
+        // A missed set, then (where the row asks) where it was missed.
+        await tap(page, 'Missed')
+        await expect(page.getByRole('button', { name: 'Log set 3' })).toBeVisible()
+        expect(await wrong(page), 'a missed set').toEqual([])
+        // The powerlifting side asks where it stalled; the bodybuilding side never does.
+        const missRow = page.getByTestId('miss-row-2')
+        await expect(missRow).toHaveCount(side === 'POWERLIFTING' ? 1 : 0)
+        if (side === 'POWERLIFTING') {
+          await missRow.locator('label.gr-segment').first().click()
+          expect(await wrong(page), 'a missed set with its miss point').toEqual([])
+        }
+
+        await tap(page, 'Finish')
+        await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
+        expect(await wrong(page), 'finished').toEqual([])
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      })
+    }
+  }
+
+  for (const [load, side] of [
+    ['kg', 'POWERLIFTING'],
+    ['plates', 'POWERLIFTING'],
+    ['plates', 'BODYBUILDING'],
+  ] as const) {
+    test(`every kind of logged set fits, ${load}, ${side.toLowerCase()} side`, async ({ page }) => {
+      await openOnWednesday(page)
+      await seedToday(page, side, load === 'plates')
+      // Today's session with one set of each kind: a top set; no RPE; 0 (bodyweight) in kg or a half plate; missed with
+      // and without a miss point; a grind (RPE 9.5, which asks where it slowed on the powerlifting side).
+      await page.evaluate(
+        async ({ plates, side }) => {
+          const db = await new Promise<IDBDatabase>((done, fail) => {
+            const request = indexedDB.open('grit')
+            request.onsuccess = () => done(request.result)
+            request.onerror = () => fail(request.error)
+          })
+          const tx = db.transaction(['exercises', 'sessions', 'sets'], 'readwrite')
+          const settled = new Promise<void>((done, fail) => {
+            tx.oncomplete = () => done()
+            tx.onerror = () => fail(tx.error)
+          })
+          const all = await new Promise<{ id: number; name: string }[]>((done) => {
+            const request = tx.objectStore('exercises').getAll()
+            request.onsuccess = () => done(request.result)
+          })
+          const id = all.find((e) => e.name === (plates ? 'Lat pulldown' : 'Bench'))!.id
+          const session = await new Promise<number>((done) => {
+            const request = tx.objectStore('sessions').add({ date: '2026-11-11', bodyweightKg: null, readiness: null, mode: side })
+            request.onsuccess = () => done(request.result as number)
+          })
+          const unit = plates ? { unit: 'PLATES' } : {}
+          const rows = plates
+            ? [[13, 8, 8, false, null], [12.5, 8, null, false, null], [7.5, 12, 8, false, null], [13.5, 5, 10, true, 'MID'], [13.5, 4, 10, true, null], [12, 8, 9.5, false, null]]
+            : [[120, 5, 8, false, null], [110, 5, null, false, null], [0, 10, 8, false, null], [125, 3, 10, true, 'LOCKOUT'], [125, 2, 10, true, null], [115, 5, 9.5, false, null]]
+          for (const [weightKg, reps, rpe, failed, missPoint] of rows)
+            tx.objectStore('sets').add({ sessionId: session, exerciseId: id, weightKg, reps, rpe, failed, missPoint, isTopSet: false, ...unit })
+          await settled
+          db.close()
+        },
+        { plates: load === 'plates', side },
+      )
+      await page.reload()
+      // Six sets of three planned: the card is done.
+      await expect(page.locator('.gr-set')).toHaveCount(6)
+      // The powerlifting side marks the top set and asks where a missed set or a grind stalled.
+      await expect(page.getByText('Top set', { exact: true })).toHaveCount(side === 'POWERLIFTING' ? 1 : 0)
+      await expect(page.locator('[data-testid^="miss-row-"]')).toHaveCount(side === 'POWERLIFTING' ? 3 : 0)
+      await expect(page.getByText('Failed', { exact: true }).first()).toBeVisible()
+      expect(await wrong(page)).toEqual([])
+    })
+  }
+
+  // Each main lift's own miss points: "Out of the hole", "Off the chest", "Off the floor", "Off the shoulders" (the longest).
+  test('every lift asks where it stalled, and its points fit', async ({ page }) => {
+    await openOnWednesday(page)
+    const lifts = ['Squat', 'Bench', 'Deadlift', 'Strict press']
+    await page.evaluate(async (lifts) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems', 'sessions', 'sets'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      const all = await new Promise<{ id: number; name: string }[]>((done) => {
+        const request = tx.objectStore('exercises').getAll()
+        request.onsuccess = () => done(request.result)
+      })
+      const session = await new Promise<number>((done) => {
+        const request = tx.objectStore('sessions').add({ date: '2026-11-11', bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' })
+        request.onsuccess = () => done(request.result as number)
+      })
+      for (const [order, name] of lifts.entries()) {
+        // Strict press is not among the rows a new log starts with: it is added as the catalogue adds it.
+        const id =
+          all.find((e) => e.name === name)?.id ??
+          (await new Promise<number>((done) => {
+            const request = tx.objectStore('exercises').add({ name, category: 'STRICT_PRESS', parentLift: null, muscles: ['FRONT_DELTS', 'TRICEPS'], isBuiltIn: true, archived: false })
+            request.onsuccess = () => done(request.result as number)
+          }))
+        tx.objectStore('planItems').add({ weekday: 3, exerciseId: id, sets: 3, reps: 5, targetRpe: 8, order, mode: 'POWERLIFTING' })
+        tx.objectStore('sets').add({ sessionId: session, exerciseId: id, weightKg: 100, reps: 3, rpe: 10, failed: true, missPoint: 'FLOOR', isTopSet: false })
+      }
+      await settled
+      db.close()
+    }, lifts)
+    await page.reload()
+    for (const name of lifts) {
+      // Open its card (the first is open already).
+      const row = page.locator('.today-row', { hasText: name })
+      if (await row.count()) await row.first().click()
+      await expect(page.locator('.today-card-head').getByRole('heading', { name, exact: true })).toBeVisible()
+      await expect(page.getByTestId('miss-row-1')).toBeVisible()
+      expect(await wrong(page), name).toEqual([])
+      // Each point at least 48 px tall.
+      for (const h of await page.getByTestId('miss-row-1').locator('label.gr-segment').evaluateAll((all) => all.map((l) => l.getBoundingClientRect().height)))
+        expect(h, `${name}: a point's height`).toBeGreaterThanOrEqual(48)
+    }
+  })
+
+  test('the tab bar shows its icons only, and keeps its names, its current tab and its touch targets', async ({ page }) => {
+    await openOnWednesday(page)
+    const nav = tabBar(page)
+    for (const name of ['Today', 'Coach', 'Progress', 'Exercises', 'Plan']) {
+      const tab = nav.getByRole('link', { name, exact: true })
+      await expect(tab).toBeVisible()
+      const box = (await tab.boundingBox())!
+      // As tall as at any width (the bar's 80 px); as wide as five tabs in 160 px allow, which is what they have today.
+      expect(box.height, `${name}'s height`).toBeGreaterThanOrEqual(80)
+      expect(box.width, `${name}'s width`).toBeGreaterThanOrEqual(31.5)
+      // The label is not drawn: only the icon is seen. Every bit of the tab's text is inside 1 px or less.
+      const drawn = await tab.evaluate((a) => {
+        const walker = document.createTreeWalker(a, NodeFilter.SHOW_TEXT)
+        let widest = 0
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          if (n.textContent!.trim() === '') continue
+          const range = document.createRange()
+          range.selectNodeContents(n)
+          const box = range.getBoundingClientRect()
+          const clip = (n.parentElement as Element).getBoundingClientRect()
+          widest = Math.max(widest, Math.min(box.width, clip.width))
+        }
+        return widest
+      })
+      expect(drawn, `${name}'s label is not drawn`).toBeLessThanOrEqual(1)
+    }
+    await expect(nav.getByRole('link', { name: 'Today', exact: true })).toHaveAttribute('aria-current', 'page')
+    expect(await wrong(page)).toEqual([])
+  })
+})

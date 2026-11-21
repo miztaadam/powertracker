@@ -126,8 +126,11 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         ) : (
           <Pill text={item.targetSets != null ? `Set ${nextNumber} of ${item.targetSets}` : `Set ${nextNumber}`} />
         )}
-        <InfoButton name={item.exercise.name} />
-        <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} />
+        {/* Together, at the right: when the head wraps they go to the next line as one, never the ⋮ alone at the left (1.17.1). */}
+        <span className="today-card-actions">
+          <InfoButton name={item.exercise.name} />
+          <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} />
+        </span>
       </div>
 
       {item.suggestion && (

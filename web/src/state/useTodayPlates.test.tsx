@@ -547,6 +547,124 @@ describe('plates on Today', () => {
     expect(halfRow!.status).toBe('OPEN')
   })
 
+  /**
+   * 1.17.1: half steps, a plate 7½ suggestion stored (OPEN); whole plates, a plate 8 one stored beside it. Returns the
+   * screen on whole plates with the 8 as its chip, and both suggestions' ids.
+   */
+  async function halfThenWhole() {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'HALF' })
+    await planToday(id)
+    // Plate 7 × 12 on target: with half steps on, the coach steps up to plate 7½.
+    await past(addDays(TODAY, -7), id, plates(7, 12))
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target).toMatchObject({ weightKg: 7.5, unit: 'PLATES' }))
+    const half = itemOf(vm, id)!.suggestion!.id
+    await choose(vm, id, 'WHOLE')
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion?.target).toMatchObject({ weightKg: 8, unit: 'PLATES' }))
+    const whole = itemOf(vm, id)!.suggestion!.id
+    return { id, vm, half, whole }
+  }
+
+  it('theNewestTargetDecides_anEarlierOpenOneDoesNotComeBack', async () => {
+    const { id, vm, half, whole } = await halfThenWhole()
+    await act(() => vm.current.applyTarget(whole))
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeNull())
+
+    await choose(vm, id, 'HALF')
+
+    await waitFor(() => expect(itemOf(vm, id)!.plateCount).toBe('HALF'))
+    // Both are on the half grid now. The newest (plate 8) is applied, so there is no chip: the plate 7½ one stays away.
+    expect(itemOf(vm, id)!.suggestion).toBeNull()
+    expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: 8, unit: 'PLATES' })
+    // Nothing stored is changed: the 7½ is still OPEN, and no third target is stored.
+    expect((await db.advice.get(half))!.status).toBe('OPEN')
+    expect(await todaysPayloads()).toHaveLength(2)
+  })
+
+  it('theNewestTargetDecides_whenItWasDismissed', async () => {
+    const { id, vm, half, whole } = await halfThenWhole()
+    await act(() => vm.current.dismissTarget(whole))
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeNull())
+
+    await choose(vm, id, 'HALF')
+
+    await waitFor(() => expect(itemOf(vm, id)!.plateCount).toBe('HALF'))
+    expect(itemOf(vm, id)!.suggestion).toBeNull()
+    // As with no target: the field holds the last plate top set, and the sets to do are the plan's.
+    expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
+    expect(itemOf(vm, id)!.targetSets).toBe(3)
+    expect((await db.advice.get(half))!.status).toBe('OPEN')
+    expect(await todaysPayloads()).toHaveLength(2)
+  })
+
+  it('theNewestOpenTargetIsTheChip', async () => {
+    const { id, vm, half, whole } = await halfThenWhole()
+    // On whole plates the 8 is the chip (the 7½ is off the grid).
+    expect(itemOf(vm, id)!.suggestion!.id).toBe(whole)
+
+    // Back on half steps both are OPEN and on the grid: the newest, plate 8, is the chip.
+    await choose(vm, id, 'HALF')
+
+    await waitFor(() => expect(itemOf(vm, id)!.plateCount).toBe('HALF'))
+    expect(itemOf(vm, id)!.suggestion!.id).toBe(whole)
+    expect(itemOf(vm, id)!.suggestion!.target).toMatchObject({ weightKg: 8, unit: 'PLATES' })
+    expect((await db.advice.get(half))!.status).toBe('OPEN')
+    expect(await todaysPayloads()).toHaveLength(2)
+  })
+
+  it('theNewestAppliedTargetDecides_anOlderAppliedOneDoesNotFillTheField', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'HALF' })
+    await planToday(id)
+    await past(addDays(TODAY, -7), id, plates(7, 12))
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target).toMatchObject({ weightKg: 7.5, unit: 'PLATES' }))
+    // Plate 7½ applied on half steps; on whole plates a plate 8 one is stored beside it.
+    await act(() => vm.current.applyTarget(itemOf(vm, id)!.suggestion!.id))
+    await choose(vm, id, 'WHOLE')
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion?.target).toMatchObject({ weightKg: 8, unit: 'PLATES' }))
+    const whole = itemOf(vm, id)!.suggestion!.id
+    // Back on half steps, with no kept editor (as after it is lost): the newest, plate 8, is OPEN and is the chip; the
+    // older applied 7½ does not fill the field, which holds the last plate top set.
+    await choose(vm, id, 'HALF')
+    await db.meta.where('key').startsWith('editor:').delete()
+    const open = show()
+    await waitFor(() => expect(itemOf(open, id)?.suggestion?.id).toBe(whole))
+    expect(itemOf(open, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
+    expect(itemOf(open, id)!.targetSets).toBe(3)
+
+    // Dismissed, the same: no chip, and still not the older 7½.
+    await act(() => open.current.dismissTarget(whole))
+    await waitFor(() => expect(itemOf(open, id)!.suggestion).toBeNull())
+    expect(itemOf(open, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
+  })
+
+  it('aKgExercise_newestTargetRule_changesNothing', async () => {
+    const id = await pulldownRow()
+    await planToday(id)
+    await past(addDays(TODAY, -7), id, { weightKg: 40 })
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion).toBeTruthy())
+    const kg = itemOf(vm, id)!.suggestion!
+    expect(kg.target.unit).toBeUndefined()
+    await act(() => vm.current.applyTarget(kg.id))
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeNull())
+    expect(itemOf(vm, id)!.editor).toStrictEqual({ weightKg: kg.target.weightKg, reps: kg.applyReps, rpe: kg.target.rpe })
+
+    // Dismissed instead (a fresh day's state): no chip, the field from the last top set.
+    await db.advice.update(kg.id, { status: 'DISMISSED' })
+    await db.meta.where('key').startsWith('editor:').delete()
+    const again = show()
+    await waitFor(() => expect(itemOf(again, id)).toBeDefined())
+    expect(itemOf(again, id)!.suggestion).toBeNull()
+    expect(itemOf(again, id)!.editor.weightKg).toBe(40)
+    expect(await todaysPayloads()).toHaveLength(1)
+  })
+
   it('aWholePlateTarget_underHalfSteps_stays_andNoDuplicateIsStored', async () => {
     const id = await pulldownRow()
     await db.exercises.update(id, { plateCount: 'WHOLE' })
@@ -607,6 +725,29 @@ describe('plates on Today', () => {
     expect(vm.current.pending).toBeNull()
     expect(await setsOn(db, TODAY)).toEqual([])
     // A half with whole plates on is off the grid but in range: the design lets it stand.
+    await log(vm, id, plateInput(7.5))
+    expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([[7.5, 'PLATES']])
+  })
+
+  it('aPlateSetOffTheHalfPlateGrid_isNeverStored', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'WHOLE' })
+    await planToday(id)
+    await startSession(db, TODAY)
+    // Hand-edited (or damaged) in meta: plate 7.3 is no whole or half plate.
+    await db.meta.put({ key: `editor:${TODAY}:${id}`, value: { weightKg: 7.3, reps: 8, rpe: 8, unit: 'PLATES' } })
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.editor.weightKg).toBe(7.3))
+
+    // As restore refuses them: not a whole or half plate, confirmed or not, never stored and nothing held.
+    for (const n of [7.3, 7.25]) {
+      await act(() => vm.current.logSet(id, plateInput(n)))
+      await act(() => vm.current.logSet(id, plateInput(n), true))
+    }
+
+    expect(vm.current.pending).toBeNull()
+    expect(await setsOn(db, TODAY)).toEqual([])
+    // A half with whole plates on is a half plate: it is stored, as a restore keeps it.
     await log(vm, id, plateInput(7.5))
     expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([[7.5, 'PLATES']])
   })

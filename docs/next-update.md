@@ -1016,7 +1016,7 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 6. **Powerlifting details:** a repeat keeps last time's reps when they are above the plan's (confirmed by the owner); the extra rep never aims under the plan's reps; a logged half with Whole plates on gives the lower whole plate for a repeat, an added rep and a step down (7½ missed is plate 7, already one whole step under).
 7. **No 5 % cap in plates:** one plate is nearly always more than 5 %.
 8. **The typo check has a second form** (`InputValidator.check` with a unit and a step, `checkLoadInput` on the web) instead of a changed `checkInput`, so the existing callers and tests stay as they were.
-9. **Backups refuse a plate set under plate 1** on both apps, as a corrupt file ("A plate set below plate 1"), with nothing changed.
+9. **Backups refuse a plate set under plate 1** on both apps, as a corrupt file ("A plate set below plate 1"), with nothing changed. (1.17.1: see below)
 10. **The sheet:** a choice applies when tapped; its accessible name is "Count plates on <name>", because the heading alone would share a name with the form guide's sheet; going back to kg has its own note, "The coach goes back to kg. Your plate sets stay as they are." (the design gives only the first).
 11. **The PLATE field shows 7.5,** the text the field reads back; everywhere else prints "7½".
 12. **The field's numbers carry their unit,** and numbers kept in the other unit are ignored as well as deleted on a change, so a kg number can never land in the PLATE field.
@@ -1090,12 +1090,12 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 
 **Follow-ups:**
 - **Today at 320 px and 200 % text scrolls sideways** on the web, in kg as in plates: the page is 191 px wide in a 160 px layout, eyebrows end in "…", a button sits outside the screen and two tab labels are clipped. This was there before plates, and the narrow test checks only the page and the sheet.
-- **The recovery screen's unhandled rejection:** with a database that has no stores, its first look can reject unhandled (a synchronous Dexie `InvalidTableError` inside `Promise.all`). It is queued as a separate task.
+- **The recovery screen's unhandled rejection:** with a database that has no stores, its first look could reject unhandled (a synchronous Dexie `InvalidTableError` inside `Promise.all`). Fixed on main (commit `3a46ae4`, merged in `800060e`).
 - **Which way the assisted machines count:** more weight is easier there, and nothing says whether lifters log the assistance or the load. That question is for its own release.
 - **Two flaky tests under load:** `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`.
 - **Two number forms in stored target payloads:** "8.0" on Android, "8" on the web. Both read either.
 - **An earlier half-step suggestion can show again** (cosmetic): after Half steps too → Whole plates → Half steps too on one day, two open plate suggestions exist (the 7½ one and the whole-plate one), and both apps show the first. So once the whole-plate one is applied, the earlier plate 7½ suggestion can show again. Fix: show the latest open one instead.
-- **A hand-edited backup can carry an off-grid or too-high plate number** (such as 7.3 or 80): both apps accept it, and 7.3 prints as "plate 7½". Only a plate under plate 1 is refused. Fix: refuse these too.
+- **A hand-edited backup can carry an off-grid or too-high plate number** (such as 7.3 or 80): both apps accept it, and 7.3 prints as "plate 7½". Only a plate under plate 1 is refused. Fix: refuse these too. (1.17.1: see below)
 - **The three `console.log` lines in `web/e2e/update.spec.ts`** are deliberate reporting, as "What only reports" says, not leftovers.
 - **Still open from 1.16:**
   - `vibrateOnTaps` resets on an Android restore.
@@ -1103,6 +1103,88 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
   - The guide's web shots are not byte-stable between runs.
   - Spec point 11 doesn't state WELCOME's and SIDE's least room.
   - The skip ring was not built.
+
+## Done: 1.17.1, the menu stays on screen, and three follow-ups (both apps)
+1.17.1 is the change from 1.17 (`6cbd265`) to `38cc5cc`, plus the version and these notes. The reports: `.superpowers/sdd/2026-11-21-1171/1171-*.md` (not committed).
+
+**What the lifter gets:**
+- **The ⋮ menu on Today stays on screen** (web). On a narrow phone, a long name such as "Cable chest press" could push an exercise's ⋮ onto a line of its own at the left of the card, and its menu then opened off the left edge of the screen: "Skip today" could not be seen and "Count plates on this machine" was cut. Now ⓘ and ⋮ stay together at the right of the card, and a menu opens where it fits: under its button as before, or lined up the other way, or 8 px in from the edge of the screen; above its button when there is no room under it. It stays inside the screen's own padding (in the installed app that is below the status bar and the notch, and clear of a landscape phone's side insets) and above the rest bar and the tab bar. A menu taller than that room scrolls inside itself. Turning the phone or a change of the screen's width closes an open menu and puts the focus back on its ⋮; a change of height, such as the on-screen keyboard coming up or going away, and pinch zoom keep it open and on screen. A very long one-word name breaks inside the open card, a folded row or the start card instead of running past its edge. This is the same menu as Plan's ⋮, so it behaves the same way there.
+- **The newest suggestion of the day decides** (both apps). After Half steps too → Whole plates → Half steps too on one day, the earlier plate 7½ suggestion no longer comes back once the whole-plate one has been applied or dismissed. If the newest suggestion is open it is the chip; if it was applied it fills the weight; if it was dismissed the weight is as with no suggestion. An older applied suggestion no longer fills the weight when there is a newer one.
+- **A backup with an impossible plate number is refused** (both apps). Every plate set in a backup must be a whole or half plate from plate 1 to plate 50. If one is not, the backup is refused as damaged, with "A plate set below plate 1", "A plate set above plate 50" or "A plate set that is not a whole or half plate", and nothing is changed. The app never logs such a number either.
+- **Today fits a 320 px phone at 200 % text** (web; at 239 px of layout and narrower, about 160 px here): the page no longer scrolls sideways, and nothing is cut or overlapping.
+  - The tab bar shows its icons only; screen readers still hear each tab's name.
+  - Finish sits under the title, and the date may take two lines.
+  - A logged set takes two lines ("115 × 8", then "@ 8" with its tick), three with a Failed or Top set pill.
+  - The three points of "Where did it stall?" (and "Where was it slow?") sit one over the other; a long one ("Off the shoulders") wraps inside its point.
+  - A folded exercise's plan and count wrap under its name.
+  - Before a session, the install and backup cards' buttons are stacked, and the readiness numbers take three rows (2, 2 and 1), each a full 48 px target.
+  - STRETCH and SQUEEZE sit above their lines, and the rest bar has two columns (the clock and −30 s, then +30 s and Skip).
+  - The screen's and the cards' sides are a little narrower at that width.
+  - The other tabs at that width are not fixed yet.
+
+**The owner's decisions:**
+- Fix the four 1.17 follow-ups: Today at 320 px and 200 % text, the earlier half-step suggestion coming back, hand-edited backups with off-grid or too-high plate numbers, and the recovery screen's rejection (already fixed on main; see Findings).
+- Finish the narrow screen properly, with: an icons-only tab bar, Finish under the title, a logged set on two lines, and tidied before-session cards.
+- The ⋮ menu bug, reported by the owner from their phone (about 306 px wide, with "Cable chest press"), goes in this release.
+
+**My calls:**
+1. **The newest suggestion also wins over an older applied one.** Among today's suggestions for an exercise in its current unit and on its current steps, the newest (highest id) decides, whatever its state. So an older applied suggestion no longer fills the weight or sets the sets to do when a newer open or dismissed one is there. Nothing stored is changed or deleted. Kg exercises hold at most one suggestion a day, so kg is as before.
+2. **The three backup messages, grid first.** A plate number is checked on the half-plate steps first, then for plate 1 to 50, whatever the exercise's setting: 0.3 and 7.3 are "not a whole or half plate"; 0 and 0.5 are on the steps, so they read "below plate 1"; 50.5 and 80 read "above plate 50". A logged 7½ still restores on an exercise now on Whole plates, or in kg. When a file has several bad sets, the first one in the file names the fault. The backup version stays 6.
+3. **Logging uses the same rule as restoring:** a plate set that is not a whole or half plate from 1 to 50 is never stored, confirmed or not (1.17 refused only one outside 1 to 50). A 7½ logged with Whole plates on is still stored.
+4. **At 160 px the tabs keep their 32 px width** (160 / 5) and the bar's 80 px height. Five 44 px tabs would need 220 px.
+5. **Three readiness rows** (2 + 2 + 1), so each number keeps its 48 px target. Three a row would not fit at 48 px.
+6. **The rest clock shares a row** with −30 s, and +30 s with Skip, in two columns, rather than the clock on a line of its own.
+7. **The Failed pill goes on a third line** under the effort, as Top set does: "@ 10", the pill and the mark do not fit on one line.
+8. **The menu's placement:** a menu that fits opens exactly as before (under, right edges aligned). Otherwise it lines up with the button's left edge, or else moves over to 8 px from the edge of its room. With no room under the button it opens above it, if there is room there. The room is the app's scrolling screen inside its padding on every side (the status bar, the notch and the installed app's extra band at the top; a landscape phone's side insets) and above the rest bar or the tab bar; outside the app's screen it is the window. With room on neither side it opens under; only a menu taller than the whole room is capped at the room less 8 px each end, and scrolls inside itself. Only once that placement is on the page does the screen scroll, just enough to bring the menu inside the room, and on opening its first item takes the focus without scrolling. What is guaranteed: a menu no taller than the room ends wholly inside it, so in the installed app never under the status bar or the notch; outside the installed app on iOS, the top padding is only the safe area. Turning the phone, or a change of the layout viewport's width (`window.innerWidth`), closes it and puts the focus back on its button. A change of height only (the on-screen keyboard going away as the menu takes the focus from a field, or coming up), or a change of the visual viewport alone (pinch zoom), keeps it open and places it again, at most once a frame, with the focus left where it is. A scroll of the visual viewport alone leaves it open.
+9. **A very long one-word name may break** inside the open card's title, a folded row's name and the start card's plan line (`overflow-wrap: break-word`), only where it would otherwise run past the card.
+10. **The set row's spans:** the weight and reps, and the effort, each have a box of their own (`gr-set-load`, `gr-set-effort`), so a narrow screen can put them on two lines. At other widths the row looks as before.
+11. The narrow rules apply only inside the app's screen and rest bar (`.shell-main`, `.shell-rest`), so the guide's pictures of Today are drawn as before. Added to make room, beyond the owner's list: the screen's sides 8 px (were 16), the cards' padding at most 12 px (were 16), the summary's two tiles stacked, and the plan line's name beside its ⋮ with the coach's line and the plan under them.
+
+**Where the apps differ:**
+- **The menu and the narrow Today are web only.** Android's card head can't show the menu bug (see Findings), and Android's Today was not changed for narrow screens.
+- The newest-suggestion rule, the three backup messages, their order and the logging rule are the same on both apps.
+
+**What was not built:**
+- The other tabs at 160 px (see Follow-ups).
+- No repair for a plate set that 1.17 already restored from a hand-edited file. A 1.17 install that restored a hand-edited or damaged backup holding an odd plate set (such as 7.3 or 80) keeps it, and now exports a backup that its own restore refuses. Only a hand-edited or damaged file restored into 1.17 can lead here: neither app ever logged such a number.
+
+**Findings:**
+- **The menu bug is older than plates: it dates from 1.13**, when the ⋮ came in with only "Skip today" in its menu (at least 168 px wide, right edges aligned with the ⋮). That menu was already cut whenever the ⋮ wrapped alone to the left of the card. 1.17 made it much worse: "Count plates on this machine" makes the menu about 266 px wide (the builder's measurement at 306 px, where the menu started at about −43 px).
+- **Android can't show it.** Its card head is one row: the name and its pill in a `WrappingPair` that takes the remaining width, then ⓘ and ⋮ last (stacked one over the other at large text), so ⓘ and ⋮ never wrap alone to the left. Its menu is Material's `DropdownMenu`, a popup placed inside the window. Read from the code only; nothing was changed or tested on Android.
+- **Two more overflows at 160 px, found by review and by the new test:** a missed set's Failed pill fell into the set number's 20 px column and drew over "@ 10", and a miss's Floor / Mid / Lockout row ran past the screen (the page was 277 px wide). The test's check for text over text and text spilling out of its box missed the pill at first, because the pill's box was 20 px wide and only its text overflowed; it now catches both.
+- **The readiness chips were really 31 px wide** in the first narrow layout (reported there as about 33 px): `.today-grow` set `min-width: 0`, which beat the chip's 48 px. In 1.17 at that width they were 12 px. They now keep 48 px.
+- **Found by review of the menu fix:** its scroll and focus ran on the click's first render, before the placement was on the page, so a menu that then opened above its button could be cut at the top (seen in the e2e at 844 × 390 and 664 × 390 with the rest bar, before the fix). Also: a change of the visual viewport's width (pinch zoom) closed the menu; the cap took the padding off twice (boxes are border-box), so a capped menu was 18 px short; the side insets were not kept clear; and at 160 px, "Off the shoulders" ran past its point and a folded row's plan and count ran past the screen.
+- **The recovery screen's rejection** listed as queued in the 1.17 notes was already fixed on main (`3a46ae4`, merged in `800060e`, both in this release's history).
+
+**Tests:**
+- **Domain:** jvm 974, js 1023, 0 failed (unchanged: 1.17.1 has no domain change); `checkWebDomain` passes.
+- **Android:** 1108 tests, 1 skipped (the guide frame strips, as before), 0 failed. New: in `BackupTest`, `aPlateSetAbovePlate50_isCorrupt`, `aPlateSetOffTheHalfPlateGrid_isCorrupt`, `aRefusedBackup_changesNothing` (every table and the settings around a refused file, through the check Settings runs before a restore), `theFirstBadPlateSetInFileOrder_namesTheFault` and `aHalfPlateOnAWholePlateOrKgExercise_stillRestores`; in `TodayPlatesViewModelTest`, the four newest-suggestion tests, two kg controls and `aPlateSetOffTheHalfPlateGrid_isNeverStored`. No existing Android test was edited.
+- **Web:** vitest 1644 tests in 89 files, 0 failed; `tsc -b` and the build clean. New: the same backup and newest-suggestion tests in `backup.test.ts` and `useTodayPlates.test.tsx`, `menuPlacement.test.ts` (placement and the room's insets) and `Menu.test.tsx` (what closes a menu and what keeps it open, the focus back on its button, the listeners removed, and placing before focusing). One existing backup test was edited: it turned a squat's 140 kg set into a plate set, which is now refused, so it uses plate 7.
+- **e2e:** `menu.spec.ts` (26 tests: 306, 320, 360, 390 and 160 px, kg and plates, the start card, the open card and a folded row; a one-word 42-letter name on the open card, and on the folded row and the start card at five widths; a menu taller than its room; closing on a change of width; staying open on a change of height with the weight field focused, then Count plates and Skip today opening their sheets; Plan's ⋮ on a change of height and in landscape; landscape 844 × 390 and 664 × 390 with the rest bar; a 71 px top inset), and in `narrow.spec.ts` 11 new tests under "Today at 320 px and 200 % text" (nothing planned on each side; kg and plates all day on each side, with a missed set and its miss point; every kind of logged set in kg and plates on the powerlifting side and plates on the bodybuilding side; every lift's miss points; the tab bar). These check that the page doesn't scroll sideways, and that no control is cut, overlaps another or text, or reaches past its card, no text overlaps text or spills out of its box, and no word breaks inside itself. The builder saw every new menu test and the narrow tests fail on the code before their fix, except the readiness rows check, added with its fix. `menu.spec.ts` and `narrow.spec.ts` five times each in one worker: 130 and 265 passed.
+- **Full run:** Playwright (`npx playwright test --trace off`, e2e and speed): 427 passed, 12 skipped (the owner's guide-video recordings, as before), 0 failed. The mode switch's frame check printed its LATE FRAMES warning once (a warning only). Speed project alone, twice: 6 passed each time, with the LATE FRAMES warning in the second (a warning only). No timing test failed, so none was rerun alone. The web shots: every one written by the screenshot specs is byte-identical to one of the runs made here before the changes, or (Settings) to the committed 1.17.1 shot.
+- **Release build:** `./gradlew :app:assembleRelease` gives versionCode 29, versionName 1.17.1 (the APK was not distributed).
+
+**What only reports:** nothing new in 1.17.1. The LATE FRAMES warning of the mode switch's frame check is a warning only, as before.
+
+**Version:** Android 1.17.1 (versionCode 29), web 1.17.1. No database change (Room 6, Dexie 6) and no backup change (version 6); a 1.17 backup restores in 1.17.1 unless it holds a plate set this release refuses. Update both apps together. Settings re-shot on both apps for the version line: six shots on each app, each byte-identical across two runs here, differing from the 1.17 shots only in the version line ("Grit 1.17.1 · AppsbyAdam" on Android, "Grit 1.17.1 · a1b2c3d · AppsbyAdam" on the web, a little wider than before and still on one line).
+
+**Not tested:**
+- No real phone. The menu fix has been seen only in Chromium at emulated widths (iPhone 13 emulation, 160 to 390 px).
+- Safari and Firefox.
+- `:has()`: the narrow layout of a logged set (two or three lines) and of the bar picture (its words under the bar) needs it, Safari 15.4+ or Firefox 121+. Without it those two keep their wide layout at 160 px, and can reach past the screen there. Every other narrow rule works without it.
+- Real 200 % text: the e2e halves the viewport to 160 × 284 for a 320 px phone at 200 %.
+- Real screen readers, including the tabs' hidden names at 160 px.
+- Rotation, the on-screen keyboard and pinch zoom: simulated by resizing the window and firing `resize`, `orientationchange` and visual viewport events. A real keyboard has not been tried. With pinch zoom the menu stays open, but it is placed against the page, not the zoomed-in part, so it is not guaranteed to be inside what is visible while zoomed; and if a browser changes the page width while pinching, the menu closes. The unit tests check that a change of height or a pinch keeps the menu open, not that it is placed again; the browser tests check the placing. The README's web lists now ask for the keyboard and rotation checks on a phone.
+- A real notch or status bar: the e2e stands in a 71 px top padding for the installed app's.
+
+**Follow-ups:**
+- **The other tabs at 160 px** (a 320 px phone at 200 % text): Progress and Settings scroll sideways; Exercises and Plan clip text. Each needs a pass like Today's.
+- **Still open from 1.17:**
+  - Which way the assisted machines count.
+  - Two flaky tests under load: `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`.
+  - Two number forms in stored target payloads: "8.0" on Android, "8" on the web. Both read either.
+  - The three `console.log` lines in `web/e2e/update.spec.ts` are deliberate reporting.
+- **Still open from 1.16:** `vibrateOnTaps` resets on an Android restore; the web's real Today shots render differently on this machine; the guide's web shots are not byte-stable between runs; spec point 11 doesn't state WELCOME's and SIDE's least room; the skip ring was not built.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

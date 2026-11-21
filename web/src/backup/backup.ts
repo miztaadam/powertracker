@@ -423,8 +423,14 @@ function mapBackup(file: BackupFile): Mapped {
   }
   const sets = file.sets.map((s) => {
     const unit = loadUnit(s.unit)
-    // A plate number starts at plate 1 (as Android refuses it): 0 would read as bodyweight.
-    if (unit === 'PLATES' && s.weightKg < 1) bad('A plate set below plate 1')
+    // A plate number is one the app can store (as Android refuses it): a whole or half plate from plate 1 to 50. It is
+    // judged on the half-plate grid, never on the exercise's setting now: a logged 7½ stands on whole plates or in kg.
+    // The grid first (0.3 is not a whole or half plate); 0 would read as bodyweight.
+    if (unit === 'PLATES') {
+      const check = grit.plateCheck(s.weightKg, 'HALF')
+      if (check === 'STEP') bad('A plate set that is not a whole or half plate')
+      if (check !== 'OK') bad(s.weightKg < 1 ? 'A plate set below plate 1' : 'A plate set above plate 50')
+    }
     return {
       id: s.id,
       sessionId: mergedInto.get(s.sessionId) ?? s.sessionId,

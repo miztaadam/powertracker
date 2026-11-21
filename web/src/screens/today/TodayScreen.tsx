@@ -200,7 +200,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
   }
 
   return (
-    <section className="screen">
+    <section className="screen today-screen">
       <ScreenHeader
         title="Today"
         eyebrow={`${weekday} ${day} ${month}`}
