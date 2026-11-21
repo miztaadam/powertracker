@@ -54,6 +54,8 @@ fun StartSessionCard(
     onSkipToday: ((TodayItem) -> Unit)? = null,
     /** How many of today's planned exercises are skipped. With none left on the list, the eyebrow counts them. */
     skipped: Int = 0,
+    /** Opens the plate sheet for a row whose exercise is offered it ([TodayItem.plateOffered], 1.17); null offers none. */
+    onCountPlates: ((TodayItem) -> Unit)? = null,
 ) {
     // Everything planned today was skipped: it is not a day with nothing planned. Anything on the list, an exercise the
     // lifter added included, is left to do.
@@ -102,7 +104,11 @@ fun StartSessionCard(
                         }) {
                             item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, maxLines = 1) }
                         }
-                        if (onSkipToday != null && item.canSkip) SkipMenuButton(item.exercise.name, { onSkipToday(item) })
+                        SkipMenuButton(
+                            item.exercise.name,
+                            onSkipToday = if (onSkipToday != null && item.canSkip) ({ onSkipToday(item) }) else null,
+                            onCountPlates = if (onCountPlates != null && item.plateOffered) ({ onCountPlates(item) }) else null,
+                        )
                     }
                 }
             }

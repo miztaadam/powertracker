@@ -42,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.powertracker.domain.model.LoadUnit
+import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -73,14 +75,22 @@ fun SetRow(
      * tick as it always is; Today passes one only for a set logged now.
      */
     drawIn: (() -> Float)? = null,
+    /** What [weightKg] is: kg, or a plate number on a plate-counted machine (1.17), "plate 7½". */
+    unit: LoadUnit = LoadUnit.KG,
 ) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     val strong = if (state == SetState.PLANNED) scheme.onSurfaceVariant else scheme.onSurface
     val soft = pt.muted
+    val plates = unit == LoadUnit.PLATES
     val spoken = buildString {
-        append("Set $index: ${formatKg(weightKg)} kg × $reps")
-        if (rpe != null) append(" @ ${formatRpe(rpe)}")
+        if (plates) {
+            append("Set $index: ${PlateStack.spoken(weightKg)} × $reps")
+            if (rpe != null) append(" at RPE ${formatRpe(rpe)}")
+        } else {
+            append("Set $index: ${formatKg(weightKg)} kg × $reps")
+            if (rpe != null) append(" @ ${formatRpe(rpe)}")
+        }
         if (isTopSet) append(", top set")
         if (isPr) append(", personal record")
         append(
@@ -92,7 +102,7 @@ fun SetRow(
         )
     }
     val line = buildAnnotatedString {
-        withStyle(SpanStyle(color = strong)) { append(formatKg(weightKg)) }
+        withStyle(SpanStyle(color = strong)) { append(if (plates) PlateStack.text(weightKg) else formatKg(weightKg)) }
         withStyle(SpanStyle(color = soft)) { append("  ×  ") }
         withStyle(SpanStyle(color = strong)) { append(reps.toString()) }
         if (rpe != null) {
