@@ -77,6 +77,20 @@ function watch(placed: Element, scroller: Element | null, onNear: () => void): (
   }
 }
 
+const scrolls = (el: Element) => ['auto', 'scroll'].includes(getComputedStyle(el).overflowY)
+
+/**
+ * What a row scrolls in: its list. Where the list does not scroll on its own (the Exercises tab on a very narrow
+ * screen, 1.17.2, where the whole screen scrolls), the nearest box round it that does, else the screen (null).
+ */
+function scrollerOf(placed: Element): Element | null {
+  const list = placed.closest('.lib-scroll')
+  if (list == null || scrolls(list)) return list
+  for (let el = list.parentElement; el != null; el = el.parentElement) if (scrolls(el)) return el
+  // Nothing round it scrolls as far as this page says (a page without the app's styles): the list, as before.
+  return list
+}
+
 /**
  * A row's small picture: the more telling pose of the exercise `name` on a muted tile. The tile is empty with no
  * `name` (the lifter's own exercise) or no figure for it, so names stay aligned down the list. Decorative: the row
@@ -99,7 +113,7 @@ export const ExerciseThumbnail = memo(function ExerciseThumbnail({ name }: { nam
     // (`content-visibility` in library.css), and asking for the tile's own box would make it lay every row out.
     const placed = tile.current.closest('.lib-row') ?? tile.current
     // The list the row scrolls in. Near is measured from its edges, or from the screen's for a tile in no list.
-    const scroller = placed.closest('.lib-scroll')
+    const scroller = scrollerOf(placed)
     const box = placed.getBoundingClientRect()
     const edges = scroller?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight }
     if (typeof IntersectionObserver === 'undefined' || (box.bottom > edges.top - NEAR_PX && box.top < edges.bottom + NEAR_PX)) {
