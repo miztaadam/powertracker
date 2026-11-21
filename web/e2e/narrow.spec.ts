@@ -313,6 +313,14 @@ test.describe('plates at 320 px and 200 % text', () => {
     const field = page.getByRole('textbox', { name: 'Weight, plates' })
     await expect(field).toHaveValue('12.5')
     await inside('the chip', page.getByText('plate 12½ × 8–12 @ 8', { exact: true }))
+    // At this size the chip puts Apply and Dismiss under its text: both stay inside the chip and the screen.
+    const chip = page.locator('.gr-suggestion')
+    for (const name of ['Apply', 'Dismiss']) {
+      const button = chip.getByRole('button', { name })
+      await inside(name, button)
+      const [b, c] = [(await button.boundingBox())!, (await chip.boundingBox())!]
+      expect(b.x >= c.x - 0.5 && b.x + b.width <= c.x + c.width + 0.5, `${name} is inside the chip`).toBe(true)
+    }
     await inside('the PLATE stepper', page.locator('.today-stepper-weight'))
     await inside('Increase Plate', page.getByRole('button', { name: 'Increase Plate' }))
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
