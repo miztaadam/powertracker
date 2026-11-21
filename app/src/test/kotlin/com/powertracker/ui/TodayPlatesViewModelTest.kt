@@ -604,4 +604,150 @@ class TodayPlatesViewModelTest {
         vm.log(id, set(id, 7.5))
         assertEquals(listOf(7.5 to LoadUnit.PLATES), todaysSets().map { it.weightKg to it.unit })
     }
+
+    /**
+     * 1.17.1: half steps on, a plate 7½ target is stored (open); then whole plates, and a plate 8 target is stored beside
+     * it. Returns the view model, the exercise and the two targets, with the card on whole plates showing the 8.
+     */
+    private fun halfThenWhole(): Triple<TodayViewModel, Long, Pair<Advice, Advice>> {
+        val id = row("Lat pulldown")
+        plan(id)
+        session(14, set(id, 7.0, reps = 11, unit = LoadUnit.PLATES))
+        session(7, set(id, 7.0, reps = 12, unit = LoadUnit.PLATES))
+        setting(id, PlateCount.HALF)
+        val vm = viewModel()
+        await("half-step target") { vm.item(id)?.suggestion != null }
+        val half = vm.item(id)!!.suggestion!!
+        assertEquals(7.5, half.plate(), 0.0)
+        val passes = vm.coachPasses.value
+        vm.turn(id, PlateCount.WHOLE)
+        await("the coach asked again") { vm.coachPasses.value > passes }
+        await("whole-plate target") { vm.item(id)?.suggestion?.let { it.id != half.id } == true }
+        val whole = vm.item(id)!!.suggestion!!
+        assertEquals(8.0, whole.plate(), 0.0)
+        assertTrue("the newer target has the higher id", whole.id > half.id)
+        return Triple(vm, id, half to whole)
+    }
+
+    /** Back to half steps: both targets are on the half grid again. Waits for the coach's pass and for the view to settle. */
+    private fun TodayViewModel.backToHalf(id: Long) {
+        val passes = coachPasses.value
+        turn(id, PlateCount.HALF)
+        await("the coach asked again") { coachPasses.value > passes }
+        settled()
+    }
+
+    @Test
+    fun theNewestTargetDecides_anEarlierOpenOneDoesNotComeBack() {
+        val (vm, id, targets) = halfThenWhole()
+        val (half, whole) = targets
+        vm.applyTarget(whole.id)
+        await("applied") { runBlocking { advice.all() }.first { it.id == whole.id }.status == AdviceStatus.APPLIED }
+        await("in the field") { vm.item(id)?.editor?.weightKg == 8.0 }
+
+        vm.backToHalf(id)
+        val item = vm.item(id)!!
+        assertNull("the older open plate 7½ does not come back as the chip", item.suggestion)
+        // As for any applied target: its numbers fill the field and its sets are the sets to do.
+        assertEquals(8.0, item.editor.weightKg!!, 0.0)
+        assertEquals(LoadUnit.PLATES, item.editor.unit)
+        assertEquals("the target's sets, else the plan's", (whole.payload as AdvicePayload.Target).sets ?: 3, item.targetSets)
+        assertEquals("nothing stored changes", listOf(half.id to AdviceStatus.OPEN, whole.id to AdviceStatus.APPLIED), targets(id).map { it.id to it.status })
+    }
+
+    @Test
+    fun theNewestTargetDecides_whenItWasDismissed() {
+        val (vm, id, targets) = halfThenWhole()
+        val (half, whole) = targets
+        vm.dismissTarget(whole.id)
+        await("dismissed") { vm.item(id)?.suggestion == null }
+
+        vm.backToHalf(id)
+        val item = vm.item(id)!!
+        assertNull("the older open plate 7½ does not come back as the chip", item.suggestion)
+        // As for any dismissed target: no chip, and the field and the sets to do are as with no target at all.
+        assertEquals("the last plate top set", 7.0, item.editor.weightKg!!, 0.0)
+        assertEquals(3, item.targetSets)
+        assertEquals(listOf(half.id to AdviceStatus.OPEN, whole.id to AdviceStatus.DISMISSED), targets(id).map { it.id to it.status })
+    }
+
+    @Test
+    fun theNewestOpenTargetIsTheChip() {
+        val (vm, id, targets) = halfThenWhole()
+        val (half, whole) = targets
+        assertEquals("on whole plates, the 8 is the chip, as before", whole.id, vm.item(id)!!.suggestion!!.id)
+
+        // Back to half steps with nothing applied: both are open and on the grid, and the newer one is the chip.
+        vm.backToHalf(id)
+        assertEquals(whole.id, vm.item(id)!!.suggestion?.id)
+        assertEquals(listOf(half.id, whole.id), targets(id).filter { it.status == AdviceStatus.OPEN }.map { it.id })
+    }
+
+    @Test
+    fun theNewestAppliedTargetDecides_anOlderAppliedOneDoesNotFillTheField() {
+        // Half steps: plate 7½ applied. Whole plates: the 7½ is off the grid, and the plate 8 stored beside it is open.
+        val id = row("Lat pulldown")
+        plan(id)
+        session(14, set(id, 7.0, reps = 11, unit = LoadUnit.PLATES))
+        session(7, set(id, 7.0, reps = 12, unit = LoadUnit.PLATES))
+        setting(id, PlateCount.HALF)
+        val vm = viewModel()
+        await("half-step target") { vm.item(id)?.suggestion != null }
+        val half = vm.item(id)!!.suggestion!!
+        vm.applyTarget(half.id)
+        await("applied") { vm.item(id)?.editor?.weightKg == 7.5 }
+        val passes = vm.coachPasses.value
+        vm.turn(id, PlateCount.WHOLE)
+        await("the coach asked again") { vm.coachPasses.value > passes }
+        await("whole-plate target") { vm.item(id)?.suggestion?.let { it.id != half.id } == true }
+        val whole = vm.item(id)!!.suggestion!!
+
+        // Back to half steps: the open 8 is the newest, so it is the chip, and the older applied 7½ fills nothing.
+        vm.backToHalf(id)
+        val item = vm.item(id)!!
+        assertEquals(whole.id, item.suggestion?.id)
+        assertEquals("the last plate top set, not the older applied 7½", 7.0, item.editor.weightKg!!, 0.0)
+        assertEquals(3, item.targetSets)
+    }
+
+    @Test
+    fun aKgExercise_newestTargetRule_changesNothing() {
+        val id = latPulldownWithKgHistory()
+        val vm = viewModel()
+        await("kg target") { vm.item(id)?.suggestion != null }
+        val kg = vm.item(id)!!.suggestion!!
+        assertEquals(LoadUnit.KG, kg.unit())
+        assertEquals(listOf(kg.id), targets(id).map { it.id })
+
+        vm.applyTarget(kg.id)
+        await("applied") { vm.item(id)?.suggestion == null }
+        val item = vm.item(id)!!
+        assertEquals((kg.payload as AdvicePayload.Target).weightKg, item.editor.weightKg!!, 0.0)
+        assertEquals(LoadUnit.KG, item.editor.unit)
+        assertEquals("the target's sets, else the plan's", (kg.payload as AdvicePayload.Target).sets ?: 3, item.targetSets)
+    }
+
+    @Test
+    fun aPlateSetOffTheHalfPlateGrid_isNeverStored() {
+        val id = row("Lat pulldown")
+        plan(id)
+        setting(id, PlateCount.WHOLE)
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("item") { vm.item(id)?.unit == LoadUnit.PLATES }
+        val planItem = vm.item(id)!!.planned?.id
+
+        for (plate in listOf(7.3, 7.25)) {
+            vm.logSet(planItem, id, set(id, plate, unit = LoadUnit.PLATES))
+            settled()
+            vm.logSet(planItem, id, set(id, plate, unit = LoadUnit.PLATES), confirmed = true)
+            settled()
+        }
+        assertTrue("nothing off the half-plate grid", todaysSets().isEmpty())
+        assertNull(vm.state.value.pending)
+
+        // A half with whole plates on is on the half-plate grid: it is stored, as a logged half stands.
+        vm.log(id, set(id, 7.5))
+        assertEquals(listOf(7.5 to LoadUnit.PLATES), todaysSets().map { it.weightKg to it.unit })
+    }
 }

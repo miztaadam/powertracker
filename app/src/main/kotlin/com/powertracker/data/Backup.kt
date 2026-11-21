@@ -20,6 +20,8 @@ import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlateCount
+import com.powertracker.domain.stack.PlateCheck
+import com.powertracker.domain.stack.PlateStack
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.first
@@ -210,8 +212,8 @@ object Backup {
      * 6: 1.17's plates on stack machines (`unit` on sets, PLATES only; `plateCount` on exercises, WHOLE or HALF only;
      * TARGET payloads may carry `"unit":"PLATES"`). Each key is written only when it is not the default, so a log with no
      * plates exports as version 5 did but for the version. A version 5 or older file restores with every set in kg and
-     * every exercise off; an app that reads only version 5 turns a version 6 file away as too new. A plate set below
-     * plate 1 is a corrupt file.
+     * every exercise off; an app that reads only version 5 turns a version 6 file away as too new. A plate set that is
+     * not a whole or half plate from plate 1 to 50 is a corrupt file (1.17.1; 1.17 refused only one below plate 1).
      */
     const val VERSION = 6
 
@@ -233,6 +235,17 @@ object Backup {
         return JsonObject(root + ("settings" to JsonObject(settings.filterKeys { it in knownSettings })))
     }
 
+    /**
+     * Why plate number [plate] cannot be stored, or null when it can: a whole or half plate from plate 1 to
+     * [PlateStack.MAX_PLATE]. The grid is judged first, so 0.3 is "not a whole or half plate"; 0 and 0.5 are on it
+     * and so read "below plate 1".
+     */
+    private fun plateFault(plate: Double): String? = when (PlateStack.check(plate, PlateCount.HALF)) {
+        PlateCheck.OK -> null
+        PlateCheck.STEP -> "A plate set that is not a whole or half plate"
+        PlateCheck.RANGE -> if (plate < PlateStack.MIN_PLATE) "A plate set below plate 1" else "A plate set above plate 50"
+    }
+
     fun encode(file: BackupFile): String = writer.encodeToString(BackupFile.serializer(), file)
 
     /** [supportedVersion] is the newest version this app reads; tests lower it to stand in for an older app. */
@@ -248,8 +261,12 @@ object Backup {
             file.exercises.forEach { it.toEntity() }
             file.sessions.forEach { it.toEntity() }
             file.sets.forEach { it.toEntity() }
-            // A plate number starts at plate 1; under it (0 included, which means bodyweight in kg) the file is damaged.
-            if (file.sets.any { it.unit == LoadUnit.PLATES.name && it.weightKg < 1.0 }) return BackupResult.Corrupt("A plate set below plate 1")
+            // A plate number is a whole or half plate from plate 1 to 50, as the app stores them. It is judged on the
+            // half-plate grid, never by the exercise's setting now: a logged 7½ stands with whole plates on, or in kg.
+            // Under plate 1 (0 included, which means bodyweight in kg), over 50 or off the grid, the file is damaged.
+            // The first such set in the file names the fault.
+            file.sets.firstNotNullOfOrNull { s -> if (s.unit == LoadUnit.PLATES.name) plateFault(s.weightKg) else null }
+                ?.let { return BackupResult.Corrupt(it) }
             file.planItems.forEach { it.toEntity() }
             file.advice.forEach { it.toEntity() }
             file.checkIns.forEach { it.toEntity() }
