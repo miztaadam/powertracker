@@ -1,5 +1,5 @@
 import { Component, lazy, memo, Suspense, useCallback, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { onDbVersionChange, type GritDb } from './db/db'
+import { OlderCopyError, onDbVersionChange, type GritDb } from './db/db'
 import type { SchemaVersion } from './db/schema'
 import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/singleTab'
 import { acceptPrivateMode, detectPrivateMode, privateModeAccepted, requestPersistence } from './platform/storage'
@@ -24,6 +24,7 @@ import { ExerciseHistoryScreen } from './screens/progress/ExerciseHistoryScreen'
 import { LiftHistoryScreen } from './screens/progress/LiftHistoryScreen'
 import { ProgressScreen } from './screens/progress/ProgressScreen'
 import { ErrorBoundary } from './screens/recovery/ErrorBoundary'
+import { OlderCopyScreen } from './screens/recovery/OlderCopyScreen'
 import { OtherTabScreen, ReloadScreen } from './screens/recovery/OtherTabScreen'
 import { PrivateModeScreen } from './screens/recovery/PrivateModeScreen'
 import { RecoveryScreen } from './screens/recovery/RecoveryScreen'
@@ -366,7 +367,8 @@ function SingleTab({ children }: { children: ReactNode }) {
 
 export function App({ dbName = 'grit', schemaVersions, registerSW }: AppProps) {
   return (
-    <ErrorBoundary fallback={(error) => <RecoveryScreen error={error} dbName={dbName} />}>
+    // A log a newer Grit wrote gets its own screen, which never touches the database; recovery would read it.
+    <ErrorBoundary fallback={(error) => (error instanceof OlderCopyError ? <OlderCopyScreen /> : <RecoveryScreen error={error} dbName={dbName} />)}>
       <SingleTab>
         <Opened dbName={dbName} schemaVersions={schemaVersions} registerSW={registerSW} />
       </SingleTab>

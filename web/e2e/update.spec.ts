@@ -187,3 +187,51 @@ test('a first install reloads nothing', async ({ page }) => {
   expect(await page.evaluate(() => navigator.serviceWorker.controller)).toBeNull()
   await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
 })
+
+// 1.17: on the older-copy screen ("Update Grit to carry on"), "Update and reload" fetches the newer version and switches
+// to it (a plain reload would be served the same old copy). Here the build on the server is still this one, so after
+// the switch the screen shows again: once, with no reload loop.
+test('older copy: Update and reload switches to the newer version, then settles', async ({ page }) => {
+  const original = readFileSync(SW_PATH, 'utf8')
+  try {
+    await page.goto('/#/today')
+    await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready
+    })
+    await page.evaluate(
+      () =>
+        new Promise<void>((done, fail) => {
+          const req = indexedDB.open('grit', 70)
+          req.onupgradeneeded = () => {}
+          req.onsuccess = () => {
+            req.result.close()
+            done()
+          }
+          req.onerror = () => fail(req.error)
+        }),
+    )
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Update Grit to carry on' })).toBeVisible()
+    await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller != null)).toBe(true)
+    expect(await buildOf(page)).toBe('old')
+    await markNotReloaded(page)
+    const loads = countLoads(page)
+
+    writeFileSync(SW_PATH, `${original}${NEXT_BUILD}`)
+    await page.getByRole('button', { name: 'Update and reload' }).click()
+    await expect.poll(loads).toBeGreaterThanOrEqual(1)
+    expect(await notReloaded(page)).toBeUndefined()
+    await expect(page.getByRole('heading', { name: 'Update Grit to carry on' })).toBeVisible()
+    expect(await buildOf(page)).toBe('next')
+
+    const settled = loads()
+    console.log(`older copy, after Update and reload: the page loaded ${settled} time(s)`)
+    await page.waitForTimeout(2000)
+    expect(loads()).toBe(settled)
+    expect(settled).toBeLessThanOrEqual(2)
+    await expect(page.getByRole('button', { name: 'Update and reload' })).toBeEnabled()
+  } finally {
+    writeFileSync(SW_PATH, original)
+  }
+})
