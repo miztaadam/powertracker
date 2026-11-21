@@ -441,6 +441,36 @@ describe('App safeguards', () => {
     expect(await screen.findByRole('button', { name: 'Export current data' })).toBeInTheDocument()
     expect(nav()).toBeNull()
   })
+
+  it('aDatabaseWithNoStores_opensRecovery_withNoUnhandledRejection', async () => {
+    expectRenderError()
+    // A database from a newer Grit, as the browser stores it: a higher version, and none of the tables recovery reads.
+    db.close()
+    await Dexie.delete(fx.name)
+    await new Promise<void>((done, fail) => {
+      const open = indexedDB.open(fx.name, 9999)
+      open.onsuccess = () => {
+        open.result.close()
+        done()
+      }
+      open.onerror = () => fail(open.error)
+    })
+    const unhandled: unknown[] = []
+    const record = (reason: unknown) => unhandled.push(reason)
+    process.on('unhandledRejection', record)
+    try {
+      show()
+
+      expect(await screen.findByRole('heading', { name: /^Grit couldn't/ })).toBeInTheDocument()
+      expect(nav()).toBeNull()
+      // Nothing is readable, so there is nothing to export; Node reports a rejection nobody handled a turn later.
+      await new Promise((done) => setTimeout(done, 50))
+      expect(screen.queryByRole('button', { name: 'Export current data' })).toBeNull()
+      expect(unhandled).toEqual([])
+    } finally {
+      process.off('unhandledRejection', record)
+    }
+  })
 })
 
 describe('App on the bodybuilding side (bodybuilding mode spec §7.2)', () => {
