@@ -21,7 +21,7 @@
 ## Global Constraints
 
 - **Version:** 1.17 on both apps, versionCode 28. Room schema 6, Dexie schema 6 (declared, with no upgrade step), backup version 6.
-- **Kg coaching is unchanged.** Every existing domain, Android and web test passes **with no test edited**, except the version pins listed next; a lifter who never turns this on sees no difference. If any other existing test has to change, stop and report it.
+- **Kg coaching is unchanged.** Every existing domain, Android and web test passes **with no test edited**, except the version pins listed next; a lifter who never turns this on sees no difference. If any other existing test has to change, stop and report it. *(As built: one more, `webFixture_isUpToDate`'s `plates: true`; see "As built" at the end.)*
 - **The only existing tests that may be edited,** each only as said (Tasks 4, 5 and 6). They pin the schema or backup version at 5, or read "the fixture this app writes now":
   - Android `data/BackupTest.kt`:
     - `v5File_onVersion4Decoder_isTooNew` (363–367): the file it decodes becomes `service.export(1L).copy(version = 5)`, as the version 3 test in that file does; it still expects `TooNew(5)`.
@@ -548,3 +548,37 @@ Test ids match Task 7's tags (`exercise-menu-plates`, `plate-sheet`, `plate-opti
 15. **Dexie version 6 stamps nothing,** against the design's "stamps every set as kg and every exercise as off": absent already reads as kg / off, and existing tests deep-equal rows across an upgrade. The version is still declared (for the number and the safety copy; it does not make an older app refuse the database, see Task 9's notes).
 16. **The plate item is also on the start-session card,** so the setting can be changed before a session starts (the design names only "the exercise's menu on Today").
 17. **`FatigueRule` skips non-kg main-lift sets,** though the design calls it unchanged: it reads raw `weightKg`, and the guard costs a real log nothing.
+
+## As built (2026-11-21)
+
+These changed after the plan was approved. The release notes are in `docs/next-update.md` under "Done: 1.17".
+
+- **Task 3:** `ProgressionRulePlatesTest` goes through `Coaching.targetsFor`, not the rule directly. Every plate target made in the three coach test files is also checked to be equal with `changePlates` on and off. `plateTarget` repeats `change()`'s 1.5 / 0.5 / −0.5 thresholds as literals: the same numbers, a second copy.
+- **Task 5:** `webFixture_isUpToDate` passes `plates: true` to `buildSampleDb`. That edit is not on Global Constraints' list, but the test can't equal `web-v6.json` without it. `withV5Defaults` is unchanged; `web-v5.json` is compared through a new `asUpgradedV5`.
+- **Task 6:** two more domain tests: half-step lighter weeks take the lower cap, and the −0.5 boundary of the recent step up. Android also checks that the web's hand-written plate payload decodes and matches what the domain writes. The web app's JS domain writes whole numbers without ".0" ("8"); Android writes "8.0". Both read either.
+- **Stale copies on the web** (after Task 6, before Task 8's merge; not in the plan's tasks):
+  - **Part A:** the generated service worker imports `public/sw-reload-clients.js`. When the new worker activates, it reloads each window the old one controlled. After review, it sends each window to its address with a `u` parameter that is new on every update, and each window's route is restored from session storage. Chromium's `client.url` is the load-time address, so a plain navigate was a jump within the page.
+  - **Part B:** `openGritDb` refuses a database a newer Grit wrote, with the "Update Grit to carry on" screen and Update and reload.
+  - **The installed version** is read as whole declared versions (rounded down), so native 55–59 is version 5.
+  - **Update and reload** makes one attempt at a time with one takeover listener, and announces "Updating…".
+  - Three of the older-copy screen's own new assertions changed for that announcement.
+  - The worker's imported script is left out of the precache.
+  - The update specs always run against a fresh private copy of the build.
+  - The design's Dexie line and this plan's Task 5 carry dated corrections.
+- **Task 7 (Android):**
+  - The plate sheet's choices ignore taps for the skip sheet's 300 ms after it opens.
+  - The sheet marks the stored setting, and a tapped choice stays marked until its save settles.
+  - A set entered in the other unit than its exercise's is not saved and not relabelled.
+  - Progress speaks a half plate in words.
+  - A shot of the row menu with the plate item was added: `today-plates-menu-{dark,light}`.
+  - A kg weight still being typed when plates are turned on never reaches the PLATE field.
+  - Later, a plate target off the current grid (plate 7½ once whole plates are on) is not used, and the coach stores a fresh one beside it. A plate set under plate 1 or over 50 is never stored.
+- **Task 8 (web):**
+  - The same sheet, tap-guard, off-grid-target and out-of-range fixes as Android.
+  - The sheet's tapped choice stays marked until the stored setting shows it, or its save fails.
+  - The coach's chip wraps rather than cutting "plate 12½ × 8–12 @ 8" (`CoachSuggestion.css`, a container query under 220 px). Long kg headlines wrap too.
+  - `today-plates-menu-{dark,light}` was added.
+  - The plate shots wait for the screen to stand still.
+  - The 320 px check also keeps Apply and Dismiss inside the chip.
+  - Review Focus 5's "no horizontal scroll" is not met for Today itself, in kg as in plates, from before this work. The narrow test checks the page and the sheet only.
+- **Task 9:** version 1.17 (versionCode 28). The release notes and the README phone checks were added, with no line for the "Update Grit to carry on" screen, which a phone can't reach without a newer build.

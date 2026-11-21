@@ -36,7 +36,7 @@
 ## Constraints
 - **No new sourced number.** Every factor the plate rules use already exists in the code: 0.85 (`AdvicePayload.ReEntry.loadFactor`), 0.9 (`AdvicePayload.Deload.loadFactor`), 0.95 and 0.975 (`ProgressionRule.FAILED_SCALE`, `HARD_SCALE`), 12 reps (`ProgressionRule.MAX_REPS`) and 1.30 (`InputValidator.MAX_JUMP_FACTOR`). The new rules only apply them to a plate number.
   - **`domain/src/commonMain/kotlin/com/powertracker/domain/coach/CoachSources.kt` gets one sentence,** not a new source: `BODYBUILDING_INCREASE` cites a 2–10% load increase. One plate is often more than 10% (plate 3 to 4 is a third more), because one plate is the smallest change the machine allows. The owner chose one step. The note says so; no number is added.
-- **Kg coaching is unchanged.** Every existing coach, progress and backup test passes unchanged. A lifter who never turns this on sees no difference.
+- **Kg coaching is unchanged.** Every existing coach, progress and backup test passes unchanged. A lifter who never turns this on sees no difference. *(As built, 2026-11-21: every coach and progress test passes unchanged. The backup and database tests that pinned version 5 were edited to version 6, as the plan lists, and one fixture test passes the new plate option to the web's sample builder. Kg behaviour is unchanged.)*
 - **The 1.16 guide is unchanged.** Its pictures draw the real Today and Progress screens and its sample lifter runs the real coach, all in kg. Its text, tests and screenshots stay as they are.
 - **Both apps ship together.** As in every backup version so far, an app that reads only version 5 turns a version 6 file away.
 - **Version:** 1.17 on both apps (versionCode 28; 1.16.1 took 27).
