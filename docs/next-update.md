@@ -1090,7 +1090,7 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 
 **Follow-ups:**
 - **Today at 320 px and 200 % text scrolls sideways** on the web, in kg as in plates: the page is 191 px wide in a 160 px layout, eyebrows end in "…", a button sits outside the screen and two tab labels are clipped. This was there before plates, and the narrow test checks only the page and the sheet.
-- **The recovery screen's unhandled rejection:** with a database that has no stores, its first look can reject unhandled (a synchronous Dexie `InvalidTableError` inside `Promise.all`). It is queued as a separate task.
+- **The recovery screen's unhandled rejection:** with a database that has no stores, its first look could reject unhandled (a synchronous Dexie `InvalidTableError` inside `Promise.all`). Fixed on main (commit `3a46ae4`, merged in `800060e`).
 - **Which way the assisted machines count:** more weight is easier there, and nothing says whether lifters log the assistance or the load. That question is for its own release.
 - **Two flaky tests under load:** `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`.
 - **Two number forms in stored target payloads:** "8.0" on Android, "8" on the web. Both read either.
