@@ -990,6 +990,10 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     for (const title of ['Side delts is lagging', 'Chest is lagging', `${ONE_WORD} hasn't moved in 3 weeks`, `${LONG_NAME} skipped`, 'Take a deload week', 'Welcome back'])
       await expect(page.getByRole('heading', { name: title, exact: true }).first()).toBeVisible()
     await fits(page, 'Coach, bodybuilding, every card')
+    // Its message after a deload is applied, over the screen.
+    await page.getByRole('button', { name: 'Apply deload' }).click()
+    await expect(page.getByText('Deload week on — targets lightened for 7 days')).toBeVisible()
+    await fits(page, 'Coach, bodybuilding, the deload applied, with its message')
   })
 
   test(`Progress with history, powerlifting side, strict press on, fits in every range`, async ({ page }) => {
@@ -1061,9 +1065,13 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     }
   })
 
-  test(`Exercises with own exercises, every step, fits`, async ({ page }) => {
+  for (const [side, story] of [
+    ['powerlifting', () => ({ ...powerliftingFull(), advice: [] })],
+    ['bodybuilding', bodybuildingProgress],
+  ] as const)
+  test(`Exercises with own exercises, every step, ${side} side, fits`, async ({ page }) => {
     await openOnWednesday(page)
-    await seedStory(page, { ...powerliftingFull(), advice: [] })
+    await seedStory(page, story())
     await openTab(page, 'exercises', 'Exercises')
     await expect(page.getByRole('listitem', { name: LONG_NAME })).toBeVisible()
     await fits(page, 'Exercises, the list')
