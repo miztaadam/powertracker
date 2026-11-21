@@ -116,10 +116,10 @@ class TodayPlatesViewModelTest {
         training.setsForSession(sessionId).first().map { it.set }
     }
 
-    /** Logs [set] and waits until it is on screen (or held as a typo). */
+    /** Logs [set] in the exercise's current unit, as the screen builds it from the field, and waits until it is on screen (or held as a typo). */
     private fun TodayViewModel.log(id: Long, set: LoggedSet) {
         val before = item(id)?.sets?.size ?: 0
-        logSet(item(id)?.planned?.id, id, set)
+        logSet(item(id)?.planned?.id, id, set.copy(unit = item(id)!!.unit))
         await("set saved or held") { state.value.pending != null || (item(id)?.sets?.size ?: 0) > before }
     }
 
@@ -173,7 +173,7 @@ class TodayPlatesViewModelTest {
         vm.log(id, set(id, 60.0))
         vm.log(id, set(id, 62.5))
         vm.turn(id, PlateCount.WHOLE)
-        // The screen builds the set from the editor; the view model gives it the exercise's unit.
+        // The screen builds the set from the field, in the exercise's unit.
         vm.log(id, set(id, 7.0))
 
         assertNull(vm.state.value.pending)
@@ -395,5 +395,136 @@ class TodayPlatesViewModelTest {
         assertNotNull(item.lastWeightKg)
         assertEquals(8.0, item.lastWeightKg!!, 0.0)
         assertEquals(SetEditor(8.0, 8, 8.0, LoadUnit.PLATES), item.editor)
+    }
+
+    /** Lets the view model work for a moment: long enough for a save to land, had one been made. */
+    private fun settled() {
+        val deadline = System.currentTimeMillis() + 300
+        while (System.currentTimeMillis() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+    }
+
+    @Test
+    fun aSetMadeInTheOtherUnit_isNotSavedOrRelabelled() {
+        val id = row("Lat pulldown")
+        plan(id)
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("item") { vm.item(id) != null }
+        // The number was entered in the kg field; the setting changed before Log set landed.
+        val typedInKg = set(id, 40.0)
+        vm.turn(id, PlateCount.WHOLE)
+
+        vm.logSet(vm.item(id)!!.planned?.id, id, typedInKg)
+        settled()
+        assertTrue("nothing stored", todaysSets().isEmpty())
+        assertNull(vm.state.value.pending)
+        assertNull("the PLATE field stays empty", vm.item(id)!!.editor.weightKg)
+
+        // The other way: a plate number made before plates were turned off.
+        vm.log(id, set(id, 7.0))
+        assertEquals(1, todaysSets().size)
+        vm.turn(id, PlateCount.OFF)
+        vm.logSet(vm.item(id)!!.planned?.id, id, set(id, 8.0, unit = LoadUnit.PLATES))
+        settled()
+        assertEquals("only the plate 7 is stored", listOf(7.0 to LoadUnit.PLATES), todaysSets().map { it.weightKg to it.unit })
+    }
+
+    @Test
+    fun aConfirmedSet_keepsTheUnitItWasCheckedIn() {
+        val id = row("Lat pulldown")
+        plan(id)
+        session(7, set(id, 3.0, unit = LoadUnit.PLATES))
+        setting(id, PlateCount.WHOLE)
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("item") { vm.item(id) != null }
+        vm.log(id, set(id, 5.0))
+        val pending = vm.state.value.pending!!
+        assertEquals(LoadUnit.PLATES, pending.set.unit)
+
+        vm.logSet(pending.planItemId, pending.exerciseId, pending.set, confirmed = true)
+        await("saved") { todaysSets().isNotEmpty() }
+        assertEquals(listOf(5.0 to LoadUnit.PLATES), todaysSets().map { it.weightKg to it.unit })
+    }
+
+    @Test
+    fun turningPlatesOffOnTheLastPlateExercise_storesAKgTargetThatDay_besideThePlateOne() {
+        val id = row("Lat pulldown")
+        plan(id)
+        session(28, set(id, 55.0))
+        session(21, set(id, 57.5))
+        session(14, set(id, 7.0, unit = LoadUnit.PLATES))
+        session(7, set(id, 7.0, unit = LoadUnit.PLATES))
+        setting(id, PlateCount.WHOLE)
+        val vm = viewModel()
+        await("plate target") { vm.item(id)?.suggestion?.unit() == LoadUnit.PLATES }
+
+        val passes = vm.coachPasses.value
+        vm.turn(id, PlateCount.OFF)
+        await("the coach asked again") { vm.coachPasses.value > passes }
+        await("kg target") { vm.item(id)?.suggestion?.unit() == LoadUnit.KG }
+
+        val stored = targets(id)
+        assertEquals(listOf(LoadUnit.PLATES, LoadUnit.KG), stored.map { it.unit() })
+        assertTrue(stored.all { it.createdAt == today })
+        assertEquals(57.5, (vm.item(id)!!.suggestion!!.payload as AdvicePayload.Target).weightKg, 2.5)
+    }
+
+    @Test
+    fun anEditorInTheOtherUnit_neverShows() {
+        val lat = row("Lat pulldown")
+        val legPress = row("Leg press")
+        plan(lat, 0)
+        plan(legPress, 1)
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("items") { vm.state.value.items.size == 2 }
+
+        // A kg edit that lands after the switch to plates (a field committing as it leaves the screen).
+        vm.turn(lat, PlateCount.WHOLE)
+        vm.edit(lat, SetEditor(40.0, 8, 8.0, LoadUnit.KG))
+        settled()
+        assertNull("never in the PLATE field", vm.item(lat)!!.editor.weightKg)
+        assertEquals(LoadUnit.PLATES, vm.item(lat)!!.editor.unit)
+        // A plate editor under a kg exercise.
+        vm.edit(legPress, SetEditor(7.0, 8, 8.0, LoadUnit.PLATES))
+        settled()
+        assertNull("never in the kg field", vm.item(legPress)!!.editor.weightKg)
+        assertEquals(LoadUnit.KG, vm.item(legPress)!!.editor.unit)
+        // The same unit shows, as before.
+        vm.edit(lat, SetEditor(7.0, 8, 8.0, LoadUnit.PLATES))
+        await("plate editor") { vm.item(lat)?.editor?.weightKg == 7.0 }
+    }
+
+    @Test
+    fun plateSaving_isTrueUntilTheSettingShows_andAFailedSaveSaysSo() {
+        val id = row("Lat pulldown")
+        plan(id)
+        val vm = viewModel()
+        await("item") { vm.item(id) != null }
+        val failures = mutableListOf<com.powertracker.ui.today.TodayEvent>()
+        collectors.launch { vm.events.collect { if (it == com.powertracker.ui.today.TodayEvent.SaveFailed) failures += it } }
+
+        vm.setPlateCount(id, PlateCount.WHOLE)
+        await("stored") { vm.item(id)?.plateCount == PlateCount.WHOLE }
+        await("settled") { !vm.state.value.plateSaving }
+        assertEquals(PlateCount.WHOLE, vm.item(id)!!.plateCount)
+
+        // A save that fails (an id with no row and no catalogue entry): said, settled, nothing changed.
+        vm.setPlateCount(-100_000, PlateCount.HALF)
+        await("failure said") { failures.isNotEmpty() }
+        await("settled again") { !vm.state.value.plateSaving }
+        assertEquals(PlateCount.WHOLE, vm.item(id)!!.plateCount)
+
+        // Two taps before the first is stored: the last one wins.
+        vm.setPlateCount(id, PlateCount.HALF)
+        vm.setPlateCount(id, PlateCount.OFF)
+        await("settled once more") { !vm.state.value.plateSaving }
+        settled()
+        assertEquals(PlateCount.OFF, vm.item(id)!!.plateCount)
+        assertEquals(PlateCount.OFF, runBlocking { training.exercises().first() }.first { it.id == id }.plateCount)
     }
 }

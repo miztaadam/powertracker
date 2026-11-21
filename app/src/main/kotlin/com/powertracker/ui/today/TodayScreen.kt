@@ -453,6 +453,7 @@ fun TodayContent(
             plateNote(platingFrom, plating.unit, platingHadSets),
             onChoose = { onCountPlates(plating.exercise.id, it) },
             onDismiss = { platingId = null },
+            saving = state.plateSaving,
         )
     }
 

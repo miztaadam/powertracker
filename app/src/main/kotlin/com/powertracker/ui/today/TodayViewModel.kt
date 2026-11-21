@@ -127,6 +127,8 @@ data class TodayState(
     val welcomeBack: Boolean = false,
     /** Today's planned exercises skipped on the side shown, in plan order; they are not in [items]. */
     val skippedToday: List<SkippedToday> = emptyList(),
+    /** True while a plate setting chosen in the plate sheet is being stored (1.17): the sheet marks the tapped choice. */
+    val plateSaving: Boolean = false,
 ) {
     val pendingWarning: InputWarning? get() = pending?.warnings?.firstOrNull()
 
@@ -181,6 +183,8 @@ class TodayViewModel(
         val added: List<Long> = emptyList(),
         val pending: PendingLog? = null,
         val summary: FinishSummary? = null,
+        /** Plate settings being stored, not yet shown or failed. */
+        val plateSaves: Int = 0,
     )
 
     private data class Stored(
@@ -369,6 +373,7 @@ class TodayViewModel(
                 Coaching.firstSessionOn(d.settings.trainingMode, d.history),
             ),
             skippedToday = skippedToday,
+            plateSaving = l.plateSaves > 0,
         )
     }
 
@@ -414,8 +419,10 @@ class TodayViewModel(
                 val now = loaded()
                 val sessionId = now.sessionId ?: return@launch
                 val item = now.items.firstOrNull { it.exercise.id == exerciseId }
-                // A new set is in its exercise's current unit; a held one keeps the unit it was checked in.
-                val set = if (confirmed || item == null) set else set.copy(unit = item.unit)
+                // A new set must be in its exercise's current unit. One made in the other unit (the setting changed
+                // between the entry and the tap) is not saved and not relabelled: its number is re-entered in the new
+                // field. A held one keeps the unit it was checked in.
+                if (!confirmed && item != null && set.unit != item.unit) return@launch
                 if (!confirmed) {
                     // Judged against the last weight in the same unit only, with the plate step for a plate number.
                     val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg, set.unit, PlateStack.step(item?.plateCount ?: PlateCount.OFF))
@@ -476,20 +483,31 @@ class TodayViewModel(
      * row is made in the same write, as its first set would make it. Needs no session. The numbers kept for its next
      * set, under its id and its stand-in's, are dropped, so the field starts afresh in the new unit; no stored set or
      * target changes. If the save fails, [events] sends [TodayEvent.SaveFailed] and nothing changes.
+     * [TodayState.plateSaving] is true from the call until the new setting is on screen, or the save has failed.
      */
     fun setPlateCount(exerciseId: Long, value: PlateCount) {
+        local.update { it.copy(plateSaves = it.plateSaves + 1) }
+        val request = ++plateRequests
         viewModelScope.launch {
-            val id = try {
-                training.setPlateCount(exerciseId.takeIf { it > 0 }, catalogueEntry(exerciseId)?.name, value)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _events.emit(TodayEvent.SaveFailed)
-                return@launch
+            try {
+                val id = try {
+                    training.setPlateCount(exerciseId.takeIf { it > 0 }, catalogueEntry(exerciseId)?.name, value)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    _events.emit(TodayEvent.SaveFailed)
+                    return@launch
+                }
+                val standIns = state.value.resolved.filterValues { it == id || it == exerciseId }.keys
+                val dropped = setOf(exerciseId, id) + standIns
+                local.update { it.copy(editors = it.editors - dropped) }
+                // Settled once the stored setting is what the screen shows, or a later choice has been made (it settles then).
+                withTimeoutOrNull(SHOWN_TIMEOUT_MS) {
+                    state.first { s -> request != plateRequests || s.items.any { it.exercise.id == id && it.plateCount == value } }
+                }
+            } finally {
+                local.update { it.copy(plateSaves = (it.plateSaves - 1).coerceAtLeast(0)) }
             }
-            val standIns = state.value.resolved.filterValues { it == id || it == exerciseId }.keys
-            val dropped = setOf(exerciseId, id) + standIns
-            local.update { it.copy(editors = it.editors - dropped) }
         }
     }
 
@@ -517,6 +535,9 @@ class TodayViewModel(
             }
         }
     }
+
+    /** How many plate settings have been asked for; touched on the main thread only. */
+    private var plateRequests = 0
 
     /** Coach targets whose Apply is under way or done; touched on the main thread only. */
     private val applyingTargets = mutableSetOf<Long>()

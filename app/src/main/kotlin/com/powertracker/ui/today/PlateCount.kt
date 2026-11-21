@@ -24,7 +24,10 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,31 +82,69 @@ internal fun PlateMenuItem(onClick: () -> Unit) {
 
 /**
  * Asks how [name]'s machine shows its weight. A choice applies when tapped ([onChoose]); Done, back or a tap outside
- * only close it ([onDismiss]). [current] is the stored setting; [note] is [plateNote]'s line, or null.
+ * only close it ([onDismiss]). [current] is the stored setting; [note] is [plateNote]'s line, or null. [saving] is true
+ * while a choice is being stored ([TodayState.plateSaving]): see [PlateCountContent] for what is marked meanwhile.
+ *
+ * Like the skip sheet, it opens under the finger that chose its menu item: for [SKIP_SHEET_TAP_WINDOW_MS] after it has
+ * opened (and while it slides up) taps on the three choices do nothing, so a double tap never picks one. Done is not held.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlateCountSheet(name: String, current: PlateCount, note: String?, onChoose: (PlateCount) -> Unit, onDismiss: () -> Unit) {
+fun PlateCountSheet(name: String, current: PlateCount, note: String?, onChoose: (PlateCount) -> Unit, onDismiss: () -> Unit, saving: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val tapsLive = remember { mutableStateOf(false) }
+    val opened = sheetState.currentValue == SheetValue.Expanded
+    LaunchedEffect(opened) {
+        if (opened && !tapsLive.value) {
+            delay(SKIP_SHEET_TAP_WINDOW_MS)
+            tapsLive.value = true
+        }
+    }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         containerColor = scheme.surface,
         contentColor = scheme.onSurface,
         tonalElevation = 0.dp,
         dragHandle = { BottomSheetDefaults.DragHandle(color = scheme.outline) },
     ) {
-        PlateCountContent(name, current, note, onChoose, onDone = onDismiss, Modifier.navigationBarsPadding())
+        PlateCountContent(name, current, note, onChoose, onDone = onDismiss, Modifier.navigationBarsPadding(), saving, Modifier.dropTapsUntil(tapsLive))
     }
 }
 
-/** The sheet's content without the sheet. Internal for the mockups. It scrolls, so Done is reachable at any text size. */
+/**
+ * The sheet's content without the sheet. Internal for the mockups. It scrolls, so Done is reachable at any text size.
+ *
+ * What is marked: the stored setting ([current]), except that a tapped choice is marked at once and stays marked until
+ * its save has settled (once [saving] has been true and is false again); then the stored setting shows again, which is
+ * the tapped choice after a save and the old setting after a failed one. A tap is compared with what is marked, so the
+ * last tap always wins, even before the store has caught up with an earlier one. [choiceModifier] goes on each choice.
+ */
 @Composable
-internal fun PlateCountContent(name: String, current: PlateCount, note: String?, onChoose: (PlateCount) -> Unit, onDone: () -> Unit, modifier: Modifier = Modifier) {
+internal fun PlateCountContent(
+    name: String,
+    current: PlateCount,
+    note: String?,
+    onChoose: (PlateCount) -> Unit,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+    saving: Boolean = false,
+    choiceModifier: Modifier = Modifier,
+) {
     val pt = PowertrackerTheme.colors
-    // Marked at once; the stored setting catches up a moment later, and wins when it changes.
-    var marked by remember(current) { mutableStateOf(current) }
+    var tapped by remember { mutableStateOf<PlateCount?>(null) }
+    var sawSaving by remember { mutableStateOf(false) }
+    LaunchedEffect(saving) {
+        if (saving) {
+            sawSaving = true
+        } else if (sawSaving) {
+            sawSaving = false
+            tapped = null
+        }
+    }
+    val marked = tapped ?: current
     Column(
         modifier
             .fillMaxWidth()
@@ -118,12 +159,14 @@ internal fun PlateCountContent(name: String, current: PlateCount, note: String?,
         Column(Modifier.selectableGroup().testTag("plate-options")) {
             for ((value, label, hint) in PLATE_CHOICES) {
                 Row(
-                    Modifier
+                    choiceModifier
                         .fillMaxWidth()
                         .heightIn(min = Space.touch)
                         .selectable(selected = marked == value, role = Role.RadioButton) {
-                            marked = value
-                            if (value != current) onChoose(value)
+                            if (value != marked) {
+                                tapped = value
+                                onChoose(value)
+                            }
                         }
                         .testTag("plate-option-${value.name}")
                         .padding(vertical = Space.xs),

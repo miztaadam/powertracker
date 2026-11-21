@@ -70,7 +70,27 @@ class PlatesProgressTest {
 
         assertTrue(exists("plate 8 × 10 · plate 9 × 10"))
         assertTrue("the kg row is as before", exists("12 × 10 · 14 × 9"))
-        assertTrue(compose.onAllNodes(hasContentDescription("Lat pulldown. plate 8 × 10, plate 9 × 10. Going up")).fetchSemanticsNodes().isNotEmpty())    }
+        assertTrue(compose.onAllNodes(hasContentDescription("Lat pulldown. plate 8 × 10, plate 9 × 10. Going up")).fetchSemanticsNodes().isNotEmpty())
+    }
+
+    @Test
+    fun bodybuildingProgress_speaksAHalfPlateInWords() {
+        val history = TrainingHistory(
+            sessions = listOf(session(1, 7, set(lat, 7.5, 10, LoadUnit.PLATES))),
+            exercises = mapOf(1L to lat.copy(plateCount = PlateCount.HALF)),
+            baselines = emptyList(),
+        )
+        val plan = listOf(PlanItem(1, DayOfWeek.MONDAY, 1, 3, 8, 8.0, 0, TrainingMode.BODYBUILDING, 12))
+        val state = ProgressViewModel.buildBodybuilding(history, plan, today)
+        compose.setContent { PowertrackerTheme { ProgressContent(state, onRange = {}, onOpenLift = {}) } }
+        compose.waitForIdle()
+
+        // Shown as "plate 7½", spoken as the set rows speak it.
+        assertTrue(exists("plate 7½ × 10"))
+        val spoken = compose.onAllNodes(hasContentDescription("Lat pulldown.", substring = true)).fetchSemanticsNodes()
+            .map { it.config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription].joinToString() }
+        assertEquals(listOf("Lat pulldown. plate 7 and a half × 10"), spoken)
+    }
 
     @Test
     fun exerciseHistory_printsEachSetInItsOwnUnit() {

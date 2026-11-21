@@ -77,7 +77,7 @@ val SKIP_REASONS: List<Pair<String, SkipReason?>> = listOf(
 /**
  * How long, in ms, the reason sheet ignores taps on its answers once it has opened: it opens under the finger that
  * chose Skip today, where a double tap's second tap would land (as Plan's add form, ADD_FORM_TAP_WINDOW_MS). While it
- * slides up the answers ignore taps too.
+ * slides up the answers ignore taps too. The plate sheet's choices (1.17) keep the same window.
  */
 internal const val SKIP_SHEET_TAP_WINDOW_MS = 300L
 
@@ -168,8 +168,8 @@ internal fun SkipReasonContent(name: String, onReason: (SkipReason?) -> Unit, mo
     }
 }
 
-/** While [live] is false, every tap on the element is eaten before it reaches it. */
-private fun Modifier.dropTapsUntil(live: State<Boolean>): Modifier = pointerInput(live) {
+/** While [live] is false, every tap on the element is eaten before it reaches it. The plate sheet's choices use it too. */
+internal fun Modifier.dropTapsUntil(live: State<Boolean>): Modifier = pointerInput(live) {
     awaitPointerEventScope {
         while (true) {
             val event = awaitPointerEvent(PointerEventPass.Initial)

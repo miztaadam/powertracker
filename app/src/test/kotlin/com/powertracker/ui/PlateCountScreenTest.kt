@@ -170,6 +170,112 @@ class PlateCountScreenTest {
 
     private fun stored(id: Long) = runBlocking { training.exercises().first() }.first { it.id == id }
 
+    /** The plate sheet's choices ignore taps for a moment after it opens, as the skip sheet's answers do. */
+    private fun pastTheTapWindow() {
+        compose.mainClock.advanceTimeBy(com.powertracker.ui.today.SKIP_SHEET_TAP_WINDOW_MS)
+        compose.waitForIdle()
+    }
+
+    private fun sheetOpen() = compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty()
+
+    @Test
+    fun aDoubleTapOnTheMenuItem_doesNotPickAChoice() {
+        val lat = row("Lat pulldown")
+        plan(lat, 0)
+        runBlocking { training.startSession(DAY, null, null) }
+        showScreen()
+        waitFor { menuExists("Lat pulldown") }
+        compose.onNodeWithContentDescription("Options for Lat pulldown").performClick()
+        waitFor { plateItemShown() }
+        compose.onNodeWithTag("exercise-menu-plates").performClick()
+        waitFor { sheetOpen() }
+        val opened = compose.mainClock.currentTime
+
+        // The second tap of a double tap lands on a choice just as the sheet opens: nothing happens.
+        compose.onNodeWithTag("plate-option-WHOLE").performClick()
+        compose.waitForIdle()
+        assertTrue("inside the window", compose.mainClock.currentTime - opened < com.powertracker.ui.today.SKIP_SHEET_TAP_WINDOW_MS)
+        Thread.sleep(300)
+        compose.waitForIdle()
+        assertEquals(PlateCount.OFF, stored(lat).plateCount)
+        compose.onNodeWithTag("plate-option-OFF").assertIsSelected()
+        assertTrue("the sheet stays", sheetOpen())
+
+        // Once the moment has passed, the choice applies.
+        pastTheTapWindow()
+        compose.onNodeWithTag("plate-option-WHOLE").performClick()
+        waitFor { stored(lat).plateCount == PlateCount.WHOLE }
+        compose.onNodeWithTag("plate-option-WHOLE").assertIsSelected()
+    }
+
+    @Test
+    fun theMarkedChoice_followsTheStoredSetting_onceASaveSettles() {
+        var current by mutableStateOf(PlateCount.WHOLE)
+        var saving by mutableStateOf(false)
+        val chosen = mutableListOf<PlateCount>()
+        compose.setContent {
+            PowertrackerTheme {
+                com.powertracker.ui.today.PlateCountContent("Lat pulldown", current, null, onChoose = { chosen += it }, onDone = {}, saving = saving)
+            }
+        }
+        fun marked(value: PlateCount) = compose.onNodeWithTag("plate-option-${value.name}").assertIsSelected()
+
+        // A failed save: the tapped choice is marked while it is stored, then the stored one shows again.
+        compose.onNodeWithTag("plate-option-HALF").performClick()
+        compose.waitForIdle()
+        marked(PlateCount.HALF)
+        saving = true
+        compose.waitForIdle()
+        marked(PlateCount.HALF)
+        saving = false
+        compose.waitForIdle()
+        marked(PlateCount.WHOLE)
+        assertEquals(listOf(PlateCount.HALF), chosen)
+
+        // Tapped back before the store has caught up: the tap is compared with what is marked, so it is stored too.
+        compose.onNodeWithTag("plate-option-OFF").performClick()
+        saving = true
+        compose.waitForIdle()
+        compose.onNodeWithTag("plate-option-WHOLE").performClick()
+        compose.waitForIdle()
+        marked(PlateCount.WHOLE)
+        assertEquals(listOf(PlateCount.HALF, PlateCount.OFF, PlateCount.WHOLE), chosen)
+        // The first save lands (OFF), then the last (WHOLE): WHOLE stays marked throughout.
+        current = PlateCount.OFF
+        compose.waitForIdle()
+        marked(PlateCount.WHOLE)
+        current = PlateCount.WHOLE
+        saving = false
+        compose.waitForIdle()
+        marked(PlateCount.WHOLE)
+
+        // A tap on the choice already marked stores nothing.
+        compose.onNodeWithTag("plate-option-WHOLE").performClick()
+        compose.waitForIdle()
+        assertEquals(3, chosen.size)
+    }
+
+    @Test
+    fun aPlateSetTypedAndLoggedOnTheScreen_isStoredInPlates() {
+        val lat = row("Lat pulldown")
+        plan(lat, 0)
+        runBlocking {
+            training.setPlateCount(lat, null, PlateCount.WHOLE)
+            training.startSession(DAY, null, null)
+        }
+        showScreen()
+        waitFor { compose.onAllNodes(hasContentDescription("Weight, plates")).fetchSemanticsNodes().isNotEmpty() }
+        field().performClick().performTextReplacement("7")
+        compose.onNodeWithText("Log set 1").performClick()
+        fun sets() = runBlocking { training.setsForSession(training.sessionOn(DAY).first()!!.id).first() }
+        waitFor { sets().isNotEmpty() }
+
+        val set = sets().single().set
+        assertEquals(LoadUnit.PLATES, set.unit)
+        assertEquals(7.0, set.weightKg, 0.0)
+        waitFor { compose.onAllNodes(hasText("Set 1: plate 7 × ", substring = true)).fetchSemanticsNodes().isNotEmpty() }
+    }
+
     @Test
     fun theStartSessionCard_offersCountPlates_beforeASession_andTheChoiceIsStored() {
         val lat = row("Lat pulldown")
@@ -181,6 +287,7 @@ class PlateCountScreenTest {
         waitFor { plateItemShown() }
         compose.onNodeWithTag("exercise-menu-plates").performClick()
         waitFor { compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty() }
+        pastTheTapWindow()
         compose.onNodeWithTag("plate-option-WHOLE").performClick()
 
         waitFor { stored(lat).plateCount == PlateCount.WHOLE }
@@ -219,6 +326,7 @@ class PlateCountScreenTest {
         waitFor { plateItemShown() }
         compose.onNodeWithTag("exercise-menu-plates").performClick()
         waitFor { compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty() }
+        pastTheTapWindow()
         compose.onNodeWithTag("plate-option-WHOLE").performClick()
         waitFor { stored(lat).plateCount == PlateCount.WHOLE }
         compose.onNodeWithTag("plate-done").performClick()
@@ -292,6 +400,7 @@ class PlateCountScreenTest {
         var dismissed = 0
         compose.setContent { PowertrackerTheme { PlateCountSheet("Lat pulldown", PlateCount.WHOLE, null, { chosen += it }, { dismissed++ }) } }
         waitFor { compose.onAllNodes(hasTestTag("plate-done")).fetchSemanticsNodes().isNotEmpty() }
+        pastTheTapWindow()
 
         assertTrue(exists("Lat pulldown"))
         assertTrue(exists("How does this machine show its weight?"))
@@ -336,6 +445,7 @@ class PlateCountScreenTest {
         compose.onNodeWithContentDescription("Options for Lat pulldown").performClick()
         compose.onNodeWithTag("exercise-menu-plates").performClick()
         waitFor { compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty() }
+        pastTheTapWindow()
         fun note() = compose.onAllNodes(hasTestTag("plate-note")).fetchSemanticsNodes().singleOrNull()?.config?.getOrNull(SemanticsProperties.Text)?.joinToString()
         assertNull(note())
         compose.onNodeWithTag("plate-option-WHOLE").performClick()
@@ -354,6 +464,7 @@ class PlateCountScreenTest {
         compose.onNodeWithContentDescription("Options for Lat pulldown").performClick()
         compose.onNodeWithTag("exercise-menu-plates").performClick()
         waitFor { compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty() }
+        pastTheTapWindow()
         compose.onNodeWithTag("plate-option-HALF").performClick()
         waitFor { state.items.single().plateCount == PlateCount.HALF }
         assertNull(note())
@@ -366,6 +477,7 @@ class PlateCountScreenTest {
         compose.onNodeWithContentDescription("Options for Lat pulldown").performClick()
         compose.onNodeWithTag("exercise-menu-plates").performClick()
         waitFor { compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty() }
+        pastTheTapWindow()
         compose.onNodeWithTag("plate-option-WHOLE").performClick()
         waitFor { state.items.single().plateCount == PlateCount.WHOLE }
         assertNull("no sets in kg: nothing to say", note())

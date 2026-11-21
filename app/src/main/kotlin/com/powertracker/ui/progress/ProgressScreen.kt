@@ -49,7 +49,7 @@ import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.progress.ExerciseTrend
-import com.powertracker.ui.components.formatLoad
+import com.powertracker.domain.stack.PlateStack
 import com.powertracker.domain.progress.MuscleRow
 import com.powertracker.domain.model.MuscleRating
 import com.powertracker.ui.components.SecondaryButton
@@ -387,12 +387,17 @@ private fun VolumeSection(state: ProgressState) {
 }
 
 /**
- * "26 × 11 · 26 × 10": the best sets as the list shows them, or, with [separator] ", ", as a screen reader says them. A
- * plate-counted machine's read "plate 9 × 10" (1.17).
+ * "26 × 11 · 26 × 10": the best sets as the list shows them, or, with [spoken], as a screen reader says them ("26 × 11,
+ * 26 × 10"). A plate-counted machine's read "plate 7½ × 10", spoken "plate 7 and a half × 10" (1.17).
  */
-private fun bestSetText(trend: ExerciseTrend, separator: String = " · "): String =
-    trend.bestSets.joinToString(separator) { (_, set) ->
-        "${if (set.unit == LoadUnit.PLATES) formatLoad(set.weightKg, set.unit) else formatKg(set.weightKg)} × ${set.reps}"
+private fun bestSetText(trend: ExerciseTrend, spoken: Boolean = false): String =
+    trend.bestSets.joinToString(if (spoken) ", " else " · ") { (_, set) ->
+        val weight = when {
+            set.unit != LoadUnit.PLATES -> formatKg(set.weightKg)
+            spoken -> PlateStack.spoken(set.weightKg)
+            else -> PlateStack.text(set.weightKg)
+        }
+        "$weight × ${set.reps}"
     }
 
 /**
@@ -410,7 +415,7 @@ private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> 
                 // Read as the web reads it, "DB press. 26 × 10, 26 × 11. Going up" (a list, not "dot"), then the click
                 // label "Open history". The trend icons are left silent, since their words are already in it.
                 val trendWords = when (trend.goingUp) { true -> "Going up"; false -> "Not going up"; null -> null }
-                val spoken = listOfNotNull(trend.name, if (trend.bestSets.isEmpty()) sets else bestSetText(trend, ", "), trendWords).joinToString(". ")
+                val spoken = listOfNotNull(trend.name, if (trend.bestSets.isEmpty()) sets else bestSetText(trend, spoken = true), trendWords).joinToString(". ")
                 Row(
                     Modifier.fillMaxWidth()
                         .pressClickable(onClickLabel = "Open history") { onOpenExercise(trend.exerciseId) }
