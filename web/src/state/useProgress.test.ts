@@ -289,12 +289,19 @@ describe('plates on Progress and in history', () => {
     ])
     expect(trendRowName(pulldownRow!)).toBe('Lat pulldown. plate 8 × 10, plate 9 × 10. Going up. Open history')
     expect(trendRowName(curlRow!)).toBe('Curl. 20 × 10, 22 × 10. Going up. Open history')
-    // A half is spoken as the set rows speak it.
-    const half = buildBodybuildingProgress(bbHistory([addDays(today, -2), [plate(pulldown, 7.5, 10)]]), bbPlan, today).rows[0]!
-    expect(trendRowName(half)).toBe('Lat pulldown. plate 7 and a half × 10. Open history')
     render(createElement(BodybuildingProgressContent, { state: { loading: false, rows, bodyParts: [], checkedIn: false }, onOpenExercise: () => {} }))
     const lines = [...document.querySelectorAll('.bb-row-sets')].map((el) => el.textContent)
     expect(lines).toEqual(['plate 8 × 10 · plate 9 × 10', '20 × 10 · 22 × 10'])
+    cleanup()
+  })
+
+  it('bodybuildingProgress_speaksAHalfPlateInWords', () => {
+    const rows = buildBodybuildingProgress(bbHistory([addDays(today, -2), [plate(pulldown, 7.5, 10)]]), bbPlan, today).rows
+    // Spoken as the set rows speak it; shown as "plate 7½".
+    expect(trendRowName(rows[0]!)).toBe('Lat pulldown. plate 7 and a half × 10. Open history')
+    render(createElement(BodybuildingProgressContent, { state: { loading: false, rows, bodyParts: [], checkedIn: false }, onOpenExercise: () => {} }))
+    expect(document.querySelector('.bb-row-sets')?.textContent).toBe('plate 7½ × 10')
+    expect(screen.getByRole('button', { name: /^Lat pulldown\. plate 7 and a half × 10/ })).toBeInTheDocument()
     cleanup()
   })
 

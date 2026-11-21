@@ -228,6 +228,10 @@ describe('plates on Today', () => {
 
     await log(vm, id, plateInput(3))
     expect(vm.current.pending).toBeNull()
+    // One plate up never warns (as kg, 3 to 4 would be more than 1.3 times).
+    await log(vm, id, plateInput(4))
+    expect(vm.current.pending).toBeNull()
+    await log(vm, id, plateInput(3))
     await log(vm, id, plateInput(5))
     expect(vm.current.pending).toMatchObject({ exerciseId: id, warnings: ['BIG_JUMP'], lastWeightKg: 3, set: { weightKg: 5, unit: 'PLATES' } })
     // Confirmed, the held set is saved as it was checked: in plates.
@@ -235,8 +239,26 @@ describe('plates on Today', () => {
     expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([
       [7, 'PLATES'],
       [3, 'PLATES'],
+      [4, 'PLATES'],
+      [3, 'PLATES'],
       [5, 'PLATES'],
     ])
+  })
+
+  it('Apply on a plate target puts it in the PLATE field, also after a plate set today', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'WHOLE' })
+    await planToday(id)
+    await past(addDays(TODAY, -7), id, plates(7))
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target.unit).toBe('PLATES'))
+    const target = itemOf(vm, id)!.suggestion!.target
+    expect(target).toMatchObject({ weightKg: 7, reps: 9 })
+    await log(vm, id, plateInput(6, { reps: 5 }))
+    expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: 6, reps: 5 })
+    await act(() => vm.current.applyTarget(itemOf(vm, id)!.suggestion!.id))
+    await waitFor(() => expect(itemOf(vm, id)!.editor).toStrictEqual({ weightKg: 7, reps: 9, rpe: 8, unit: 'PLATES' }))
   })
 
   it('plate 7 after 5 kg raises no big jump', async () => {
@@ -444,7 +466,7 @@ describe('plates on Today', () => {
     expect(isNewBest(history, { ...row, unit: 'PLATES' as const }, TODAY, 'POWERLIFTING')).toBe(false)
   })
 
-  it('a set submitted in the unit the exercise has just left is refused, not relabelled', async () => {
+  it('aSetMadeInTheOtherUnit_isNotSavedOrRelabelled', async () => {
     const id = await pulldownRow()
     await planToday(id)
     await startSession(db, TODAY)
@@ -468,7 +490,7 @@ describe('plates on Today', () => {
     expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([[40, undefined]])
   })
 
-  it('the day began in plates with a plate target, then plates turned off on the last plate exercise: a kg target the same day', async () => {
+  it('turningPlatesOffOnTheLastPlateExercise_storesAKgTargetThatDay_besideThePlateOne', async () => {
     const id = await pulldownRow()
     await planToday(id)
     await past(addDays(TODAY, -14), id, { weightKg: 40 })
@@ -483,7 +505,7 @@ describe('plates on Today', () => {
     expect((await todaysPayloads()).map((p) => p.unit)).toEqual(['PLATES', 'KG'])
   })
 
-  it('a plate-unit editor under a kg exercise never shows in the kg field', async () => {
+  it('anEditorInTheOtherUnit_neverShows', async () => {
     const id = await pulldownRow()
     await planToday(id)
     await startSession(db, TODAY)

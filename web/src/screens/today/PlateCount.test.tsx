@@ -153,11 +153,9 @@ describe('the plate item and the sheet', () => {
     // The one already marked: nothing.
     await userEvent.click(sheet.getByRole('radio', { name: 'Whole plates' }))
     expect(onChoose).not.toHaveBeenCalled()
+    // A tap on the label (or its hint) chooses too.
     await userEvent.click(sheet.getByText('Half steps too'))
     expect(onChoose).toHaveBeenCalledWith('HALF')
-    expect(sheet.getByRole('radio', { name: 'Half steps too' })).toBeChecked()
-    await userEvent.click(sheet.getByRole('radio', { name: 'Half steps too' }))
-    expect(onChoose).toHaveBeenCalledTimes(1)
     // Done only closes.
     await userEvent.click(sheet.getByRole('button', { name: 'Done' }))
     expect(onDismiss).toHaveBeenCalledTimes(1)
@@ -167,7 +165,7 @@ describe('the plate item and the sheet', () => {
     expect(screen.getByTestId('plate-done')).toBeInTheDocument()
   })
 
-  it('the choices ignore taps for a moment after the sheet opens; Done does not', async () => {
+  it('aDoubleTapOnTheMenuItem_doesNotPickAChoice', async () => {
     const onChoose = vi.fn()
     const onDismiss = vi.fn()
     render(<PlateCountSheet name="Lat pulldown" current="OFF" note={null} onChoose={onChoose} onDismiss={onDismiss} />)
@@ -184,28 +182,52 @@ describe('the plate item and the sheet', () => {
     expect(onChoose).toHaveBeenCalledWith('WHOLE')
   })
 
-  it('the marked choice follows what is stored: the last tap wins, a failed save goes back', async () => {
-    let fail: (() => void) | null = null
-    const onChoose = vi.fn((value: string) => (value === 'HALF' ? new Promise<void>((_, reject) => (fail = () => reject(new Error('disk full')))) : Promise.resolve()))
-    const { rerender } = render(<PlateCountSheet name="Lat pulldown" current="OFF" note={null} onChoose={onChoose} onDismiss={() => {}} />)
+  it('theMarkedChoice_followsTheStoredSetting_onceASaveSettles', async () => {
+    // Each save is held open until the test settles it.
+    const saves: { value: string; done: () => void; fail: () => void }[] = []
+    const onChoose = vi.fn(
+      (value: string) =>
+        new Promise<void>((done, reject) => {
+          saves.push({ value, done, fail: () => reject(new Error('disk full')) })
+        }),
+    )
+    const sheetWith = (current: 'OFF' | 'WHOLE' | 'HALF') => <PlateCountSheet name="Lat pulldown" current={current} note={null} onChoose={onChoose} onDismiss={() => {}} />
+    const { rerender } = render(sheetWith('OFF'))
     const sheet = within(screen.getByRole('dialog', { name: 'Count plates on Lat pulldown' }))
+    const checked = () => sheet.getAllByRole('radio').map((r) => (r as HTMLInputElement).checked)
     await act(async () => {})
     pastTheTapWindow()
+
+    // Marked at once, while its save is in flight; a tap on the marked one again does nothing.
     await userEvent.click(sheet.getByRole('radio', { name: 'Whole plates' }))
-    // Marked at once, before the store has caught up; a tap on it again is compared with what is marked.
-    expect(sheet.getByRole('radio', { name: 'Whole plates' })).toBeChecked()
+    expect(checked()).toEqual([false, true, false])
     await userEvent.click(sheet.getByRole('radio', { name: 'Whole plates' }))
     expect(onChoose).toHaveBeenCalledTimes(1)
-    rerender(<PlateCountSheet name="Lat pulldown" current="WHOLE" note={null} onChoose={onChoose} onDismiss={() => {}} />)
-    expect(sheet.getByRole('radio', { name: 'Whole plates' })).toBeChecked()
-    // A save that fails: the mark goes back to what is stored.
+    // The store catches up, then the save settles: the stored setting shows.
+    rerender(sheetWith('WHOLE'))
+    await act(async () => saves[0]!.done())
+    expect(checked()).toEqual([false, true, false])
+
+    // A failed save: once it settles, the old setting shows again.
     await userEvent.click(sheet.getByRole('radio', { name: 'Half steps too' }))
-    expect(sheet.getByRole('radio', { name: 'Half steps too' })).toBeChecked()
-    await act(async () => fail!())
-    await waitFor(() => expect(sheet.getByRole('radio', { name: 'Whole plates' })).toBeChecked())
-    // The stored setting changed elsewhere: the mark follows it.
-    rerender(<PlateCountSheet name="Lat pulldown" current="OFF" note={null} onChoose={onChoose} onDismiss={() => {}} />)
-    expect(sheet.getByRole('radio', { name: 'In kg' })).toBeChecked()
+    expect(checked()).toEqual([false, false, true])
+    await act(async () => saves[1]!.fail())
+    expect(checked()).toEqual([false, true, false])
+
+    // The last tap wins: an earlier save counts as settled once a later tap is made.
+    await userEvent.click(sheet.getByRole('radio', { name: 'Half steps too' }))
+    await userEvent.click(sheet.getByRole('radio', { name: 'In kg' }))
+    expect(onChoose.mock.calls.map(([v]) => v)).toEqual(['WHOLE', 'HALF', 'HALF', 'OFF'])
+    expect(checked()).toEqual([true, false, false])
+    await act(async () => saves[2]!.done())
+    expect(checked()).toEqual([true, false, false])
+    rerender(sheetWith('OFF'))
+    await act(async () => saves[3]!.done())
+    expect(checked()).toEqual([true, false, false])
+
+    // Changed elsewhere (another tab): the mark follows the stored setting.
+    rerender(sheetWith('HALF'))
+    expect(checked()).toEqual([false, false, true])
   })
 
   it('a failed save says so, and the sheet shows what is stored', async () => {
@@ -426,7 +448,7 @@ describe('plate sets', () => {
     expect(await db.exercises.where('name').equals('Lat pulldown').count()).toBe(1)
   })
 
-  it('a plate set logged on the Today screen is stored in plates and reads "plate 7 × …"', async () => {
+  it('aPlateSetTypedAndLoggedOnTheScreen_isStoredInPlates', async () => {
     await inPlates('WHOLE')
     show()
     await screen.findByRole('heading', { name: 'Lat pulldown' })

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import type { LoadUnit, PlateCount } from '../../db/schema'
 import { PrimaryButton } from '../../ui/components/Button'
 import { Dialog } from '../../ui/components/Dialog'
@@ -36,7 +36,7 @@ export type PlateCountSheetProps = {
   current: PlateCount
   /** `plateNote`'s line, or null. */
   note: string | null
-  /** A choice was tapped: it applies at once. A rejection puts the mark back on the stored setting. */
+  /** A choice was tapped: it applies at once. While its promise is pending the choice is marked; then `current` shows. */
   onChoose: (value: PlateCount) => Promise<void> | void
   /** Done, Escape or a tap outside: only closes. */
   onDismiss: () => void
@@ -44,27 +44,28 @@ export type PlateCountSheetProps = {
 
 /**
  * Asks how `name`'s machine shows its weight. A choice applies when tapped; tapping the one already marked does nothing,
- * and Done only closes. The mark moves at once and then follows the stored setting; a failed save puts it back. For a
+ * and Done only closes. The mark moves at once and, once the save settles, follows the stored setting. For a
  * moment after the sheet opens its choices ignore taps, as the skip sheet's answers do; Done is not held. The content
  * scrolls, so Done is reachable at any text size.
  */
 export function PlateCountSheet({ name, current, note, onChoose, onDismiss }: PlateCountSheetProps) {
-  const [marked, setMarked] = useState(current)
-  // The stored setting wins whenever it changes (the save landed, or another tab changed it).
-  useEffect(() => setMarked(current), [current])
-  const stored = useRef(current)
-  stored.current = current
-  // Only the latest tap's failure moves the mark back: an earlier one's would undo a later choice.
+  // The choice whose save is in flight, as Android's `saving`: marked at once, until its save settles; then the stored
+  // setting shows again (the tapped choice after a good save, the old one after a failed one). An earlier save counts as
+  // settled as soon as a later tap is made.
+  const [saving, setSaving] = useState<PlateCount | null>(null)
+  const marked = saving ?? current
   const taps = useRef(0)
   const choose = (value: PlateCount) => {
+    // Compared with what is marked: tapping it does nothing, any other tap stores, so the last tap wins.
     if (value === marked) return
-    setMarked(value)
+    setSaving(value)
     const tap = ++taps.current
+    const settled = () => {
+      if (tap === taps.current) setSaving(null)
+    }
     Promise.resolve()
       .then(() => onChoose(value))
-      .catch(() => {
-        if (tap === taps.current) setMarked(stored.current)
-      })
+      .then(settled, settled)
   }
   const guard = useEarlyTapGuard('.today-plate-options')
   const questionId = useId()
