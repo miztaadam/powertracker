@@ -253,8 +253,11 @@ const targetKey = (t: Target) => `${t.exerciseId}:${setUnit(t)}`
  */
 const onGrid = (t: Target, plateCount: PlateCount | undefined) => setUnit(t) !== 'PLATES' || grit.plateCheck(t.weightKg, plateCount ?? 'OFF') === 'OK'
 
-/** A plate number under plate 1 or over the highest plate (`plateCheck`'s RANGE): no machine has it, so it is never stored. */
-const plateOutOfRange = (plate: number) => !(plate >= 1 && plate <= grit.maxPlate())
+/**
+ * Whether [plate] can be stored (1.17.1): a whole or half plate from plate 1 to the highest plate, whatever the exercise's
+ * setting now, as a restore checks it. Off the setting's grid is fine (a logged half stands with whole plates on).
+ */
+const storablePlate = (plate: number) => plate >= 1 && plate <= grit.maxPlate() && grit.plateCheck(plate, 'HALF') === 'OK'
 
 /** The TARGET advice stored for `date` on `side`, in every status, oldest first. Each side has its own targets. */
 function todaysTargets(advice: AdviceRow[], date: string, side: TrainingMode): Stored['targets'] {
@@ -471,7 +474,11 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     // A stored target in the other unit is neither shown nor applied.
     // Nor is a plate target off the current grid (plate 7½ once whole plates are on): the coach's pass stores a fresh one.
     const mine = d.targets.filter((t) => t.target.exerciseId === exercise.id && setUnit(t.target) === unit && onGrid(t.target, plateCount))
-    const applied = mine.filter((t) => t.status === 'APPLIED').pop()?.target
+    // The newest of them decides, whatever its status (1.17.1): OPEN, it is the chip; applied, it fills the field; dismissed,
+    // neither. An older one never comes back (half steps → whole plates → half steps leaves two plate targets on the grid).
+    // A kg exercise has at most one target a day, so kg is as before.
+    const newest = mine.reduce<(typeof mine)[number] | undefined>((a, t) => (a == null || t.id > a.id ? t : a), undefined)
+    const applied = newest?.status === 'APPLIED' ? newest.target : undefined
     // The domain's last top set is read in the exercise's current unit (`inCurrentUnits`).
     const top = lastTopSet(d.history, exercise.id, d.date)
     const lastToday = sets.filter((s) => setUnit(s) === unit).at(-1)
@@ -486,7 +493,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
           ? { weightKg: applied.weightKg, reps: applied.reps, rpe: applied.rpe, ...unitKey(unit) }
           : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe, ...unitKey(unit) })
     const targetSets = plan ? (applied?.sets ?? plan.sets) : null
-    const open = mine.find((t) => t.status === 'OPEN')
+    const open = newest?.status === 'OPEN' ? newest : undefined
     // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged. Under a pain hold the aim is
     // not reset to the low end of the range, so the skips go too.
     const applyReps = open && plan && jsSkips ? grit.repsToBeatWithSkips(planItemToJs(plan), d.history, sets.length + 1, d.date, jsSkips) : (open?.target.reps ?? 0)
@@ -874,9 +881,10 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         if (now.sessionId == null) throw new Error('There is no session to log to.')
         const item = now.items.find((i) => i.exercise.id === (now.resolved[itemKey] ?? itemKey))
         const lastWeightKg = item?.lastWeightKg ?? null
-        // The backstop, whatever built the set (a hand-edited kept editor row): a plate number outside plate 1 to the
-        // highest plate is never stored. Off the grid is not refused here: a logged half stands with whole plates on.
-        if (setUnit(set) === 'PLATES' && plateOutOfRange(set.weightKg)) return
+        // The backstop, whatever built the set (a hand-edited kept editor row): a plate number that is not a whole or half
+        // plate from plate 1 to the highest plate is never stored, as a restore refuses it. Off the setting's grid is not
+        // refused here: a logged half stands with whole plates on.
+        if (setUnit(set) === 'PLATES' && !storablePlate(set.weightKg)) return
         if (!confirmed) {
           // A number typed in one unit is never stored in the other (1.17): if the exercise's setting changed between
           // the screen being drawn and the tap (another tab, a slow tap), the set is refused, not relabelled, and the
