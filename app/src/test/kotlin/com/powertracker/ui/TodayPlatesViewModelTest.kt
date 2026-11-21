@@ -527,4 +527,81 @@ class TodayPlatesViewModelTest {
         assertEquals(PlateCount.OFF, vm.item(id)!!.plateCount)
         assertEquals(PlateCount.OFF, runBlocking { training.exercises().first() }.first { it.id == id }.plateCount)
     }
+
+    private fun Advice.plate() = (payload as AdvicePayload.Target).weightKg
+
+    @Test
+    fun aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored() {
+        val id = row("Lat pulldown")
+        plan(id)
+        session(14, set(id, 7.0, reps = 11, unit = LoadUnit.PLATES))
+        session(7, set(id, 7.0, reps = 12, unit = LoadUnit.PLATES))
+        setting(id, PlateCount.HALF)
+        val vm = viewModel()
+        await("half-step target") { vm.item(id)?.suggestion != null }
+        val half = vm.item(id)!!.suggestion!!
+        assertEquals("12 reps at plate 7 earns half a step", 7.5, half.plate(), 0.0)
+
+        // Whole plates the same day: plate 7½ is off the grid, so it is neither shown nor applied, and the coach stores
+        // a whole-plate one beside it (one step up from plate 7 at 12 reps: plate 8).
+        val passes = vm.coachPasses.value
+        vm.turn(id, PlateCount.WHOLE)
+        await("the coach asked again") { vm.coachPasses.value > passes }
+        await("whole-plate target") { vm.item(id)?.suggestion?.let { it.id != half.id } == true }
+        val whole = vm.item(id)!!.suggestion!!
+        assertEquals(8.0, whole.plate(), 0.0)
+        assertEquals(LoadUnit.PLATES, whole.unit())
+        assertEquals("the half-step target is kept as it was", listOf(half, whole).map { it.id to it.plate() }, targets(id).map { it.id to it.plate() })
+        assertEquals(AdviceStatus.OPEN, targets(id).first { it.id == half.id }.status)
+
+        assertEquals("before Apply, the last plate top set", 7.0, vm.item(id)!!.editor.weightKg!!, 0.0)
+        vm.applyTarget(whole.id)
+        await("applied") { runBlocking { advice.all() }.first { it.id == whole.id }.status == AdviceStatus.APPLIED }
+        await("in the field") { vm.item(id)?.editor?.weightKg == 8.0 }
+        assertEquals(LoadUnit.PLATES, vm.item(id)!!.editor.unit)
+    }
+
+    @Test
+    fun aWholePlateTarget_underHalfSteps_stays_andNoDuplicateIsStored() {
+        val id = row("Lat pulldown")
+        plan(id)
+        session(7, set(id, 7.0, reps = 9, unit = LoadUnit.PLATES))
+        setting(id, PlateCount.WHOLE)
+        val vm = viewModel()
+        await("whole-plate target") { vm.item(id)?.suggestion != null }
+        val target = vm.item(id)!!.suggestion!!
+        assertEquals(7.0, target.plate(), 0.0)
+
+        val passes = vm.coachPasses.value
+        vm.turn(id, PlateCount.HALF)
+        await("the coach asked again") { vm.coachPasses.value > passes }
+        settled()
+
+        assertEquals("plate 7 is on the half-step grid: it stays", target.id, vm.item(id)!!.suggestion?.id)
+        assertEquals(listOf(target.id), targets(id).map { it.id })
+    }
+
+    @Test
+    fun aPlateSetOutOfRange_isNeverStored() {
+        val id = row("Lat pulldown")
+        plan(id)
+        setting(id, PlateCount.WHOLE)
+        runBlocking { training.startSession(today, null, null) }
+        val vm = viewModel()
+        await("item") { vm.item(id)?.unit == LoadUnit.PLATES }
+        val planItem = vm.item(id)!!.planned?.id
+
+        for (plate in listOf(0.0, 0.5, 51.0)) {
+            vm.logSet(planItem, id, set(id, plate, unit = LoadUnit.PLATES))
+            settled()
+            vm.logSet(planItem, id, set(id, plate, unit = LoadUnit.PLATES), confirmed = true)
+            settled()
+        }
+        assertTrue("nothing under plate 1 or over plate 50", todaysSets().isEmpty())
+        assertNull(vm.state.value.pending)
+
+        // Off the grid is not refused here: a logged half stands with whole plates on.
+        vm.log(id, set(id, 7.5))
+        assertEquals(listOf(7.5 to LoadUnit.PLATES), todaysSets().map { it.weightKg to it.unit })
+    }
 }

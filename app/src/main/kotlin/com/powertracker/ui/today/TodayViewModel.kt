@@ -282,8 +282,13 @@ class TodayViewModel(
                     val prior = advice.all()
                     // Each side has its own targets: one for the other side does not stand in for this one. Each unit
                     // has its own too: a kg target stored today does not stand in for the plate one, nor the other way.
-                    val known = todaysTargets(prior.forSide(mode)).map { it.targetKey() }.toSet()
-                    val fresh = Coaching.targetsFor(mode, date.dayOfWeek, training.history().first(), plan, coach, date, prior, skips)
+                    // A plate target off the exercise's current grid (plate 7½ once half steps are turned off) does not
+                    // count: a fresh one on the grid is stored beside it. Nothing stored is deleted or rewritten.
+                    val history = training.history().first()
+                    val known = todaysTargets(prior.forSide(mode))
+                        .filter { a -> (a.payload as AdvicePayload.Target).onGrid(history.exercises[a.exerciseId()]?.plateCount ?: PlateCount.OFF) }
+                        .map { it.targetKey() }.toSet()
+                    val fresh = Coaching.targetsFor(mode, date.dayOfWeek, history, plan, coach, date, prior, skips)
                         .filter { it.targetKey() !in known }
                         .distinctBy { it.targetKey() }
                     if (fresh.isNotEmpty()) advice.insert(fresh)
@@ -319,7 +324,11 @@ class TodayViewModel(
             val unit = PlateStack.unitOf(exercise)
             val sets = d.sets.filter { it.set.exerciseId == exercise.id }
             // A stored target in the other unit is neither shown nor applied.
-            val mine = d.targets.filter { it.exerciseId() == exercise.id && (it.payload as AdvicePayload.Target).unit == unit }
+            // ... nor is a plate target off the exercise's current grid.
+            val mine = d.targets.filter { a ->
+                val target = a.payload as AdvicePayload.Target
+                a.exerciseId() == exercise.id && target.unit == unit && target.onGrid(exercise.plateCount)
+            }
             val applied = mine.lastOrNull { it.status == AdviceStatus.APPLIED }?.payload as? AdvicePayload.Target
             val top = stats.lastTopSet(exercise.id, date)?.second
             val lastToday = sets.lastOrNull { it.set.unit == unit }?.set
@@ -423,6 +432,9 @@ class TodayViewModel(
                 // between the entry and the tap) is not saved and not relabelled: its number is re-entered in the new
                 // field. A held one keeps the unit it was checked in.
                 if (!confirmed && item != null && set.unit != item.unit) return@launch
+                // A backstop: a plate number under plate 1 or over the highest plate is never stored, held or not. One
+                // off the grid is (a logged half stands with whole plates on).
+                if (set.unit == LoadUnit.PLATES && (set.weightKg < PlateStack.MIN_PLATE || set.weightKg > PlateStack.MAX_PLATE)) return@launch
                 if (!confirmed) {
                     // Judged against the last weight in the same unit only, with the plate step for a plate number.
                     val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg, set.unit, PlateStack.step(item?.plateCount ?: PlateCount.OFF))
@@ -752,6 +764,10 @@ class TodayViewModel(
 
         /** A target's exercise and unit: today holds at most one target for each. */
         private fun Advice.targetKey(): Pair<Long, LoadUnit>? = (payload as? AdvicePayload.Target)?.let { it.exerciseId to it.unit }
+
+        /** A kg target, or a plate target whose plate is on [count]'s grid ([PlateStack.check] is OK). */
+        private fun AdvicePayload.Target.onGrid(count: PlateCount): Boolean =
+            unit != LoadUnit.PLATES || PlateStack.check(weightKg, count) == com.powertracker.domain.stack.PlateCheck.OK
 
         /** The id a catalogue exercise is shown under while it has no row: negative, so it can never be a row's. */
         private fun standInId(entry: LibraryExercise): Long = -(Library.all().indexOf(entry) + 1L)
