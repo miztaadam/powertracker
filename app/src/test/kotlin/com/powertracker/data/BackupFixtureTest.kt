@@ -33,6 +33,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -78,6 +79,7 @@ class BackupFixtureTest {
     private val webV3Fixture = File(fixtureDir, "web-v3.json")
     private val webV4Fixture = File(fixtureDir, "web-v4.json")
     private val webV5Fixture = File(fixtureDir, "web-v5.json")
+    private val webV6Fixture = File(fixtureDir, "web-v6.json")
 
     @Before
     fun setUp() {
@@ -395,6 +397,68 @@ class BackupFixtureTest {
         // Each card belongs to a restored skip of the same exercise.
         for (card in cards) assertEquals(card.exerciseId, skips.single { it.id == card.skipId }.exerciseId)
     }
+
+    /**
+     * 1.17: the web app's version 6 backup restores exactly and exports again as the web wrote it. That holds only if
+     * neither app writes a default: its kg sets and off exercises carry no `unit` / `plateCount`, and nor does the export.
+     */
+    @Test
+    fun webV6Fixture_restoresOnAndroid_withItsPlates() = runTest {
+        assertTrue("Missing ${webV6Fixture.path}; the web app writes it", webV6Fixture.exists())
+        val fixture = tree(webV6Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(6), fixture.getValue("version"))
+        assertEquals(JsonPrimitive(Backup.VERSION), fixture.getValue("version"))
+
+        val actual = restoreAndExport(webV6Fixture)
+
+        assertEquals(withoutExportedAt(fixture), actual)
+        // The plate sets keep their unit and their 7½, the two machines their setting, and every other row is kg / off.
+        val sets = db.sets().all()
+        val plates = sets.filter { it.unit == LoadUnit.PLATES }
+        val fixtureSets = (fixture.getValue("sets") as JsonArray).map { it as JsonObject }
+        assertEquals(fixtureSets.count { "unit" in it }, plates.size)
+        assertTrue(plates.isNotEmpty())
+        assertTrue(plates.any { it.weightKg == 7.5 })
+        assertEquals(fixtureSets.size - plates.size, sets.count { it.unit == LoadUnit.KG })
+        val exercises = db.exercises().all()
+        assertEquals(
+            mapOf("Lat pulldown" to PlateCount.WHOLE, "Leg press" to PlateCount.HALF),
+            exercises.filter { it.plateCount != PlateCount.OFF }.associate { it.name to it.plateCount },
+        )
+        // The plate target's payload is stored as the web wrote it, and reads as a plate target.
+        val fixturePayload = webPlateTargetPayload(fixture)
+        val stored = db.advice().all().single { it.payload == fixturePayload }
+        assertEquals(LoadUnit.PLATES, (Json.decodeFromString(AdvicePayload.serializer(), stored.payload) as AdvicePayload.Target).unit)
+    }
+
+    /**
+     * 1.17: the web fixture's plate TARGET payload is written by hand in the web's test builder. It decodes through the
+     * domain to the target it means, and it is byte for byte what this app's domain serializer writes for those values.
+     * The web's own domain build prints whole doubles without ".0" (`"weightKg":8`); that form decodes to the same target.
+     */
+    @Test
+    fun webV6PlateTarget_decodesThroughTheDomain_andIsWhatTheDomainWrites() {
+        val fixture = tree(webV6Fixture.readText()) as JsonObject
+        val payload = webPlateTargetPayload(fixture)
+        val legPress = (fixture.getValue("exercises") as JsonArray).map { it as JsonObject }
+            .single { (it.getValue("name") as JsonPrimitive).content == "Leg press" }
+        val legPressId = (legPress.getValue("id") as JsonPrimitive).content.toLong()
+        val expected = AdvicePayload.Target(legPressId, 8.0, 8, 8.0, sets = 3, repsHigh = 12, unit = LoadUnit.PLATES)
+
+        assertEquals(expected, Json.decodeFromString(AdvicePayload.serializer(), payload))
+        assertEquals(Json.encodeToString<AdvicePayload>(expected), payload)
+
+        val jsForm = payload.replace("\"weightKg\":8.0", "\"weightKg\":8").replace("\"rpe\":8.0", "\"rpe\":8")
+        assertTrue(jsForm, jsForm.contains("\"weightKg\":8,") && jsForm.contains("\"rpe\":8,"))
+        assertEquals(expected, Json.decodeFromString(AdvicePayload.serializer(), jsForm))
+    }
+
+    /** The one TARGET payload in a web fixture that carries `"unit":"PLATES"`. */
+    private fun webPlateTargetPayload(fixture: JsonObject): String =
+        (fixture.getValue("advice") as JsonArray).map { it as JsonObject }
+            .filter { (it.getValue("type") as JsonPrimitive).content == "TARGET" }
+            .map { (it.getValue("payload") as JsonPrimitive).content }
+            .single { "\"unit\":\"PLATES\"" in it }
 
     /** An Android version 1 backup restores, and exports again as the current version with the strict press switch off. */
     @Test

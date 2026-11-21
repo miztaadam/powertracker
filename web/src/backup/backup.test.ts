@@ -1421,4 +1421,86 @@ describe('backup version 6', () => {
     const kept = { ...v6, exercises: only('exercises'), sessions: only('sessions'), sets: only('sets'), advice: only('advice') }
     expect(withoutExportedAt(kept)).toEqual(withoutExportedAt(asUpgradedV5(v5)))
   })
+
+  /** Android's version 6 backup (1.17 Task 4). */
+  const ANDROID_V6_FIXTURE = resolve(FIXTURES, 'android-v6.json')
+  type Fixture = Json & Record<'exercises' | 'sets' | 'advice', Json[]>
+  const plateTargetPayload = (f: Fixture) => {
+    const payloads = f.advice.filter((a) => a.type === 'TARGET' && (a.payload as string).includes('"unit":"PLATES"')).map((a) => a.payload as string)
+    expect(payloads).toHaveLength(1)
+    return payloads[0]!
+  }
+
+  it('restores android-v6.json with its plate sets, settings and plate target', async () => {
+    const android = readJson(ANDROID_V6_FIXTURE) as Fixture
+    expect(android.version).toBe(6)
+    expect(android.version).toBe(BACKUP_VERSION)
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V6_FIXTURE, 'utf8')))
+
+    // It exports again as Android wrote it, which holds only if neither app writes a default. The documented
+    // differences are the settings this device keeps: the web fills webRestAlert, and App lock is this device's own.
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Json
+    const expected = withoutExportedAt(structuredClone(android))
+    expect((expected.settings as Json).webRestAlert).toBeNull()
+    ;(expected.settings as Json).webRestAlert = 'SOUND'
+    expect((expected.settings as Json).appLock).toBe(true)
+    ;(expected.settings as Json).appLock = false
+    expect(withoutExportedAt(out)).toEqual(expected)
+
+    // The plate sets keep their unit and their 7½, the two machines their setting; every other row is kg / off, keyless.
+    const sets = await db.sets.toArray()
+    const plates = sets.filter((s) => setUnit(s) === 'PLATES')
+    expect(plates.map((s) => [s.id, s.weightKg])).toEqual(android.sets.filter((s) => 'unit' in s).map((s) => [s.id, s.weightKg]))
+    expect(plates.map((s) => s.weightKg)).toContain(7.5)
+    expect(sets.filter((s) => setUnit(s) === 'KG').every((s) => !('unit' in s))).toBe(true)
+    const exercises = await db.exercises.toArray()
+    expect(exercises.filter((e) => plateCountOf(e) !== 'OFF').map((e) => [e.name, e.plateCount])).toEqual([['Lat pulldown', 'WHOLE'], ['Leg press', 'HALF']])
+    expect(exercises.filter((e) => plateCountOf(e) === 'OFF').every((e) => !('plateCount' in e))).toBe(true)
+    // The plate target's payload is stored as Android wrote it, and the domain reads it as a plate target.
+    const payload = plateTargetPayload(android)
+    const stored = (await db.advice.toArray()).filter((a) => a.payloadJson === payload)
+    expect(stored).toHaveLength(1)
+    expect(grit.advicePayload(stored[0]!.payloadJson)?.unit).toBe('PLATES')
+    // And the domain reads the history in its units.
+    const history = await loadHistory(db)
+    expect(history.sessions.flatMap((s) => s.sets).filter((s) => s.unit === 'PLATES')).toHaveLength(plates.length)
+  })
+
+  it('the two version 6 fixtures hold the same keys on a set and on an exercise', () => {
+    // The two files hold different rows (ids, dates) by design: only their shapes must agree.
+    const android = readJson(ANDROID_V6_FIXTURE) as Fixture
+    const web = readJson(WEB_FIXTURE) as Fixture
+    for (const f of [android, web]) {
+      const plateSet = f.sets.find((s) => s.unit === 'PLATES')!
+      expect(Object.keys(plateSet)).toEqual([...V5_SET_KEYS, 'unit'])
+      const plateExercise = f.exercises.find((e) => e.plateCount !== undefined)!
+      expect(Object.keys(plateExercise)).toEqual([...V5_EXERCISE_KEYS, 'plateCount'])
+      const kgSet = f.sets.find((s) => !('unit' in s))!
+      expect(Object.keys(kgSet)).toEqual(V5_SET_KEYS)
+      const offExercise = f.exercises.find((e) => !('plateCount' in e))!
+      expect(Object.keys(offExercise)).toEqual(V5_EXERCISE_KEYS)
+      // Every row of the file, not just the first of each kind.
+      for (const s of f.sets) expect(Object.keys(s)).toEqual('unit' in s ? [...V5_SET_KEYS, 'unit'] : V5_SET_KEYS)
+      for (const e of f.exercises) expect(Object.keys(e)).toEqual('plateCount' in e ? [...V5_EXERCISE_KEYS, 'plateCount'] : V5_EXERCISE_KEYS)
+    }
+    // And the two plate rows of each kind agree key for key across the apps.
+    expect(Object.keys(android.sets.find((s) => s.unit === 'PLATES')!)).toEqual(Object.keys(web.sets.find((s) => s.unit === 'PLATES')!))
+    expect(Object.keys(android.exercises.find((e) => e.plateCount !== undefined)!)).toEqual(Object.keys(web.exercises.find((e) => e.plateCount !== undefined)!))
+  })
+
+  it("Android's plate target payload decodes through the domain to a plate target with the same fields", () => {
+    const android = readJson(ANDROID_V6_FIXTURE) as Fixture
+    const payload = plateTargetPayload(android)
+    const latPulldown = android.exercises.find((e) => e.name === 'Lat pulldown')!.id
+    const p = grit.advicePayload(payload)!
+    expect([p.kind, p.exerciseId, p.weightKg, p.reps, p.rpe, p.sets ?? null, p.repsHigh ?? null, p.unit]).toEqual(['Target', latPulldown, 7, 11, 8, 3, null, 'PLATES'])
+    // The web fixture's hand-written payload decodes the same way, to the values it was written with. (That it is byte
+    // for byte what the domain's serializer writes is checked on Android, whose serializer writes "8.0".)
+    const web = readJson(WEB_FIXTURE) as Fixture
+    const legPress = web.exercises.find((e) => e.name === 'Leg press')!.id
+    const w = grit.advicePayload(plateTargetPayload(web))!
+    expect([w.kind, w.exerciseId, w.weightKg, w.reps, w.rpe, w.sets ?? null, w.repsHigh ?? null, w.unit]).toEqual(['Target', legPress, 8, 8, 8, 3, 12, 'PLATES'])
+  })
 })
