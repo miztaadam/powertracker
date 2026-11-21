@@ -85,6 +85,17 @@ class ProgressionRulePlatesTest {
         assertTarget(7.0, 9, after(pl(13, plate(6.0, 12, rpe = 6.5)), pl(3, plate(7.0, 8, rpe = 7.0))))
     }
 
+    /** The recent-step-up rule holds while delta ≥ −0.5: exactly −0.5 still repeats, −1 adds a rep. */
+    @Test
+    fun aRecentStepUpWithRpeRising_atDeltaMinusHalf_repeats_andBelowItAddsARep() {
+        // Delta −0.5 (7.5 against 8), RPE rising from 7: repeat.
+        assertTarget(7.0, 8, after(pl(13, plate(6.0, 12, rpe = 7.0)), pl(3, plate(7.0, 8, rpe = 7.5))))
+        // The same last set with no rise in RPE: the repeat came from the rule, so this adds a rep.
+        assertTarget(7.0, 9, after(pl(13, plate(6.0, 12, rpe = 8.0)), pl(3, plate(7.0, 8, rpe = 7.5))))
+        // Delta −1 (7 against 8), RPE rising from 6.5: below the boundary, so it adds a rep.
+        assertTarget(7.0, 9, after(pl(13, plate(6.0, 12, rpe = 6.5)), pl(3, plate(7.0, 8, rpe = 7.0))))
+    }
+
     @Test
     fun farTooHard_stepsDown() {
         assertTarget(6.0, 8, after(pl(3, plate(7.0, 8, rpe = 9.5))))

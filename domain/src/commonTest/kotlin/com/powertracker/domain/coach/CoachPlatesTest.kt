@@ -68,6 +68,20 @@ class CoachPlatesTest {
         assertEquals("Last time: plate 7 × 8 @ 8. Coach suggests plate 5 × 8 @ 8." + Coach.DELOAD_NOTE + Coach.RE_ENTRY_NOTE, a.reason)
     }
 
+    /**
+     * With half steps the two readings differ: the lower of the two caps from plate 7 is the easing cap,
+     * eased(7, 0.85, ½) = 5½ (the deload's is eased(7, 0.9, ½) = 6), while the caps compounding would give
+     * eased(6, 0.85, ½) = 5.
+     */
+    @Test
+    fun deloadAndEasingBackTogether_withHalfSteps_takeTheLowerCapFromPlateSeven_notCompounded() {
+        val a = after(sevenBeforeABreak, count = PlateCount.HALF, prior = listOf(p.deload()))
+        assertEquals(5.5, t(a).weightKg)
+        assertEquals(8, t(a).reps)
+        assertEquals(2, t(a).sets)
+        assertEquals("Last time: plate 7 × 8 @ 8. Coach suggests plate 5½ × 8 @ 8." + Coach.DELOAD_NOTE + Coach.RE_ENTRY_NOTE, a.reason)
+    }
+
     @Test
     fun aLighterWeekOfSeveralSessions_losesOnePlateOnly() {
         // Plate 7 before the deload (made 7 days ago), then two deload sessions at plate 6.
