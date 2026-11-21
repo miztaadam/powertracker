@@ -486,3 +486,51 @@
   flex-direction: column;
   margin-top: var(--space-2);
 }
+
+/*
+ * 1.17.1: a 320 px phone at 200 % text (laid out about 160 px wide). Below the narrowest layout held to the checks at
+ * normal text (246 px, 130 % zoom on a 320 px phone), so nothing changes at any other size. Things only wrap: Missed and
+ * Log set each take a line of their own, with their words wrapping at a space and the face's sides a little tighter
+ * (each keeps its 52 px height and is as wide as the card), a logged set's line wraps between its parts, the bar picture's
+ * words go under the bar, and the rest bar's clock takes a line of its own above its buttons.
+ */
+@media (max-width: 239px) {
+  .today-log {
+    flex-wrap: wrap;
+  }
+
+  .today-log > .gr-btn {
+    flex: 1 1 100%;
+  }
+
+  .today-log .gr-btn-face {
+    padding-inline: var(--space-3);
+  }
+
+  .today-log .gr-btn-text {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  .gr-card:has(.today-card-head) .gr-set-line {
+    flex: 0 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    min-width: 0;
+  }
+
+  /* The bar picture's words go under the bar. */
+  .gr-card:has(.today-card-head) .gr-plates {
+    flex-wrap: wrap;
+  }
+
+  /* The rest bar: the clock on a line of its own, the buttons under it (they wrap as they need). */
+  .shell-rest .gr-rest-row {
+    flex-wrap: wrap;
+  }
+
+  .shell-rest .gr-rest-time {
+    flex-basis: 100%;
+  }
+}

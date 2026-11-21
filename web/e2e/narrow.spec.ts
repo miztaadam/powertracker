@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
+import { openOnWednesday, pastTheTapWindow, seedFlatBench, tabBar, tap, weightField } from './helpers'
 import { MOTION_ON } from './storage'
 
 // The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
@@ -344,4 +344,74 @@ test.describe('plates at 320 px and 200 % text', () => {
     await done.click()
     await expect(sheet).toBeHidden()
   })
+})
+
+// 1.17.1: Today itself on a 320 px phone at 200 % text (laid out at 160 × 284), in kg and in plates, with a session
+// open, the coach's chip showing and after a set is logged with the rest bar up: the page does not scroll sideways and
+// nothing reaches past the screen. The whole page is checked, with the parts still left to the owner named below.
+/**
+ * Not yet held to this check at this size, each a design choice handed back to the owner (1.17.1 report): the tab
+ * bar's labels ("Progress", "Exercises" clipped), the screen header (the date eyebrow, the side's label and the title
+ * "Today" squeezed beside Finish), the chip's "Coach suggests" eyebrow and the weight stepper's "Weight kg" caption.
+ */
+const handedBack = (found: string[]) =>
+  found.filter((f) => !/^clipped (a\.gr-tab |p\.eyebrow: Wednesday 11 November|p\.gr-mode-label|h1\.gr-screen-title|p\.eyebrow: Coach suggests|label\.gr-stepper-figure: Weight)/.test(f))
+
+/** Lat pulldown on half steps, planned on Wednesdays on the bodybuilding side, last week at plate 12½. */
+async function seedPlates(page: Page) {
+  await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((done, fail) => {
+      const request = indexedDB.open('grit')
+      request.onsuccess = () => done(request.result)
+      request.onerror = () => fail(request.error)
+    })
+    const tx = db.transaction(['exercises', 'planItems', 'settings', 'sessions', 'sets'], 'readwrite')
+    const settled = new Promise<void>((done, fail) => {
+      tx.oncomplete = () => done()
+      tx.onerror = () => fail(tx.error)
+    })
+    const add = (store: string, row: unknown) =>
+      new Promise<number>((done) => {
+        const request = tx.objectStore(store).add(row)
+        request.onsuccess = () => done(request.result as number)
+      })
+    const pulldown = await add('exercises', { name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['LATS', 'BICEPS'], isBuiltIn: true, archived: false, plateCount: 'HALF' })
+    await add('planItems', { weekday: 3, exerciseId: pulldown, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' })
+    tx.objectStore('settings').put({ key: 'trainingMode', value: 'BODYBUILDING' })
+    const lastWeek = await add('sessions', { date: '2026-11-04', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })
+    for (const reps of [12, 11, 10]) await add('sets', { sessionId: lastWeek, exerciseId: pulldown, weightKg: 12.5, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false, unit: 'PLATES' })
+    await settled
+    db.close()
+  })
+  await page.reload()
+  await expect(tabBar(page)).toBeVisible()
+}
+
+test.describe('Today at 320 px and 200 % text', () => {
+  test.use({ viewport: { width: 160, height: 284 } })
+
+  for (const load of ['kg', 'plates'] as const) {
+    test(`Today in ${load} at 320 px and 200 % text does not scroll sideways`, async ({ page }) => {
+      await openOnWednesday(page)
+      if (load === 'kg') await seedFlatBench(page)
+      else await seedPlates(page)
+      await tap(page, 'Start session')
+      await expect(page.locator('.gr-suggestion')).toBeVisible()
+      expect(handedBack(await overflowing(page)), 'with the chip').toEqual([])
+      await page.locator('.gr-suggestion').getByRole('button', { name: 'Apply' }).click()
+      await expect(page.locator('.gr-suggestion')).toHaveCount(0)
+      expect(handedBack(await overflowing(page)), 'applied').toEqual([])
+      await tap(page, 'Log set 1')
+      // The rest bar's clock shows, and its buttons are inside the screen (the bar is not in the shell-main check).
+      await expect(page.getByRole('timer')).toBeVisible()
+      for (const name of ['−30 s', '+30 s', 'Skip']) {
+        const box = (await page.locator('.shell-rest').getByRole('button', { name, exact: true }).boundingBox())!
+        expect(box.x, `${name} starts inside`).toBeGreaterThanOrEqual(-0.5)
+        expect(box.x + box.width, `${name} ends inside`).toBeLessThanOrEqual(160.5)
+      }
+      await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+      expect(handedBack(await overflowing(page)), 'a set logged, the rest bar up').toEqual([])
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    })
+  }
 })
