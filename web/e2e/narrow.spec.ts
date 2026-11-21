@@ -346,44 +346,123 @@ test.describe('plates at 320 px and 200 % text', () => {
   })
 })
 
-// 1.17.1: Today itself on a 320 px phone at 200 % text (laid out at 160 × 284), in kg and in plates, with a session
-// open, the coach's chip showing and after a set is logged with the rest bar up: the page does not scroll sideways and
-// nothing reaches past the screen. The whole page is checked in those states (not before the session starts), with
-// the parts still left to the owner named below.
-/**
- * Not yet held to this check at this size, each a design choice handed back to the owner (1.17.1 report): the tab
- * bar's labels ("Progress", "Exercises" clipped), the screen header (the date eyebrow, the side's label and the title
- * "Today" squeezed beside Finish), the chip's "Coach suggests" eyebrow and the weight stepper's "Weight kg" caption.
- */
-const handedBack = (found: string[]) =>
-  found.filter((f) => !/^clipped (a\.gr-tab |p\.eyebrow: Wednesday 11 November|p\.gr-mode-label|h1\.gr-screen-title|p\.eyebrow: Coach suggests|label\.gr-stepper-figure: Weight)/.test(f))
+// 1.17.1: Today itself on a 320 px phone at 200 % text (laid out at 160 × 284), in kg and in plates on both sides, in
+// every state of the day: nothing planned; not started (with the install, backup and start cards); started with the
+// coach's chip; after Apply; after a set is logged with the rest bar up; after Finish. Checked on the whole page with
+// `overflowing`, and with `alsoBroken` for what it does not see.
 
-/** Lat pulldown on half steps, planned on Wednesdays on the bodybuilding side, last week at plate 12½. */
-async function seedPlates(page: Page) {
-  await page.evaluate(async () => {
-    const db = await new Promise<IDBDatabase>((done, fail) => {
-      const request = indexedDB.open('grit')
-      request.onsuccess = () => done(request.result)
-      request.onerror = () => fail(request.error)
-    })
-    const tx = db.transaction(['exercises', 'planItems', 'settings', 'sessions', 'sets'], 'readwrite')
-    const settled = new Promise<void>((done, fail) => {
-      tx.oncomplete = () => done()
-      tx.onerror = () => fail(tx.error)
-    })
-    const add = (store: string, row: unknown) =>
-      new Promise<number>((done) => {
-        const request = tx.objectStore(store).add(row)
-        request.onsuccess = () => done(request.result as number)
-      })
-    const pulldown = await add('exercises', { name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['LATS', 'BICEPS'], isBuiltIn: true, archived: false, plateCount: 'HALF' })
-    await add('planItems', { weekday: 3, exerciseId: pulldown, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' })
-    tx.objectStore('settings').put({ key: 'trainingMode', value: 'BODYBUILDING' })
-    const lastWeek = await add('sessions', { date: '2026-11-04', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })
-    for (const reps of [12, 11, 10]) await add('sets', { sessionId: lastWeek, exerciseId: pulldown, weightKg: 12.5, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false, unit: 'PLATES' })
-    await settled
-    db.close()
+/**
+ * What `overflowing` does not see, on the screen, the rest bar and the tab bar:
+ * - anything of the rest bar reaching past the screen, or its text not fitting its box;
+ * - a button, link, field or chip overlapping another one, or overlapping text, inside the screen (more than 1 px each
+ *   way; one inside the other does not count; a stepper's caption action, laid over its figure by design, is left out);
+ * - a button, link, field or chip reaching past the card (or the rest bar) it sits in;
+ * - text squeezed to nothing (an element holding text that is drawn 0 px wide or high);
+ * - a word broken across lines. The rule: in any text, a run of four or more characters with no space, hyphen or dash
+ *   in it must sit on one line. Text broken letter by letter breaks every such word; text that wraps at its spaces
+ *   breaks none.
+ */
+const alsoBroken = (page: Page) =>
+  page.evaluate(() => {
+    const found: string[] = []
+    const name = (el: Element) => `${el.tagName.toLowerCase()}.${el.getAttribute('class') ?? ''}`
+    const shown = (el: Element) => {
+      if (el.closest('.sr-only, .gr-tab-label')) return false
+      const style = getComputedStyle(el)
+      const box = el.getBoundingClientRect()
+      return style.visibility !== 'hidden' && style.opacity !== '0' && box.width > 0 && box.height > 0
+    }
+    for (const el of document.querySelectorAll<HTMLElement>('.shell-rest, .shell-rest *')) {
+      if (!shown(el)) continue
+      const box = el.getBoundingClientRect()
+      if (box.right > window.innerWidth + 0.5 || box.left < -0.5) found.push(`outside ${name(el)}`)
+      if (el.matches('p, span, .gr-btn-text') && el.children.length === 0 && el.scrollWidth > el.clientWidth + 1) found.push(`clipped ${name(el)}: ${el.textContent}`)
+    }
+    const everything = [...document.querySelectorAll<HTMLElement>('.shell-main *, .shell-rest *, .gr-tabbar *')]
+    for (const el of everything) {
+      if (el.closest('.sr-only, .gr-tab-label') || getComputedStyle(el).display === 'none') continue
+      const holdsText = [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim() !== '')
+      const box = el.getBoundingClientRect()
+      if (holdsText && (box.width < 1 || box.height < 1)) found.push(`squeezed ${name(el)}: ${el.textContent}`)
+    }
+    const all = everything.filter(shown)
+    // A stepper's caption action (the RPE info button) is laid over the caption's line and reaches over the figure by
+    // design, at every width (its 48 px target): it is not held to the overlap rule.
+    const controls = all.filter((el) => el.matches('button, a, input, label.gr-chip, [role="menuitem"]'))
+    const designedOver = (a: Element, b: Element) => a.closest('.gr-stepper-action') != null || b.closest('.gr-stepper-action') != null
+    const texts = all.filter((el) => [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim() !== ''))
+    for (const a of controls) {
+      const ra = a.getBoundingClientRect()
+      const box = a.parentElement?.closest('.gr-card, .gr-rest')?.getBoundingClientRect()
+      if (box && (ra.left < box.left - 0.5 || ra.right > box.right + 0.5)) found.push(`outside its card ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}"`)
+      // Within one region only: the screen scrolls under the rest bar and the tab bar.
+      const region = (el: Element) => el.closest('.shell-main, .shell-rest, .gr-tabbar')
+      for (const b of [...controls, ...texts]) {
+        if (a === b || a.contains(b) || b.contains(a) || region(a) !== region(b) || designedOver(a, b)) continue
+        const rb = b.getBoundingClientRect()
+        const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
+        const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
+        if (x > 1 && y > 1) found.push(`overlap ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}" × ${name(b)} "${(b.textContent ?? '').trim().slice(0, 20)}"`)
+      }
+    }
+    for (const el of texts) {
+      for (const node of el.childNodes) {
+        if (node.nodeType !== Node.TEXT_NODE) continue
+        const text = node.textContent!
+        for (const m of text.matchAll(/[^\s\-‐–—]{4,}/g)) {
+          const range = document.createRange()
+          range.setStart(node, m.index)
+          range.setEnd(node, m.index + m[0].length)
+          const lines = new Set([...range.getClientRects()].filter((r) => r.width > 0).map((r) => Math.round(r.top)))
+          if (lines.size > 1) found.push(`broken word ${name(el)}: ${m[0]}`)
+        }
+      }
+    }
+    return [...new Set(found)]
   })
+
+/** Everything wrong at this size: `overflowing` and `alsoBroken`. */
+const wrong = async (page: Page) => [...(await overflowing(page)), ...(await alsoBroken(page))]
+
+/** The day's plan on `side`: Bench (kg) or Lat pulldown on half steps (plates), planned on Wednesdays, with four weeks of history. */
+async function seedToday(page: Page, side: 'POWERLIFTING' | 'BODYBUILDING', plates: boolean) {
+  await page.evaluate(
+    async ({ side, plates }) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems', 'settings', 'sessions', 'sets'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      const add = (store: string, row: unknown) =>
+        new Promise<number>((done) => {
+          const request = tx.objectStore(store).add(row)
+          request.onsuccess = () => done(request.result as number)
+        })
+      const all = await new Promise<{ id: number; name: string }[]>((done) => {
+        const request = tx.objectStore('exercises').getAll()
+        request.onsuccess = () => done(request.result)
+      })
+      const id = plates
+        ? await add('exercises', { name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['LATS', 'BICEPS'], isBuiltIn: true, archived: false, plateCount: 'HALF' })
+        : all.find((e) => e.name === 'Bench')!.id
+      const bodybuilding = side === 'BODYBUILDING'
+      await add('planItems', { weekday: 3, exerciseId: id, sets: 3, reps: 8, ...(bodybuilding ? { repsHigh: 12 } : {}), targetRpe: 8, order: 0, mode: side })
+      tx.objectStore('settings').put({ key: 'trainingMode', value: side })
+      for (const date of ['2026-10-14', '2026-10-21', '2026-10-28', '2026-11-04']) {
+        const day = await add('sessions', { date, bodyweightKg: null, readiness: null, mode: side })
+        for (const reps of bodybuilding ? [12, 11, 10] : [5, 5, 5])
+          await add('sets', { sessionId: day, exerciseId: id, weightKg: plates ? 12.5 : 112.5, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false, ...(plates ? { unit: 'PLATES' } : {}) })
+      }
+      await settled
+      db.close()
+    },
+    { side, plates },
+  )
   await page.reload()
   await expect(tabBar(page)).toBeVisible()
 }
@@ -391,28 +470,77 @@ async function seedPlates(page: Page) {
 test.describe('Today at 320 px and 200 % text', () => {
   test.use({ viewport: { width: 160, height: 284 } })
 
-  for (const load of ['kg', 'plates'] as const) {
-    test(`Today in ${load} at 320 px and 200 % text does not scroll sideways`, async ({ page }) => {
+  for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
+    test(`nothing planned, ${side.toLowerCase()} side, fits`, async ({ page }) => {
       await openOnWednesday(page)
-      if (load === 'kg') await seedFlatBench(page)
-      else await seedPlates(page)
-      await tap(page, 'Start session')
-      await expect(page.locator('.gr-suggestion')).toBeVisible()
-      expect(handedBack(await overflowing(page)), 'with the chip').toEqual([])
-      await page.locator('.gr-suggestion').getByRole('button', { name: 'Apply' }).click()
-      await expect(page.locator('.gr-suggestion')).toHaveCount(0)
-      expect(handedBack(await overflowing(page)), 'applied').toEqual([])
-      await tap(page, 'Log set 1')
-      // The rest bar's clock shows, and its buttons are inside the screen (the bar is not in the shell-main check).
-      await expect(page.getByRole('timer')).toBeVisible()
-      for (const name of ['−30 s', '+30 s', 'Skip']) {
-        const box = (await page.locator('.shell-rest').getByRole('button', { name, exact: true }).boundingBox())!
-        expect(box.x, `${name} starts inside`).toBeGreaterThanOrEqual(-0.5)
-        expect(box.x + box.width, `${name} ends inside`).toBeLessThanOrEqual(160.5)
-      }
-      await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
-      expect(handedBack(await overflowing(page)), 'a set logged, the rest bar up').toEqual([])
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      if (side === 'BODYBUILDING') await bodybuilding(page)
+      await expect(page.getByText('Nothing planned', { exact: true })).toBeVisible()
+      expect(await wrong(page)).toEqual([])
     })
+
+    for (const load of ['kg', 'plates'] as const) {
+      test(`Today in ${load}, ${side.toLowerCase()} side, fits all day`, async ({ page }) => {
+        await openOnWednesday(page)
+        await seedToday(page, side, load === 'plates')
+        // Not started: the install card, the backup card and the start card.
+        await expect(page.getByRole('heading', { name: 'Install Grit' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Back up your log' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Ready to train?' })).toBeVisible()
+        expect(await wrong(page), 'not started').toEqual([])
+
+        await tap(page, 'Start session')
+        await expect(page.locator('.gr-suggestion')).toBeVisible()
+        expect(await wrong(page), 'with the chip').toEqual([])
+        // The header reads as before: the title, then the side's label, then Finish (in that order in the page).
+        const order = await page.locator('.gr-screen-header').evaluate((header) =>
+          [...header.querySelectorAll('h1, .gr-mode-label, button')].map((el) => (el.matches('h1') ? 'title' : el.matches('button') ? el.textContent : 'side')),
+        )
+        expect(order).toEqual(side === 'BODYBUILDING' ? ['side', 'title', 'Finish'] : ['title', 'Finish'])
+
+        await page.locator('.gr-suggestion').getByRole('button', { name: 'Apply' }).click()
+        await expect(page.locator('.gr-suggestion')).toHaveCount(0)
+        expect(await wrong(page), 'applied').toEqual([])
+
+        await tap(page, 'Log set 1')
+        await expect(page.getByRole('timer')).toBeVisible()
+        await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+        expect(await wrong(page), 'a set logged, the rest bar up').toEqual([])
+
+        await tap(page, 'Finish')
+        await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
+        expect(await wrong(page), 'finished').toEqual([])
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      })
+    }
   }
+
+  test('the tab bar shows its icons only, and keeps its names, its current tab and its touch targets', async ({ page }) => {
+    await openOnWednesday(page)
+    const nav = tabBar(page)
+    for (const name of ['Today', 'Coach', 'Progress', 'Exercises', 'Plan']) {
+      const tab = nav.getByRole('link', { name, exact: true })
+      await expect(tab).toBeVisible()
+      const box = (await tab.boundingBox())!
+      // As tall as at any width (the bar's 80 px); as wide as five tabs in 160 px allow, which is what they have today.
+      expect(box.height, `${name}'s height`).toBeGreaterThanOrEqual(80)
+      expect(box.width, `${name}'s width`).toBeGreaterThanOrEqual(31.5)
+      // The label is not drawn: only the icon is seen. Every bit of the tab's text is inside 1 px or less.
+      const drawn = await tab.evaluate((a) => {
+        const walker = document.createTreeWalker(a, NodeFilter.SHOW_TEXT)
+        let widest = 0
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          if (n.textContent!.trim() === '') continue
+          const range = document.createRange()
+          range.selectNodeContents(n)
+          const box = range.getBoundingClientRect()
+          const clip = (n.parentElement as Element).getBoundingClientRect()
+          widest = Math.max(widest, Math.min(box.width, clip.width))
+        }
+        return widest
+      })
+      expect(drawn, `${name}'s label is not drawn`).toBeLessThanOrEqual(1)
+    }
+    await expect(nav.getByRole('link', { name: 'Today', exact: true })).toHaveAttribute('aria-current', 'page')
+    expect(await wrong(page)).toEqual([])
+  })
 })

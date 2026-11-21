@@ -488,14 +488,61 @@
 }
 
 /*
- * 1.17.1: a 320 px phone at 200 % text (laid out about 160 px wide). Below the narrowest layout held to the checks at
- * normal text (246 px, 130 % zoom on a 320 px phone), so nothing changes at any other size; and in the app only (.shell-main,
- * .shell-rest), so the guide's pictures of Today are drawn as before. Things only wrap: Missed and
- * Log set each take a line of their own, with their words wrapping at a space and the face's sides a little tighter
- * (each keeps its 52 px height and is as wide as the card), a logged set's line wraps between its parts, the bar picture's
- * words go under the bar, and the rest bar's clock takes a line of its own above its buttons.
+ * 1.17.1: a 320 px phone at 200 % text (laid out about 160 px wide), with the owner's choices. Below the narrowest layout
+ * held to the checks at normal text (246 px, 130 % zoom on a 320 px phone), so nothing changes at any other size; and in
+ * the app only (.shell-main, .shell-rest), so the guide's pictures of Today are drawn as before. Nothing is cut and
+ * nothing overlaps: text wraps at its spaces, rows of buttons stack, and the screen's and cards' sides are a little
+ * narrower so the card has room. The tab bar's part is in TabBar.css.
  */
 @media (max-width: 239px) {
+  /* Room: the screen's sides 8 px (were 16), the cards' 12 px (were 16); the header's text lines up with the cards. */
+  .shell-main .today-screen > .screen-body {
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .today-screen .gr-card {
+    padding: min(var(--card-padding, var(--space-5)), var(--space-4));
+  }
+
+  /* The header: the date may wrap; the title and the side's label are whole, and Finish goes under them. */
+  .shell-main .today-screen > .gr-screen-header {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .today-screen > .gr-screen-header > .gr-screen-header-text {
+    flex-basis: 100%;
+  }
+
+  .shell-main .today-screen .today-finish {
+    margin-right: 0;
+  }
+
+  /* Eyebrows on Today (the date, "Wednesday · 1 exercise", "Coach suggests", a stepper's caption) wrap, never cut. */
+  .shell-main .today-screen .eyebrow {
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: normal;
+  }
+
+  /* Button words wrap at a space, with the faces' sides a little tighter; each keeps its height. */
+  .shell-main .today-screen .gr-btn-text {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  .shell-main .today-screen .gr-btn-face {
+    padding-inline: var(--space-3);
+  }
+
+  /* Rows of buttons stack, each as wide as its card: the backup reminder's, the install card's, Missed and Log set. */
+  .shell-main .today-screen .gr-advice-actions,
+  .shell-main .today-screen .install-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .shell-main .today-log {
     flex-wrap: wrap;
   }
@@ -504,21 +551,132 @@
     flex: 1 1 100%;
   }
 
-  .shell-main .today-log .gr-btn-face {
-    padding-inline: var(--space-3);
+  /* The start card: the plan line and the names wrap; Bodyweight goes over its button; the readiness numbers take two rows. */
+  .shell-main .today-screen .today-pair-second,
+  .shell-main .today-screen .today-plan-suggestion .today-ellipsis {
+    white-space: normal;
   }
 
-  .shell-main .today-log .gr-btn-text {
-    white-space: normal;
-    overflow-wrap: normal;
+  .shell-main .today-screen .today-plan-suggestion {
+    align-items: flex-start;
+  }
+
+  .shell-main .today-screen .today-plan-suggestion .today-ellipsis {
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  /* A plan line: the name beside the menu, then the coach's line and the plan under them, each the card's whole width. */
+  .shell-main .today-screen .today-plan-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-2);
+    row-gap: var(--space-1);
+    align-items: center;
+  }
+
+  .shell-main .today-screen .today-plan-line > .today-pair,
+  .shell-main .today-screen .today-plan-line .today-pair-first {
+    display: contents;
+  }
+
+  .shell-main .today-screen .today-plan-line .today-name {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .shell-main .today-screen .today-plan-line > :last-child {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  .shell-main .today-screen .today-plan-line .today-plan-suggestion,
+  .shell-main .today-screen .today-plan-line .today-pair-second {
+    grid-column: 1 / -1;
+  }
+
+  /* The summary's tiles one over the other. */
+  .shell-main .today-screen .today-summary-stats {
+    flex-direction: column;
+  }
+
+  .shell-main .today-screen .today-checkin {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .shell-main .today-screen .today-readiness-chips {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+  }
+
+  .shell-main .today-screen .today-readiness-chips > .gr-chip {
+    flex: 0 0 calc((100% - 2 * var(--space-3)) / 3);
+  }
+
+  /*
+   * A logged set: the load (weight × reps) on its first line, and the effort (@ RPE) with the done mark on the next, in
+   * the same type. A load too long for its line ("plate 12½ × 12") breaks once, after the weight.
+   */
+  .shell-main .gr-card:has(.today-card-head) .gr-set-visual {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: center;
   }
 
   .shell-main .gr-card:has(.today-card-head) .gr-set-line {
-    flex: 0 1 auto;
+    display: contents;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-index {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-load {
+    grid-row: 1;
+    grid-column: 2 / 4;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    min-width: 0;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-load > *,
+  .shell-main .gr-card:has(.today-card-head) .gr-set-effort {
+    white-space: nowrap;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-effort {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  /* The @ starts its line: no space before it there. */
+  .shell-main .gr-card:has(.today-card-head) .gr-set-effort > .gr-set-at {
+    margin-left: 0;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-pills {
+    grid-row: 3;
+    grid-column: 2 / 4;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-spacer {
+    display: none;
+  }
+
+  .shell-main .gr-card:has(.today-card-head) .gr-set-dot {
+    grid-row: 2;
+    grid-column: 3;
+  }
+
+  /* Stretch and squeeze: the label over its line, so the line has the card's width. */
+  .shell-main .today-screen .today-cue {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
   }
 
   /* The bar picture's words go under the bar. */
@@ -526,12 +684,23 @@
     flex-wrap: wrap;
   }
 
-  /* The rest bar: the clock on a line of its own, the buttons under it (they wrap as they need). */
-  .shell-rest .gr-rest-row {
-    flex-wrap: wrap;
+  /* The bar itself narrows with its box rather than reach past it. */
+  .shell-main .gr-card:has(.today-card-head) .gr-plates-bar {
+    flex-shrink: 1;
+    max-width: 100%;
+    height: auto;
   }
 
-  .shell-rest .gr-rest-time {
-    flex-basis: 100%;
+  /* The rest bar in two columns, in its own order: the clock and −30 s, then +30 s and Skip. */
+  .shell-rest .gr-rest-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    padding-left: var(--space-4);
+  }
+
+  /* The bar picture's words go under the bar, and its caption wraps rather than end in "…". */
+  .shell-main .gr-card:has(.today-card-head) .gr-plates-caption {
+    white-space: normal;
   }
 }

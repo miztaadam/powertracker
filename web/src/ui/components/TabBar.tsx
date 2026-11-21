@@ -27,7 +27,8 @@ export function TabBar({ current }: TabBarProps) {
             <span className="gr-tab-indicator">
               <Icon />
             </span>
-            {label}
+            {/* Its own box, so a 320 px phone at 200 % text can show the icon alone and keep the name for screen readers. */}
+            <span className="gr-tab-label">{label}</span>
           </a>
         )
       })}

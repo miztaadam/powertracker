@@ -43,15 +43,20 @@ export function SetRow(props: SetRowProps) {
       <span className="sr-only">{setRowLabel(props)}</span>
       <span className="gr-set-visual" aria-hidden="true">
         <span className="gr-set-index title-small">{index}</span>
+        {/* The load (weight × reps) and the effort (@ RPE) each in a box of their own, so a narrow screen can put them on two lines. */}
         <span className="gr-set-line headline-small">
-          <span>{unit === 'PLATES' ? grit.plateText(weightKg) : formatKg(weightKg)}</span>
-          <span className="gr-set-soft gr-set-times">×</span>
-          <span>{reps}</span>
+          <span className="gr-set-load">
+            <span>{unit === 'PLATES' ? grit.plateText(weightKg) : formatKg(weightKg)}</span>
+            <span className="gr-set-reps">
+              <span className="gr-set-soft gr-set-times">×</span>
+              <span>{reps}</span>
+            </span>
+          </span>
           {rpe != null && (
-            <>
+            <span className="gr-set-effort">
               <span className="gr-set-soft gr-set-at">@</span>
               <span>{formatRpe(rpe)}</span>
-            </>
+            </span>
           )}
         </span>
         {(isTopSet || isPr) && (
