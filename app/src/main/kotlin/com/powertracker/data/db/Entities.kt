@@ -8,8 +8,10 @@ import androidx.room.PrimaryKey
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
@@ -24,6 +26,8 @@ data class ExerciseEntity(
     val muscles: List<String>,
     val isBuiltIn: Boolean,
     val archived: Boolean = false,
+    /** Version 6 (1.17): whether the lifter counts plates on this machine. Rows from before version 6 are off. */
+    @ColumnInfo(defaultValue = OFF) val plateCount: PlateCount = PlateCount.OFF,
 )
 
 @Entity(tableName = "session", indices = [Index("date")])
@@ -54,6 +58,8 @@ data class SetEntity(
     val failed: Boolean,
     val missPoint: MissPoint?,
     val isTopSet: Boolean,
+    /** Version 6 (1.17): what [weightKg] counts, kg or a plate number. Sets from before version 6 are kg. */
+    @ColumnInfo(defaultValue = KG) val unit: LoadUnit = LoadUnit.KG,
 )
 
 @Entity(
@@ -136,3 +142,7 @@ data class SkipEntity(
 
 /** The column default for `mode`: rows from before version 3 are on the powerlifting side ([MIGRATION_2_3]). */
 private const val POWERLIFTING = "POWERLIFTING"
+
+/** The column defaults for `unit` and `plateCount`: rows from before version 6 are kg and off ([MIGRATION_5_6]). */
+private const val KG = "KG"
+private const val OFF = "OFF"

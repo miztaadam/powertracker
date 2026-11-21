@@ -20,6 +20,7 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
@@ -218,8 +219,20 @@ open class TrainingRepository(private val db: AppDatabase) {
     suspend fun resolveCatalogue(name: String): Long = catalogue.resolve(name)
 
     suspend fun addExercise(e: Exercise): Long = db.exercises().insert(
-        ExerciseEntity(0, e.name, e.category, e.parentLift, e.muscles, e.isBuiltIn, e.archived),
+        ExerciseEntity(0, e.name, e.category, e.parentLift, e.muscles, e.isBuiltIn, e.archived, e.plateCount),
     )
+
+    /**
+     * Sets the plate setting of an exercise (1.17), in one transaction, and returns the row's id. With a [catalogueName]
+     * the setting is for that catalogue exercise, whatever [exerciseId] says: its row is found, restored or inserted
+     * first ([CatalogueResolver.resolve]), as logging its first set would. No set, target or other row changes: history
+     * is never rewritten.
+     */
+    suspend fun setPlateCount(exerciseId: Long?, catalogueName: String?, value: PlateCount): Long = db.withTransaction {
+        val id = if (catalogueName != null) catalogue.resolve(catalogueName) else requireNotNull(exerciseId) { "An exercise id or a catalogue name" }
+        db.exercises().setPlateCount(id, value)
+        id
+    }
 
     /** Throws [ExerciseInUseException] if sets reference it; use [archiveExercise] instead. */
     suspend fun deleteExercise(id: Long) = db.withTransaction {
@@ -314,14 +327,14 @@ open class TrainingRepository(private val db: AppDatabase) {
     suspend fun setBaseline(b: Baseline) = db.baselines().upsert(BaselineEntity(b.exerciseId, b.e1rmKg, b.date))
 }
 
-private fun ExerciseEntity.toDomain() = Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived)
+private fun ExerciseEntity.toDomain() = Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived, plateCount)
 
 private fun SessionEntity.toDomain(sets: List<LoggedSet>) = LoggedSession(id, date, bodyweightKg, readiness, sets, mode)
 
-private fun SetEntity.toDomain() = LoggedSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet)
+private fun SetEntity.toDomain() = LoggedSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, unit)
 
 private fun LoggedSet.toEntity(id: Long, sessionId: Long) =
-    SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet)
+    SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, unit)
 
 private fun SkipEntity.toDomain() = Skip(id, date, mode, exerciseId, planItemId, reason)
 

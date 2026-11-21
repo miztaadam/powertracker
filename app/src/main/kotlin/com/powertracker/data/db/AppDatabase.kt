@@ -15,7 +15,7 @@ import java.util.concurrent.Executor
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
         PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class, CheckInEntity::class, SkipEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -59,6 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
                     put("muscles", converters.stringsToDb(e.muscles))
                     put("isBuiltIn", if (e.isBuiltIn) 1 else 0)
                     put("archived", if (e.archived) 1 else 0)
+                    // plateCount is left to its column default, off (version 6).
                 }
                 db.insert("exercise", CONFLICT_ABORT, values)
             }
@@ -111,6 +112,17 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_skips_date_mode_exerciseId` ON `skips` (`date`, `mode`, `exerciseId`)")
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_skips_exerciseId` ON `skips` (`exerciseId`)")
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_skips_planItemId` ON `skips` (`planItemId`)")
+    }
+}
+
+/**
+ * Version 6 (1.17): counting plates on stack machines. Each set gains its unit and each exercise its plate setting,
+ * as columns with defaults: every row already stored reads kg and off, and nothing stored changes.
+ */
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE logged_set ADD COLUMN unit TEXT NOT NULL DEFAULT 'KG'")
+        db.execSQL("ALTER TABLE exercise ADD COLUMN plateCount TEXT NOT NULL DEFAULT 'OFF'")
     }
 }
 

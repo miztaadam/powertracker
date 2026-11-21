@@ -4,8 +4,10 @@ import androidx.room.TypeConverter
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
@@ -40,6 +42,12 @@ class Converters {
 
     @TypeConverter fun modeToDb(m: TrainingMode): String = m.name
     @TypeConverter fun modeFromDb(v: String): TrainingMode = TrainingMode.valueOf(v)
+
+    @TypeConverter fun loadUnitToDb(u: LoadUnit): String = u.name
+    @TypeConverter fun loadUnitFromDb(v: String): LoadUnit = LoadUnit.valueOf(v)
+
+    @TypeConverter fun plateCountToDb(p: PlateCount): String = p.name
+    @TypeConverter fun plateCountFromDb(v: String): PlateCount = PlateCount.valueOf(v)
 
     @TypeConverter fun skipReasonToDb(r: SkipReason?): String? = r?.name
     @TypeConverter fun skipReasonFromDb(v: String?): SkipReason? = v?.let(SkipReason::valueOf)

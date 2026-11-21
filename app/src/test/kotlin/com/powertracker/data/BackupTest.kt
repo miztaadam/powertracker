@@ -8,7 +8,9 @@ import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.data.db.AdviceEntity
@@ -361,7 +363,7 @@ class BackupTest {
     /** 1.13: an app that reads only version 4 (1.12) turns a version 5 file away as too new. */
     @Test
     fun v5File_onVersion4Decoder_isTooNew() = runTest {
-        val text = Backup.encode(service.export(1L))
+        val text = Backup.encode(service.export(1L).copy(version = 5))
         assertEquals(BackupResult.TooNew(5), Backup.decode(text, supportedVersion = 4))
     }
 
@@ -369,12 +371,12 @@ class BackupTest {
     @Test
     fun everyBackup_isVersion5_withOrWithoutSkips() = runTest {
         val empty = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
-        assertEquals(5, empty.getValue("version").jsonPrimitive.int)
+        assertEquals(Backup.VERSION, empty.getValue("version").jsonPrimitive.int)
         assertEquals(JsonArray(emptyList()), empty.getValue("skips"))
 
         seedSkips()
         val full = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
-        assertEquals(5, full.getValue("version").jsonPrimitive.int)
+        assertEquals(Backup.VERSION, full.getValue("version").jsonPrimitive.int)
         assertEquals(3, full.getValue("skips").jsonArray.size)
     }
 
@@ -466,8 +468,8 @@ class BackupTest {
     fun v6File_isTooNew() = runTest {
         seedSkips()
         val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
-        val v6 = JsonObject(root + ("version" to JsonPrimitive(6)))
-        assertEquals(BackupResult.TooNew(6), Backup.decode(v6.toString()))
+        val v6 = JsonObject(root + ("version" to JsonPrimitive(7)))
+        assertEquals(BackupResult.TooNew(7), Backup.decode(v6.toString()))
     }
 
     /** Three skips: today's pain skip of curl on the bodybuilding side (with its card), and two on the powerlifting side. */
@@ -609,6 +611,141 @@ class BackupTest {
         )) {
             assertTrue(bad.toString(), Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
         }
+    }
+
+    /** 1.17: a plate exercise (Half steps too), a kg exercise, and a session holding a kg set, a plate set and a plate 7½ set. */
+    private suspend fun seedPlates(): Pair<Long, Long> {
+        val training = TrainingRepository(db)
+        val pulldown = training.setPlateCount(null, "Lat pulldown", PlateCount.HALF)
+        val squat = db.exercises().all().first { it.name == "Squat" }.id
+        val s = training.startSession(LocalDate(2026, 11, 18), null, null)
+        training.logSet(s, LoggedSet(squat, 140.0, 5, 8.0, failed = false, missPoint = null, isTopSet = true))
+        training.logSet(s, LoggedSet(pulldown, 50.0, 10, 8.0, failed = false, missPoint = null, isTopSet = false))
+        training.logSet(s, LoggedSet(pulldown, 7.0, 10, 8.0, failed = false, missPoint = null, isTopSet = false, unit = LoadUnit.PLATES))
+        training.logSet(s, LoggedSet(pulldown, 7.5, 9, 8.5, failed = false, missPoint = null, isTopSet = true, unit = LoadUnit.PLATES))
+        return pulldown to squat
+    }
+
+    /** 1.17: version 6 carries each set's unit and each exercise's plate setting, and restores exactly. */
+    @Test
+    fun version6_roundTripsUnitAndPlateCount() = runTest {
+        val (pulldown, _) = seedPlates()
+        val exported = service.export(1L)
+        val text = Backup.encode(exported)
+        assertEquals(6, Json.parseToJsonElement(text).jsonObject.getValue("version").jsonPrimitive.int)
+
+        db.sets().clear()
+        db.sessions().clear()
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(exported, service.export(1L))
+        assertEquals(PlateCount.HALF, db.exercises().all().single { it.id == pulldown }.plateCount)
+        assertEquals(listOf(LoadUnit.KG, LoadUnit.KG, LoadUnit.PLATES, LoadUnit.PLATES), db.sets().all().map { it.unit })
+        assertEquals(7.5, db.sets().all().last().weightKg, 0.0)
+    }
+
+    /** 1.17: a default is never written. A kg set and an off exercise carry neither key; a plate row ends with it. */
+    @Test
+    fun aKgSetAndAnOffExercise_exportWithNoNewKey() = runTest {
+        val (pulldown, _) = seedPlates()
+        val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
+        val setKeys = listOf("id", "sessionId", "exerciseId", "weightKg", "reps", "rpe", "failed", "missPoint", "isTopSet")
+        val exerciseKeys = listOf("id", "name", "category", "parentLift", "muscles", "isBuiltIn", "archived")
+        for (e in root.getValue("exercises").jsonArray.map { it.jsonObject }) {
+            if (e.getValue("id").jsonPrimitive.int.toLong() == pulldown) {
+                assertEquals(exerciseKeys + "plateCount", e.keys.toList())
+                assertEquals("HALF", e.getValue("plateCount").jsonPrimitive.content)
+            } else {
+                assertEquals(exerciseKeys, e.keys.toList())
+            }
+        }
+        val sets = root.getValue("sets").jsonArray.map { it.jsonObject }
+        assertEquals(4, sets.size)
+        for (s in sets.take(2)) assertEquals(setKeys, s.keys.toList())
+        for (s in sets.drop(2)) {
+            assertEquals(setKeys + "unit", s.keys.toList())
+            assertEquals("PLATES", s.getValue("unit").jsonPrimitive.content)
+        }
+        assertTrue(Backup.encode(service.export(1L)).contains(""""isTopSet":true,"unit":"PLATES"}"""))
+        assertTrue(Backup.encode(service.export(1L)).contains(""""archived":false,"plateCount":"HALF"}"""))
+    }
+
+    /** 1.17: every frozen fixture, both apps', restores with every set in kg and every exercise off, and exports with no new key. */
+    @Test
+    fun versions1to5_restoreWithEverySetKgAndEveryExerciseOff() = runTest {
+        val dir = java.io.File("../web/src/backup/__fixtures__")
+        for (v in 1..5) for (app in listOf("android", "web")) {
+            val file = java.io.File(dir, "$app-v$v.json")
+            val decoded = Backup.decode(file.readText())
+            assertTrue("${file.name}: $decoded", decoded is BackupResult.Ok)
+            service.restore((decoded as BackupResult.Ok).file)
+            assertTrue(file.name, db.sets().all().isNotEmpty())
+            assertTrue(file.name, db.sets().all().all { it.unit == LoadUnit.KG })
+            assertTrue(file.name, db.exercises().all().all { it.plateCount == PlateCount.OFF })
+            val text = Backup.encode(service.export(1L))
+            assertFalse(file.name, text.contains("\"unit\""))
+            assertFalse(file.name, text.contains("\"plateCount\""))
+        }
+    }
+
+    /** 1.17: an app that reads only version 5 (1.16) turns a version 6 file away as too new. */
+    @Test
+    fun aVersion6File_isTooNewForAVersion5Reader() = runTest {
+        seedPlates()
+        assertEquals(BackupResult.TooNew(6), Backup.decode(Backup.encode(service.export(1L)), supportedVersion = 5))
+    }
+
+    @Test
+    fun anUnknownUnitOrSettingName_isCorrupt() = runTest {
+        seedPlates()
+        val file = service.export(1L)
+        for (bad in listOf(
+            file.copy(sets = file.sets.map { it.copy(unit = "LB") }),
+            file.copy(sets = file.sets.map { it.copy(unit = "plates") }),
+            file.copy(exercises = file.exercises.map { it.copy(plateCount = "QUARTER") }),
+        )) {
+            assertTrue(bad.toString(), Backup.decode(Backup.encode(bad)) is BackupResult.Corrupt)
+        }
+    }
+
+    /** Review Focus 4: a plate set numbered under 1 is a damaged file, and restoring nothing changes nothing. */
+    @Test
+    fun aPlateSetBelowPlateOne_isCorrupt() = runTest {
+        seedPlates()
+        val file = service.export(1L)
+        val plate = file.sets.last()
+        for (weight in listOf(0.0, 0.5, -1.0)) {
+            val bad = file.copy(sets = file.sets.dropLast(1) + plate.copy(weightKg = weight))
+            assertEquals(BackupResult.Corrupt("A plate set below plate 1"), Backup.decode(Backup.encode(bad)))
+        }
+        // Plate 1 itself, and a kg set at 0 kg (bodyweight), are fine.
+        assertTrue(Backup.decode(Backup.encode(file.copy(sets = file.sets.dropLast(1) + plate.copy(weightKg = 1.0)))) is BackupResult.Ok)
+        val kg = file.sets.first()
+        assertTrue(Backup.decode(Backup.encode(file.copy(sets = listOf(kg.copy(weightKg = 0.0)) + file.sets.drop(1)))) is BackupResult.Ok)
+    }
+
+    /** 1.17: a plate target's payload is an opaque string: it comes back byte for byte. */
+    @Test
+    fun aPlateTargetsPayload_comesBackByteForByte() = runTest {
+        val (pulldown, _) = seedPlates()
+        val payload = Json.encodeToString(
+            com.powertracker.domain.model.AdvicePayload.serializer(),
+            com.powertracker.domain.model.AdvicePayload.Target(pulldown, 7.5, 8, 8.0, repsHigh = 12, unit = LoadUnit.PLATES),
+        )
+        assertTrue(payload, payload.endsWith(""""repsHigh":12,"unit":"PLATES"}"""))
+        db.advice().insert(
+            listOf(
+                AdviceEntity(type = AdviceType.TARGET, lift = null, createdAt = LocalDate(2026, 11, 18), reason = "Coach suggests plate 7½ × 8–12 @ 8.",
+                    severity = 0, payload = payload, status = AdviceStatus.OPEN, mode = TrainingMode.BODYBUILDING),
+            ),
+        )
+        val text = Backup.encode(service.export(1L))
+        db.advice().clear()
+        service.restore((Backup.decode(text) as BackupResult.Ok).file)
+
+        assertEquals(payload, db.advice().all().single().payload)
+        val target = Json.decodeFromString(com.powertracker.domain.model.AdvicePayload.serializer(), payload) as com.powertracker.domain.model.AdvicePayload.Target
+        assertEquals(LoadUnit.PLATES, target.unit)
     }
 
     private fun modes(root: JsonObject, list: String): List<String> =
