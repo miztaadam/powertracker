@@ -295,6 +295,20 @@ class TodayPlatesViewModelTest {
         assertNull(vm.state.value.pending)
         vm.log(id, set(id, 5.0))
         assertEquals(listOf<InputWarning>(InputWarning.BigJump(3.0, LoadUnit.PLATES)), vm.state.value.pending?.warnings)
+        vm.dismissWarning()
+
+        // A kg number under the plate's: plate 7 after 5 kg (today and before) would be a "jump" if kg were read.
+        val light = row("Seated cable row")
+        plan(light, 1)
+        session(14, set(light, 5.0))
+        vm.addExercise(light)
+        await("second item") { vm.item(light) != null }
+        vm.log(light, set(light, 5.0))
+        vm.turn(light, PlateCount.WHOLE)
+        assertNull(vm.item(light)!!.lastWeightKg)
+        vm.log(light, set(light, 7.0))
+        assertNull("plate 7 after 5 kg is no jump", vm.state.value.pending)
+        assertEquals(LoadUnit.PLATES, vm.item(light)!!.sets.last().set.unit)
     }
 
     @Test

@@ -27,6 +27,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -201,6 +202,33 @@ class PlateCountScreenTest {
         compose.waitForIdle()
         assertTrue(exists("Skip today"))
         assertTrue(!plateItemShown())
+    }
+
+    @Test
+    fun kgTypedAndNotYetCommitted_neverReachesThePlateField() {
+        val lat = row("Lat pulldown")
+        plan(lat, 0)
+        runBlocking { training.startSession(DAY, null, null) }
+        showScreen()
+        waitFor { compose.onAllNodes(hasContentDescription("Weight, kilograms")).fetchSemanticsNodes().isNotEmpty() }
+        // Typed, with the cursor still in the field: the 40 is a draft, not yet the editor's.
+        compose.onNode(hasContentDescription("Weight, kilograms")).performClick().performTextReplacement("40")
+        compose.waitForIdle()
+
+        compose.onNodeWithContentDescription("Options for Lat pulldown").performClick()
+        waitFor { plateItemShown() }
+        compose.onNodeWithTag("exercise-menu-plates").performClick()
+        waitFor { compose.onAllNodes(hasTestTag("plate-sheet")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("plate-option-WHOLE").performClick()
+        waitFor { stored(lat).plateCount == PlateCount.WHOLE }
+        compose.onNodeWithTag("plate-done").performClick()
+        waitFor { compose.onAllNodes(hasContentDescription("Weight, plates")).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitForIdle()
+
+        assertEquals("", field().fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+        compose.onNodeWithText("Log set 1").assertIsNotEnabled()
+        compose.onNodeWithText("Missed").assertIsNotEnabled()
+        assertTrue("nothing stored", runBlocking { training.setsForSession(training.sessionOn(DAY).first()!!.id).first() }.isEmpty())
     }
 
     @Test
@@ -386,7 +414,7 @@ class PlateCountScreenTest {
     }
 
     @Test
-    fun inHalfSteps() {
+    fun theStepper_inHalfSteps() {
         val editor = stepper(PlateCount.HALF, 7.0)
         compose.onNodeWithContentDescription("Increase Plate").performClick()
         compose.waitForIdle()
