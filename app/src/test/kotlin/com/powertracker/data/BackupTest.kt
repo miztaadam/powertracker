@@ -724,6 +724,55 @@ class BackupTest {
         assertTrue(Backup.decode(Backup.encode(file.copy(sets = listOf(kg.copy(weightKg = 0.0)) + file.sets.drop(1)))) is BackupResult.Ok)
     }
 
+    /** 1.17.1: a plate set over plate 50 is a damaged file. */
+    @Test
+    fun aPlateSetAbovePlate50_isCorrupt() = runTest {
+        seedPlates()
+        val file = service.export(1L)
+        val plate = file.sets.last()
+        for (weight in listOf(50.5, 51.0, 80.0)) {
+            val bad = file.copy(sets = file.sets.dropLast(1) + plate.copy(weightKg = weight))
+            assertEquals(BackupResult.Corrupt("A plate set above plate 50"), Backup.decode(Backup.encode(bad)))
+        }
+        // Plate 50 itself, and a kg set at 80 kg, are fine.
+        assertTrue(Backup.decode(Backup.encode(file.copy(sets = file.sets.dropLast(1) + plate.copy(weightKg = 50.0)))) is BackupResult.Ok)
+        val kg = file.sets.first()
+        assertTrue(Backup.decode(Backup.encode(file.copy(sets = listOf(kg.copy(weightKg = 80.0)) + file.sets.drop(1)))) is BackupResult.Ok)
+    }
+
+    /** 1.17.1: a plate set off the half-plate grid (7.3 would print as "plate 7½") is a damaged file, and so is 0.3. */
+    @Test
+    fun aPlateSetOffTheHalfPlateGrid_isCorrupt() = runTest {
+        seedPlates()
+        val file = service.export(1L)
+        val plate = file.sets.last()
+        for (weight in listOf(7.3, 7.25, 0.3)) {
+            val bad = file.copy(sets = file.sets.dropLast(1) + plate.copy(weightKg = weight))
+            assertEquals(BackupResult.Corrupt("A plate set that is not a whole or half plate"), Backup.decode(Backup.encode(bad)))
+        }
+        // A kg set at 7.3 kg is fine.
+        val kg = file.sets.first()
+        assertTrue(Backup.decode(Backup.encode(file.copy(sets = listOf(kg.copy(weightKg = 7.3)) + file.sets.drop(1)))) is BackupResult.Ok)
+    }
+
+    /** 1.17.1: the check is the half-plate grid and plate 1 to 50, never the exercise's setting now. */
+    @Test
+    fun aHalfPlateOnAWholePlateOrKgExercise_stillRestores() = runTest {
+        val (pulldown, _) = seedPlates()
+        val file = service.export(1L)
+        assertEquals(7.5, file.sets.last().weightKg, 0.0)
+        for (setting in listOf(PlateCount.WHOLE, PlateCount.OFF)) {
+            val edited = file.copy(exercises = file.exercises.map { if (it.id == pulldown) it.copy(plateCount = setting.name) else it })
+            val decoded = Backup.decode(Backup.encode(edited))
+            assertTrue("$setting: $decoded", decoded is BackupResult.Ok)
+            db.sets().clear()
+            db.sessions().clear()
+            service.restore((decoded as BackupResult.Ok).file)
+            assertEquals(setting, db.exercises().all().single { it.id == pulldown }.plateCount)
+            assertEquals(7.5 to LoadUnit.PLATES, db.sets().all().last().let { it.weightKg to it.unit })
+        }
+    }
+
     /** 1.17: a plate target's payload is an opaque string: it comes back byte for byte. */
     @Test
     fun aPlateTargetsPayload_comesBackByteForByte() = runTest {
