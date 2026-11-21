@@ -25,6 +25,7 @@ import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlateCount
+import com.powertracker.domain.stack.PlateCheck
 import com.powertracker.domain.stack.PlateStack
 import com.powertracker.domain.stack.inCurrentUnits
 import com.powertracker.domain.model.MissPoint
@@ -329,7 +330,10 @@ class TodayViewModel(
                 val target = a.payload as AdvicePayload.Target
                 a.exerciseId() == exercise.id && target.unit == unit && target.onGrid(exercise.plateCount)
             }
-            val applied = mine.lastOrNull { it.status == AdviceStatus.APPLIED }?.payload as? AdvicePayload.Target
+            // The newest of them (highest id; all are today's) decides, whatever its status (1.17.1): open, it is the
+            // chip; applied, it fills the field and sets the sets to do; dismissed, neither. No older one comes back.
+            val newest = mine.maxByOrNull { it.id }
+            val applied = newest?.takeIf { it.status == AdviceStatus.APPLIED }?.payload as? AdvicePayload.Target
             val top = stats.lastTopSet(exercise.id, date)?.second
             val lastToday = sets.lastOrNull { it.set.unit == unit }?.set
             val rpe = plan?.targetRpe ?: d.settings.defaultRpe
@@ -342,7 +346,7 @@ class TodayViewModel(
             return TodayItem(
                 exercise = exercise,
                 planned = plan,
-                suggestion = mine.firstOrNull { it.status == AdviceStatus.OPEN },
+                suggestion = newest?.takeIf { it.status == AdviceStatus.OPEN },
                 sets = sets,
                 editor = editor,
                 targetSets = plan?.let { applied?.sets ?: it.sets },
@@ -432,9 +436,10 @@ class TodayViewModel(
                 // between the entry and the tap) is not saved and not relabelled: its number is re-entered in the new
                 // field. A held one keeps the unit it was checked in.
                 if (!confirmed && item != null && set.unit != item.unit) return@launch
-                // A backstop: a plate number under plate 1 or over the highest plate is never stored, held or not. One
-                // off the grid is (a logged half stands with whole plates on).
-                if (set.unit == LoadUnit.PLATES && (set.weightKg < PlateStack.MIN_PLATE || set.weightKg > PlateStack.MAX_PLATE)) return@launch
+                // A backstop, the rule a backup is restored by: a plate number that is not a whole or half plate from
+                // plate 1 to the highest plate is never stored, held or not. One off the exercise's own grid is (a logged
+                // half stands with whole plates on).
+                if (set.unit == LoadUnit.PLATES && PlateStack.check(set.weightKg, PlateCount.HALF) != PlateCheck.OK) return@launch
                 if (!confirmed) {
                     // Judged against the last weight in the same unit only, with the plate step for a plate number.
                     val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg, set.unit, PlateStack.step(item?.plateCount ?: PlateCount.OFF))
