@@ -531,8 +531,10 @@ test.describe('Today at 320 px and 200 % text', () => {
         await tap(page, 'Missed')
         await expect(page.getByRole('button', { name: 'Log set 3' })).toBeVisible()
         expect(await wrong(page), 'a missed set').toEqual([])
+        // The powerlifting side asks where it stalled; the bodybuilding side never does.
         const missRow = page.getByTestId('miss-row-2')
-        if (await missRow.count()) {
+        await expect(missRow).toHaveCount(side === 'POWERLIFTING' ? 1 : 0)
+        if (side === 'POWERLIFTING') {
           await missRow.locator('label.gr-segment').first().click()
           expect(await wrong(page), 'a missed set with its miss point').toEqual([])
         }
@@ -545,10 +547,13 @@ test.describe('Today at 320 px and 200 % text', () => {
     }
   }
 
-  for (const load of ['kg', 'plates'] as const) {
-    test(`every kind of logged set fits, ${load}`, async ({ page }) => {
+  for (const [load, side] of [
+    ['kg', 'POWERLIFTING'],
+    ['plates', 'POWERLIFTING'],
+    ['plates', 'BODYBUILDING'],
+  ] as const) {
+    test(`every kind of logged set fits, ${load}, ${side.toLowerCase()} side`, async ({ page }) => {
       await openOnWednesday(page)
-      const side = load === 'kg' ? 'POWERLIFTING' : 'BODYBUILDING'
       await seedToday(page, side, load === 'plates')
       // Today's session with one set of each kind: a top set; no RPE; 0 (bodyweight) in kg or a half plate; missed with
       // and without a miss point; a grind (RPE 9.5, which asks where it slowed on the powerlifting side).
@@ -587,11 +592,64 @@ test.describe('Today at 320 px and 200 % text', () => {
       await page.reload()
       // Six sets of three planned: the card is done.
       await expect(page.locator('.gr-set')).toHaveCount(6)
-      if (load === 'kg') await expect(page.getByText('Top set', { exact: true })).toBeVisible()
+      // The powerlifting side marks the top set and asks where a missed set or a grind stalled.
+      await expect(page.getByText('Top set', { exact: true })).toHaveCount(side === 'POWERLIFTING' ? 1 : 0)
+      await expect(page.locator('[data-testid^="miss-row-"]')).toHaveCount(side === 'POWERLIFTING' ? 3 : 0)
       await expect(page.getByText('Failed', { exact: true }).first()).toBeVisible()
       expect(await wrong(page)).toEqual([])
     })
   }
+
+  // Each main lift's own miss points: "Out of the hole", "Off the chest", "Off the floor", "Off the shoulders" (the longest).
+  test('every lift asks where it stalled, and its points fit', async ({ page }) => {
+    await openOnWednesday(page)
+    const lifts = ['Squat', 'Bench', 'Deadlift', 'Strict press']
+    await page.evaluate(async (lifts) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems', 'sessions', 'sets'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      const all = await new Promise<{ id: number; name: string }[]>((done) => {
+        const request = tx.objectStore('exercises').getAll()
+        request.onsuccess = () => done(request.result)
+      })
+      const session = await new Promise<number>((done) => {
+        const request = tx.objectStore('sessions').add({ date: '2026-11-11', bodyweightKg: null, readiness: null, mode: 'POWERLIFTING' })
+        request.onsuccess = () => done(request.result as number)
+      })
+      for (const [order, name] of lifts.entries()) {
+        // Strict press is not among the rows a new log starts with: it is added as the catalogue adds it.
+        const id =
+          all.find((e) => e.name === name)?.id ??
+          (await new Promise<number>((done) => {
+            const request = tx.objectStore('exercises').add({ name, category: 'STRICT_PRESS', parentLift: null, muscles: ['FRONT_DELTS', 'TRICEPS'], isBuiltIn: true, archived: false })
+            request.onsuccess = () => done(request.result as number)
+          }))
+        tx.objectStore('planItems').add({ weekday: 3, exerciseId: id, sets: 3, reps: 5, targetRpe: 8, order, mode: 'POWERLIFTING' })
+        tx.objectStore('sets').add({ sessionId: session, exerciseId: id, weightKg: 100, reps: 3, rpe: 10, failed: true, missPoint: 'FLOOR', isTopSet: false })
+      }
+      await settled
+      db.close()
+    }, lifts)
+    await page.reload()
+    for (const name of lifts) {
+      // Open its card (the first is open already).
+      const row = page.locator('.today-row', { hasText: name })
+      if (await row.count()) await row.first().click()
+      await expect(page.locator('.today-card-head').getByRole('heading', { name, exact: true })).toBeVisible()
+      await expect(page.getByTestId('miss-row-1')).toBeVisible()
+      expect(await wrong(page), name).toEqual([])
+      // Each point at least 48 px tall.
+      for (const h of await page.getByTestId('miss-row-1').locator('label.gr-segment').evaluateAll((all) => all.map((l) => l.getBoundingClientRect().height)))
+        expect(h, `${name}: a point's height`).toBeGreaterThanOrEqual(48)
+    }
+  })
 
   test('the tab bar shows its icons only, and keeps its names, its current tab and its touch targets', async ({ page }) => {
     await openOnWednesday(page)

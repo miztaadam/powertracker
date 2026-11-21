@@ -59,6 +59,10 @@ const settled = (page: Page, name: string, label = `Options for ${name}`) =>
         height: box.height,
         roomWidth: window.innerWidth,
         roomBottom: Math.min(window.innerHeight, ...docked),
+        roomTop: (() => {
+          const main = document.querySelector('.shell-main')
+          return main ? main.getBoundingClientRect().top + parseFloat(getComputedStyle(main).paddingTop) : 0
+        })(),
         scrolls: menu.scrollHeight > menu.clientHeight + 1,
         items: [...menu.querySelectorAll('[role="menuitem"]')].map((item) => {
           const r = item.getBoundingClientRect()
@@ -89,12 +93,21 @@ async function opensInsideOpen(page: Page, name: string, what: string) {
   const box = await settled(page, name)
   expect(box.x, `${what}: the menu starts inside the screen`).toBeGreaterThanOrEqual(0)
   expect(box.x + box.width, `${what}: the menu ends inside the screen`).toBeLessThanOrEqual(box.roomWidth)
-  expect(box.y, `${what}: the menu's top is on screen`).toBeGreaterThanOrEqual(0)
+  expect(box.y, `${what}: the menu's top is on screen, below the screen's top padding`).toBeGreaterThanOrEqual(box.roomTop)
   expect(box.y + box.height, `${what}: the menu is above the docked bars`).toBeLessThanOrEqual(box.roomBottom)
-  // Every item whole on screen, unless the menu is taller than its room and scrolls: then each is inside the menu's box.
+  // Every item whole on screen; in a menu taller than its room, each once it is scrolled into the menu's view.
   for (const item of box.items) {
-    if (box.scrolls) continue
-    expect(item.x >= 0 && item.right <= box.roomWidth && item.y >= 0 && item.bottom <= box.roomBottom, `${what}: ${item.text} is whole on screen`).toBe(true)
+    if (box.scrolls) {
+      const seen = await menu.getByRole('menuitem', { name: item.text!, exact: true }).evaluate((el) => {
+        el.scrollIntoView({ block: 'nearest' })
+        const r = el.getBoundingClientRect()
+        return { x: r.left, y: r.top, right: r.right, bottom: r.bottom }
+      })
+      expect(seen.x >= 0 && seen.right <= box.roomWidth && seen.y >= box.roomTop && seen.bottom <= box.roomBottom, `${what}: ${item.text} can be scrolled whole on screen`).toBe(true)
+      await menu.getByRole('menuitem', { name: item.text!, exact: true }).click({ trial: true })
+      continue
+    }
+    expect(item.x >= 0 && item.right <= box.roomWidth && item.y >= box.roomTop && item.bottom <= box.roomBottom, `${what}: ${item.text} is whole on screen`).toBe(true)
   }
   await menu.getByRole('menuitem', { name: 'Count plates on this machine' }).click()
   const sheet = page.getByRole('dialog', { name: `Count plates on ${name}` })
@@ -190,6 +203,8 @@ test.describe('the ⋮ menu, more cases', () => {
     expect(box.y).toBeGreaterThanOrEqual(0)
     expect(box.y + box.height).toBeLessThanOrEqual(box.roomBottom)
     expect(box.scrolls, 'the menu scrolls').toBe(true)
+    // Capped at the room's height less 8 px each end (boxes are border-box).
+    expect(box.height).toBeCloseTo(box.roomBottom - box.roomTop - 16, 0)
     const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
     await expect(menu.getByRole('menuitem').first()).toBeFocused()
     await page.keyboard.press('ArrowDown')
@@ -265,5 +280,95 @@ test.describe('the ⋮ menu, more cases', () => {
     await expect(menu).toBeVisible()
     const box = await settled(page, 'Plan options', 'Plan options')
     expect(box.x >= 0 && box.x + box.width <= box.roomWidth && box.y >= 0 && box.y + box.height <= box.roomBottom).toBe(true)
+  })
+
+  // A landscape phone with the rest bar up: little room. A menu opened on a row in the lower half lands wholly inside it.
+  for (const [width, height] of [
+    [844, 390],
+    [664, 390],
+  ] as const) {
+    test(`landscape ${width} × ${height} with the rest bar: a row's menu in the lower half is wholly inside the room`, async ({ page }) => {
+      await page.setViewportSize({ width, height })
+      await openOnWednesday(page)
+      await seed(page, false)
+      await page.getByRole('button', { name: 'Start session', exact: true }).click()
+      await page.getByRole('textbox', { name: 'Weight, kilograms' }).fill('40')
+      await page.getByRole('textbox', { name: 'Weight, kilograms' }).blur()
+      await page.getByRole('button', { name: 'Log set 1', exact: true }).click()
+      await expect(page.getByRole('timer')).toBeVisible()
+      const row = page.locator('.today-row-card').filter({ hasText: LONG })
+      // The row in the lower half of the room.
+      await row.evaluate((el) => {
+        const main = document.querySelector('.shell-main')!
+        const room = document.querySelector('.shell-rest')!.getBoundingClientRect().top
+        main.scrollTop += el.getBoundingClientRect().top - room * 0.6
+      })
+      await opensInside(page, row, LONG, `landscape ${width}`)
+    })
+  }
+
+  test("landscape 844 × 390: Plan's ⋮ menu is wholly inside the room", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    await page.goto('/#/plan')
+    await page.getByRole('button', { name: 'Plan options' }).click()
+    await expect(page.getByRole('menu', { name: 'Plan options' })).toBeVisible()
+    const box = await settled(page, 'Plan options', 'Plan options')
+    expect(box.x >= 0 && box.x + box.width <= box.roomWidth && box.y >= box.roomTop && box.y + box.height <= box.roomBottom).toBe(true)
+  })
+
+  test('with a top inset (the iOS Home Screen app), a capped menu stays below it', async ({ page }) => {
+    await page.setViewportSize({ width: 160, height: 260 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    // The Home Screen app's top padding, as env(safe-area-inset-top) + 1.5rem gives it on a notched iPhone.
+    await page.addStyleTag({ content: '.shell-main { padding-top: 71px !important; }' })
+    const row = page.locator('.today-plan-line').first()
+    await row.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await row.getByRole('button', { name: 'Options for Cable chest press' }).click()
+    const box = await settled(page, 'Cable chest press')
+    expect(box.scrolls, 'the menu is capped and scrolls').toBe(true)
+    expect(box.y, 'below the top inset').toBeGreaterThanOrEqual(box.roomTop)
+    expect(box.y + box.height).toBeLessThanOrEqual(box.roomBottom)
+  })
+
+  for (const width of [160, 306, 320, 360, 390])
+  test(`a name of one very long word fits the folded row and the start card at ${width} px`, async ({ page }) => {
+    const word = 'Supercalifragilisticexpialidociouspulldown'
+    {
+      await page.setViewportSize({ width, height: 700 })
+      await openOnWednesday(page)
+      await page.evaluate(async (name) => {
+        const db = await new Promise<IDBDatabase>((done, fail) => {
+          const request = indexedDB.open('grit')
+          request.onsuccess = () => done(request.result)
+          request.onerror = () => fail(request.error)
+        })
+        const tx = db.transaction(['exercises', 'planItems'], 'readwrite')
+        const done = new Promise<void>((ok) => (tx.oncomplete = () => ok()))
+        const all = await new Promise<{ id: number; name: string }[]>((ok) => {
+          const r = tx.objectStore('exercises').getAll()
+          r.onsuccess = () => ok(r.result)
+        })
+        const squat = all.find((e) => e.name === 'Squat')!.id
+        tx.objectStore('planItems').add({ weekday: 3, exerciseId: squat, sets: 3, reps: 5, targetRpe: 8, order: 0, mode: 'POWERLIFTING' })
+        const request = tx.objectStore('exercises').add({ name, category: 'ACCESSORY', parentLift: null, muscles: ['LATS'], isBuiltIn: false, archived: false })
+        request.onsuccess = () => tx.objectStore('planItems').add({ weekday: 3, exerciseId: request.result, sets: 3, reps: 10, targetRpe: 8, order: 1, mode: 'POWERLIFTING' })
+        await done
+        db.close()
+      }, word)
+      await page.reload()
+      const fits = (scope: Locator) =>
+        scope.evaluate((el, name) => {
+          const card = el.getBoundingClientRect()
+          const text = [...el.querySelectorAll('.today-name')].find((n) => n.textContent === name) as HTMLElement
+          const more = el.querySelector(`[aria-label="Options for ${name}"]`)!.getBoundingClientRect()
+          return { more: more.right <= card.right + 0.5 && more.left >= card.left - 0.5, text: text.scrollWidth <= text.clientWidth + 1 && text.getBoundingClientRect().right <= card.right + 0.5 }
+        }, word)
+      expect(await fits(page.locator('.today-plan-line').filter({ hasText: word })), `start card at ${width}`).toEqual({ more: true, text: true })
+      await page.getByRole('button', { name: 'Start session', exact: true }).click()
+      expect(await fits(page.locator('.today-row-card').filter({ hasText: word })), `folded row at ${width}`).toEqual({ more: true, text: true })
+    }
   })
 })

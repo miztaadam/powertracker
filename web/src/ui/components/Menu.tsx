@@ -3,7 +3,7 @@ import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
 import './Menu.css'
-import { placeMenu, type MenuPlacement } from './menuPlacement'
+import { MENU_MARGIN, menuRoom, placeMenu, type MenuPlacement } from './menuPlacement'
 
 export type MenuItem = {
   text: string
@@ -28,17 +28,6 @@ export type MenuProps = {
 const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false, maxHeight: null }
 
 /**
- * The room a menu has: the window, above the rest bar and the tab bar, and below the top of the screen it scrolls in,
- * past that screen's safe-area padding (the status bar, the notch, the iOS Home Screen app's extra band).
- */
-function menuRoom(from: Element) {
-  const docked = [...document.querySelectorAll('.shell-rest, .gr-tabbar')].map((el) => el.getBoundingClientRect().top).filter((top) => top > 0)
-  const screen = from.closest('.shell-main')
-  const top = screen ? screen.getBoundingClientRect().top + parseFloat(getComputedStyle(screen).paddingTop || '0') : 0
-  return { left: 0, top: Math.max(0, top), right: window.innerWidth, bottom: Math.min(window.innerHeight, ...docked) }
-}
-
-/**
  * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside or choosing
  * an action closes it; the arrow keys move between the actions. The list opens under the button, right edges aligned;
  * one that would leave the screen there opens where it fits (1.17.1, `placeMenu`).
@@ -51,9 +40,10 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   const listId = useId()
   const [placement, setPlacement] = useState<MenuPlacement>(AS_BEFORE)
 
-  // `first`: the placing when it opens (then it is brought into view and its first action focused); else a placing again
-  // after a change of height, which brings it into view and leaves the focus where it is.
-  const reveal = useRef<'first' | 'again' | null>(null)
+  // The placing waiting to be shown: `first` when it opens (then its first action is focused), `again` after a change of
+  // height (the focus stays where it is). Kept with the placement it set, so that nothing is scrolled or focused until
+  // that placement is on the page.
+  const reveal = useRef<{ why: 'first' | 'again'; placement: MenuPlacement } | null>(null)
 
   /** Measures the menu's own size and the button's place now, and places it (`placeMenu`). */
   const place = useCallback((why: 'first' | 'again') => {
@@ -61,14 +51,12 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     const menu = list.current
     if (!button || !menu) return
     const style = getComputedStyle(menu)
-    const px = (key: 'paddingTop' | 'paddingBottom' | 'borderTopWidth' | 'borderBottomWidth') => parseFloat(style[key]) || 0
-    const borders = px('borderTopWidth') + px('borderBottomWidth')
-    // Its whole height even while capped (scrollHeight holds the padding, not the border).
-    const where = placeMenu(button, { width: menu.offsetWidth, height: menu.scrollHeight + borders }, menuRoom(menu))
-    // The cap is on the whole box: max-height counts the content only, so take the padding and the border off.
-    const chrome = px('paddingTop') + px('paddingBottom') + borders
-    reveal.current = why
-    setPlacement(where.maxHeight != null ? { ...where, maxHeight: Math.max(0, where.maxHeight - chrome) } : where)
+    const borders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0)
+    // Its whole height even while capped (scrollHeight holds the padding, not the border). The cap is on the whole box:
+    // boxes are border-box (tokens.css).
+    const placement = placeMenu(button, { width: menu.offsetWidth, height: menu.scrollHeight + borders }, menuRoom(menu))
+    reveal.current = { why, placement }
+    setPlacement(placement)
   }, [])
 
   // Placed before it is drawn: measured where it would open as before, then moved only if it leaves the screen.
@@ -80,25 +68,49 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     place('first')
   }, [open, place])
 
-  // A change of the window's width, or turning the phone, closes it. A change of height only (the on-screen keyboard
-  // coming up or going away, as it does when the menu takes the focus from a field) keeps it open and places it again,
-  // once per frame however many events come.
+  // Once the placement is on the page (not before: the click's first commit still shows the menu where it would open as
+  // before): the screen scrolls just enough to bring the menu inside its room, and on opening its first action is focused
+  // without any scroll of its own.
+  useLayoutEffect(() => {
+    const pending = reveal.current
+    const menu = list.current
+    if (!open || pending == null || pending.placement !== placement || !menu) return
+    reveal.current = null
+    const screen = menu.closest('.shell-main')
+    if (screen) {
+      const room = menuRoom(menu)
+      const box = menu.getBoundingClientRect()
+      const over = box.bottom - (room.bottom - MENU_MARGIN)
+      const under = room.top + MENU_MARGIN - box.top
+      // Its top first, if it cannot have both (a menu taller than the room is capped to fit, so it can).
+      if (under > 0) screen.scrollTop -= under
+      else if (over > 0) screen.scrollTop += over
+    } else {
+      menu.scrollIntoView?.({ block: 'nearest' })
+    }
+    if (pending.why === 'first') menu.querySelector<HTMLElement>('[role="menuitem"]')?.focus({ preventScroll: true })
+  }, [open, placement])
+
+  // Turning the phone, or a change of the layout viewport's width, closes it and gives the focus back to its button. A
+  // change of height only (the on-screen keyboard coming up or going away, as it does when the menu takes the focus from
+  // a field), or of the visual viewport alone (pinch zoom), keeps it open and places it again, once a frame at most.
   useEffect(() => {
     if (!open) return
     const viewport = window.visualViewport
-    const widths = () => [window.innerWidth, viewport?.width ?? null]
-    const opened = widths()
+    const width = window.innerWidth
     let frame = 0
+    const close = () => {
+      setOpen(false)
+      trigger.current?.focus()
+    }
     const onResize = () => {
-      const now = widths()
-      if (now[0] !== opened[0] || now[1] !== opened[1]) {
-        setOpen(false)
+      if (window.innerWidth !== width) {
+        close()
         return
       }
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => place('again'))
     }
-    const close = () => setOpen(false)
     window.addEventListener('resize', onResize)
     window.addEventListener('orientationchange', close)
     viewport?.addEventListener('resize', onResize)
@@ -109,16 +121,6 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
       viewport?.removeEventListener('resize', onResize)
     }
   }, [open, place])
-
-  // Once it is placed (the render after a placing): brought into view, and, when it has just opened, its first action
-  // focused.
-  useEffect(() => {
-    if (!open || reveal.current == null) return
-    const why = reveal.current
-    reveal.current = null
-    list.current?.scrollIntoView?.({ block: 'nearest' })
-    if (why === 'first') list.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
-  }, [open, placement])
 
   useEffect(() => {
     if (!open) return

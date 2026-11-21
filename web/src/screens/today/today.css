@@ -114,8 +114,13 @@
   max-width: 100%;
 }
 
-/* A name of one word too long for the card breaks inside it, and only then (1.17.1): every other name is as before. */
-.today-card-title .today-name {
+/*
+ * A name of one word too long for its card breaks inside it, and only then (1.17.1), on the open card, a folded row and
+ * the start card's plan line: every other name is as before.
+ */
+.today-card-title .today-name,
+.today-row .today-name,
+.today-plan-line .today-name {
   overflow-wrap: break-word;
 }
 
@@ -698,6 +703,25 @@
     grid-column: 3;
   }
 
+  /* A folded row: its plan and its count wrap under the name, the plan at its spaces, and the row's sides are narrower. */
+  .shell-main .today-screen .today-row-card .today-row {
+    padding-inline: var(--space-4) var(--space-2);
+  }
+
+  .shell-main .today-screen .today-row .today-pair-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+
+  .shell-main .today-screen .today-row .today-pair-second {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .shell-main .today-screen .today-row-plan {
+    white-space: normal;
+  }
+
   /* Where a set stalled or was slow: the question over its three points, and the points one over the other, each the
      row's width and 48 px tall. */
   .shell-main .today-screen .today-miss {
@@ -710,6 +734,13 @@
   .shell-main .today-screen .today-miss .gr-segmented {
     flex-direction: column;
     padding: var(--space-2);
+  }
+
+  /* A long point ("Off the shoulders") wraps at its spaces inside its segment, which grows with it. */
+  .shell-main .today-screen .today-miss .gr-segment-face {
+    white-space: normal;
+    text-align: center;
+    padding-block: var(--space-2);
   }
 
   /* Stretch and squeeze: the label over its line, so the line has the card's width. */

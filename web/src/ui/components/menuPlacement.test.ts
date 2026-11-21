@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { placeMenu, type Box } from './menuPlacement'
+import { menuRoom, placeMenu, type Box } from './menuPlacement'
 
 // 1.17.1: a menu opens under its button, right edges aligned, as before; only a menu that would leave the room it has
 // (the screen, above the docked bars) moves.
@@ -62,5 +62,32 @@ describe('placeMenu', () => {
     expect(placeMenu(box(250, 104, 48, 48), size, below)).toEqual({ align: 'end', shift: 0, up: false, maxHeight: null })
     // With room above it inside the room it goes up.
     expect(placeMenu(box(250, 500, 48, 48), size, below)).toEqual({ align: 'end', shift: 0, up: true, maxHeight: null })
+  })
+})
+
+describe('menuRoom', () => {
+  it('starts inside the scrolling screen’s padding on every side (the safe area), and ends at the docked bars', () => {
+    document.body.innerHTML = `
+      <div class="shell">
+        <main class="shell-main" style="padding: 47px 44px 0 59px"><span id="menu"></span></main>
+        <div class="gr-tabbar"></div>
+      </div>`
+    const main = document.querySelector('.shell-main')!
+    const bar = document.querySelector('.gr-tabbar')!
+    const at = (left: number, top: number, right: number, bottom: number) => ({ left, top, right, bottom, width: right - left, height: bottom - top, x: left, y: top, toJSON: () => ({}) }) as DOMRect
+    main.getBoundingClientRect = () => at(0, 0, 844, 310)
+    bar.getBoundingClientRect = () => at(0, 310, 844, 390)
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 844 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 390 })
+    expect(menuRoom(document.getElementById('menu')!)).toEqual({ left: 59, top: 47, right: 800, bottom: 310 })
+    document.body.innerHTML = ''
+  })
+
+  it('outside the app shell: the window', () => {
+    document.body.innerHTML = '<span id="menu"></span>'
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 844 })
+    expect(menuRoom(document.getElementById('menu')!)).toEqual({ left: 0, top: 0, right: 390, bottom: 844 })
+    document.body.innerHTML = ''
   })
 })
