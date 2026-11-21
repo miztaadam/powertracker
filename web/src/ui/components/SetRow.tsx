@@ -1,3 +1,5 @@
+import type { LoadUnit } from '../../db/schema'
+import { grit } from '../../domain'
 import { cx, formatKg, formatRpe } from './format'
 import { CheckIcon, CloseIcon, EmojiEventsIcon } from './icons'
 import { Pill } from './Pill'
@@ -16,11 +18,13 @@ export type SetRowProps = {
   isPr?: boolean
   onClick?: () => void
   className?: string
+  /** What `weightKg` is (1.17): kg when left out, or a plate number on a plate-counted machine, "plate 7½". */
+  unit?: LoadUnit
 }
 
-/** "Set 1: 150 kg × 5 at RPE 8, top set, personal record, done". */
-export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = false, isPr = false }: SetRowProps): string {
-  let s = `Set ${index}: ${formatKg(weightKg)} kg × ${reps}`
+/** "Set 1: 150 kg × 5 at RPE 8, top set, personal record, done"; "Set 1: plate 7 and a half × 12 at RPE 8, done". */
+export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, unit }: SetRowProps): string {
+  let s = `Set ${index}: ${unit === 'PLATES' ? grit.plateSpoken(weightKg) : `${formatKg(weightKg)} kg`} × ${reps}`
   if (rpe != null) s += ` at RPE ${formatRpe(rpe)}`
   if (isTopSet) s += ', top set'
   if (isPr) s += ', personal record'
@@ -33,14 +37,14 @@ export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = fals
  * Reads to a screen reader as one sentence.
  */
 export function SetRow(props: SetRowProps) {
-  const { index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, onClick, className } = props
+  const { index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, onClick, className, unit } = props
   const content = (
     <>
       <span className="sr-only">{setRowLabel(props)}</span>
       <span className="gr-set-visual" aria-hidden="true">
         <span className="gr-set-index title-small">{index}</span>
         <span className="gr-set-line headline-small">
-          <span>{formatKg(weightKg)}</span>
+          <span>{unit === 'PLATES' ? grit.plateText(weightKg) : formatKg(weightKg)}</span>
           <span className="gr-set-soft gr-set-times">×</span>
           <span>{reps}</span>
           {rpe != null && (

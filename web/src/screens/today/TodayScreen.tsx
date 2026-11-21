@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GritDb } from '../../db/db'
+import { setUnit, type LoadUnit, type PlateCount } from '../../db/schema'
 import { todayIso } from '../../domain'
 import { haptic } from '../../platform/haptics'
 import { otherSideLine } from '../../state/sides'
@@ -18,6 +19,7 @@ import { StartSessionCard, SummaryCard } from './SessionCards'
 import { WelcomeBackCard } from '../coach/WelcomeBackCard'
 import { ExercisePicker } from '../library/ExercisePicker'
 import { TypoDialog } from './TodayDialogs'
+import { PlateCountSheet, plateNote } from './PlateCount'
 import { SkippedTodayLine, SkipReasonSheet, UNDO, skippedMessage } from './SkipToday'
 import './today.css'
 
@@ -122,6 +124,18 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
   const [picking, setPicking] = useState(false)
   // The exercise whose reason sheet is open (1.13).
   const [skippingId, setSkippingId] = useState<number | null>(null)
+  // The exercise whose plate sheet is open (1.17), under the key it opened with, the unit it was in then and whether it
+  // had sets in that unit: a choice applies when tapped, so the live values change under the open sheet, and the note is
+  // about the unit the sheet opened in.
+  const [plating, setPlating] = useState<{ id: number; from: LoadUnit; hadSets: boolean } | null>(null)
+  const setPlateCount = raw.setPlateCount
+  const openPlates = (item: TodayItem) => {
+    const from = setUnit(item)
+    setPlating({ id: item.exercise.id, from, hadSets: item.sets.some((s) => setUnit(s) === from) || item.lastWeightKg != null })
+  }
+  // Offered only where the exercise may count plates and the screen can store the choice: never in the guide, which
+  // draws this screen with actions that have none.
+  const countPlates = (item: TodayItem) => (item.plateOffered && setPlateCount ? () => openPlates(item) : undefined)
   const { weekday, day, month } = dateParts(state.date)
 
   // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
@@ -165,6 +179,19 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
       })
       .catch(failed)
   }
+  // The plate sheet follows a catalogue exercise across to its row, which choosing plates may have just made.
+  const platingItem = plating != null ? items.find((i) => i.exercise.id === (resolved[plating.id] ?? plating.id)) : undefined
+  const platingShown = platingItem != null && platingItem.plateOffered === true && setPlateCount != null
+  useEffect(() => {
+    // Gone from the list (removed, or the day moved on): nothing to set.
+    if (plating != null && !state.loading && !platingShown) setPlating(null)
+  }, [plating, platingShown, state.loading])
+  /** A choice in the plate sheet: stored at once. A failed save says so, and the sheet's mark goes back to what is stored. */
+  const choosePlates = (item: TodayItem, value: PlateCount) =>
+    setPlateCount!(item.exercise.id, value).catch((e: unknown) => {
+      failed()
+      throw e
+    })
   const skippedLine = state.skippedToday.length > 0 && <SkippedTodayLine skipped={state.skippedToday} onBringBack={(id) => void actions.bringBack(id)} />
 
   function nextStep(index: number): NextStep {
@@ -194,6 +221,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
               onStart={(bodyweightKg, readiness) => void actions.startSession(bodyweightKg, readiness)}
               onSkipToday={(item) => skipToday(item)?.()}
               skipped={state.skippedToday.length}
+              onCountPlates={setPlateCount ? openPlates : undefined}
             />
             {skippedLine}
           </>
@@ -212,11 +240,12 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
                     actions={actions}
                     side={state.side}
                     onSkipToday={skipToday(item)}
+                    onCountPlates={countPlates(item)}
                   />
                 </div>
               ) : (
                 <div key={keyOf(item)} className="today-item" {...slideName(`item-${keyOf(item)}`)}>
-                  <ExerciseRow item={item} onClick={() => withTransition(() => setActiveId(item.exercise.id))} onSkipToday={skipToday(item)} />
+                  <ExerciseRow item={item} onClick={() => withTransition(() => setActiveId(item.exercise.id))} onSkipToday={skipToday(item)} onCountPlates={countPlates(item)} />
                 </div>
               ),
             )}
@@ -231,6 +260,16 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
 
       {/* Back, Escape or a tap outside cancels: nothing is stored. */}
       {skipping && skippable && <SkipReasonSheet name={skipping.exercise.name} onReason={(reason) => chooseReason(skipping, reason)} onDismiss={() => setSkippingId(null)} />}
+
+      {platingShown && (
+        <PlateCountSheet
+          name={platingItem.exercise.name}
+          current={platingItem.plateCount ?? 'OFF'}
+          note={plateNote(plating!.from, setUnit(platingItem), plating!.hadSets)}
+          onChoose={(value) => choosePlates(platingItem, value)}
+          onDismiss={() => setPlating(null)}
+        />
+      )}
 
       {picking && (
         <ExercisePicker

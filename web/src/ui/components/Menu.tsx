@@ -11,6 +11,8 @@ export type MenuItem = {
   /** Something that cannot be undone (Delete): shown in the danger colour. */
   danger?: boolean
   onSelect: () => void
+  /** A test id for the item (`data-testid`). */
+  testId?: string
 }
 
 export type MenuProps = {
@@ -70,6 +72,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
               key={item.text}
               type="button"
               role="menuitem"
+              data-testid={item.testId}
               className={cx('gr-menu-item body-large', item.danger && 'gr-menu-item-danger')}
               onClick={() => {
                 setOpen(false)

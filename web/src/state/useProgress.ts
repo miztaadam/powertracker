@@ -4,7 +4,7 @@ import { planFor } from '../db/catalogue'
 import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type GritDb } from '../db/db'
 import { planItemToJs } from '../db/mapping'
-import type { CheckInRow, PlanItemRow, TrainingMode } from '../db/schema'
+import type { CheckInRow, LoadUnit, PlanItemRow, TrainingMode } from '../db/schema'
 import { grit, type JsHistory, type JsPr } from '../domain'
 import { historyOn } from './sides'
 import { LIFTS, type Lift } from '../router'
@@ -181,8 +181,8 @@ export function buildProgress(history: JsHistory, range: ChartRange = DEFAULT_RA
 export type BodybuildingRow = {
   exerciseId: number
   name: string
-  /** Oldest first. */
-  bestSets: { date: string; weightKg: number; reps: number }[]
+  /** Oldest first. `unit` is there only for a plate set (1.17): `weightKg` is then a plate number. */
+  bestSets: { date: string; weightKg: number; reps: number; unit?: LoadUnit }[]
   /** Null with fewer than two sessions. */
   goingUp: boolean | null
 }
@@ -231,7 +231,7 @@ export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow
       (trend): BodybuildingRow => ({
         exerciseId: trend.exerciseId,
         name: trend.name,
-        bestSets: trend.bestSets.map((b) => ({ date: b.date, weightKg: b.set.weightKg, reps: b.set.reps })),
+        bestSets: trend.bestSets.map((b) => ({ date: b.date, weightKg: b.set.weightKg, reps: b.set.reps, ...(b.set.unit === 'PLATES' ? { unit: 'PLATES' as const } : {}) })),
         goingUp: trend.goingUp ?? null,
       }),
     ),

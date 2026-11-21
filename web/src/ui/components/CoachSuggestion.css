@@ -30,11 +30,10 @@
   color: inherit;
 }
 
+/* One line where it fits; on a narrow phone with large text ("plate 12½ × 8–12 @ 8", 1.17) it wraps, never cut. */
 .gr-suggestion-headline {
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
 }
 
 .gr-suggestion-reason {

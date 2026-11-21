@@ -115,8 +115,13 @@ function BodyPart({ row }: { row: BodyPartRow }) {
   )
 }
 
-/** "26 × 11". */
-const bestText = (set: { weightKg: number; reps: number }) => `${formatKg(set.weightKg)} × ${set.reps}`
+type BestSet = BodybuildingRow['bestSets'][number]
+
+/** "26 × 11"; "plate 9 × 10" on a plate-counted machine (1.17). */
+const bestText = (set: BestSet) => `${set.unit === 'PLATES' ? grit.plateText(set.weightKg) : formatKg(set.weightKg)} × ${set.reps}`
+
+/** As a screen reader says it: "26 × 11", "plate 7 and a half × 10". */
+const bestSpoken = (set: BestSet) => `${set.unit === 'PLATES' ? grit.plateSpoken(set.weightKg) : formatKg(set.weightKg)} × ${set.reps}`
 
 /** Shown between best sets: "26 × 10 · 26 × 11". */
 const SEPARATOR = ' · '
@@ -128,7 +133,7 @@ const trendName = (goingUp: boolean | null) => (goingUp === true ? 'Going up' : 
  * (Android's row says the same, with "Open history" as its click label).
  */
 export function trendRowName(row: BodybuildingRow): string {
-  const sets = row.bestSets.length === 0 ? 'Not logged yet' : row.bestSets.map(bestText).join(', ')
+  const sets = row.bestSets.length === 0 ? 'Not logged yet' : row.bestSets.map(bestSpoken).join(', ')
   const trend = trendName(row.goingUp)
   return [row.name, sets, ...(trend ? [trend] : []), 'Open history'].join('. ')
 }
