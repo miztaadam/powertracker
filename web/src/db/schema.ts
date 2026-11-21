@@ -14,6 +14,24 @@ export function sideOf(row: { mode?: TrainingMode }): TrainingMode {
   return row.mode ?? 'POWERLIFTING'
 }
 
+/** A set's unit (1.17), as the domain's `LoadUnit` names it. `weightKg` holds a plate number when the unit is PLATES. */
+export const LOAD_UNITS = ['KG', 'PLATES'] as const
+export type LoadUnit = (typeof LOAD_UNITS)[number]
+
+/** An exercise's plate setting (1.17), as the domain's `PlateCount` names it: off (kg), whole plates, or half steps. */
+export const PLATE_COUNTS = ['OFF', 'WHOLE', 'HALF'] as const
+export type PlateCount = (typeof PLATE_COUNTS)[number]
+
+/** A set's unit. Only a plate set stores the key; a row without it (every row before 1.17) is in kg. */
+export function setUnit(row: { unit?: LoadUnit }): LoadUnit {
+  return row.unit ?? 'KG'
+}
+
+/** An exercise's plate setting. Only a plate-counted exercise stores the key; a row without it is off. */
+export function plateCountOf(row: { plateCount?: PlateCount }): PlateCount {
+  return row.plateCount ?? 'OFF'
+}
+
 export type ExerciseRow = {
   id?: number
   name: string
@@ -22,6 +40,8 @@ export type ExerciseRow = {
   muscles: string[]
   isBuiltIn: boolean
   archived: boolean
+  /** 1.17: written only as WHOLE or HALF, never as OFF (see `plateCountOf`). */
+  plateCount?: PlateCount
 }
 
 export type SessionRow = {
@@ -44,6 +64,8 @@ export type SetRow = {
   failed: boolean
   missPoint: string | null
   isTopSet: boolean
+  /** 1.17: written only as PLATES, never as KG (see `setUnit`). */
+  unit?: LoadUnit
 }
 
 export type PlanItemRow = {
@@ -161,6 +183,10 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
   // Skipped planned exercises (1.13): a new, empty store; nothing already stored changes. A skip whose plan item is
   // deleted keeps a null `planItemId`, which leaves the planItemId index (null is not a key).
   { version: 5, stores: { skips: '++id, &[date+mode+exerciseId], exerciseId, planItemId' } },
+  // Counting plates (1.17): a set's `unit` and an exercise's `plateCount`. No new index and no upgrade step: a row
+  // without them reads as kg and off, so nothing stored is stamped. Declared so an older app refuses this database,
+  // and so openGritDb writes the safety copy before it is installed.
+  { version: 6, stores: {} },
 ]
 
 /** Schema version 3's upgrade: every plan item, session and advice row without a side is on the powerlifting side. */

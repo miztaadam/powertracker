@@ -6,6 +6,8 @@ import type {
   CheckInRow,
   ExerciseRow,
   KeyValueRow,
+  LoadUnit,
+  PlateCount,
   PlanItemRow,
   SessionRow,
   SetRow,
@@ -13,7 +15,7 @@ import type {
   SkipRow,
   TrainingMode,
 } from '../db/schema'
-import { sideOf } from '../db/schema'
+import { plateCountOf, setUnit, sideOf } from '../db/schema'
 import { DEFAULT_SETTINGS, settingsFromRows, type AppSettings } from '../db/settings'
 import { applyStrictPressUpgrade } from '../db/strictPressUpgrade'
 import { inGroupOrder } from '../db/checkIns'
@@ -25,7 +27,9 @@ import {
   ANDROID_REST_ALERTS,
   BACKUP_VERSION,
   CATEGORIES,
+  LOAD_UNITS,
   MAIN_LIFTS,
+  PLATE_COUNTS,
   MISS_POINTS,
   SKIP_REASONS,
   TRAINING_MODES,
@@ -153,6 +157,8 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         muscles: e.muscles,
         isBuiltIn: e.isBuiltIn,
         archived: e.archived,
+        // Version 6: only on a plate-counted exercise, as its last key, as Android writes it.
+        ...(plateCountOf(e) !== 'OFF' ? { plateCount: plateCountOf(e) } : {}),
       })),
       sessions: sessions.map((s) => ({
         id: s.id,
@@ -171,6 +177,8 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         failed: s.failed,
         missPoint: s.missPoint,
         isTopSet: s.isTopSet,
+        // Version 6: only on a plate set, as its last key, as Android writes it.
+        ...(setUnit(s) !== 'KG' ? { unit: setUnit(s) } : {}),
       })),
       planItems: planItems.map((p) => ({
         id: p.id,
@@ -268,7 +276,7 @@ function parseBackup(root: Obj): BackupFile {
       bodybuildingLeftOn: 'bodybuildingLeftOn' in s ? nullable(s, 'bodybuildingLeftOn', int) : null,
     },
     exercises: list(o.exercises, 'exercises', (v, p) => {
-      const e = obj(v, p, ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived'])
+      const e = obj(v, p, ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived'], ['plateCount'])
       return {
         id: int(e, 'id'),
         name: str(e, 'name'),
@@ -277,6 +285,8 @@ function parseBackup(root: Obj): BackupFile {
         muscles: list(e.muscles, `${p}.muscles`, (m) => (typeof m === 'string' ? m : bad('muscles: expected string'))),
         isBuiltIn: bool(e, 'isBuiltIn'),
         archived: bool(e, 'archived'),
+        // Version 6. Absent (every older file, and every exercise that is off) means OFF.
+        plateCount: 'plateCount' in e ? str(e, 'plateCount') : 'OFF',
       }
     }),
     sessions: list(o.sessions, 'sessions', (v, p) => {
@@ -284,7 +294,7 @@ function parseBackup(root: Obj): BackupFile {
       return { id: int(x, 'id'), date: int(x, 'date'), bodyweightKg: nullable(x, 'bodyweightKg', num), readiness: nullable(x, 'readiness', int), mode: modeOf(x) }
     }),
     sets: list(o.sets, 'sets', (v, p) => {
-      const x = obj(v, p, ['id', 'sessionId', 'exerciseId', 'weightKg', 'reps', 'rpe', 'failed', 'missPoint', 'isTopSet'])
+      const x = obj(v, p, ['id', 'sessionId', 'exerciseId', 'weightKg', 'reps', 'rpe', 'failed', 'missPoint', 'isTopSet'], ['unit'])
       return {
         id: int(x, 'id'),
         sessionId: int(x, 'sessionId'),
@@ -295,6 +305,8 @@ function parseBackup(root: Obj): BackupFile {
         failed: bool(x, 'failed'),
         missPoint: nullable(x, 'missPoint', str),
         isTopSet: bool(x, 'isTopSet'),
+        // Version 6. Absent (every older file, and every kg set) means KG.
+        unit: 'unit' in x ? str(x, 'unit') : 'KG',
       }
     }),
     planItems: list(o.planItems, 'planItems', (v, p) => {
@@ -363,6 +375,9 @@ type Mapped = { rows: Rows; settings: Omit<AppSettings, 'keepAwake' | 'lastBacku
 const oneOf = (v: string, allowed: readonly string[], what: string): string =>
   allowed.includes(v) ? v : bad(`Unknown ${what} ${v}`)
 const side = (v: string | undefined): TrainingMode => oneOf(v ?? 'POWERLIFTING', TRAINING_MODES, 'training mode') as TrainingMode
+/** Version 6: absent (undefined, a file built in code) means kg and off, as in the file. */
+const loadUnit = (v: string | undefined): LoadUnit => oneOf(v ?? 'KG', LOAD_UNITS, 'load unit') as LoadUnit
+const plateCount = (v: string | undefined): PlateCount => oneOf(v ?? 'OFF', PLATE_COUNTS, 'plate setting') as PlateCount
 const weekday = (d: number) => (Number.isInteger(d) && d >= 1 && d <= 7 ? d : bad(`Invalid weekday ${d}`))
 
 function unique(ids: (number | string)[], what: string) {
@@ -382,6 +397,8 @@ function mapBackup(file: BackupFile): Mapped {
     muscles: [...e.muscles],
     isBuiltIn: e.isBuiltIn,
     archived: e.archived,
+    // Stored only when not off, as the app writes it.
+    ...(plateCount(e.plateCount) !== 'OFF' ? { plateCount: plateCount(e.plateCount) } : {}),
   }))
   const exercises = file.version < 2 ? applyStrictPressUpgrade(mappedExercises) : mappedExercises
   unique(file.sessions.map((s) => s.id), 'session id')
@@ -404,17 +421,24 @@ function mapBackup(file: BackupFile): Mapped {
       sessions.push(row)
     }
   }
-  const sets = file.sets.map((s) => ({
-    id: s.id,
-    sessionId: mergedInto.get(s.sessionId) ?? s.sessionId,
-    exerciseId: s.exerciseId,
-    weightKg: s.weightKg,
-    reps: s.reps,
-    rpe: s.rpe,
-    failed: s.failed,
-    missPoint: s.missPoint === null ? null : oneOf(s.missPoint, MISS_POINTS, 'miss point'),
-    isTopSet: s.isTopSet,
-  }))
+  const sets = file.sets.map((s) => {
+    const unit = loadUnit(s.unit)
+    // A plate number starts at plate 1 (as Android refuses it): 0 would read as bodyweight.
+    if (unit === 'PLATES' && s.weightKg < 1) bad('A plate set below plate 1')
+    return {
+      id: s.id,
+      sessionId: mergedInto.get(s.sessionId) ?? s.sessionId,
+      exerciseId: s.exerciseId,
+      weightKg: s.weightKg,
+      reps: s.reps,
+      rpe: s.rpe,
+      failed: s.failed,
+      missPoint: s.missPoint === null ? null : oneOf(s.missPoint, MISS_POINTS, 'miss point'),
+      isTopSet: s.isTopSet,
+      // Stored only for a plate set, as the app writes it.
+      ...(unit !== 'KG' ? { unit } : {}),
+    }
+  })
   const planItems = file.planItems.map((p) => ({
     id: p.id,
     weekday: weekday(p.weekday),
