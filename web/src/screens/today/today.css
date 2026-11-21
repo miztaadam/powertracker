@@ -567,7 +567,7 @@
     flex: 1 1 100%;
   }
 
-  /* The start card: the plan line and the names wrap; Bodyweight goes over its button; the readiness numbers take two rows. */
+  /* The start card: the plan line and the names wrap; Bodyweight goes over its button; the readiness numbers wrap. */
   .shell-main .today-screen .today-pair-second,
   .shell-main .today-screen .today-plan-suggestion .today-ellipsis {
     white-space: normal;
@@ -627,8 +627,10 @@
     row-gap: var(--space-3);
   }
 
+  /* Each keeps its 48 px target, so two fit a row: three rows, 2 + 2 + 1, each chip half the row. */
   .shell-main .today-screen .today-readiness-chips > .gr-chip {
-    flex: 0 0 calc((100% - 2 * var(--space-3)) / 3);
+    flex: 0 0 calc((100% - var(--space-3)) / 2);
+    min-width: var(--touch);
   }
 
   /*
@@ -674,9 +676,12 @@
     margin-left: 0;
   }
 
-  .shell-main .gr-card:has(.today-card-head) .gr-set-pills {
+  /* A third line, under the effort, for the pills: Top set, or Failed (no room beside "@ 10" and the mark). */
+  .shell-main .gr-card:has(.today-card-head) .gr-set-pills,
+  .shell-main .gr-card:has(.today-card-head) .gr-set-visual > .gr-pill {
     grid-row: 3;
     grid-column: 2 / 4;
+    justify-self: start;
   }
 
   .shell-main .gr-card:has(.today-card-head) .gr-set-spacer {
@@ -686,6 +691,20 @@
   .shell-main .gr-card:has(.today-card-head) .gr-set-dot {
     grid-row: 2;
     grid-column: 3;
+  }
+
+  /* Where a set stalled or was slow: the question over its three points, and the points one over the other, each the
+     row's width and 48 px tall. */
+  .shell-main .today-screen .today-miss {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding-left: 0;
+  }
+
+  .shell-main .today-screen .today-miss .gr-segmented {
+    flex-direction: column;
+    padding: var(--space-2);
   }
 
   /* Stretch and squeeze: the label over its line, so the line has the card's width. */

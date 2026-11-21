@@ -50,7 +50,7 @@
 /*
  * 1.17.1: a 320 px phone at 200 % text (laid out about 160 px wide): five labels do not fit, so the tabs show their icons
  * only. The label stays in the page as the tab's name for screen readers. Each tab keeps the bar's height and its fifth
- * of the width. Nothing changes at 246 px and wider.
+ * of the width. Nothing changes wider than 239 px.
  */
 @media (max-width: 239px) {
   .gr-tab {

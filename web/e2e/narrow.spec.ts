@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { openOnWednesday, pastTheTapWindow, seedFlatBench, tabBar, tap, weightField } from './helpers'
+import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
 import { MOTION_ON } from './storage'
 
 // The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
@@ -354,10 +354,10 @@ test.describe('plates at 320 px and 200 % text', () => {
 /**
  * What `overflowing` does not see, on the screen, the rest bar and the tab bar:
  * - anything of the rest bar reaching past the screen, or its text not fitting its box;
- * - a button, link, field or chip overlapping another one, or overlapping text, inside the screen (more than 1 px each
- *   way; one inside the other does not count; a stepper's caption action, laid over its figure by design, is left out);
+ * - a button, link, field or chip overlapping another one, or overlapping text, or text overlapping text, inside the
+ *   screen (more than 1 px each way; one inside the other does not count; a stepper's caption action, laid over its figure by design, is left out);
  * - a button, link, field or chip reaching past the card (or the rest bar) it sits in;
- * - text squeezed to nothing (an element holding text that is drawn 0 px wide or high);
+ * - text squeezed to nothing (an element holding text that is drawn 0 px wide or high), or spilling out of its own box;
  * - a word broken across lines. The rule: in any text, a run of four or more characters with no space, hyphen or dash
  *   in it must sit on one line. Text broken letter by letter breaks every such word; text that wraps at its spaces
  *   breaks none.
@@ -391,12 +391,29 @@ const alsoBroken = (page: Page) =>
     const controls = all.filter((el) => el.matches('button, a, input, label.gr-chip, [role="menuitem"]'))
     const designedOver = (a: Element, b: Element) => a.closest('.gr-stepper-action') != null || b.closest('.gr-stepper-action') != null
     const texts = all.filter((el) => [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim() !== ''))
+    // Text spilling out of its own box (a pill squeezed into a narrow grid column draws past it), any element but inline ones.
+    for (const el of texts) {
+      const style = getComputedStyle(el)
+      if (style.display === 'inline' || ['auto', 'scroll'].includes(style.overflowX)) continue
+      if (el.scrollWidth > el.clientWidth + 1) found.push(`spills ${name(el)}: ${el.textContent}`)
+    }
+    // Within one region only: the screen scrolls under the rest bar and the tab bar.
+    const region = (el: Element) => el.closest('.shell-main, .shell-rest, .gr-tabbar')
+    // Text over text too (a pill over a set's numbers), each pair once.
+    for (const [i, a] of texts.entries()) {
+      const ra = a.getBoundingClientRect()
+      for (const b of texts.slice(i + 1)) {
+        if (a.contains(b) || b.contains(a) || region(a) !== region(b) || designedOver(a, b)) continue
+        const rb = b.getBoundingClientRect()
+        const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
+        const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
+        if (x > 1 && y > 1) found.push(`overlap ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}" × ${name(b)} "${(b.textContent ?? '').trim().slice(0, 20)}"`)
+      }
+    }
     for (const a of controls) {
       const ra = a.getBoundingClientRect()
       const box = a.parentElement?.closest('.gr-card, .gr-rest')?.getBoundingClientRect()
       if (box && (ra.left < box.left - 0.5 || ra.right > box.right + 0.5)) found.push(`outside its card ${name(a)} "${(a.textContent ?? '').trim().slice(0, 20)}"`)
-      // Within one region only: the screen scrolls under the rest bar and the tab bar.
-      const region = (el: Element) => el.closest('.shell-main, .shell-rest, .gr-tabbar')
       for (const b of [...controls, ...texts]) {
         if (a === b || a.contains(b) || b.contains(a) || region(a) !== region(b) || designedOver(a, b)) continue
         const rb = b.getBoundingClientRect()
@@ -487,6 +504,10 @@ test.describe('Today at 320 px and 200 % text', () => {
         await expect(page.getByRole('heading', { name: 'Back up your log' })).toBeVisible()
         await expect(page.getByRole('heading', { name: 'Ready to train?' })).toBeVisible()
         expect(await wrong(page), 'not started').toEqual([])
+        // The readiness numbers keep their 48 px targets, so they take three rows: 2 + 2 + 1.
+        const chips = await page.locator('.today-readiness-chips > .gr-chip').evaluateAll((all) => all.map((c) => c.getBoundingClientRect()).map((r) => ({ top: Math.round(r.top), width: r.width, height: r.height })))
+        expect(new Set(chips.map((c) => c.top)).size, 'readiness rows').toBe(3)
+        for (const c of chips) expect(Math.min(c.width, c.height), 'a readiness target').toBeGreaterThanOrEqual(48)
 
         await tap(page, 'Start session')
         await expect(page.locator('.gr-suggestion')).toBeVisible()
@@ -506,12 +527,70 @@ test.describe('Today at 320 px and 200 % text', () => {
         await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
         expect(await wrong(page), 'a set logged, the rest bar up').toEqual([])
 
+        // A missed set, then (where the row asks) where it was missed.
+        await tap(page, 'Missed')
+        await expect(page.getByRole('button', { name: 'Log set 3' })).toBeVisible()
+        expect(await wrong(page), 'a missed set').toEqual([])
+        const missRow = page.getByTestId('miss-row-2')
+        if (await missRow.count()) {
+          await missRow.locator('label.gr-segment').first().click()
+          expect(await wrong(page), 'a missed set with its miss point').toEqual([])
+        }
+
         await tap(page, 'Finish')
         await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
         expect(await wrong(page), 'finished').toEqual([])
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       })
     }
+  }
+
+  for (const load of ['kg', 'plates'] as const) {
+    test(`every kind of logged set fits, ${load}`, async ({ page }) => {
+      await openOnWednesday(page)
+      const side = load === 'kg' ? 'POWERLIFTING' : 'BODYBUILDING'
+      await seedToday(page, side, load === 'plates')
+      // Today's session with one set of each kind: a top set; no RPE; 0 (bodyweight) in kg or a half plate; missed with
+      // and without a miss point; a grind (RPE 9.5, which asks where it slowed on the powerlifting side).
+      await page.evaluate(
+        async ({ plates, side }) => {
+          const db = await new Promise<IDBDatabase>((done, fail) => {
+            const request = indexedDB.open('grit')
+            request.onsuccess = () => done(request.result)
+            request.onerror = () => fail(request.error)
+          })
+          const tx = db.transaction(['exercises', 'sessions', 'sets'], 'readwrite')
+          const settled = new Promise<void>((done, fail) => {
+            tx.oncomplete = () => done()
+            tx.onerror = () => fail(tx.error)
+          })
+          const all = await new Promise<{ id: number; name: string }[]>((done) => {
+            const request = tx.objectStore('exercises').getAll()
+            request.onsuccess = () => done(request.result)
+          })
+          const id = all.find((e) => e.name === (plates ? 'Lat pulldown' : 'Bench'))!.id
+          const session = await new Promise<number>((done) => {
+            const request = tx.objectStore('sessions').add({ date: '2026-11-11', bodyweightKg: null, readiness: null, mode: side })
+            request.onsuccess = () => done(request.result as number)
+          })
+          const unit = plates ? { unit: 'PLATES' } : {}
+          const rows = plates
+            ? [[13, 8, 8, false, null], [12.5, 8, null, false, null], [7.5, 12, 8, false, null], [13.5, 5, 10, true, 'MID'], [13.5, 4, 10, true, null], [12, 8, 9.5, false, null]]
+            : [[120, 5, 8, false, null], [110, 5, null, false, null], [0, 10, 8, false, null], [125, 3, 10, true, 'LOCKOUT'], [125, 2, 10, true, null], [115, 5, 9.5, false, null]]
+          for (const [weightKg, reps, rpe, failed, missPoint] of rows)
+            tx.objectStore('sets').add({ sessionId: session, exerciseId: id, weightKg, reps, rpe, failed, missPoint, isTopSet: false, ...unit })
+          await settled
+          db.close()
+        },
+        { plates: load === 'plates', side },
+      )
+      await page.reload()
+      // Six sets of three planned: the card is done.
+      await expect(page.locator('.gr-set')).toHaveCount(6)
+      if (load === 'kg') await expect(page.getByText('Top set', { exact: true })).toBeVisible()
+      await expect(page.getByText('Failed', { exact: true }).first()).toBeVisible()
+      expect(await wrong(page)).toEqual([])
+    })
   }
 
   test('the tab bar shows its icons only, and keeps its names, its current tab and its touch targets', async ({ page }) => {
