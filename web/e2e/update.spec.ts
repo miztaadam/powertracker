@@ -304,3 +304,12 @@ test('a reload address with u is served from the precache offline, and comes bac
     await context.setOffline(false)
   }
 })
+
+// The worker imports sw-reload-clients.js by a URL with a hash of its content; the precache list leaves it out, since
+// importScripts never reads the cached copy.
+test('sw.js imports sw-reload-clients.js by its hashed URL and does not precache it', async ({ request }) => {
+  const sw = await (await request.get('/sw.js')).text()
+  expect(sw).toMatch(/importScripts\("sw-reload-clients\.js\?v=[0-9a-f]{12}"\)/)
+  expect(sw).not.toMatch(/url:"sw-reload-clients\.js"/)
+  expect((await request.get('/sw-reload-clients.js')).ok()).toBe(true)
+})

@@ -29,6 +29,9 @@ export default defineConfig({
       workbox: {
         // The mode switch sounds too (1.15), so they play offline from the first switch: Ogg Vorbis and its WAV fallback.
         globPatterns: ['**/*.{js,css,html,woff2,png,webmanifest,ogg,wav}'],
+        // The worker's own import is not precached: importScripts never reads the cached copy. (The first entry is
+        // workbox's default, kept.)
+        globIgnores: ['**/node_modules/**/*', reloadClients],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         // The app's main chunk passed the 2 MiB default in 1.16.1 (the shared domain is most of it). At the default,
