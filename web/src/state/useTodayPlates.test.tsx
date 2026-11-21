@@ -515,35 +515,39 @@ describe('plates on Today', () => {
     expect(itemOf(vm, id)!.editor).toStrictEqual({ weightKg: null, reps: 8, rpe: 8 })
   })
 
-  it('aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored: half steps to whole plates the same day', async () => {
+  it('aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored', async () => {
     const id = await pulldownRow()
     await db.exercises.update(id, { plateCount: 'HALF' })
     await planToday(id)
-    await past(addDays(TODAY, -7), id, plates(7.5))
+    // Plate 7 × 12 on target: with half steps on, the coach steps up to plate 7½.
+    await past(addDays(TODAY, -7), id, plates(7, 12))
     await startSession(db, TODAY)
     const vm = show()
     await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target).toMatchObject({ weightKg: 7.5, unit: 'PLATES' }))
     const half = itemOf(vm, id)!.suggestion!
+    const halfRow = await db.advice.get(half.id)
 
     await choose(vm, id, 'WHOLE')
 
-    // Plate 7½ is off the whole-plate grid: it is not shown, and the coach stores a whole-plate one beside it.
+    // Plate 7½ is off the whole-plate grid: it is not shown, and the coach stores plate 8 beside it.
     await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeTruthy())
-    expect(itemOf(vm, id)!.suggestion!.id).not.toBe(half.id)
     const whole = itemOf(vm, id)!.suggestion!
-    expect(whole.target.unit).toBe('PLATES')
-    expect(grit.plateCheck(whole.target.weightKg, 'WHOLE')).toBe('OK')
+    expect(whole.id).not.toBe(half.id)
+    expect(whole.target).toMatchObject({ weightKg: 8, unit: 'PLATES' })
+    // Before Apply the field holds the last plate top set; Apply puts plate 8 in it.
+    expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
     await act(() => vm.current.applyTarget(whole.id))
-    await waitFor(() => expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: whole.target.weightKg, unit: 'PLATES' }))
-    // Nothing stored is deleted or rewritten: the half-step target is still there, as it was.
+    await waitFor(() => expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: 8, unit: 'PLATES' }))
+    // Nothing stored is deleted or rewritten: the 7½ target is still there, OPEN and as it was.
     expect((await todaysPayloads()).map((p) => [p.unit, p.weightKg])).toEqual([
       ['PLATES', 7.5],
-      ['PLATES', whole.target.weightKg],
+      ['PLATES', 8],
     ])
-    expect((await db.advice.get(half.id))!.status).toBe('OPEN')
+    expect(await db.advice.get(half.id)).toStrictEqual(halfRow)
+    expect(halfRow!.status).toBe('OPEN')
   })
 
-  it('aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored: whole plates to half steps keeps the whole one', async () => {
+  it('aWholePlateTarget_underHalfSteps_stays_andNoDuplicateIsStored', async () => {
     const id = await pulldownRow()
     await db.exercises.update(id, { plateCount: 'WHOLE' })
     await planToday(id)
@@ -594,13 +598,15 @@ describe('plates on Today', () => {
     const { weightKg, reps, rpe } = itemOf(vm, id)!.editor
 
     await act(() => vm.current.logSet(id, { weightKg: weightKg!, reps, rpe, failed: false, unit: 'PLATES' }))
-    // Over the highest plate, and a set that reaches the save as confirmed: neither is stored.
-    await act(() => vm.current.logSet(id, plateInput(grit.maxPlate() + 1)))
-    await act(() => vm.current.logSet(id, plateInput(0), true))
+    // Under plate 1 (also off the grid, as 0.3 is) or over the highest plate, confirmed or not: never stored, nothing held.
+    for (const n of [0, 0.3, 0.5, grit.maxPlate() + 1]) {
+      await act(() => vm.current.logSet(id, plateInput(n)))
+      await act(() => vm.current.logSet(id, plateInput(n), true))
+    }
 
     expect(vm.current.pending).toBeNull()
     expect(await setsOn(db, TODAY)).toEqual([])
-    // A half with whole plates on is off the grid, not out of range: the design lets it stand.
+    // A half with whole plates on is off the grid but in range: the design lets it stand.
     await log(vm, id, plateInput(7.5))
     expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([[7.5, 'PLATES']])
   })
