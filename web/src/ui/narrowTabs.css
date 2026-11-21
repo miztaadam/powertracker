@@ -37,6 +37,7 @@
     font: 700 26px/30px var(--font-display);
     white-space: normal;
     overflow: visible;
+    overflow-wrap: break-word;
   }
 
   /* Eyebrows (a screen's, a section's, a card's tag, a figure's label) wrap, never cut. */
