@@ -46,18 +46,28 @@
     overflow: visible;
   }
 
-  /* Button words wrap at a space; each button keeps its height, and its face's sides are a little tighter. Not in a
-     dialog: its buttons share a row, as before. */
+  /* Button words wrap at a space; each button keeps its height and its width (its face's sides are as before, so a
+     button not stretched to its card is no narrower). Not in a dialog: its buttons share a row, as before. */
   .shell-main .screen:not(.today-screen) .gr-btn-text:not(.gr-dialog *) {
-    min-width: 0;
     white-space: normal;
-    overflow-wrap: break-word;
   }
 
   .shell-main .screen:not(.today-screen) .gr-btn-face:not(.gr-dialog *) {
+    text-align: center;
+  }
+
+  /* A button as wide as its card has its face's sides a little tighter, so its words have room, and a word wider than
+     the card ("Swap for" a one-word name) breaks inside it rather than run past the card. */
+  .shell-main .screen:not(.today-screen) :is(.gr-card, .gr-advice-actions, .welcome-back-actions, .coach-swaps, .bb-check-in) > .gr-btn > .gr-btn-face,
+  .shell-main .screen:not(.today-screen) .plan-empty > .plan-empty-wide > .gr-btn-face {
     min-width: 0;
     padding-inline: var(--space-3);
-    text-align: center;
+  }
+
+  .shell-main .screen:not(.today-screen) :is(.gr-card, .gr-advice-actions, .welcome-back-actions, .coach-swaps, .bb-check-in) > .gr-btn .gr-btn-text,
+  .shell-main .screen:not(.today-screen) .plan-empty > .plan-empty-wide .gr-btn-text {
+    min-width: 0;
+    overflow-wrap: break-word;
   }
 
   /* A row of buttons stacks, each as wide as its card. */

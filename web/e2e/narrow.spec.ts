@@ -930,6 +930,18 @@ async function fits(page: Page, state: string) {
   expect.soft(await wrong(page), state).toEqual([])
 }
 
+/** The open menu is wholly inside what the screen shows: below its top, above the tab bar, inside both edges. */
+async function menuInRoom(page: Page, state: string) {
+  const box = await page.evaluate(() => {
+    const menu = document.querySelector('.gr-menu-list')!.getBoundingClientRect()
+    const screen = document.querySelector('.shell-main')!.getBoundingClientRect()
+    const tabs = document.querySelector('.gr-tabbar')!.getBoundingClientRect()
+    return { menu: { top: menu.top, bottom: menu.bottom, left: menu.left, right: menu.right }, top: screen.top, bottom: Math.min(screen.bottom, tabs.top), width: window.innerWidth }
+  })
+  const { menu } = box
+  expect.soft(menu.top >= box.top - 0.5 && menu.bottom <= box.bottom + 0.5 && menu.left >= -0.5 && menu.right <= box.width + 0.5, `${state}: the menu ${JSON.stringify(menu)} is inside the room ${JSON.stringify(box)}`).toBe(true)
+}
+
 test.describe('the other tabs at 320 px and 200 % text', () => {
   test.use({ viewport: { width: 160, height: 284 } })
 
@@ -963,6 +975,10 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     for (const title of ['Take a deload week', 'Bench has stalled', 'Squat is lagging your deadlift', 'Strict press is lagging', 'Welcome back', `${LONG_NAME} skipped`])
       await expect(page.getByRole('heading', { name: title, exact: true }).first()).toBeVisible()
     await fits(page, 'Coach, powerlifting, every card')
+    // Its message after a deload is applied, over the screen.
+    await page.getByRole('button', { name: 'Apply deload' }).click()
+    await expect(page.getByText('Deload week on — targets lightened for 7 days')).toBeVisible()
+    await fits(page, 'Coach, powerlifting, the deload applied, with its message')
   })
 
   test(`Coach with every card, bodybuilding side, fits`, async ({ page }) => {
@@ -1008,18 +1024,23 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveCount(4)
     await expect(page.getByText(/^Best e1RM/)).toHaveCount(4)
     await fits(page, 'Plan, powerlifting, with bests')
-    // Each row's ⋮ on Monday, then the Plan ⋮.
-    const monday = page.getByRole('region', { name: 'Monday' })
-    for (let i = 0; i < 4; i++) {
-      await monday.getByRole('button', { name: 'More' }).nth(i).click()
+    // Every row's ⋮, from the top of the screen to the last row of Friday, then the Plan ⋮: each menu fits and is
+    // wholly on screen.
+    const more = page.getByRole('button', { name: 'More', exact: true })
+    await expect(more).toHaveCount(9)
+    for (let i = 0; i < 9; i++) {
+      await more.nth(i).click()
       await expect(page.getByRole('menuitem', { name: 'Edit' })).toBeVisible()
-      await fits(page, `Plan, Monday's row ${i + 1} menu open`)
+      await fits(page, `Plan, row ${i + 1}'s menu open`)
+      await menuInRoom(page, `Plan, row ${i + 1}'s menu`)
       await page.keyboard.press('Escape')
       await expect(page.getByRole('menuitem')).toHaveCount(0)
     }
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
     await page.getByRole('button', { name: 'Plan options' }).click()
     await expect(page.getByRole('menuitem').first()).toBeVisible()
     await fits(page, 'Plan, its options menu open')
+    await menuInRoom(page, 'Plan, its options menu')
   })
 
   test(`Plan with long names, bodybuilding side, fits`, async ({ page }) => {
@@ -1028,9 +1049,16 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     await openTab(page, 'plan', 'Plan')
     await expect(page.getByRole('region', { name: 'Monday' }).getByRole('listitem')).toHaveCount(3)
     await fits(page, 'Plan, bodybuilding')
-    await page.getByRole('region', { name: 'Monday' }).getByRole('button', { name: 'More' }).nth(2).click()
-    await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
-    await fits(page, 'Plan, bodybuilding, a row menu open')
+    const more = page.getByRole('button', { name: 'More', exact: true })
+    await expect(more).toHaveCount(5)
+    for (let i = 0; i < 5; i++) {
+      await more.nth(i).click()
+      await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
+      await fits(page, `Plan, bodybuilding, row ${i + 1}'s menu open`)
+      await menuInRoom(page, `Plan, bodybuilding, row ${i + 1}'s menu`)
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('menuitem')).toHaveCount(0)
+    }
   })
 
   test(`Exercises with own exercises, every step, fits`, async ({ page }) => {
@@ -1046,42 +1074,43 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     await search.fill(ONE_WORD.slice(0, 8))
     await expect(page.getByRole('listitem', { name: ONE_WORD })).toBeVisible()
     await fits(page, 'Exercises, searched the one-word name')
+    await search.fill('zzzz')
+    await expect(page.locator('.gr-empty')).toBeVisible()
+    await fits(page, 'Exercises, nothing matches')
     await search.fill('')
-    // Every body area, then browsing by muscle.
+    // Every body area, then one piece of equipment.
     const areas = page.getByRole('group', { name: 'Body area' }).locator('label.gr-chip')
+    await expect(areas).not.toHaveCount(0)
     for (let i = 0; i < (await areas.count()); i++) {
       await areas.nth(i).click()
       await fits(page, `Exercises, body area ${(await areas.nth(i).textContent())?.trim()}`)
     }
     await areas.first().click()
-    await page.locator('.lib-scroll').evaluate((el) => el.scrollTo(0, el.scrollHeight))
+    const equipment = page.getByRole('group', { name: 'Equipment' }).locator('label.gr-chip')
+    await equipment.nth(1).click()
+    await expect(equipment.nth(1).getByRole('checkbox')).toBeChecked()
+    await fits(page, `Exercises, equipment ${(await equipment.nth(1).textContent())?.trim()}`)
+    await equipment.nth(1).click()
+    // The whole tab scrolls at this width: to its end.
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, el.scrollHeight))
     await fits(page, 'Exercises, scrolled to the end')
   })
 
   for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
-    test(`Exercises, browsing by muscle and the muscles chosen, ${side.toLowerCase()} side, fits`, async ({ page }) => {
+    test(`Exercises with two muscles chosen, ${side.toLowerCase()} side, fits`, async ({ page }) => {
       await openOnWednesday(page)
       if (side === 'BODYBUILDING') await bodybuilding(page)
       await openTab(page, 'exercises', 'Exercises')
-      const browse = page.getByRole('group', { name: 'Browse by muscle' })
-      if (await browse.count()) {
-        await fits(page, 'Exercises, browse by muscle')
-        await browse.getByRole('button').first().click()
-        await fits(page, 'Exercises, one muscle browsed')
-      }
-      const dropdown = page.locator('.lib-dropdown')
-      if (await dropdown.count()) {
-        await dropdown.click()
-        const sheet = page.getByRole('dialog', { name: 'Muscles' })
-        await sheet.getByRole('checkbox').nth(0).check()
-        await sheet.getByRole('checkbox').nth(5).check()
-        await sheet.getByRole('button', { name: 'Close' }).click()
-        await expect(page.getByRole('group', { name: 'Chosen muscles' })).toBeVisible()
-        await fits(page, 'Exercises, two muscles chosen')
-      }
-      // The end of the list: "Create your own".
-      await page.locator('.lib-scroll').evaluate((el) => el.scrollTo(0, el.scrollHeight))
-      await fits(page, 'Exercises, the end of the list')
+      // The tab chooses muscles from its drop-down (it has no grid of muscles to browse).
+      await page.locator('.lib-dropdown').click()
+      const sheet = page.getByRole('dialog', { name: 'Muscles' })
+      await sheet.getByRole('checkbox').nth(0).check()
+      await sheet.getByRole('checkbox').nth(5).check()
+      await sheet.getByRole('button', { name: 'Close' }).click()
+      await expect(page.getByRole('group', { name: 'Chosen muscles' })).toBeVisible()
+      await fits(page, 'Exercises, two muscles chosen')
+      await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, el.scrollHeight))
+      await fits(page, 'Exercises, two muscles chosen, at the end of the list')
     })
 
     test(`Settings, every row, ${side.toLowerCase()} side, on a phone that can vibrate, fits`, async ({ page }) => {
