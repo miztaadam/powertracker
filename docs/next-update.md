@@ -969,6 +969,128 @@ Spec: `docs/superpowers/specs/2026-11-19-grit-guide-design.md`; plan: `docs/supe
 
 **Version:** Android 1.16.1 (versionCode 27), web 1.16.1. No database change (Room v5, Dexie v5). A row with no best is drawn as before: Android's `plan-{dark,light}.png` re-rendered byte for byte the same. The web and guide shots were not re-rendered here.
 
+## Done: 1.17, counting plates on stack machines (both apps)
+Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/superpowers/plans/2026-11-20-grit-plate-count.md` (its "As built" note lists what changed after approval). The reports: `.superpowers/sdd/2026-11-20-plates/117-*.md` (not committed).
+
+**What the lifter gets:**
+- **Count plates on this machine,** per exercise, in the exercise's ⋮ menu on Today: on its card, its folded row and the start card's row, before or during a session, with or without sets. Every exercise starts in kg. The item is on machine and cable accessories from the catalogue and on your own accessories. Squat, bench, deadlift, strict press, their variations, Smith exercises and the assisted machines never have it.
+- **The sheet asks "How does this machine show its weight?"** with three choices: **In kg**, **Whole plates** (1, 2, 3 …) and **Half steps too** (1, 1½, 2 …). A choice applies when tapped; Done closes the sheet. One setting covers both sides.
+- **Logging in plates:** the weight field reads PLATE and starts empty. + on an empty field gives plate 1, and − and + move one plate, or half a plate with half steps. The field never goes below plate 1 or above plate 50. Anything else typed is refused with "Whole plates only", "Whole or half plates" or "Plate 1 to 50". A set reads "plate 7 × 10" or "plate 7½ × 10", and a screen reader says "plate 7 and a half". A plate set has no bar picture. One step up never warns; a bigger jump asks "That is a big jump from plate 3."
+- **The coach works in plate steps on both sides.** It reads only the exercise's plate sets, so it starts the exercise fresh: there is no target until the first plate set is logged.
+  - **Bodybuilding:** stay on the same plate and add reps. When every planned set reaches the top of the range at or under the target effort, go one step up, back to the bottom of the range.
+  - **Powerlifting:** on target or easier, one more rep on the same plate, up to 12. At 12 reps, one step up and back to the planned reps; a plan of 12 reps or more earns the step each time. A little too hard (0.5 to 1.5 over the target RPE), or just after a step up with the effort rising: repeat, keeping the reps you earned. A missed top set, or one 1.5 or more over the target RPE: a step down (95 % or 97.5 % of the plate number, rounded down, at least one step).
+  - **A lighter week (deload) or a return after 14 days off:** 90 % or 85 % of the plate number, rounded down, at least one step down, never below plate 1. Both at once take the lower, not two steps, and a lighter week of several sessions loses one step only. Example: plate 7 in a deload is plate 6, and easing back in is plate 5 (5½ with half steps).
+  - **First time on the bodybuilding side:** the heaviest plate logged without a miss on the powerlifting side in the last 28 days.
+- **Switch back to kg any time:** the coach picks the old kg sets up again, and the plate sets keep reading "plate …" in the exercise's history. Both histories are kept as they are. When the change starts a new unit and the exercise has sets in the old one, the sheet says "The coach starts this exercise fresh in plates. Your kg sets stay as they are." or "The coach goes back to kg. Your plate sets stay as they are."
+- **Plate sets never count in kg figures:** not in estimated max, totals, volume, records or Known bests, and none is celebrated as a record. Bodybuilding Progress shows "plate 9 × 10" and compares plate with plate.
+- **Backups carry plates:** each set's unit and each exercise's setting (backup version 6). Android restores the web's backups and the web restores Android's.
+- **Between Whole plates and Half steps too:** this is not a change of unit, so there is no note and the coach keeps its plate history. A logged 7½ stays 7½; − and + from it go to 7 and 8. With Whole plates on, typing 7.5 is refused and the coach's targets land on whole plates: a repeat or a lighter week rounds down (7), and a step up goes to 8. A plate 7½ suggestion made earlier that day no longer fits the steps: it is not shown, and a whole-plate one replaces it. A whole-plate suggestion stays when half steps are turned on.
+
+**Web safety:**
+- **Open Grit windows reload themselves when an update takes over.** When a new version of the web app takes over, it reloads every Grit window the old version was running, so a window showing "Grit is open in another tab" or the lock screen no longer stays on old code. This also reaches windows still on 1.16.1. Seen working in Chromium only. After the reload, two windows race for the one-tab lock, so either may come back as the window in use and the other as "Grit is open in another tab".
+- **The new "Update Grit to carry on" screen.** From 1.17 on, a copy of Grit older than the log on the device shows it in place of the app: "This copy of Grit is older than your log, so it can't open it safely. Nothing has been changed." It has one button, **Update and reload**, which fetches the newer version and reloads into it, or says "Couldn't update. Check your connection and try again." It opens nothing and offers no export.
+- **A 1.17 backup is refused by 1.16.1 and older** as too new, and nothing is changed. The web app updates itself; the Android app does not, so update Android before restoring a newer backup there.
+- **Never roll the web deploy back below 1.17: fix forward.** A 1.16.1 copy opens a log that 1.17 wrote. It would read plate numbers as kg and export backups without the plate markers, and it has no "Update Grit to carry on" screen.
+
+**The owner's decisions:**
+- The design, with **half steps allowed** (some stacks have a small add-on weight). Released as 1.17, after 1.16; the 1.16 guide is unchanged.
+- The four design answers: custom variations are not offered (accessories only); no exercise chart in 1.17; the assisted machines are not offered and stay in kg; the powerlifting progression as proposed (one more rep up to 12, then one step up and back to the planned reps, and a step down after a missed or much-too-hard top set).
+- **A repeat keeps the reps earned** on the powerlifting side (the kg rule's repeat goes back to the planned reps).
+- **The "Update Grit to carry on" guard goes in 1.17.**
+- **The ⋮ menu is the way in.** There is no shortcut on the field label.
+
+**My calls** (the plan's Planner's calls, then the calls made while building):
+1. **Names:** `LoadUnit { KG, PLATES }` and `PlateCount { OFF, WHOLE, HALF }`; the columns and keys are `unit` and `plateCount`. `weightKg` keeps its name everywhere and means the plate number beside `PLATES`. Renaming it would have touched every store, backup and payload.
+2. **"Current unit" is one history filter,** `inCurrentUnits()`, applied where the coach reads. That gives one place to check, not a unit parameter on every statistic. Sessions emptied by the filter are kept, because the 14-day break and easing back in count sessions.
+3. **Which exercises are offered:** the row's own category decides. A custom accessory is offered whatever its name, except one holding the word "assisted" ("Unassisted row" is offered; "Machine-assisted dip" is not). The three assisted machines are left out by the same word. A custom row can carry a catalogue name, so both of the design's rules can apply to one row, and the row's own category settles it.
+4. **A stored setting on an exercise that is not offered counts as off** (`unitOf`), so a main lift can never be in plates, even from an edited backup.
+5. **Typed plates run from 1 to 50** ("Plate 1 to 50"). The design left the upper bound to the builder.
+6. **Powerlifting details:** a repeat keeps last time's reps when they are above the plan's (confirmed by the owner); the extra rep never aims under the plan's reps; a logged half with Whole plates on gives the lower whole plate for a repeat, an added rep and a step down (7½ missed is plate 7, already one whole step under).
+7. **No 5 % cap in plates:** one plate is nearly always more than 5 %.
+8. **The typo check has a second form** (`InputValidator.check` with a unit and a step, `checkLoadInput` on the web) instead of a changed `checkInput`, so the existing callers and tests stay as they were.
+9. **Backups refuse a plate set under plate 1** on both apps, as a corrupt file ("A plate set below plate 1"), with nothing changed.
+10. **The sheet:** a choice applies when tapped; its accessible name is "Count plates on <name>", because the heading alone would share a name with the form guide's sheet; going back to kg has its own note, "The coach goes back to kg. Your plate sets stay as they are." (the design gives only the first).
+11. **The PLATE field shows 7.5,** the text the field reads back; everywhere else prints "7½".
+12. **The field's numbers carry their unit,** and numbers kept in the other unit are ignored as well as deleted on a change, so a kg number can never land in the PLATE field.
+13. **A pain skip still deletes that day's open targets of both units:** the coach's next pass makes the current unit's again.
+14. **Backup fixtures:** each app writes its own version 6 fixture in its storage task, and the cross-restore is a separate task after both merge.
+15. **Dexie version 6 stamps nothing** (the design said it would stamp every set kg and every exercise off). An absent field already reads as kg or off, and existing tests compare whole rows across an upgrade. Version 6 is declared for the number and the safety copy.
+16. **The item is also on the start card,** so the setting can be changed before a session starts. The design named only the exercise's menu on Today.
+17. **`FatigueRule` skips non-kg main-lift sets,** though the design calls it unchanged: it reads raw `weightKg`, and the guard costs a real log nothing.
+18. **Backups and stored rows never write a default:** a row carries `unit` only for a plate set and `plateCount` only for a plate-counted exercise. A kg-only log exports exactly as version 5 did, except for the version number. The frozen fixtures and whole-row tests hold as they were.
+19. **"Assisted" is matched as a word,** after the catalogue's name folding (lower case, hyphens as spaces). It matches at the start of the name or after a space, so "Unassisted" is not caught.
+20. **The tap guard:** for 300 ms after the sheet has opened (and while it slides up), taps on its three choices do nothing, as on the skip sheet. A double tap on the menu item never picks a choice. Done is not held.
+21. **The sheet shows what is stored:** its mark is the stored setting. A tapped choice is marked at once and stays marked while its save is in flight. A tap is compared with what is marked, so the last tap wins.
+22. **A number is never relabelled:** a set entered in one unit is not saved when the exercise's setting changed before Log set (another tab, a slow tap). The lifter types it again in the new field. A set held by the typo dialog keeps the unit it was checked in.
+23. **An off-grid target is not used:** a plate 7½ target, once Whole plates is on, is neither shown nor applied and does not count as known. The coach stores a fresh one on the grid beside it; nothing stored is deleted or rewritten. Kg targets are not affected.
+24. **The out-of-range backstop:** a plate set under plate 1 or over plate 50 is never stored, whatever built it (for example a hand-edited kept field on the web). A half with Whole plates on is still stored, since a logged half stands.
+25. **The menu item's icon is Material's Tune** (sliders) on both apps, beside Skip today's icon.
+26. **The coach's chip wraps instead of being cut** (web): at 320 px and 200 % text, "plate 12½ × 8–12 @ 8" wraps at a space, and below 220 px of chip the text takes the whole width with Apply and Dismiss under it. Where it fits it is one line, as before. Kg headlines that used to end in "…" (such as "112.5 kg × 8–12 @ 8") now wrap too.
+
+**Where the apps differ (accepted):**
+- **The sheet's mark after a save:** Android shows the stored setting again once the save has settled. The web keeps the tapped choice marked until the stored setting shows it, or until the save fails, so the mark doesn't flick back while the screen catches up. If another tab changes the setting mid-save, the web's mark stays on the tapped choice until the next tap or until the sheet closes.
+- **The coach's chip:** on the web its headline wraps on a narrow phone with large text. On Android it stays one line, and it fits at 320 dp and twice the font size.
+- **The field's numbers:** the web keeps them across a reload, so its unit check also covers numbers kept from before a switch or from another tab. Android keeps them in memory.
+- **A plate target's stored number:** Android writes "8.0", the web "8". Both read either.
+- **Only the web** reloads its open windows on an update and has the "Update Grit to carry on" screen. The Android app doesn't update itself.
+- **The sheet:** a bottom sheet on Android, the web's sheet dialog. Words, choices, order and test tags are the same.
+
+**What was not built:**
+- No conversion between plates and kg, and no question about what a plate weighs.
+- No exercise chart.
+- No plates on the main lifts, their variations (built-in or custom) or Smith exercises.
+- The assisted machines stay in kg.
+- No per-gym or per-side profiles: one setting per exercise.
+
+**Findings:**
+- **From "Where the code differs from the design":**
+  - versionCode is 28: 1.16.1 took 27.
+  - Android has stand-ins too (a catalogue exercise added on Today with no row yet): choosing plates there makes the row, as on the web.
+  - `ProgressionRule.MAX_REPS` and `InputValidator.MAX_JUMP_FACTOR` became `internal`, with no value change.
+  - The two apps test each other's backups through shared fixtures in `web/src/backup/__fixtures__/`.
+  - "Every existing backup test passes unchanged" could not hold: the version-pinned tests were edited, each as the plan lists. One more edit: `webFixture_isUpToDate` passes the new `plates` option to `buildSampleDb`, because the test can't equal `web-v6.json` without it.
+  - A custom row can carry a catalogue name, so a custom accessory named after a dumbbell or Smith catalogue entry is offered.
+- **An older web app opens a newer database.** Declaring Dexie version 6 does not make 1.16.1 refuse a log that 1.17 wrote. After a `VersionError`, Dexie 4.4.7 opens a newer database whose stores match. A stale 1.16.1 window could then read plate numbers as kg and export backups without the plate markers. What protects now:
+  - The new service worker reloads every window the old one controlled. This reaches 1.16.1.
+  - From 1.17 on, `openGritDb` refuses a database a newer Grit wrote, before any read, write or safety copy, and shows "Update Grit to carry on". A database counts as newer when its native version / 10, rounded down, is above the declared version: the 61 Dexie leaves after a schema patch still opens, and 70 is refused. A database with no stores is left to the recovery screen.
+  - Still unprotected: a 1.16.1 window that no worker controls, or a browser where the worker can't navigate windows. Such a window keeps only 1.16.1's own "versionchange" screen while it holds a connection.
+- **`client.url`:** Chromium reports a window's address as the one it loaded at, and ignores `replaceState`. Sending a window to that address was a jump within the page, so a window that had moved to another route did not reload at all. The worker now sends each window to its address with a `u` parameter that is new on every update, and the app takes it out before anything reads the address. Each window keeps its route in session storage, so it comes back where it was. This works only for windows already on 1.17: a 1.16.1 window comes back on its load-time route.
+- **The installed version was rounded:** `installedVersion` and `openGritDb` rounded native / 10. A Dexie-patched version 5 database at native 55 to 59 read as 6, so the 5 to 6 upgrade got no safety copy and no upgrade-failed wrap. Both now round down, as the older-copy guard does.
+- `PlateStack.check` on a number beyond a whole number's range (such as 1e30) answers STEP, not RANGE. No input reaches it, because both apps bound what can be typed.
+
+**Tests:**
+- **Domain:** jvm 974, js 1023, 0 failed. New: `PlateStackTest`, `InputValidatorPlatesTest`, `UnitsNeverMixTest`, `TargetUnitTest`, `ProgressionRulePlatesTest`, `CoachPlatesTest`, `BodybuildingCoachPlatesTest`, `ReturnRulePlatesTest`, `GritDomainPlatesTest`.
+- **Android:** 1096 tests, 1 skipped (the guide frame strips, which run only when asked), 0 failed. New: `PlateCountStorageTest`, `TodayPlatesViewModelTest`, `PlateCountScreenTest`, `PlatesProgressTest`, and tests added to `MigrationTest` (5 to 6, 1 to 6), `BackupTest`, `BackupFixtureTest` (both apps' version 6 fixtures) and `EntryTest`. New shots: `today-plates-{powerlifting,bodybuilding}-{dark,light}`, `today-plates-menu-{dark,light}` and `plate-sheet-{dark,light}` in `docs/design/screens/`.
+- **Web:** vitest 1612 tests in 87 files; `tsc -b` and the build clean. Playwright (`npx playwright test --trace off`, e2e and speed): 390 passed, 12 skipped (the owner's guide-video recordings, as before), 0 failed. Speed project alone, three times: 6 passed each time. The mode switch's frame check printed its LATE FRAMES warning (a warning only) in the full run and in the third speed run. New: `PlateCount.test.tsx`, `useTodayPlates.test.tsx`, `olderCopy.test.ts`, `AppOlderCopy.test.tsx`, `OlderCopyScreen.test.tsx`, `updateApp.test.ts`, `reloadMarker.test.ts`, `swReloadClients.test.ts`, and e2e `plates.spec.ts` (end to end, half steps, no item on Bench or Assisted dip, a stand-in getting its row, the shots), `olderCopy.spec.ts`, the two-window and first-install cases in `update.spec.ts`, and plates at 320 px and 200 % text in `narrow.spec.ts`. The same eight shots in `docs/design/web/screens/`.
+- **Edited existing tests:** only the version pins the plan lists (both apps), plus the `plates` option above. Three of the older-copy screen's own new assertions changed when "Updating…" began to be announced.
+- **Release build:** `./gradlew :app:assembleRelease` gives versionCode 28, versionName 1.17 (the APK was not distributed).
+
+**What only reports:** nothing new in 1.17. `update.spec.ts` prints what the worker saw when it took over (windows, addresses, navigations) beside its assertions. The 1.15 and 1.16 speed reports are as before.
+
+**Version:** Android 1.17 (versionCode 28), web 1.17. Room version 6 (`MIGRATION_5_6` adds the two columns with kg / off defaults), Dexie version 6 (declared, no upgrade step), backup version 6. Update both apps together. Settings re-shot on both apps for the version line (they said 1.16; 1.16.1 had not re-shot them): six shots on each app, each byte-identical across two runs here, differing from the old ones only in the digit.
+
+**Not tested:**
+- No real phone or emulator.
+- Safari and Firefox, including the reload on update there: whether the worker can navigate windows, which address it reports and whether the route comes back. The README's two-window check is the test.
+- Real screen readers.
+- Real browser text scaling: the e2e halves the viewport for 200 %.
+- The web sheet's mark when another tab changes the setting during a save.
+- A real 1.16.1 build refusing a 1.17 backup: both apps' tests check this with their version 5 reader.
+- The "Update Grit to carry on" screen on a phone: reaching it needs a log written by a newer build than 1.17, so the README has no check for it. The e2e checks it.
+
+**Follow-ups:**
+- **Today at 320 px and 200 % text scrolls sideways** on the web, in kg as in plates: the page is 191 px wide in a 160 px layout, eyebrows end in "…", a button sits outside the screen and two tab labels are clipped. This was there before plates, and the narrow test checks only the page and the sheet.
+- **The recovery screen's unhandled rejection:** with a database that has no stores, its first look can reject unhandled (a synchronous Dexie `InvalidTableError` inside `Promise.all`). It is queued as a separate task.
+- **Which way the assisted machines count:** more weight is easier there, and nothing says whether lifters log the assistance or the load. That question is for its own release.
+- **Two flaky tests under load:** `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`.
+- **Two number forms in stored target payloads:** "8.0" on Android, "8" on the web. Both read either.
+- **Still open from 1.16:**
+  - `vibrateOnTaps` resets on an Android restore.
+  - The web's real Today shots render differently on this machine (the steppers' fields at slightly different widths). They were not re-shot here. The same goes for the web's today-rest, rpe-sheet, coach-bodybuilding and showcase shots.
+  - The guide's web shots are not byte-stable between runs.
+  - Spec point 11 doesn't state WELCOME's and SIDE's least room.
+  - The skip ring was not built.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
