@@ -1186,6 +1186,84 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
   - The three `console.log` lines in `web/e2e/update.spec.ts` are deliberate reporting.
 - **Still open from 1.16:** `vibrateOnTaps` resets on an Android restore; the web's real Today shots render differently on this machine; the guide's web shots are not byte-stable between runs; spec point 11 doesn't state WELCOME's and SIDE's least room; the skip ring was not built.
 
+## Done: 1.17.2, the other tabs fit a very narrow screen (web)
+1.17.2 is the change from 1.17.1 (`9c9b8a0`) to the commits after it on this branch, plus the version and these notes. The report: `.superpowers/sdd/2026-11-21-1172/1172-report.md` (not committed).
+
+**What the lifter gets:**
+- **Coach, Progress, Exercises, Plan and Settings fit a 320 px phone at 200 % text** (web; at 239 px of layout and narrower, about 160 px here), on both sides, as Today has since 1.17.1: the page no longer scrolls sideways, and nothing is cut or overlapping. Every button, field, chip and choice is at least as large as before, and those that are 48 px on a phone at normal text are 48 px here too.
+  - The titles are a size smaller and whole ("Exercises" no longer ends in "…"); an eyebrow, a card's tag ("Weak point · Strict press") and a button's words wrap instead.
+  - Plan's ⋮ and Settings go under the title; Settings' back arrow sits over its title.
+  - **Coach:** a card's buttons are one over the other, the width of the card. An accessory's name has the list's whole width, with its sets × reps and ⓘ under it. A lift's e1RM sits over its trend, a deload's two figures one over the other, and a ratio's name over its rating and figure.
+  - **Progress:** the total sits over its trend, a size smaller, and the lifts go one under the other. The chart's range is two choices to a row. The chart keeps its three dates, each on two lines if need be ("18" over "May"). A record's e1RM goes under the lift, and each lift's weekly volume sits over its bars. On the bodybuilding side a row's best sets have the row's width, with the trend and the chevron under them, and a body part's rating goes under its name.
+  - **Exercises:** the whole tab scrolls, the search and the chips with the list. A row's name, muscles and equipment have the row's width, with its ⓘ under them on the right.
+  - **Plan:** a row's sets × reps @ RPE wraps at its spaces and its four controls sit under it, two to a line. Set best sits under its lift's name and best.
+  - **Settings:** a switch or a stepper goes under its setting's name and line, on the right; a stepper's value is over its − and +. The rest alerts are one over the other, and the training days go three to a row.
+  - A very long one-word name breaks only where it would otherwise run past its card or row.
+
+**The owner's decisions:**
+- Fix the other tabs at this width, with Today's standing choices: nothing cut, nothing overlapping, no sideways scroll; text wraps; a control row that cannot fit stacks; touch targets keep their size even at the cost of a row; a header's action drops under its title; screen sides 8 px and card padding 12 px.
+- Work faster (2026-11-21): while building, run only the tests for the part being changed; the full suites run once, on merged main (see "How future projects are built").
+
+**My calls:**
+1. **One stylesheet, `web/src/ui/narrowTabs.css`,** every rule inside `@media (max-width: 239px)`, inside the app's screen (`.shell-main`) and leaving Today out (`.screen:not(.today-screen)`), so Today's 1.17.1 rules and shots are as they were and the guide's pictures, drawn outside the app's screen, are untouched.
+2. **The titles one size down at this width** (26 px instead of 34 px): "Exercises" and "Settings" at 34 px are wider than the screen, and a single word cannot wrap.
+3. **Progress's total one size down** (44 px instead of 64 px): "643.5" at 64 px is wider than the card.
+4. **The chart's dates on two lines** where they need it, so all three dates stay under the plot without overlapping (the row under the plot is 16 px taller). The other ways of making them fit are under Follow-ups.
+5. **Progress's four lift tiles one under the other**, each the card's width, rather than two to a row of about 60 px.
+6. **The chart range two to a row** (8 wk, 6 mo / 1 yr, All), each a 48 px target; one row gave each about 22 px.
+7. **Settings' days three to a row** (Mon Tue Wed / Thu Fri Sat / Sun), each a 48 px chip. Three fit only if the days card gives up its sides (its border is transparent; in forced colours its left and right outline is not drawn at this width).
+8. **Settings' rest alerts one over the other**, as Today's miss points: side by side each had about 25 to 50 px.
+9. **A stepper's value over its − and +** (− at the left, + at the right): − value + is 141 px or more, and the row has 120.
+10. **Exercises scrolls as a whole** at this width: the header, search and chips alone are about as tall as the screen above the tab bar, so the list had no room.
+11. **Exercises' ⓘ on a line of its own** under a row's text, on the right: beside the text it leaves the name about 96 px, and "Concentration curl" would break inside a word. It opens the same guide as the row; hiding it at this width is an option (Follow-ups).
+12. **Controls under their text go to the right** (Plan's row controls, Set best, a switch, the coach's ⓘ), as Plan's rows already do under 360 px; Plan's header ⋮ and Settings and a card's buttons go to the left, as Today's Finish.
+13. **A dialog's buttons are left as they were:** the button-wrapping rule leaves dialogs out, as they are not part of this change and it broke "Replace" and "Change" inside the word there.
+14. **Changes to the checks** (in `web/e2e/narrow.spec.ts`, shared with Today's tests, which stay green): an open menu and a message are drawn over the screen, so each is held to the overlap rule within itself, not against the screen beneath; a row holding an open menu is not "clipped" by it; a word wider than the whole of its card (or list row, or screen) may break; Settings' RPE info button, a 48 px target centred on its 24 px icon, is held to the same rule as a stepper's caption action; and the new tests draw every Exercises row (rows off screen are not drawn and are guessed at 65 px each, which made them seem to overlap).
+
+**What was not built:**
+- **The screens one step deeper** were checked once at 160 × 284 (shots in the report folder) and not fixed. What still breaks there:
+  - Lift history (squat, strict press): scrolls sideways (246 to 258 px): its logged set rows run past the screen. Its title, eyebrow and chart are fixed by the shared rules.
+  - Exercise history (bodybuilding, a plate row and the one-word name): scrolls sideways (202 to 260 px): its set rows run past the screen. Its title is fixed by the shared rules.
+  - Check-in (both steps): the muscle list's names spill out of their two columns, the page scrolls sideways, and the question overlaps its Next or Save button.
+  - Plan builder: the day chips are cut and overlap, and the question overlaps Next.
+  - Templates (both sides): nothing found (the header fault 1.17.1 had there is fixed by the shared rules).
+  - Exercise picker (from Plan): row names and muscles break letter by letter, muscle tiles' names spill and overlap their ⓘ.
+  - Form guide sheet (a catalogue exercise, and an own exercise with the one-word name): the sheet scrolls sideways, Add to today and Add to plan run past it, its "where" line spills, two lines of steps break inside words.
+  - Add to plan's day chooser: nothing found.
+  - Muscles sheet: the group names spill out of their two columns, the sheet scrolls sideways, its title breaks inside the word.
+  - Create your own dialog: the dialog scrolls sideways, its title and a field label spill, Close overlaps the title.
+  - Plan's add and edit forms: the dialog scrolls sideways, the steppers run past it and their buttons overlap their labels, the exercise's name is squeezed to nothing.
+  - Set best dialog: the field label spills.
+  - Replace all data dialog, RPE sheet: nothing found.
+- The rest bar is shown on Today only (`App.tsx`), so it never shows over these tabs: there is no such state to fix.
+
+**Findings:**
+- The probe before the fix (1.17.1, 160 × 284) found faults in every full state of the five screens: Coach (75 faults with every card on the powerlifting side): the page 330 px wide (458 px on the bodybuilding side, where the one-word name is in a Swap button), button rows overlapping (Apply and Dismiss), tags and accessories' names cut or squeezed to nothing, a stat note cut; Progress (75): the page 257 px wide (168 px on the bodybuilding side), the tiles' figures past the screen, the range choices 22 px wide and cut, the chart's dates overlapping, records and volume rows past the card; Exercises (up to 253): names and muscles broken letter by letter or cut, a heading cut, the list with no room; Plan (13 to 31): the page 163 to 171 px wide, the title cut to "P…", row text and Known bests squeezed to nothing; Settings (up to 218): the page 213 px wide, steppers and rest alerts past the screen, days 17 px wide and overlapping, the title cut. Coach and Progress with nothing in them were already clean.
+- The 1.17.1 note that Exercises had "text squeezed to 0 px" was partly the check: rows off screen are not drawn (`content-visibility: auto`) and are measured at a guessed 65 px.
+- "Create your own" is in the exercise picker only, not on the Exercises tab.
+- No touch target on the five screens is smaller at 160 px than in 1.17.1 below 48 px; many are larger (the days 17 → 48 px wide, the range choices 22 → 55 px, the rest alerts 25–52 → 110 px, the lift tiles 43 → 118 px). Rows that 1.17.1 made very tall by breaking their text letter by letter are shorter, and still 48 px or more. The tabs keep 1.17.1's 32 × 80 px (that release's call 4).
+
+**Tests:**
+- New in `web/e2e/narrow.spec.ts`, 15 tests under "the other tabs at 320 px and 200 % text": every tab with nothing in it on each side; Coach with every card on each side (welcome back, check-in due, deload, stall with long and one-word names, two weak points with the ratio and the sticking point, easing back in, skipped, stuck with its swaps, more work by sets and by a new exercise); Progress with history and strict press in every range, and the bodybuilding side with check-ins and a plate row; Plan with long names on each side with each row's ⋮ open and Plan's own ⋮; Exercises with search text, every body area, two muscles chosen and the end of the list, on each side; Settings with every row on a phone that can vibrate, changed, after a backup and after a restore with its safety copy, on each side; and each side's touch targets at 160 px against 390 px. Each state is checked on the whole page with nothing left out. The builder saw all of them fail on 1.17.1 (the touch-target tests against the saved 1.17.1 build).
+- Run while building: `narrow.spec.ts` (68 tests) and `menu.spec.ts` (26) together, 94 passed (last run on the final code); `pictures.spec.ts`, `exercises.spec.ts` and `library.spec.ts` (Exercises at 187 px), 20 passed; the vitest files for what changed (`App*.test.tsx`, `appVersion.test.ts`, `manifest.test.ts`, `cards.test.ts`), 59 passed; `npx tsc -b` and `npm run build` clean; `:app:compileDebugKotlin` passes; the Android Settings screenshot test, twice.
+- **Shots:** the 13 screenshot specs were run twice before the change and once after (178 shots each run). After, 169 match one of the two runs before byte for byte; the six Settings shots differ in the version line only and match the re-shot committed ones; `exercise-guide-actions-light` and `guide-side-powerlifting-dark` matched a run before once their specs were rerun; `form-guide-light` differs in about 176 pixels of anti-aliasing on the figure's edges (390 px wide, where no rule of this release applies), in the run after and its rerun alike, and the committed shot differs from both runs before as well. No tracked shot was rewritten. Today's 160 px shots (six states on each side, the screen and the whole screen) are byte-identical to 1.17.1's.
+- **The full suites had not run when this was written:** Gradle, web unit, the full Playwright run and the speed project run once on merged main, after the owner approves.
+
+**Version:** Android 1.17.2 (versionCode 30), web 1.17.2. Android changes nothing but the version. No database or backup change. Settings re-shot on both apps for the version line: six shots on each, each byte-identical across two runs, differing from 1.17.1's in the version line only.
+
+**Not tested:**
+- No real phone: only Chromium at an emulated 160 × 284.
+- Safari and Firefox.
+- `:has()` is not used by this release's rules; `:not(.gr-dialog *)` (a selector list inside `:not()`) needs Safari 9+, Chrome 88+ or Firefox 84+.
+- Real 200 % text: the e2e halves the viewport to 160 × 284 for a 320 px phone at 200 %.
+- Real screen readers.
+
+**Follow-ups:**
+- **The chart's dates:** two lines was my call. Other ways: only the first and last date at this width; the dates in a smaller type; or the y labels inside the plot, giving the dates its full width. The owner may prefer one of these.
+- **Exercises' ⓘ** takes a line of its own in every row at this width. It opens the same guide as the row, so it could be hidden at this width (screen readers keep the row's own button).
+- **The deeper screens** (list above): each needs a pass like this one.
+- **Still open from 1.17.1:** which way the assisted machines count; two flaky Android tests under load; two number forms in stored target payloads; the guide's web shots not byte-stable between runs (seen again here: four guide shots differ between two runs on the same code).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
@@ -1201,6 +1279,7 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 ## How future projects are built (owner, 2026-11-12)
 - While building a task, run only the tests for the part being changed.
 - Run the full Android, domain, web and e2e suites once per task, before its commit, and once on main before pushing.
+- Owner, 2026-11-21: to work faster, the full suites (Gradle, web unit, full Playwright, speed ×3) run once, on merged main, before the push; while building, only the tests for the part being changed (the spec for the screen or part changed, the unit tests for the files touched, and `npx tsc -b`); reviews stay; when a feature is for both apps, build one app first and port it once the owner has used it.
 
 ## Done (2026-11-13): app version and "AppsbyAdam"
 - Both apps are version 1.1 and end Settings with "Grit 1.1 · AppsbyAdam"; the web line also shows the build's short commit id ("Grit 1.1 · a1b2c3d · AppsbyAdam").
