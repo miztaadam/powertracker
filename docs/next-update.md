@@ -1174,7 +1174,7 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 - `:has()`: the narrow layout of a logged set (two or three lines) and of the bar picture (its words under the bar) needs it, Safari 15.4+ or Firefox 121+. Without it those two keep their wide layout at 160 px, and can reach past the screen there. Every other narrow rule works without it.
 - Real 200 % text: the e2e halves the viewport to 160 × 284 for a 320 px phone at 200 %.
 - Real screen readers, including the tabs' hidden names at 160 px.
-- Rotation, the on-screen keyboard and pinch zoom: simulated by resizing the window and firing `resize`, `orientationchange` and visual viewport events. A real keyboard has not been tried.
+- Rotation, the on-screen keyboard and pinch zoom: simulated by resizing the window and firing `resize`, `orientationchange` and visual viewport events. A real keyboard has not been tried. With pinch zoom the menu stays open, but it is placed against the page, not the zoomed-in part, so it is not guaranteed to be inside what is visible while zoomed; and if a browser changes the page width while pinching, the menu closes. The unit tests check that a change of height or a pinch keeps the menu open, not that it is placed again; the browser tests check the placing. The README's web lists now ask for the keyboard and rotation checks on a phone.
 - A real notch or status bar: the e2e stands in a 71 px top padding for the installed app's.
 
 **Follow-ups:**
