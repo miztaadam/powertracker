@@ -1367,11 +1367,65 @@ describe('backup version 6', () => {
     expect(await exportBackup(db, EXPORTED_AT)).toEqual(before)
   })
 
+  // 1.17.1: a plate set's number must be one the app can store, a whole or half plate from 1 to 50, judged on the
+  // half-plate grid whatever the exercise's setting now. Nothing is changed when a file is refused.
+  const refusedWithNothingChanged = async (weightKg: number, message: string) => {
+    const db = await openDb()
+    await buildSampleDb(db)
+    const before = await exportBackup(db, EXPORTED_AT)
+    const bad = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
+    bad.sets.find((s) => s.unit === 'PLATES')!.weightKg = weightKg
+    await expect(restoreBackup(db, bad)).rejects.toThrow(message)
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(before)
+  }
+
+  it('aPlateSetAbovePlate50_isCorrupt', async () => {
+    for (const weightKg of [50.5, 51, 80, 80.3, 1e30]) {
+      expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg))), String(weightKg)).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set above plate 50' })
+    }
+    expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = 50))).ok).toBe(true)
+    expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = 49.5))).ok).toBe(true)
+    // A kg set is never held to plates.
+    expect(decodeBackup(mutFixture((o) => (o.sets[kgSetIndex(o)]!.weightKg = 80.3))).ok).toBe(true)
+    await refusedWithNothingChanged(80, 'A plate set above plate 50')
+  })
+
+  it('aPlateSetOffTheHalfPlateGrid_isCorrupt', async () => {
+    for (const weightKg of [7.3, 7.25, 1.1, 49.9]) {
+      expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg))), String(weightKg)).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set that is not a whole or half plate' })
+    }
+    // Under plate 1 is said as such, on the grid or not.
+    for (const weightKg of [0, 0.5, 0.3]) {
+      expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg))), String(weightKg)).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set below plate 1' })
+    }
+    expect(decodeBackup(mutFixture((o) => (o.sets[kgSetIndex(o)]!.weightKg = 7.3))).ok).toBe(true)
+    await refusedWithNothingChanged(7.3, 'A plate set that is not a whole or half plate')
+  })
+
+  it('aHalfPlateOnAWholePlateOrKgExercise_stillRestores', async () => {
+    // Leg press holds plate 7½ sets: a logged half stands when the machine is now on whole plates, or back in kg.
+    const db = await openDb()
+    for (const setting of ['WHOLE', undefined] as const) {
+      const text = mutFixture((o) => {
+        const legPress = o.exercises.find((e) => e.name === 'Leg press')!
+        if (setting) legPress.plateCount = setting
+        else delete legPress.plateCount
+      })
+      await restoreBackup(db, decodeOk(text))
+      const legPress = (await db.exercises.toArray()).find((e) => e.name === 'Leg press')!
+      const halves = (await db.sets.toArray()).filter((s) => s.exerciseId === legPress.id && s.unit === 'PLATES' && s.weightKg === 7.5)
+      expect(halves.length, String(setting)).toBeGreaterThan(0)
+    }
+  })
+
   it('a plate set on a main lift, or a setting on an exercise that is never offered, still restores', async () => {
     const text = mutFixture((o) => {
       const squat = o.exercises.find((e) => e.name === 'Squat')!
       squat.plateCount = 'WHOLE'
-      o.sets.find((s) => s.exerciseId === squat.id)!.unit = 'PLATES'
+      const plateSet = o.sets.find((s) => s.exerciseId === squat.id)!
+      plateSet.unit = 'PLATES'
+      // 1.17.1: a plate number from 1 to 50 (the squat's 140 is no plate, and is refused now).
+      plateSet.weightKg = 7
     })
     const db = await openDb()
     await restoreBackup(db, decodeOk(text))
