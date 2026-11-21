@@ -37,7 +37,14 @@ async function withStoredDb<T>(name: string, work: (db: Dexie) => Promise<T>): P
 }
 
 async function look(db: Dexie): Promise<Found> {
-  const [copy, appLock, credentialId] = await Promise.all([readSafetyCopy(db), db.table('settings').get('appLock'), readCredentialId(db)])
+  // Each read starts inside a promise. A database without the table throws as soon as it is asked for it,
+  // and thrown while the list is being built that would leave the reads already started rejected with nobody listening.
+  const read = <T,>(work: () => PromiseLike<T>): Promise<T> => Promise.resolve().then(work)
+  const [copy, appLock, credentialId] = await Promise.all([
+    read(() => readSafetyCopy(db)),
+    read(() => db.table('settings').get('appLock')),
+    read(() => readCredentialId(db)),
+  ])
   return { safetyCopy: copy && { date: safetyCopyDate(copy) ?? 'undated' }, lockedBy: appLock?.value === true ? credentialId : null }
 }
 
