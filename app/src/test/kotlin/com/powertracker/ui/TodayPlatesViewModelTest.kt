@@ -728,6 +728,27 @@ class TodayPlatesViewModelTest {
     }
 
     @Test
+    fun aKgExercise_newestTargetRule_dismissed_changesNothing() {
+        val id = latPulldownWithKgHistory()
+        val vm = viewModel()
+        await("kg target") { vm.item(id)?.suggestion != null }
+        val kg = vm.item(id)!!.suggestion!!
+        assertEquals(LoadUnit.KG, kg.unit())
+        assertEquals(listOf(kg.id), targets(id).map { it.id })
+
+        vm.dismissTarget(kg.id)
+        await("dismissed") { vm.item(id)?.suggestion == null }
+        settled()
+        val item = vm.item(id)!!
+        assertNull(item.suggestion)
+        // As with no target: the last top set (60 kg) in the field, and the plan's 3 sets.
+        assertEquals(60.0, item.editor.weightKg!!, 0.0)
+        assertEquals(LoadUnit.KG, item.editor.unit)
+        assertEquals(3, item.targetSets)
+        assertEquals(listOf(kg.id to AdviceStatus.DISMISSED), targets(id).map { it.id to it.status })
+    }
+
+    @Test
     fun aPlateSetOffTheHalfPlateGrid_isNeverStored() {
         val id = row("Lat pulldown")
         plan(id)

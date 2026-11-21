@@ -799,6 +799,22 @@ class BackupTest {
         assertNotEquals(before, everything())
     }
 
+    /** 1.17.1: with several bad plate sets, the first in file order names the fault. */
+    @Test
+    fun theFirstBadPlateSetInFileOrder_namesTheFault() = runTest {
+        seedPlates()
+        val file = service.export(1L)
+        val plates = file.sets.withIndex().filter { it.value.unit == LoadUnit.PLATES.name }.map { it.index }
+        assertTrue("at least two plate sets", plates.size >= 2)
+        val (first, later) = plates.first() to plates.last()
+        fun with(a: Double, b: Double) = file.copy(sets = file.sets.mapIndexed { i, s ->
+            when (i) { first -> s.copy(weightKg = a); later -> s.copy(weightKg = b); else -> s }
+        })
+        assertEquals(BackupResult.Corrupt("A plate set that is not a whole or half plate"), Backup.decode(Backup.encode(with(7.3, 80.0))))
+        assertEquals(BackupResult.Corrupt("A plate set above plate 50"), Backup.decode(Backup.encode(with(80.0, 7.3))))
+        assertEquals(BackupResult.Corrupt("A plate set below plate 1"), Backup.decode(Backup.encode(with(0.5, 7.3))))
+    }
+
     /** 1.17.1: the check is the half-plate grid and plate 1 to 50, never the exercise's setting now. */
     @Test
     fun aHalfPlateOnAWholePlateOrKgExercise_stillRestores() = runTest {
