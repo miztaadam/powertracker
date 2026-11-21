@@ -46,7 +46,9 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.coach.WelcomeBackCard
@@ -105,6 +107,11 @@ class TodayActions(
     /** The welcome-back card's two answers; the second also opens the Plan. */
     val onResumePlan: () -> Unit = {},
     val onGoalsChanged: () -> Unit = {},
+    /**
+     * Stores an exercise's plate setting from the plate sheet (1.17). Null means "no plate item" in any row menu, which
+     * is what the guide's Today, drawn with `TodayActions()`, gets.
+     */
+    val onCountPlates: ((exerciseId: Long, PlateCount) -> Unit)? = null,
 )
 
 /**
@@ -164,7 +171,7 @@ fun TodayScreen(
             onLogSet = { item, failed ->
                 val weight = item.editor.weightKg
                 if (weight != null) {
-                    val set = LoggedSet(item.exercise.id, weight, item.editor.reps, item.editor.rpe, failed = failed, missPoint = null, isTopSet = false)
+                    val set = LoggedSet(item.exercise.id, weight, item.editor.reps, item.editor.rpe, failed = failed, missPoint = null, isTopSet = false, unit = item.unit)
                     viewModel.logSet(item.planned?.id, item.exercise.id, set)
                 }
             },
@@ -188,6 +195,7 @@ fun TodayScreen(
                 viewModel.answerWelcomeBack()
                 openPlan()
             },
+            onCountPlates = viewModel::setPlateCount,
         )
     }
     TodayContent(state, actions, restTimer, snackbar)
@@ -232,6 +240,19 @@ fun TodayContent(
     var picking by rememberSaveable { mutableStateOf(false) }
     // The exercise whose reason sheet is open; kept across recreation, so the question is still there.
     var skippingId by rememberSaveable { mutableStateOf<Long?>(null) }
+    // The exercise whose plate sheet is open (1.17), the unit it was in when the sheet opened and whether it had sets
+    // in that unit: a choice applies when tapped, so the live values change under the open sheet, and the note is about
+    // the unit the sheet opened in.
+    var platingId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var platingFrom by rememberSaveable { mutableStateOf(LoadUnit.KG) }
+    var platingHadSets by rememberSaveable { mutableStateOf(false) }
+    fun openPlates(item: TodayItem) {
+        platingFrom = item.unit
+        platingHadSets = item.sets.any { it.set.unit == item.unit } || item.lastWeightKg != null
+        platingId = item.exercise.id
+    }
+    // Offered only where the exercise may count plates and the screen can store the choice: never in the guide.
+    fun countPlates(item: TodayItem): (() -> Unit)? = if (item.plateOffered && actions.onCountPlates != null) ({ openPlates(item) }) else null
     // Adding an exercise from the picker ticks, once it is added.
     val haptics = rememberHaptics()
     // Read when called, from the session as last drawn (before the add).
@@ -339,6 +360,7 @@ fun TodayContent(
                             items, state.date.dayOfWeek.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()), actions.onStartSession,
                             onSkipToday = { skippingId = it.exercise.id },
                             skipped = state.skippedToday.size,
+                            onCountPlates = if (actions.onCountPlates != null) ::openPlates else null,
                         )
                     }
                     if (state.skippedToday.isNotEmpty()) {
@@ -358,6 +380,7 @@ fun TodayContent(
                                     ExerciseRow(
                                         item, onClick = { activeId = item.exercise.id }, modifier = rowModifier,
                                         onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
+                                        onCountPlates = countPlates(item),
                                     )
                                 },
                                 card = { content ->
@@ -372,6 +395,7 @@ fun TodayContent(
                                         bodybuilding = state.mode == TrainingMode.BODYBUILDING,
                                         slidingContent = content,
                                         onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
+                                        onCountPlates = countPlates(item),
                                     )
                                 },
                             )
@@ -410,6 +434,25 @@ fun TodayContent(
                 actions.onSkip(skipping.exercise.id, skipping.planned?.id, reason)
             },
             onDismiss = { skippingId = null },
+        )
+    }
+
+    // The plate sheet follows a catalogue exercise across to its row, which choosing plates may have just made.
+    val platingShown = platingId?.let { state.resolved[it] ?: it }
+    LaunchedEffect(platingShown) { if (platingShown != platingId) platingId = platingShown }
+    val plating = platingShown?.let { id -> items.firstOrNull { it.exercise.id == id } }
+    val onCountPlates = actions.onCountPlates
+    if (platingId != null && !state.loading && (plating == null || !plating.plateOffered || onCountPlates == null)) {
+        // Gone from the list (removed, or the day moved on): nothing to set.
+        LaunchedEffect(platingId) { platingId = null }
+    }
+    if (plating != null && plating.plateOffered && onCountPlates != null) {
+        PlateCountSheet(
+            plating.exercise.name,
+            plating.plateCount,
+            plateNote(platingFrom, plating.unit, platingHadSets),
+            onChoose = { onCountPlates(plating.exercise.id, it) },
+            onDismiss = { platingId = null },
         )
     }
 

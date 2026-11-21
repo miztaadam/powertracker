@@ -103,4 +103,27 @@ class EntryTest {
         assertEquals("6 to 10", entryMessage(RPE, RANGE))
         assertNull(entryMessage(RPE, EMPTY))
     }
+
+    @Test
+    fun plate_whole() {
+        assertEquals(Ok(7.0), parseEntry("7", EntryKind.PLATE))
+        assertEquals(Ok(50.0), parseEntry("50", EntryKind.PLATE))
+        assertEquals(EntryResult.Error.STEP, parseEntry("7.5", EntryKind.PLATE))
+        assertEquals("Whole plates only", entryMessage(EntryKind.PLATE, EntryResult.Error.STEP))
+        assertEquals(RANGE, parseEntry("0", EntryKind.PLATE))
+        assertEquals(RANGE, parseEntry("51", EntryKind.PLATE))
+        assertEquals("Plate 1 to 50", entryMessage(EntryKind.PLATE, RANGE))
+        assertEquals(NAN, parseEntry("abc", EntryKind.PLATE))
+    }
+
+    @Test
+    fun plate_half() {
+        assertEquals(Ok(7.5), parseEntry("7.5", EntryKind.PLATE_HALF))
+        assertEquals(Ok(7.5), parseEntry("7,5", EntryKind.PLATE_HALF))
+        assertEquals(Ok(7.0), parseEntry("7", EntryKind.PLATE_HALF))
+        assertEquals(EntryResult.Error.STEP, parseEntry("7.25", EntryKind.PLATE_HALF))
+        assertEquals("Whole or half plates", entryMessage(EntryKind.PLATE_HALF, EntryResult.Error.STEP))
+        assertEquals(RANGE, parseEntry("0.5", EntryKind.PLATE_HALF))
+        assertEquals("Plate 1 to 50", entryMessage(EntryKind.PLATE_HALF, RANGE))
+    }
 }

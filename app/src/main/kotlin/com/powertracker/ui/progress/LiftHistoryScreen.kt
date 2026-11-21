@@ -185,6 +185,8 @@ private fun SessionCard(session: HistorySession) {
                         state = if (row.set.failed) SetState.FAILED else SetState.DONE,
                         isTopSet = row.set.isTopSet,
                         isPr = row.isPr,
+                        // An exercise's history holds both units: each set in its own words (1.17).
+                        unit = row.set.unit,
                     )
                 }
             }

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingHistory
@@ -64,7 +65,8 @@ class LiftHistoryViewModel(
                 for (set in session.sets) {
                     if (history.exercises[set.exerciseId]?.mainLift != lift) continue
                     val pr = prs.getOrNull(nextPr)
-                    val isPr = pr != null && history.isCompletedMainSet(set, lift) &&
+                    // Records are kg: a plate number that matches one is never marked as it.
+                    val isPr = pr != null && set.unit == LoadUnit.KG && history.isCompletedMainSet(set, lift) &&
                         pr.date == session.date && pr.weightKg == set.weightKg && pr.reps == set.reps && pr.rpe == set.rpe
                     if (isPr) nextPr++
                     val sets = groups.getOrPut(set.exerciseId) { mutableListOf() }

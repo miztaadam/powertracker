@@ -31,6 +31,7 @@ import com.powertracker.domain.validation.InputWarning
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.QuietButton
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.theme.Space
 
 // Dialogs holding text fields use full-width properties: with the platform-default width the field
@@ -84,14 +85,14 @@ fun TypoDialog(pending: PendingLog, onConfirm: () -> Unit, onEdit: () -> Unit) {
     val set = pending.set
     AlertDialog(
         onDismissRequest = onEdit,
-        title = { Text("Did you mean ${formatKg(set.weightKg)} kg × ${set.reps}?") },
+        title = { Text("Did you mean ${formatLoad(set.weightKg, set.unit)} × ${set.reps}?") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                 for (warning in pending.warnings) {
                     Text(
                         when (warning) {
                             InputWarning.HighReps -> "${set.reps} reps is a lot for one set."
-                            is InputWarning.BigJump -> "That is a big jump from ${formatKg(warning.fromKg)} kg."
+                            is InputWarning.BigJump -> "That is a big jump from ${formatLoad(warning.fromKg, warning.unit)}."
                         },
                     )
                 }

@@ -272,6 +272,16 @@ class ScreenshotTest {
     @Test
     fun todaySkippedBodybuilding() = render("today-skipped-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkippedShowcase(TrainingMode.BODYBUILDING) }
 
+    // 1.17, counting plates on a stack machine: Today with a plate-counted exercise on each side, and the plate sheet.
+    @Test
+    fun todayPlatesPowerlifting() = render("today-plates-powerlifting", Tab.TODAY) { TodayPlatesShowcase(TrainingMode.POWERLIFTING) }
+
+    @Test
+    fun todayPlatesBodybuilding() = render("today-plates-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodayPlatesShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun plateSheet() = render("plate-sheet", Tab.TODAY) { PlateSheetShowcase() }
+
     @Test
     fun coachSkip() = render("coach-skip", Tab.COACH) { CoachSkipShowcase() }
 

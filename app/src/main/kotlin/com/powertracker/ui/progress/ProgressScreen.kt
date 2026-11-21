@@ -45,9 +45,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.progress.ExerciseTrend
+import com.powertracker.ui.components.formatLoad
 import com.powertracker.domain.progress.MuscleRow
 import com.powertracker.domain.model.MuscleRating
 import com.powertracker.ui.components.SecondaryButton
@@ -384,9 +386,14 @@ private fun VolumeSection(state: ProgressState) {
     }
 }
 
-/** "26 × 11 · 26 × 10": the best sets as the list shows them, or, with [separator] ", ", as a screen reader says them. */
+/**
+ * "26 × 11 · 26 × 10": the best sets as the list shows them, or, with [separator] ", ", as a screen reader says them. A
+ * plate-counted machine's read "plate 9 × 10" (1.17).
+ */
 private fun bestSetText(trend: ExerciseTrend, separator: String = " · "): String =
-    trend.bestSets.joinToString(separator) { (_, set) -> "${formatKg(set.weightKg)} × ${set.reps}" }
+    trend.bestSets.joinToString(separator) { (_, set) ->
+        "${if (set.unit == LoadUnit.PLATES) formatLoad(set.weightKg, set.unit) else formatKg(set.weightKg)} × ${set.reps}"
+    }
 
 /**
  * The bodybuilding side's Progress: each exercise in its plan with the best set of each of its last four sessions
