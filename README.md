@@ -127,6 +127,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Check-in: on the bodybuilding side, open Progress and do a check-in (mark a body part lagging), then apply a suggestion from Coach and check the plan changed.
 - [ ] Stretch and squeeze: on the bodybuilding side, read the stretch and squeeze lines on a Today card.
 - [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
+- [ ] Two windows, one update: with Grit open in two windows (or tabs), deploy a new version and tap "Update ready — tap to refresh" in one. The other reloads by itself, with no tap.
 - [ ] Home Screen: add Grit to the Home Screen. The icon and name are "Grit", and it opens on Today.
 - [ ] The top of each screen sits clear of the status bar, with no smeared title.
 - [ ] Numbers such as 180 or 100 kg are not phone links.
@@ -179,6 +180,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.
 - [ ] In Chrome's settings, set page zoom to 130% (Accessibility): no name on the Exercises tab breaks inside a word. If the page becomes narrower than 320 px, its rows show no pictures.
 - [ ] Restore a backup from the Android app. An app set to vibrate comes back as Sound + vibrate.
+- [ ] Two windows, one update: with Grit open in two windows (or tabs), deploy a new version and tap "Update ready — tap to refresh" in one. The other reloads by itself, with no tap.
 - [ ] Press a button: it sinks a little and springs back.
 - [ ] A normal Log set buzzes once. A new squat best buzzes twice.
 - [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.

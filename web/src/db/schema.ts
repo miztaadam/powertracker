@@ -184,8 +184,11 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
   // deleted keeps a null `planItemId`, which leaves the planItemId index (null is not a key).
   { version: 5, stores: { skips: '++id, &[date+mode+exerciseId], exerciseId, planItemId' } },
   // Counting plates (1.17): a set's `unit` and an exercise's `plateCount`. No new index and no upgrade step: a row
-  // without them reads as kg and off, so nothing stored is stamped. Declared so an older app refuses this database,
-  // and so openGritDb writes the safety copy before it is installed.
+  // without them reads as kg and off, so nothing stored is stamped. Declared for the version number (from 1.17 on, a
+  // copy older than the stored version is turned away by openGritDb) and so openGritDb writes the safety copy before
+  // it is installed. It does NOT make an older app refuse this database: Dexie opens a newer database whose stores
+  // match. What protects 1.16.1 and older is the service worker reloading every window when a new version takes over
+  // (public/sw-reload-clients.js); from 1.17 on, also OlderCopyError and its screen.
   { version: 6, stores: {} },
 ]
 
