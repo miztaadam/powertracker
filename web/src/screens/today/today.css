@@ -95,6 +95,18 @@
   gap: var(--space-3);
 }
 
+/*
+ * The open card's ⓘ and ⋮ (1.17.1): one group, spaced as the head spaces its parts, kept at the right. On one line the
+ * title already pushes them there; when the head wraps they move as one and stay right.
+ */
+.today-card-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: inherit;
+  margin-left: auto;
+}
+
 /* The open card's title (1.13): beside the pill and the buttons when it fits, else on a line of its own above them. */
 .today-card-title {
   flex: 1 1 auto;

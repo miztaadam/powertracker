@@ -1,8 +1,9 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
 import './Menu.css'
+import { placeMenu, type MenuPlacement } from './menuPlacement'
 
 export type MenuItem = {
   text: string
@@ -24,9 +25,18 @@ export type MenuProps = {
   className?: string
 }
 
+const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false }
+
+/** The room a menu has: the window, above the rest bar and the tab bar. */
+function menuRoom() {
+  const docked = [...document.querySelectorAll('.shell-rest, .gr-tabbar')].map((el) => el.getBoundingClientRect().top).filter((top) => top > 0)
+  return { left: 0, top: 0, right: window.innerWidth, bottom: Math.min(window.innerHeight, ...docked) }
+}
+
 /**
  * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside or choosing
- * an action closes it; the arrow keys move between the actions.
+ * an action closes it; the arrow keys move between the actions. The list opens under the button, right edges aligned;
+ * one that would leave the screen there opens where it fits (1.17.1, `placeMenu`).
  */
 export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuProps) {
   const [open, setOpen] = useState(false)
@@ -34,6 +44,19 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   const trigger = useRef<HTMLButtonElement>(null)
   const list = useRef<HTMLDivElement>(null)
   const listId = useId()
+  const [placement, setPlacement] = useState<MenuPlacement>(AS_BEFORE)
+
+  // Placed before it is drawn: measured where it would open as before, then moved only if it leaves the screen.
+  useLayoutEffect(() => {
+    if (!open) {
+      setPlacement(AS_BEFORE)
+      return
+    }
+    const button = trigger.current?.getBoundingClientRect()
+    const menu = list.current
+    if (!button || !menu) return
+    setPlacement(placeMenu(button, { width: menu.offsetWidth, height: menu.offsetHeight }, menuRoom()))
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -66,7 +89,14 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
         {icon}
       </button>
       {open && (
-        <div ref={list} id={listId} className="gr-menu-list" role="menu" aria-label={label}>
+        <div
+          ref={list}
+          id={listId}
+          className={cx('gr-menu-list', placement.align === 'start' && 'gr-menu-list-start', placement.up && 'gr-menu-list-up')}
+          style={placement.shift !== 0 ? ({ transform: `translateX(${placement.shift}px)` } as CSSProperties) : undefined}
+          role="menu"
+          aria-label={label}
+        >
           {items.map((item) => (
             <button
               key={item.text}

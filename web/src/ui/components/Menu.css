@@ -12,7 +12,10 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  min-width: 168px;
+  /* As wide as its longest item, but never wider than the screen less a margin each side: there an item wraps (1.17.1). */
+  width: max-content;
+  min-width: min(168px, calc(100vw - 16px));
+  max-width: calc(100vw - 16px);
   padding: var(--space-3) 0;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
@@ -20,6 +23,17 @@
   box-shadow: var(--elevation-card);
   scroll-margin: var(--space-5);
   animation: gr-fade 120ms ease;
+}
+
+/* 1.17.1: where there is no room for that (placeMenu), it lines up with the button's left edge, or opens above it. */
+.gr-menu-list-start {
+  right: auto;
+  left: 0;
+}
+
+.gr-menu-list-up {
+  top: auto;
+  bottom: calc(100% - var(--space-2));
 }
 
 .gr-menu-item {
@@ -34,7 +48,6 @@
   background: none;
   color: var(--text);
   text-align: left;
-  white-space: nowrap;
   cursor: pointer;
   touch-action: manipulation;
 }
