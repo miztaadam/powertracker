@@ -44,7 +44,8 @@ export function OlderCopyScreen({ update = updateApp }: OlderCopyScreenProps) {
     <GateScreen
       title="Update Grit to carry on"
       body="This copy of Grit is older than your log, so it can't open it safely. Nothing has been changed."
-      note={failed ? "Couldn't update. Check your connection and try again." : null}
+      // The status region (polite): "Updating…" while it works, so a screen reader hears it, not only the button.
+      note={working ? 'Updating…' : failed ? "Couldn't update. Check your connection and try again." : null}
     >
       <PrimaryButton text={working ? 'Updating…' : 'Update and reload'} onClick={tap} enabled={!working} className="older-copy-action" />
     </GateScreen>

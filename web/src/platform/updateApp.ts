@@ -16,21 +16,48 @@ export type UpdateResult = 'reloading' | 'failed'
  * The new worker also reloads every window it takes over (public/sw-reload-clients.js). This page reloads itself once
  * on `controllerchange` as well; both load the new version, and neither runs again, so they cannot loop.
  */
-export async function updateApp({
+export function updateApp({
   container = typeof navigator !== 'undefined' ? navigator.serviceWorker : undefined,
   reload = () => window.location.reload(),
   timeoutMs = TIMEOUT_MS,
 }: { container?: ServiceWorkerContainer; reload?: () => void; timeoutMs?: number } = {}): Promise<UpdateResult> {
-  const reloadOnce = once(reload)
-  if (container == null) return reloadNow(reloadOnce)
+  if (container == null) return Promise.resolve(reloadNow(reload))
+  // A second tap while one is working joins it: no second check, listener or wait.
+  const running = inFlight.get(container)
+  if (running != null) return running
+  const attempt = tryUpdate(container, reload, timeoutMs).finally(() => inFlight.delete(container))
+  inFlight.set(container, attempt)
+  return attempt
+}
+
+/** The attempt under way, per service worker container. */
+const inFlight = new WeakMap<ServiceWorkerContainer, Promise<UpdateResult>>()
+
+/**
+ * The newer version taking over, per container: one `controllerchange` listener for the page's life, which reloads it
+ * once. It outlives a timed-out attempt, so a takeover that comes late still reloads, and a later tap adds no second one.
+ */
+const takeovers = new WeakMap<ServiceWorkerContainer, Promise<void>>()
+
+function takeover(container: ServiceWorkerContainer, reload: () => void): Promise<void> {
+  let taken = takeovers.get(container)
+  if (taken == null) {
+    taken = new Promise<void>((done) => container.addEventListener('controllerchange', () => done()))
+    taken.then(reload, () => {})
+    takeovers.set(container, taken)
+  }
+  return taken
+}
+
+async function tryUpdate(container: ServiceWorkerContainer, reload: () => void, timeoutMs: number): Promise<UpdateResult> {
   let registration: ServiceWorkerRegistration | undefined
   try {
     registration = await container.getRegistration()
   } catch {
-    return reloadNow(reloadOnce)
+    return reloadNow(reload)
   }
   // Not served by a worker: nothing old is cached in front of this page.
-  if (registration == null || container.controller == null) return reloadNow(reloadOnce)
+  if (registration == null || container.controller == null) return reloadNow(reload)
 
   let next = registration.waiting
   if (next == null) {
@@ -45,10 +72,9 @@ export async function updateApp({
 
   return withTimeout(timeoutMs, async () => {
     if (!(await installed(next))) return 'failed'
-    const takenOver = new Promise<void>((done) => container.addEventListener('controllerchange', () => done()))
+    const takenOver = takeover(container, reload)
     ;(registration.waiting ?? next).postMessage(SKIP_WAITING)
     await takenOver
-    reloadOnce()
     return 'reloading'
   })
 }
@@ -56,15 +82,6 @@ export async function updateApp({
 function reloadNow(reload: () => void): UpdateResult {
   reload()
   return 'reloading'
-}
-
-function once(fn: () => void): () => void {
-  let done = false
-  return () => {
-    if (done) return
-    done = true
-    fn()
-  }
 }
 
 /** Resolves true once `worker` has installed (or gone on to activate), false if it was thrown away. */

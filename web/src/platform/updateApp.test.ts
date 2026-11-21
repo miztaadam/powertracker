@@ -41,7 +41,7 @@ function fakeContainer(options: { waiting?: FakeWorker | null; found?: FakeWorke
   const container = {
     controller: options.controlled === false ? null : {},
     getRegistration: vi.fn(async () => (options.registered === false ? undefined : registration)),
-    addEventListener: (_type: 'controllerchange', cb: Listener) => listeners.push(cb),
+    addEventListener: vi.fn((_type: 'controllerchange', cb: Listener) => listeners.push(cb)),
     removeEventListener: () => {},
   }
   return { container: container as unknown as ServiceWorkerContainer, registration, takeOver: () => listeners.forEach((cb) => cb()) }
@@ -132,6 +132,44 @@ describe('updateApp', () => {
       await vi.advanceTimersByTimeAsync(10_000)
       expect(await result).toBe('failed')
       expect(reload).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a second tap while one is working starts nothing new: one check, one listener, one wait', async () => {
+    const reload = vi.fn()
+    const waiting = new FakeWorker('installed')
+    const { container, takeOver } = fakeContainer({ waiting })
+    const first = updateApp({ container, reload })
+    const second = updateApp({ container, reload })
+    await vi.waitFor(() => expect(waiting.posted).toEqual([SKIP_WAITING]))
+    expect(container.getRegistration).toHaveBeenCalledTimes(1)
+    expect(container.addEventListener).toHaveBeenCalledTimes(1)
+    takeOver()
+    expect(await first).toBe('reloading')
+    expect(await second).toBe('reloading')
+    expect(reload).toHaveBeenCalledTimes(1)
+  })
+
+  it('a takeover after the timeout still reloads, once; a tap after the timeout adds no second listener', async () => {
+    vi.useFakeTimers()
+    try {
+      const reload = vi.fn()
+      const waiting = new FakeWorker('installed')
+      const { container, takeOver } = fakeContainer({ waiting })
+      const first = updateApp({ container, reload, timeoutMs: 10_000 })
+      await vi.advanceTimersByTimeAsync(10_000)
+      expect(await first).toBe('failed')
+
+      const again = updateApp({ container, reload, timeoutMs: 10_000 })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(container.addEventListener).toHaveBeenCalledTimes(1)
+
+      takeOver()
+      takeOver()
+      expect(await again).toBe('reloading')
+      expect(reload).toHaveBeenCalledTimes(1)
     } finally {
       vi.useRealTimers()
     }

@@ -24,12 +24,13 @@ describe('OlderCopyScreen', () => {
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
   })
 
-  it('while updating: the button is disabled and reads Updating…', async () => {
+  it('while updating: the button is disabled and reads Updating…, and the status says so for a screen reader', async () => {
     const { update } = controlledUpdate()
     render(<OlderCopyScreen update={update} />)
     await userEvent.click(screen.getByRole('button', { name: 'Update and reload' }))
     const button = screen.getByRole('button', { name: 'Updating…' })
     expect(button).toBeDisabled()
+    expect(screen.getByRole('status')).toHaveTextContent('Updating…')
     await userEvent.click(button)
     expect(update).toHaveBeenCalledTimes(1)
   })
@@ -44,9 +45,9 @@ describe('OlderCopyScreen', () => {
     const button = screen.getByRole('button', { name: 'Update and reload' })
     expect(button).toBeEnabled()
 
-    // Tried again: the line goes while it works.
+    // Tried again: the failure line gives way to "Updating…" while it works.
     await userEvent.click(button)
-    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    expect(screen.getByRole('status')).toHaveTextContent('Updating…')
     expect(update).toHaveBeenCalledTimes(2)
   })
 
@@ -57,6 +58,6 @@ describe('OlderCopyScreen', () => {
     finish('reloading')
     await Promise.resolve()
     expect(screen.getByRole('button', { name: 'Updating…' })).toBeDisabled()
-    expect(screen.getByRole('status')).toBeEmptyDOMElement()
+    expect(screen.getByRole('status')).toHaveTextContent('Updating…')
   })
 })
