@@ -45,14 +45,15 @@
     overflow: visible;
   }
 
-  /* Button words wrap at a space; each button keeps its height, and its face's sides are a little tighter. */
-  .shell-main .screen:not(.today-screen) .gr-btn-text {
+  /* Button words wrap at a space; each button keeps its height, and its face's sides are a little tighter. Not in a
+     dialog: its buttons share a row, as before. */
+  .shell-main .screen:not(.today-screen) .gr-btn-text:not(.gr-dialog *) {
     min-width: 0;
     white-space: normal;
     overflow-wrap: break-word;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-btn-face {
+  .shell-main .screen:not(.today-screen) .gr-btn-face:not(.gr-dialog *) {
     min-width: 0;
     padding-inline: var(--space-3);
     text-align: center;
