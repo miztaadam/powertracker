@@ -10,9 +10,28 @@ const grit = GritDomain.getInstance()
 // test-results/screens/; UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in docs/design/web/screens/.
 const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
 
+/**
+ * Today scrolls the open card into view with a smooth scroll that can start a moment after the card shows: waits until
+ * the screen has stood still for half a second, never part way through (or before it starts).
+ */
+async function stillScreen(page: Page) {
+  await expect
+    .poll(() =>
+      page.locator('.shell-main').evaluate(
+        (el) =>
+          new Promise<boolean>((done) => {
+            const before = el.scrollTop
+            setTimeout(() => done(el.scrollTop === before), 500)
+          }),
+      ),
+    )
+    .toBe(true)
+}
+
 async function shoot(page: Page, name: string) {
   mkdirSync(outDir, { recursive: true })
   await page.evaluate(() => document.fonts.ready)
+  await stillScreen(page)
   await page.screenshot({ path: resolve(outDir, `${name}.png`), animations: 'disabled' })
 }
 
@@ -240,7 +259,11 @@ for (const scheme of ['dark', 'light'] as const) {
         await expect(page.getByText(side === 'BODYBUILDING' ? 'plate 7 × 8–12 @ 8' : /^plate 7 × \d+ @ 8$/)).toBeVisible()
         await expect(plateField(page)).toHaveValue('7')
         await expect(page.locator('.gr-set-line').first()).toContainText('plate 7')
-        await shoot(page, `today-plates-${side.toLowerCase()}-${scheme}`)
+        // Whether the open card's scroll into view moves the screen depends on when it fires against the chip coming in
+        // (the bodybuilding card is taller than the phone): let it finish, then draw the screen from its top, every time.
+        await stillScreen(page)
+        await page.locator('.shell-main').evaluate((el) => el.scrollTo({ top: 0, behavior: 'instant' }))
+        await shoot(page,`today-plates-${side.toLowerCase()}-${scheme}`)
       })
     }
 
