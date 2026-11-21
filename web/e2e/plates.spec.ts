@@ -244,6 +244,17 @@ for (const scheme of ['dark', 'light'] as const) {
       })
     }
 
+    // The ⋮ menu on Lat pulldown, still in kg, planned and with no set yet: Skip today with Count plates under it.
+    test('today-plates-menu', async ({ page }) => {
+      await openOnWednesday(page)
+      await seed(page, 'POWERLIFTING', ['Lat pulldown'], { session: true })
+      await expect(weightField(page)).toBeVisible()
+      await page.getByRole('button', { name: 'Options for Lat pulldown' }).click()
+      await expect(page.getByRole('menuitem')).toHaveText(['Skip today', 'Count plates on this machine'])
+      await page.getByRole('menu').evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
+      await shoot(page, `today-plates-menu-${scheme}`)
+    })
+
     test('plate-sheet', async ({ page }) => {
       await openOnWednesday(page)
       await seed(page, 'POWERLIFTING', ['Lat pulldown'], { today: [{ weightKg: 40, reps: 8 }] })

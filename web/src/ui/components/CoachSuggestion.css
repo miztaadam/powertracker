@@ -1,6 +1,9 @@
 .gr-suggestion {
+  container-type: inline-size;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  row-gap: var(--space-2);
   width: 100%;
   padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
@@ -43,4 +46,19 @@
 .gr-suggestion-apply {
   flex: none;
   margin-left: var(--space-3);
+}
+
+/*
+ * A chip narrower than this (320 px with 200 % text) gives its text the whole width and puts Apply and Dismiss under
+ * it; otherwise the buttons squeeze the text to nothing. On a phone at normal text sizes the chip is wider (240 px at
+ * 306 px), so it keeps its one row.
+ */
+@container (max-width: 219px) {
+  .gr-suggestion-text {
+    flex-basis: 100%;
+  }
+
+  .gr-suggestion-apply {
+    margin-left: 0;
+  }
 }
