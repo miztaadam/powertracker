@@ -526,13 +526,17 @@
     overflow-wrap: normal;
   }
 
-  /* Button words wrap at a space, with the faces' sides a little tighter; each keeps its height. */
+  /* Button words wrap at a space; each button keeps its height. */
   .shell-main .today-screen .gr-btn-text {
     white-space: normal;
     overflow-wrap: normal;
   }
 
-  .shell-main .today-screen .gr-btn-face {
+  /* The buttons that take a card's whole width have their faces' sides a little tighter (they are wider than before). */
+  .shell-main .today-screen .today-log .gr-btn-face,
+  .shell-main .today-screen .install-actions .gr-btn-face,
+  .shell-main .today-screen .gr-advice-actions .gr-btn-face,
+  .shell-main .today-screen .today-start .gr-btn-face {
     padding-inline: var(--space-3);
   }
 
