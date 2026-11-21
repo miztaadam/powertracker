@@ -114,6 +114,11 @@
   max-width: 100%;
 }
 
+/* A name of one word too long for the card breaks inside it, and only then (1.17.1): every other name is as before. */
+.today-card-title .today-name {
+  overflow-wrap: break-word;
+}
+
 
 /*
  * Stretch and squeeze (bodybuilding side): a label column and the line beside it, as the mockup. The hairline above

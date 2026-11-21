@@ -41,27 +41,55 @@ async function seed(page: Page, plates: boolean) {
   await expect(tabBar(page)).toBeVisible()
 }
 
-/** The part of the screen the menu may use: the window, above the rest bar and the tab bar. */
-const room = (page: Page) =>
-  page.evaluate(() => {
-    const docked = [...document.querySelectorAll('.shell-rest, .gr-tabbar')].map((el) => el.getBoundingClientRect().top)
-    return { width: window.innerWidth, bottom: Math.min(window.innerHeight, ...docked) }
-  })
+/**
+ * The open menu's box and the part of the screen it may use (the window, above the rest bar and the tab bar), read
+ * together in one go once the menu has settled: the same box on two frames running.
+ */
+const settled = (page: Page, name: string) =>
+  page.evaluate(async (label) => {
+    const frame = () => new Promise((done) => requestAnimationFrame(done))
+    const read = () => {
+      const menu = document.querySelector(`[role="menu"][aria-label="${label}"]`)!
+      const box = menu.getBoundingClientRect()
+      const docked = [...document.querySelectorAll('.shell-rest, .gr-tabbar')].map((el) => el.getBoundingClientRect().top)
+      return {
+        x: box.left,
+        y: box.top,
+        width: box.width,
+        height: box.height,
+        roomWidth: window.innerWidth,
+        roomBottom: Math.min(window.innerHeight, ...docked),
+        scrolls: menu.scrollHeight > menu.clientHeight + 1,
+        items: [...menu.querySelectorAll('[role="menuitem"]')].map((item) => {
+          const r = item.getBoundingClientRect()
+          return { text: item.textContent, x: r.left, y: r.top, right: r.right, bottom: r.bottom }
+        }),
+      }
+    }
+    let last = JSON.stringify(read())
+    for (let i = 0; i < 60; i++) {
+      await frame()
+      const now = JSON.stringify(read())
+      if (now === last) return read()
+      last = now
+    }
+    throw new Error('the menu did not settle')
+  }, `Options for ${name}`)
 
 /** Opens `name`'s menu (`scope`'s ⋮), checks it is wholly on screen, then picks Count plates on this machine: its sheet opens. */
 async function opensInside(page: Page, scope: Locator, name: string, what: string) {
   await scope.getByRole('button', { name: `Options for ${name}` }).click()
   const menu = page.getByRole('menu', { name: `Options for ${name}` })
   await expect(menu).toBeVisible()
-  const { width, bottom } = await room(page)
-  const box = (await menu.boundingBox())!
+  const box = await settled(page, name)
   expect(box.x, `${what}: the menu starts inside the screen`).toBeGreaterThanOrEqual(0)
-  expect(box.x + box.width, `${what}: the menu ends inside the screen`).toBeLessThanOrEqual(width)
+  expect(box.x + box.width, `${what}: the menu ends inside the screen`).toBeLessThanOrEqual(box.roomWidth)
   expect(box.y, `${what}: the menu's top is on screen`).toBeGreaterThanOrEqual(0)
-  expect(box.y + box.height, `${what}: the menu is above the docked bars`).toBeLessThanOrEqual(bottom)
-  for (const item of await menu.getByRole('menuitem').all()) {
-    const b = (await item.boundingBox())!
-    expect(b.x >= 0 && b.x + b.width <= width && b.y >= 0 && b.y + b.height <= bottom, `${what}: ${await item.textContent()} is whole on screen`).toBe(true)
+  expect(box.y + box.height, `${what}: the menu is above the docked bars`).toBeLessThanOrEqual(box.roomBottom)
+  // Every item whole on screen, unless the menu is taller than its room and scrolls: then each is inside the menu's box.
+  for (const item of box.items) {
+    if (box.scrolls) continue
+    expect(item.x >= 0 && item.right <= box.roomWidth && item.y >= 0 && item.bottom <= box.roomBottom, `${what}: ${item.text} is whole on screen`).toBe(true)
   }
   await menu.getByRole('menuitem', { name: 'Count plates on this machine' }).click()
   const sheet = page.getByRole('dialog', { name: `Count plates on ${name}` })
@@ -80,6 +108,8 @@ for (const [width, height] of [
 for (const load of ['kg', 'plates'] as const) {
   test.describe(`the ⋮ menu at ${width} px, ${load}`, () => {
     test.use({ viewport: { width, height } })
+    // Generous: three menus and two sheets per test, beside other workers.
+    test.describe.configure({ timeout: 90_000 })
 
     test('opens inside the screen from the start card, the open card and a folded row, and the head keeps ⓘ and ⋮ together', async ({ page }) => {
       await openOnWednesday(page)
@@ -108,3 +138,71 @@ for (const load of ['kg', 'plates'] as const) {
     })
   })
 }
+
+test.describe('the ⋮ menu, more cases', () => {
+  test.describe.configure({ timeout: 90_000 })
+
+  test('a name of one very long word does not push the ⋮ off the open card', async ({ page }) => {
+    await page.setViewportSize({ width: 306, height: 664 })
+    await openOnWednesday(page)
+    const word = 'Supercalifragilisticexpialidociouspulldown'
+    await page.evaluate(async (name) => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems'], 'readwrite')
+      const done = new Promise<void>((ok) => (tx.oncomplete = () => ok()))
+      const request = tx.objectStore('exercises').add({ name, category: 'ACCESSORY', parentLift: null, muscles: ['LATS'], isBuiltIn: false, archived: false })
+      request.onsuccess = () => tx.objectStore('planItems').add({ weekday: 3, exerciseId: request.result, sets: 3, reps: 10, targetRpe: 8, order: 0, mode: 'POWERLIFTING' })
+      await done
+      db.close()
+    }, word)
+    await page.reload()
+    await page.getByRole('button', { name: 'Start session', exact: true }).click()
+    const head = page.locator('.today-card-head')
+    await expect(head.getByRole('heading', { name: word })).toBeVisible()
+    const [title, more, card] = await Promise.all([
+      head.getByRole('heading', { name: word }).evaluate((h) => ({ right: h.getBoundingClientRect().right, scroll: h.scrollWidth, client: h.clientWidth })),
+      head.getByRole('button', { name: `Options for ${word}` }).boundingBox(),
+      head.boundingBox(),
+    ])
+    expect(more!.x + more!.width, 'the ⋮ inside the card').toBeLessThanOrEqual(card!.x + card!.width + 0.5)
+    expect(title.scroll, 'the name breaks rather than run past its box').toBeLessThanOrEqual(title.client + 1)
+    await opensInside(page, head, word, 'open card, one long word')
+  })
+
+  test('a menu taller than its room scrolls, and the arrow keys reach every item', async ({ page }) => {
+    // 160 px wide, and short: the two wrapped items do not fit above or below the start card's ⋮.
+    await page.setViewportSize({ width: 160, height: 230 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    const row = page.locator('.today-plan-line').first()
+    await row.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await row.getByRole('button', { name: 'Options for Cable chest press' }).click()
+    const box = await settled(page, 'Cable chest press')
+    expect(box.y).toBeGreaterThanOrEqual(0)
+    expect(box.y + box.height).toBeLessThanOrEqual(box.roomBottom)
+    expect(box.scrolls, 'the menu scrolls').toBe(true)
+    const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
+    await expect(menu.getByRole('menuitem').first()).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    const last = menu.getByRole('menuitem').last()
+    await expect(last).toBeFocused()
+    // The focused item is scrolled into the menu's view.
+    const [item, list] = await Promise.all([last.boundingBox(), menu.boundingBox()])
+    expect(item!.y + item!.height).toBeLessThanOrEqual(list!.y + list!.height + 1)
+    expect(item!.y).toBeGreaterThanOrEqual(list!.y - 1)
+  })
+
+  test('a menu closes when the window changes size', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    await page.locator('.today-plan-line').first().getByRole('button', { name: 'Options for Cable chest press' }).click()
+    await expect(page.getByRole('menu')).toBeVisible()
+    await page.setViewportSize({ width: 844, height: 390 })
+    await expect(page.getByRole('menu')).toHaveCount(0)
+  })
+})

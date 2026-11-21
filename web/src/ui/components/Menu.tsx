@@ -25,12 +25,17 @@ export type MenuProps = {
   className?: string
 }
 
-const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false }
+const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false, maxHeight: null }
 
-/** The room a menu has: the window, above the rest bar and the tab bar. */
-function menuRoom() {
+/**
+ * The room a menu has: the window, above the rest bar and the tab bar, and below the top of the screen it scrolls in,
+ * past that screen's safe-area padding (the status bar, the notch, the iOS Home Screen app's extra band).
+ */
+function menuRoom(from: Element) {
   const docked = [...document.querySelectorAll('.shell-rest, .gr-tabbar')].map((el) => el.getBoundingClientRect().top).filter((top) => top > 0)
-  return { left: 0, top: 0, right: window.innerWidth, bottom: Math.min(window.innerHeight, ...docked) }
+  const screen = from.closest('.shell-main')
+  const top = screen ? screen.getBoundingClientRect().top + parseFloat(getComputedStyle(screen).paddingTop || '0') : 0
+  return { left: 0, top: Math.max(0, top), right: window.innerWidth, bottom: Math.min(window.innerHeight, ...docked) }
 }
 
 /**
@@ -45,6 +50,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   const list = useRef<HTMLDivElement>(null)
   const listId = useId()
   const [placement, setPlacement] = useState<MenuPlacement>(AS_BEFORE)
+  const placed = useRef(false)
 
   // Placed before it is drawn: measured where it would open as before, then moved only if it leaves the screen.
   useLayoutEffect(() => {
@@ -55,13 +61,40 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     const button = trigger.current?.getBoundingClientRect()
     const menu = list.current
     if (!button || !menu) return
-    setPlacement(placeMenu(button, { width: menu.offsetWidth, height: menu.offsetHeight }, menuRoom()))
+    const where = placeMenu(button, { width: menu.offsetWidth, height: menu.offsetHeight }, menuRoom(menu))
+    // The cap is on the whole box: max-height counts the content only, so take the padding and the border off.
+    const style = getComputedStyle(menu)
+    const chrome = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce((sum, key) => sum + (parseFloat(style[key as 'paddingTop']) || 0), 0)
+    placed.current = true
+    setPlacement(where.maxHeight != null ? { ...where, maxHeight: Math.max(0, where.maxHeight - chrome) } : where)
   }, [open])
+
+  // Placed once, when it opens: a change of the window's size (a rotation, the on-screen keyboard) closes it rather than
+  // leave it where it may no longer fit.
+  useEffect(() => {
+    if (!open) return
+    const close = () => setOpen(false)
+    const viewport = window.visualViewport
+    window.addEventListener('resize', close)
+    window.addEventListener('orientationchange', close)
+    viewport?.addEventListener('resize', close)
+    return () => {
+      window.removeEventListener('resize', close)
+      window.removeEventListener('orientationchange', close)
+      viewport?.removeEventListener('resize', close)
+    }
+  }, [open])
+
+  // Once it is placed (the render after the layout effect above): brought into view, and its first action focused.
+  useEffect(() => {
+    if (!open || !placed.current) return
+    placed.current = false
+    list.current?.scrollIntoView?.({ block: 'nearest' })
+    list.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+  }, [open, placement])
 
   useEffect(() => {
     if (!open) return
-    list.current?.scrollIntoView?.({ block: 'nearest' })
-    list.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
     const onPress = (e: PointerEvent) => {
       if (!root.current?.contains(e.target as Node)) setOpen(false)
     }
@@ -93,7 +126,15 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
           ref={list}
           id={listId}
           className={cx('gr-menu-list', placement.align === 'start' && 'gr-menu-list-start', placement.up && 'gr-menu-list-up')}
-          style={placement.shift !== 0 ? ({ transform: `translateX(${placement.shift}px)` } as CSSProperties) : undefined}
+          style={
+            placement.shift !== 0 || placement.maxHeight != null
+              ? ({
+                  ...(placement.shift !== 0 ? { transform: `translateX(${placement.shift}px)` } : {}),
+                  // Taller than the room it has either way: as tall as that room, and it scrolls (focus moves the items into view).
+                  ...(placement.maxHeight != null ? { maxHeight: `${placement.maxHeight}px`, overflowY: 'auto' } : {}),
+                } as CSSProperties)
+              : undefined
+          }
           role="menu"
           aria-label={label}
         >

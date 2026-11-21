@@ -4,9 +4,9 @@ export type Box = { left: number; top: number; right: number; bottom: number }
 /**
  * Where a menu opens beside its button (1.17.1). `align: 'end'` lines the menu's right edge up with the button's, as
  * menus always opened; `'start'` its left edge with the button's. `shift` moves it right by that many px. `up` opens it
- * above the button instead of under it.
+ * above the button instead of under it. `maxHeight`, when set, caps its height (it then scrolls).
  */
-export type MenuPlacement = { align: 'start' | 'end'; shift: number; up: boolean }
+export type MenuPlacement = { align: 'start' | 'end'; shift: number; up: boolean; maxHeight: number | null }
 
 /** How far a menu keeps from the edge of its room. */
 export const MENU_MARGIN = 8
@@ -18,7 +18,8 @@ const OVERLAP = 4
  * Places a menu of `size` for the button at `trigger`, inside `room` (the window, above the docked bars). A menu that
  * fits opens as it always did: under the button, right edges aligned. Only one that would leave the room moves: lined up
  * with the button's left edge, else moved over until it is inside; and above the button when it has no room under it
- * but has room above. When it has room neither way it opens under, and the screen scrolls to it.
+ * but has room above. When it has room neither way it opens under, and the screen scrolls to it; one taller than the
+ * whole room is capped at the room's height and scrolls, so it is never cut.
  */
 export function placeMenu(trigger: Box, size: { width: number; height: number }, room: Box, margin = MENU_MARGIN): MenuPlacement {
   const minLeft = room.left + margin
@@ -30,8 +31,12 @@ export function placeMenu(trigger: Box, size: { width: number; height: number },
     if (trigger.left + size.width <= maxRight) align = 'start'
     else shift = minLeft - endLeft
   }
-  const downBottom = trigger.bottom - OVERLAP + size.height
-  const upTop = trigger.top + OVERLAP - size.height
-  const up = downBottom > room.bottom - margin && upTop >= room.top + margin
-  return { align, shift, up }
+  const below = room.bottom - margin - (trigger.bottom - OVERLAP)
+  const above = trigger.top + OVERLAP - (room.top + margin)
+  if (size.height <= below) return { align, shift, up: false, maxHeight: null }
+  if (size.height <= above) return { align, shift, up: true, maxHeight: null }
+  // Room on neither side: under the button, as before, and the screen scrolls to it; capped at the room's height (and
+  // scrolling itself) only when it is taller than the whole room.
+  const tallest = room.bottom - room.top - 2 * margin
+  return { align, shift, up: false, maxHeight: size.height > tallest ? Math.max(0, tallest) : null }
 }
