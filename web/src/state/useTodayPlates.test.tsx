@@ -515,6 +515,96 @@ describe('plates on Today', () => {
     expect(itemOf(vm, id)!.editor).toStrictEqual({ weightKg: null, reps: 8, rpe: 8 })
   })
 
+  it('aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored: half steps to whole plates the same day', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'HALF' })
+    await planToday(id)
+    await past(addDays(TODAY, -7), id, plates(7.5))
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target).toMatchObject({ weightKg: 7.5, unit: 'PLATES' }))
+    const half = itemOf(vm, id)!.suggestion!
+
+    await choose(vm, id, 'WHOLE')
+
+    // Plate 7½ is off the whole-plate grid: it is not shown, and the coach stores a whole-plate one beside it.
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeTruthy())
+    expect(itemOf(vm, id)!.suggestion!.id).not.toBe(half.id)
+    const whole = itemOf(vm, id)!.suggestion!
+    expect(whole.target.unit).toBe('PLATES')
+    expect(grit.plateCheck(whole.target.weightKg, 'WHOLE')).toBe('OK')
+    await act(() => vm.current.applyTarget(whole.id))
+    await waitFor(() => expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: whole.target.weightKg, unit: 'PLATES' }))
+    // Nothing stored is deleted or rewritten: the half-step target is still there, as it was.
+    expect((await todaysPayloads()).map((p) => [p.unit, p.weightKg])).toEqual([
+      ['PLATES', 7.5],
+      ['PLATES', whole.target.weightKg],
+    ])
+    expect((await db.advice.get(half.id))!.status).toBe('OPEN')
+  })
+
+  it('aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored: whole plates to half steps keeps the whole one', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'WHOLE' })
+    await planToday(id)
+    await past(addDays(TODAY, -7), id, plates(7))
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target).toMatchObject({ weightKg: 7, unit: 'PLATES' }))
+    const whole = itemOf(vm, id)!.suggestion!
+
+    await choose(vm, id, 'HALF')
+
+    await waitFor(() => expect(itemOf(vm, id)!.plateCount).toBe('HALF'))
+    // A whole plate is on the half-step grid: it stays, and no second one is stored.
+    expect(itemOf(vm, id)!.suggestion).toStrictEqual(whole)
+    expect(await todaysPayloads()).toHaveLength(1)
+  })
+
+  it('aPlateTargetOffTheCurrentGrid_isNotUsed_andAFreshOneIsStored: a kg target is never affected', async () => {
+    const id = await pulldownRow()
+    await planToday(id)
+    // 7.5 kg: a number that would be off the whole-plate grid, were it a plate.
+    await past(addDays(TODAY, -7), id, { weightKg: 7.5 })
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion).toBeTruthy())
+    const kg = itemOf(vm, id)!.suggestion!
+    expect(kg.target.unit).toBeUndefined()
+    expect(grit.plateCheck(kg.target.weightKg, 'WHOLE')).not.toBe('OK')
+
+    await choose(vm, id, 'WHOLE')
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeNull())
+    await choose(vm, id, 'OFF')
+
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion?.id).toBe(kg.id))
+    expect(itemOf(vm, id)!.suggestion).toStrictEqual(kg)
+    expect(await todaysPayloads()).toHaveLength(1)
+  })
+
+  it('aPlateSetOutOfRange_isNeverStored_whateverBuiltIt: a kept editor row at plate 0', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'WHOLE' })
+    await planToday(id)
+    await startSession(db, TODAY)
+    // Hand-edited (or damaged) in meta: plate 0 is no plate.
+    await db.meta.put({ key: `editor:${TODAY}:${id}`, value: { weightKg: 0, reps: 8, rpe: 8, unit: 'PLATES' } })
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.editor.weightKg).toBe(0))
+    const { weightKg, reps, rpe } = itemOf(vm, id)!.editor
+
+    await act(() => vm.current.logSet(id, { weightKg: weightKg!, reps, rpe, failed: false, unit: 'PLATES' }))
+    // Over the highest plate, and a set that reaches the save as confirmed: neither is stored.
+    await act(() => vm.current.logSet(id, plateInput(grit.maxPlate() + 1)))
+    await act(() => vm.current.logSet(id, plateInput(0), true))
+
+    expect(vm.current.pending).toBeNull()
+    expect(await setsOn(db, TODAY)).toEqual([])
+    // A half with whole plates on is off the grid, not out of range: the design lets it stand.
+    await log(vm, id, plateInput(7.5))
+    expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([[7.5, 'PLATES']])
+  })
+
   it('a change of setting asks the coach again, also when made elsewhere', async () => {
     const id = await pulldownRow()
     await planToday(id)

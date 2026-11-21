@@ -246,6 +246,16 @@ const unitKey = (unit: LoadUnit): { unit?: LoadUnit } => (unit === 'PLATES' ? { 
 /** Today holds at most one target for each exercise and unit (1.17): a kg target does not stand in for the plate one. */
 const targetKey = (t: Target) => `${t.exerciseId}:${setUnit(t)}`
 
+/**
+ * Whether [t] can stand for its exercise under the setting [plateCount] (1.17): a kg target always; a plate one only
+ * when its plate is on the setting's grid. Plate 7½ stored under half steps is not used once whole plates are on, and
+ * the coach stores a fresh one beside it; a whole plate stays good under half steps.
+ */
+const onGrid = (t: Target, plateCount: PlateCount | undefined) => setUnit(t) !== 'PLATES' || grit.plateCheck(t.weightKg, plateCount ?? 'OFF') === 'OK'
+
+/** A plate number under plate 1 or over the highest plate (`plateCheck`'s RANGE): no machine has it, so it is never stored. */
+const plateOutOfRange = (plate: number) => !(plate >= 1 && plate <= grit.maxPlate())
+
 /** The TARGET advice stored for `date` on `side`, in every status, oldest first. Each side has its own targets. */
 function todaysTargets(advice: AdviceRow[], date: string, side: TrainingMode): Stored['targets'] {
   return advice.flatMap((a) => {
@@ -332,7 +342,13 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
       const side = await sideFor(db, date, settings)
       const plan = await planFor(db, side)
       // Each unit has its own target (1.17): one stored in kg does not stand in for the plate one, nor the other way.
-      const known = new Set(todaysTargets(advice, date, side).map((t) => targetKey(t.target)))
+      // A plate target off the exercise's current grid does not count: the pass stores one on it, beside the old one.
+      const settingOf = new Map(history.exercises.map((e) => [e.id, e.plateCount as PlateCount]))
+      const known = new Set(
+        todaysTargets(advice, date, side)
+          .filter((t) => onGrid(t.target, settingOf.get(t.target.exerciseId)))
+          .map((t) => targetKey(t.target)),
+      )
       // The whole advice list: the domain counts each side's own, and every deload and easing back in.
       const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
       const fresh: AdviceRow[] = []
@@ -453,7 +469,8 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     const plateCount = exercise.plateCount as PlateCount
     const sets = d.sets.filter((s) => s.exerciseId === exercise.id)
     // A stored target in the other unit is neither shown nor applied.
-    const mine = d.targets.filter((t) => t.target.exerciseId === exercise.id && setUnit(t.target) === unit)
+    // Nor is a plate target off the current grid (plate 7½ once whole plates are on): the coach's pass stores a fresh one.
+    const mine = d.targets.filter((t) => t.target.exerciseId === exercise.id && setUnit(t.target) === unit && onGrid(t.target, plateCount))
     const applied = mine.filter((t) => t.status === 'APPLIED').pop()?.target
     // The domain's last top set is read in the exercise's current unit (`inCurrentUnits`).
     const top = lastTopSet(d.history, exercise.id, d.date)
@@ -857,6 +874,9 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         if (now.sessionId == null) throw new Error('There is no session to log to.')
         const item = now.items.find((i) => i.exercise.id === (now.resolved[itemKey] ?? itemKey))
         const lastWeightKg = item?.lastWeightKg ?? null
+        // The backstop, whatever built the set (a hand-edited kept editor row): a plate number outside plate 1 to the
+        // highest plate is never stored. Off the grid is not refused here: a logged half stands with whole plates on.
+        if (setUnit(set) === 'PLATES' && plateOutOfRange(set.weightKg)) return
         if (!confirmed) {
           // A number typed in one unit is never stored in the other (1.17): if the exercise's setting changed between
           // the screen being drawn and the tap (another tab, a slow tap), the set is refused, not relabelled, and the

@@ -230,6 +230,36 @@ describe('the plate item and the sheet', () => {
     expect(checked()).toEqual([false, false, true])
   })
 
+  it('theTappedChoice_staysMarked_afterAGoodSave_untilTheStoredSettingShowsIt', async () => {
+    // The save (the write and the coach's pass) settles before the live query shows the new setting.
+    const saves: { done: () => void; fail: () => void }[] = []
+    const onChoose = vi.fn(() => new Promise<void>((done, reject) => saves.push({ done, fail: () => reject(new Error('disk full')) })))
+    const sheetWith = (current: 'OFF' | 'WHOLE' | 'HALF') => <PlateCountSheet name="Lat pulldown" current={current} note={null} onChoose={onChoose} onDismiss={() => {}} />
+    const { rerender } = render(sheetWith('OFF'))
+    const sheet = within(screen.getByRole('dialog', { name: 'Count plates on Lat pulldown' }))
+    const checked = () => sheet.getAllByRole('radio').map((r) => (r as HTMLInputElement).checked)
+    await act(async () => {})
+    pastTheTapWindow()
+
+    await userEvent.click(sheet.getByRole('radio', { name: 'Whole plates' }))
+    await act(async () => saves[0]!.done())
+    // Saved, but the stored setting on screen is still the old one: the mark does not flick back to In kg.
+    expect(checked()).toEqual([false, true, false])
+    rerender(sheetWith('OFF'))
+    expect(checked()).toEqual([false, true, false])
+    rerender(sheetWith('WHOLE'))
+    expect(checked()).toEqual([false, true, false])
+    // Once shown, the stored setting leads again: changed elsewhere, the mark follows it.
+    rerender(sheetWith('HALF'))
+    expect(checked()).toEqual([false, false, true])
+
+    // A failed save goes back to what is stored at once.
+    await userEvent.click(sheet.getByRole('radio', { name: 'In kg' }))
+    expect(checked()).toEqual([true, false, false])
+    await act(async () => saves[1]!.fail())
+    expect(checked()).toEqual([false, false, true])
+  })
+
   it('a failed save says so, and the sheet shows what is stored', async () => {
     await planToday(pulldown)
     show()
