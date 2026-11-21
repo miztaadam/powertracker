@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -10,6 +11,12 @@ import { figureThumbnailsPlugin } from './plugins/figureThumbnails'
 type VercelHeaders = { headers: { source: string; headers: { key: string; value: string }[] }[] }
 const vercel = JSON.parse(readFileSync(new URL('./vercel.json', import.meta.url), 'utf8')) as VercelHeaders
 const csp = vercel.headers.find((h) => h.source === '/(.*)')?.headers.find((h) => h.key === 'Content-Security-Policy')?.value
+
+// Loaded into the generated service worker: reloads the windows the previous version controlled once a new version
+// takes over (public/sw-reload-clients.js). Its URL carries a hash of its content, so sw.js changes whenever it does
+// (the browser then installs the new worker) and no cache can hand back an older copy under the same URL.
+const reloadClients = 'sw-reload-clients.js'
+const reloadClientsHash = createHash('sha256').update(readFileSync(new URL(`./public/${reloadClients}`, import.meta.url))).digest('hex').slice(0, 12)
 
 export default defineConfig({
   plugins: [
@@ -29,6 +36,7 @@ export default defineConfig({
         // "workbox.maximumFileSizeToCacheInBytes" to change the limit: the default value is 2 MiB. ... Assets exceeding
         // the limit: - assets/index-….js is 2.1 MB, and won't be precached." So the limit is 3 MiB.
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        importScripts: [`${reloadClients}?v=${reloadClientsHash}`],
       },
     }),
   ],
