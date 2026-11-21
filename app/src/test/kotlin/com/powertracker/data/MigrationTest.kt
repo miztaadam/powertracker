@@ -8,6 +8,7 @@ import com.powertracker.data.db.MIGRATION_1_2
 import com.powertracker.data.db.MIGRATION_2_3
 import com.powertracker.data.db.MIGRATION_3_4
 import com.powertracker.data.db.MIGRATION_4_5
+import com.powertracker.data.db.MIGRATION_5_6
 import com.powertracker.data.db.StrictPressUpgrade
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -315,7 +316,7 @@ class MigrationTest {
         val app = AppDatabase.build(context)
         try {
             val db = app.openHelper.writableDatabase
-            assertEquals(5, db.version)
+            assertEquals(6, db.version)
             assertEquals(listOf(1L to 1L), sets(db))
             assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
         } finally {
@@ -339,6 +340,78 @@ class MigrationTest {
         assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
         assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
         db.close()
+    }
+
+    @Test
+    fun schemaV5_opens() {
+        helper.createDatabase(name, 5).close()
+    }
+
+    /**
+     * 1.17: a version 5 database gains a unit on every set and a plate setting on every exercise, and every stored row
+     * reads kg and off. Nothing stored changes.
+     */
+    @Test
+    fun migrate5to6_addsTheTwoColumns_andEveryStoredRowReadsKgAndOff() {
+        helper.createDatabase(name, 5).use { db ->
+            exercise(db, 1, "Squat", "SQUAT", builtIn = true)
+            exercise(db, 2, "Lat pulldown", "ACCESSORY", builtIn = true)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+            set(db, 2, 1, 2, 7.0)
+            set(db, 3, 1, 2, 52.5)
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 6, true, MIGRATION_5_6)
+
+        assertEquals(listOf("KG", "KG", "KG"), strings(db, "SELECT unit FROM logged_set ORDER BY id"))
+        assertEquals(listOf("OFF", "OFF"), strings(db, "SELECT plateCount FROM exercise ORDER BY id"))
+        assertEquals(listOf("Squat", "Lat pulldown"), strings(db, "SELECT name FROM exercise ORDER BY id"))
+        db.query("SELECT weightKg, reps FROM logged_set ORDER BY id").use { c ->
+            val rows = buildList { while (c.moveToNext()) add(c.getDouble(0) to c.getInt(1)) }
+            assertEquals(listOf(140.0 to 5, 7.0 to 5, 52.5 to 5), rows)
+        }
+        assertEquals(listOf(1L to 1L, 2L to 2L, 3L to 2L), sets(db))
+        // A row written after the upgrade without the new columns still reads kg and off from the column defaults.
+        db.execSQL("INSERT INTO exercise (id, name, category, parentLift, muscles, isBuiltIn, archived) VALUES (3, 'Leg press', 'ACCESSORY', NULL, '[]', 1, 0)")
+        set(db, 4, 1, 3, 100.0)
+        assertEquals(listOf("OFF"), strings(db, "SELECT plateCount FROM exercise WHERE id = 3"))
+        assertEquals(listOf("KG"), strings(db, "SELECT unit FROM logged_set WHERE id = 4"))
+        db.close()
+    }
+
+    /** A version 1 database reaches version 6 through every upgrade in turn, in the helper and in the app's own database. */
+    @Test
+    fun allMigrations_1to6_openInTheApp() {
+        helper.createDatabase(name, 1).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+        }
+        val migrated = helper.runMigrationsAndValidate(name, 6, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        assertEquals(listOf(1L to 1L), sets(migrated))
+        assertEquals(listOf("KG"), strings(migrated, "SELECT unit FROM logged_set"))
+        migrated.close()
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        context.deleteDatabase(APP_DB)
+        helper.createDatabase(APP_DB, 1).use { db ->
+            seedMainLifts(db)
+            session(db, 1, 20_400)
+            set(db, 1, 1, 1, 140.0)
+        }
+        val app = AppDatabase.build(context)
+        try {
+            val db = app.openHelper.writableDatabase
+            assertEquals(6, db.version)
+            assertEquals(listOf(1L to 1L), sets(db))
+            assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
+            assertEquals(listOf("KG"), strings(db, "SELECT unit FROM logged_set"))
+            assertEquals(listOf("OFF"), strings(db, "SELECT DISTINCT plateCount FROM exercise"))
+        } finally {
+            app.close()
+            context.deleteDatabase(APP_DB)
+        }
     }
 
     private data class Row(val id: Long, val name: String, val category: String, val builtIn: Boolean, val archived: Boolean)
