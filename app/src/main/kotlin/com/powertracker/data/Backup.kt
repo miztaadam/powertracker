@@ -20,10 +20,10 @@ import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlateCount
-import com.powertracker.domain.stack.PlateCheck
-import com.powertracker.domain.stack.PlateStack
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.stack.PlateCheck
+import com.powertracker.domain.stack.PlateStack
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
