@@ -1,0 +1,419 @@
+/*
+ * 1.17.2: the other tabs (Coach, Progress, Exercises, Plan, Settings) on a 320 px phone at 200 % text, laid out about
+ * 160 px wide. Nothing is cut, nothing overlaps and nothing scrolls sideways: text wraps at its spaces, a row of controls
+ * that cannot fit goes under its text, and every touch target keeps at least its size. Today has its own rules
+ * (today.css), so every rule here leaves it out (`.screen:not(.today-screen)`); and every rule is inside the app's
+ * screen (`.shell-main`), so the guide's pictures of these screens, drawn outside it, are as before. Nothing changes
+ * wider than 239 px.
+ */
+@media (max-width: 239px) {
+  /* Room, as on Today: the screen's sides 8 px (were 16 or 20), the cards' padding at most 12 px. */
+  .shell-main .screen:not(.today-screen) > .screen-body {
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-card {
+    padding: min(var(--card-padding, var(--space-5)), var(--space-4));
+  }
+
+  /* The header: the eyebrow and the title wrap and are whole; an action goes under the title, a back button over it. */
+  .shell-main .screen:not(.today-screen) > .gr-screen-header {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .screen:not(.today-screen) > .gr-screen-header > .gr-screen-header-text {
+    flex-basis: 100%;
+    padding-left: 0;
+  }
+
+  .shell-main .screen:not(.today-screen) > .gr-screen-header-nav > .gr-screen-header-text {
+    order: 1;
+  }
+
+  /* The title at the next size down: "Exercises" at the large size is wider than the screen. */
+  .shell-main .screen:not(.today-screen) .gr-screen-title {
+    font: 700 26px/30px var(--font-display);
+    white-space: normal;
+    overflow: visible;
+  }
+
+  /* Eyebrows (a screen's, a section's, a card's tag, a figure's label) wrap, never cut. */
+  .shell-main .screen:not(.today-screen) .eyebrow {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  /* Button words wrap at a space; each button keeps its height, and its face's sides are a little tighter. */
+  .shell-main .screen:not(.today-screen) .gr-btn-text {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-btn-face {
+    min-width: 0;
+    padding-inline: var(--space-3);
+    text-align: center;
+  }
+
+  /* A row of buttons stacks, each as wide as its card. */
+  .shell-main .screen:not(.today-screen) .gr-advice-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Figures: a number and its unit may take two lines; a word value ("Off the shoulders") wraps at its spaces. */
+  .shell-main .screen:not(.today-screen) .gr-number-row {
+    flex-wrap: wrap;
+    column-gap: var(--space-1);
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-number-value {
+    white-space: normal;
+  }
+
+  /* The total, Progress's hero figure, at the next size down: "557.5" at the hero size is wider than the card. */
+  .shell-main .screen:not(.today-screen) .gr-number-value.display-large {
+    font: 700 44px/46px var(--font-display);
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-stat {
+    padding: var(--space-3);
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-stat-note {
+    white-space: normal;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-pill {
+    white-space: normal;
+  }
+
+  /* A ratio: its name on a line of its own, then the rating and the figure. */
+  .shell-main .screen:not(.today-screen) .gr-ratio-head {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-ratio-label {
+    flex-basis: 100%;
+  }
+
+  /* A segmented choice that cannot fit one line: two to a row, each a full 48 px target. */
+  .shell-main .screen:not(.today-screen) .gr-segmented {
+    flex-wrap: wrap;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-segmented .gr-segment {
+    flex: 1 1 50%;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-segment-face {
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* ---- Coach ---- */
+
+  /* An accessory or an addition: its name on the list's whole width, then sets × reps and its ⓘ under it. */
+  .shell-main .screen:not(.today-screen) .coach-list {
+    padding-left: var(--space-4);
+  }
+
+  .shell-main .screen:not(.today-screen) .coach-list-row {
+    flex-wrap: wrap;
+    column-gap: var(--space-2);
+    padding-top: var(--space-3);
+  }
+
+  .shell-main .screen:not(.today-screen) .coach-list-name {
+    flex-basis: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .shell-main .screen:not(.today-screen) .coach-list-row > :last-child {
+    margin-left: auto;
+  }
+
+  /* The e1RM over its trend, and the deload's two figures one over the other. */
+  .shell-main .screen:not(.today-screen) .coach-trend,
+  .shell-main .screen:not(.today-screen) .coach-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shell-main .screen:not(.today-screen) .coach-spark {
+    flex: none;
+  }
+
+  /* A long one-word name breaks only where it would otherwise run past the card. */
+  .shell-main .screen:not(.today-screen) .gr-advice-title,
+  .shell-main .screen:not(.today-screen) .gr-advice-body {
+    overflow-wrap: break-word;
+  }
+
+  /* ---- Progress ---- */
+
+  /* The total over its trend; the lifts one under the other. */
+  .shell-main .screen:not(.today-screen) .progress-total {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-total-spark {
+    flex: none;
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-tiles,
+  .shell-main .screen:not(.today-screen) .progress-tiles-pairs {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* A record: the cup and the lift, then the e1RM under them. */
+  .shell-main .screen:not(.today-screen) .progress-records {
+    padding-inline: var(--space-4);
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-record-visual {
+    flex-wrap: wrap;
+    column-gap: var(--space-3);
+    padding-block: var(--space-2);
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-record-text {
+    flex-basis: calc(100% - 36px - var(--space-3));
+  }
+
+
+  /* A line chart's dates may take two lines each ("18" over "May"), so the three fit under a narrow plot without
+     overlapping; the row under the plot is two lines tall. */
+  .shell-main .screen:not(.today-screen) .gr-plot {
+    height: calc(168px + 16px);
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-plot-x {
+    height: 32px;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-plot-x-label {
+    width: min-content;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-plot-x-first {
+    text-align: left;
+  }
+
+  .shell-main .screen:not(.today-screen) .gr-plot-x-last {
+    text-align: right;
+  }
+
+  /* Weekly volume: the lift and this week's figure over its eight bars, each line the card's width. */
+  .shell-main .screen:not(.today-screen) .progress-volume {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-volume-label {
+    width: auto;
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-volume-name {
+    white-space: normal;
+  }
+
+  .shell-main .screen:not(.today-screen) .progress-volume-bars {
+    flex: none;
+  }
+
+  /* The bodybuilding side: a name wraps; a body part's rating goes under its name when they do not fit. */
+  .shell-main .screen:not(.today-screen) .bb-row {
+    padding-inline: var(--space-4) var(--space-2);
+  }
+
+  /* A row of the bodybuilding side: its name and best sets on the row's whole width, the trend and the chevron under
+     them on the right. */
+  .shell-main .screen:not(.today-screen) .bb-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: var(--space-1);
+  }
+
+  .shell-main .screen:not(.today-screen) .bb-row-text {
+    flex-basis: 100%;
+  }
+
+  .shell-main .screen:not(.today-screen) .bb-row-name {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .shell-main .screen:not(.today-screen) .bb-part {
+    padding-inline: var(--space-4);
+  }
+
+  .shell-main .screen:not(.today-screen) .bb-part-head {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+
+  /* ---- Exercises ---- */
+
+  /* The whole tab scrolls, the search and the chips with the list: at this size they would leave the list no room. */
+  .shell-main .lib-screen {
+    height: auto;
+  }
+
+  .shell-main .lib-screen .lib-scroll {
+    overflow-y: visible;
+  }
+
+  .shell-main .lib-screen .lib-search {
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .lib-screen .lib-chips,
+  .shell-main .lib-screen .lib-ticked {
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .lib-screen .lib-heading {
+    padding-inline: var(--space-3);
+  }
+
+  /* A row: the name, its muscles and its equipment one under the other on the row's whole width; its ⓘ under them, on
+     the right. */
+  .shell-main .lib-screen .lib-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-bottom: var(--space-1);
+  }
+
+  .shell-main .lib-screen .lib-row::after {
+    left: var(--space-3);
+  }
+
+  .shell-main .lib-screen .lib-row-main {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+    padding-inline: var(--space-3) 0;
+    padding-bottom: 0;
+  }
+
+  .shell-main .lib-screen .lib-row-main > .lib-grow {
+    flex-basis: 100%;
+  }
+
+  .shell-main .lib-screen .lib-row-name,
+  .shell-main .lib-screen .lib-row-muscles {
+    overflow-wrap: break-word;
+  }
+
+  /* ---- Plan ---- */
+
+  .shell-main .screen:not(.today-screen) .plan-day-head {
+    padding-inline: var(--space-4);
+  }
+
+  .shell-main .screen:not(.today-screen) .plan-rows {
+    padding-inline: var(--space-4) var(--space-2);
+  }
+
+  /* A row's sets × reps @ RPE wraps at its spaces; its four controls go under it, two to a line, on the right. */
+  .shell-main .screen:not(.today-screen) .plan-row-dose {
+    white-space: normal;
+  }
+
+  .shell-main .screen:not(.today-screen) .plan-row-name {
+    overflow-wrap: break-word;
+  }
+
+  /* Known bests: the lift and its best, then Set best under them on the right, as a row's controls. */
+  .shell-main .screen:not(.today-screen) .plan-best {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-bottom: var(--space-2);
+  }
+
+  .shell-main .screen:not(.today-screen) .plan-best > .plan-grow {
+    flex-basis: 100%;
+    padding-top: var(--space-3);
+  }
+
+  .shell-main .screen:not(.today-screen) .plan-best-text {
+    padding-block: 0;
+  }
+
+  /* ---- Settings ---- */
+
+  .shell-main .screen:not(.today-screen) .settings-group {
+    padding-inline: var(--space-4);
+  }
+
+  /* A setting's name and line, then its switch or stepper under them, on the right. */
+  .shell-main .screen:not(.today-screen) .settings-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    column-gap: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-row > .settings-label {
+    flex-basis: 100%;
+    padding-bottom: 0;
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-title {
+    white-space: normal;
+  }
+
+  /* A stepper too wide for the row: its value on a line of its own, then − and + at either end. */
+  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper {
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: var(--touch) 1fr var(--touch);
+    row-gap: var(--space-2);
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper > .gr-stepper-value {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper > .gr-step-btn:last-child {
+    grid-column: 3;
+  }
+
+  /* The rest alerts one over the other, each the row's width and a full 48 px target. */
+  .shell-main .screen:not(.today-screen) .settings-rest-alert.gr-segmented {
+    flex-direction: column;
+    padding: var(--space-2);
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-rest-alert .gr-segment-face {
+    padding-block: var(--space-2);
+  }
+
+  /* The seven days, three to a row (Mon Tue Wed, Thu Fri Sat, Sun), each chip a full 48 px target: the card gives up its
+     sides (its border is transparent) so three fit the screen's 144 px. */
+  .shell-main .screen:not(.today-screen) .settings-days {
+    padding-inline: 0;
+    border-inline-width: 0;
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-days-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-days-row .gr-chip {
+    flex: 0 0 calc(100% / 3);
+  }
+}
