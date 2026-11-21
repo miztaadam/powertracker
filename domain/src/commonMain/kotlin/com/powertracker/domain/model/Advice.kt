@@ -25,7 +25,9 @@ data class NewExercise(val weekday: DayOfWeek, val name: String, val sets: Int, 
 sealed interface AdvicePayload {
     /**
      * [sets] overrides the planned set count (e.g. during a deload); null means use the plan's sets. [repsHigh] is the
-     * top of a rep range with [reps] its low end; null means fixed reps, and is left out of the stored JSON.
+     * top of a rep range with [reps] its low end; null means fixed reps, and is left out of the stored JSON. [unit] is
+     * what [weightKg] means (1.17): kg, left out of the stored JSON as every payload stored before reads, or a plate
+     * number.
      */
     @Serializable
     data class Target(
@@ -35,6 +37,7 @@ sealed interface AdvicePayload {
         val rpe: Double,
         val sets: Int? = null,
         val repsHigh: Int? = null,
+        val unit: LoadUnit = LoadUnit.KG,
     ) : AdvicePayload
 
     @Serializable

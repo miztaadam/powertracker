@@ -18,9 +18,11 @@ import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.CheckIn
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.NewExercise
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SetAddition
 import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
@@ -31,6 +33,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -49,10 +52,10 @@ import org.robolectric.RobolectricTestRunner
 
 /**
  * The web app restores the committed Android backup in its own tests, so the file must track what Android really
- * exports: since version 5 (1.13) that is android-v5.json. Regenerate it with
- * `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version 1 to 4 fixtures are frozen: they are what the
+ * exports: since version 6 (1.17) that is android-v6.json. Regenerate it with
+ * `./gradlew :app:testDebugUnitTest -Pfixtures.update=true`. The version 1 to 5 fixtures are frozen: they are what the
  * previous apps wrote, and must keep restoring (versions 1 and 2 with everything on the powerlifting side, version 3
- * with no check-ins, version 4 with no skips).
+ * with no check-ins, version 4 with no skips, version 5 with every set in kg and every exercise off).
  *
  * Comparison is semantic (parsed JSON, `exportedAt` ignored): Kotlin/JS prints whole doubles without ".0",
  * so byte equality would be wrong.
@@ -65,7 +68,8 @@ class BackupFixtureTest {
 
     // Gradle runs app tests with the module directory as the working directory.
     private val fixtureDir = File("../web/src/backup/__fixtures__")
-    private val androidFixture = File(fixtureDir, "android-v5.json")
+    private val androidFixture = File(fixtureDir, "android-v6.json")
+    private val androidV5Fixture = File(fixtureDir, "android-v5.json")
     private val androidV4Fixture = File(fixtureDir, "android-v4.json")
     private val androidV3Fixture = File(fixtureDir, "android-v3.json")
     private val androidV2Fixture = File(fixtureDir, "android-v2.json")
@@ -75,6 +79,7 @@ class BackupFixtureTest {
     private val webV3Fixture = File(fixtureDir, "web-v3.json")
     private val webV4Fixture = File(fixtureDir, "web-v4.json")
     private val webV5Fixture = File(fixtureDir, "web-v5.json")
+    private val webV6Fixture = File(fixtureDir, "web-v6.json")
 
     @Before
     fun setUp() {
@@ -201,6 +206,25 @@ class BackupFixtureTest {
         }
         training.skip(Skip(0, day, TrainingMode.POWERLIFTING, squat, squatItem, null)) { _, _ -> emptyList() }
         training.skip(Skip(0, LocalDate(2026, 10, 28), TrainingMode.POWERLIFTING, bench, null, SkipReason.BUSY)) { _, _ -> emptyList() }
+
+        // Version 6 (1.17), added after everything above so every version 5 row is as it was: two machines counted in
+        // plates (Whole plates, Half steps too), a session with a kg and a plate set of the same exercise, plate 7½, and a
+        // plate target. Only these two exercises carry `plateCount`, and only the plate sets carry `unit`.
+        val pulldown = training.setPlateCount(null, "Lat pulldown", PlateCount.WHOLE)
+        val legPress = training.setPlateCount(null, "Leg press", PlateCount.HALF)
+        val s4 = db.sessions().insert(SessionEntity(date = LocalDate(2026, 11, 5), bodyweightKg = null, readiness = null))
+        db.sets().insert(SetEntity(sessionId = s4, exerciseId = pulldown, weightKg = 55.0, reps = 10, rpe = 8.0, failed = false, missPoint = null, isTopSet = false))
+        db.sets().insert(SetEntity(sessionId = s4, exerciseId = pulldown, weightKg = 7.0, reps = 10, rpe = 8.0, failed = false, missPoint = null, isTopSet = true, unit = LoadUnit.PLATES))
+        val s5 = db.sessions().insert(SessionEntity(date = LocalDate(2026, 11, 6), bodyweightKg = null, readiness = null, mode = TrainingMode.BODYBUILDING))
+        db.sets().insert(SetEntity(sessionId = s5, exerciseId = legPress, weightKg = 7.5, reps = 12, rpe = 8.0, failed = false, missPoint = null, isTopSet = false, unit = LoadUnit.PLATES))
+        db.sets().insert(SetEntity(sessionId = s5, exerciseId = legPress, weightKg = 8.0, reps = 9, rpe = 9.0, failed = false, missPoint = null, isTopSet = false, unit = LoadUnit.PLATES))
+        db.advice().insert(
+            listOf(
+                advice(AdviceType.TARGET, null, "Last time: plate 7 × 10 @ 8. Coach suggests plate 7 × 11 @ 8.", 0,
+                    AdvicePayload.Target(pulldown, 7.0, 11, 8.0, sets = 3, unit = LoadUnit.PLATES), AdviceStatus.OPEN)
+                    .copy(createdAt = LocalDate(2026, 11, 5)),
+            ),
+        )
     }
 
     private fun tree(text: String): JsonElement = Json.parseToJsonElement(text)
@@ -238,7 +262,7 @@ class BackupFixtureTest {
     @Test
     fun androidFixture_holdsBothSides() {
         val root = tree(androidFixture.readText()) as JsonObject
-        assertEquals(JsonPrimitive(5), root.getValue("version"))
+        assertEquals(JsonPrimitive(6), root.getValue("version"))
         for (list in listOf("planItems", "sessions", "advice")) {
             val modes = (root.getValue(list) as JsonArray).map { ((it as JsonObject).getValue("mode") as JsonPrimitive).content }.toSet()
             assertEquals(list, setOf("POWERLIFTING", "BODYBUILDING"), modes)
@@ -266,6 +290,53 @@ class BackupFixtureTest {
         val card = (root.getValue("advice") as JsonArray).map { it as JsonObject }.single { (it.getValue("type") as JsonPrimitive).content == "SKIP" }
         val payload = Json.decodeFromString(AdvicePayload.serializer(), (card.getValue("payload") as JsonPrimitive).content) as AdvicePayload.Skipped
         assertEquals(skips.first { it.getValue("reason") == JsonPrimitive("PAIN") }.getValue("id"), JsonPrimitive(payload.skipId))
+    }
+
+    /**
+     * 1.17: the committed fixture holds plates, so the web app's restore covers them: a Whole plates and a Half steps
+     * exercise, plate sets with 7½ among them, a session with a kg and a plate set of one exercise, and a plate target.
+     * No kg set and no off exercise in the file carries the new key.
+     */
+    @Test
+    fun androidFixture_holdsPlates() {
+        val root = tree(androidFixture.readText()) as JsonObject
+        val exercises = (root.getValue("exercises") as JsonArray).map { it as JsonObject }
+        val counted = exercises.filter { "plateCount" in it }
+        assertEquals(
+            mapOf("Lat pulldown" to "WHOLE", "Leg press" to "HALF"),
+            counted.associate { (it.getValue("name") as JsonPrimitive).content to (it.getValue("plateCount") as JsonPrimitive).content },
+        )
+        for (e in counted) assertEquals("plateCount", e.keys.last())
+        val sets = (root.getValue("sets") as JsonArray).map { it as JsonObject }
+        val plates = sets.filter { "unit" in it }
+        assertEquals(3, plates.size)
+        for (s in plates) {
+            assertEquals(JsonPrimitive("PLATES"), s.getValue("unit"))
+            assertEquals("unit", s.keys.last())
+        }
+        assertTrue(plates.any { (it.getValue("weightKg") as JsonPrimitive).content.toDouble() == 7.5 })
+        val ids = counted.map { (it.getValue("id") as JsonPrimitive).content }.toSet()
+        // One session holds a kg and a plate set of the same exercise.
+        val mixed = sets.groupBy { (it.getValue("sessionId") as JsonPrimitive).content to (it.getValue("exerciseId") as JsonPrimitive).content }
+            .values.filter { group -> group.any { "unit" in it } && group.any { "unit" !in it } }
+        assertEquals(1, mixed.size)
+        assertTrue((mixed.single().first().getValue("exerciseId") as JsonPrimitive).content in ids)
+        val targets = (root.getValue("advice") as JsonArray).map { it as JsonObject }
+            .filter { (it.getValue("type") as JsonPrimitive).content == "TARGET" }
+            .map { Json.decodeFromString(AdvicePayload.serializer(), (it.getValue("payload") as JsonPrimitive).content) as AdvicePayload.Target }
+        assertEquals(1, targets.count { it.unit == LoadUnit.PLATES })
+        assertTrue(Backup.decode(androidFixture.readText()) is BackupResult.Ok)
+    }
+
+    /** 1.17: the 1.16 Android backup (version 5) is frozen and restores exactly, every set in kg and every exercise off. */
+    @Test
+    fun androidV5Fixture_restoresWithEverySetKgAndEveryExerciseOff() = runTest {
+        val actual = restoreAndExport(androidV5Fixture)
+        assertEquals(asUpgradedV5(tree(androidV5Fixture.readText())), actual)
+        assertTrue(db.sets().all().isNotEmpty())
+        assertTrue(db.sets().all().all { it.unit == LoadUnit.KG })
+        assertTrue(db.exercises().all().all { it.plateCount == PlateCount.OFF })
+        assertEquals(3, db.skips().all().size)
     }
 
     /** 1.13: the 1.12 Android backup (version 4) restores exactly, with no skips. */
@@ -316,7 +387,7 @@ class BackupFixtureTest {
         val fixture = tree(webV5Fixture.readText()) as JsonObject
         assertEquals(JsonPrimitive(5), fixture.getValue("version"))
         val actual = restoreAndExport(webV5Fixture)
-        assertEquals(withoutExportedAt(fixture), actual)
+        assertEquals(asUpgradedV5(fixture), actual)
         val skips = TrainingRepository(db).skips().first()
         assertEquals((fixture.getValue("skips") as JsonArray).size, skips.size)
         assertTrue(skips.isNotEmpty())
@@ -326,6 +397,68 @@ class BackupFixtureTest {
         // Each card belongs to a restored skip of the same exercise.
         for (card in cards) assertEquals(card.exerciseId, skips.single { it.id == card.skipId }.exerciseId)
     }
+
+    /**
+     * 1.17: the web app's version 6 backup restores exactly and exports again as the web wrote it. That holds only if
+     * neither app writes a default: its kg sets and off exercises carry no `unit` / `plateCount`, and nor does the export.
+     */
+    @Test
+    fun webV6Fixture_restoresOnAndroid_withItsPlates() = runTest {
+        assertTrue("Missing ${webV6Fixture.path}; the web app writes it", webV6Fixture.exists())
+        val fixture = tree(webV6Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(6), fixture.getValue("version"))
+        assertEquals(JsonPrimitive(Backup.VERSION), fixture.getValue("version"))
+
+        val actual = restoreAndExport(webV6Fixture)
+
+        assertEquals(withoutExportedAt(fixture), actual)
+        // The plate sets keep their unit and their 7½, the two machines their setting, and every other row is kg / off.
+        val sets = db.sets().all()
+        val plates = sets.filter { it.unit == LoadUnit.PLATES }
+        val fixtureSets = (fixture.getValue("sets") as JsonArray).map { it as JsonObject }
+        assertEquals(fixtureSets.count { "unit" in it }, plates.size)
+        assertTrue(plates.isNotEmpty())
+        assertTrue(plates.any { it.weightKg == 7.5 })
+        assertEquals(fixtureSets.size - plates.size, sets.count { it.unit == LoadUnit.KG })
+        val exercises = db.exercises().all()
+        assertEquals(
+            mapOf("Lat pulldown" to PlateCount.WHOLE, "Leg press" to PlateCount.HALF),
+            exercises.filter { it.plateCount != PlateCount.OFF }.associate { it.name to it.plateCount },
+        )
+        // The plate target's payload is stored as the web wrote it, and reads as a plate target.
+        val fixturePayload = webPlateTargetPayload(fixture)
+        val stored = db.advice().all().single { it.payload == fixturePayload }
+        assertEquals(LoadUnit.PLATES, (Json.decodeFromString(AdvicePayload.serializer(), stored.payload) as AdvicePayload.Target).unit)
+    }
+
+    /**
+     * 1.17: the web fixture's plate TARGET payload is written by hand in the web's test builder. It decodes through the
+     * domain to the target it means, and it is byte for byte what this app's domain serializer writes for those values.
+     * The web's own domain build prints whole doubles without ".0" (`"weightKg":8`); that form decodes to the same target.
+     */
+    @Test
+    fun webV6PlateTarget_decodesThroughTheDomain_andIsWhatTheDomainWrites() {
+        val fixture = tree(webV6Fixture.readText()) as JsonObject
+        val payload = webPlateTargetPayload(fixture)
+        val legPress = (fixture.getValue("exercises") as JsonArray).map { it as JsonObject }
+            .single { (it.getValue("name") as JsonPrimitive).content == "Leg press" }
+        val legPressId = (legPress.getValue("id") as JsonPrimitive).content.toLong()
+        val expected = AdvicePayload.Target(legPressId, 8.0, 8, 8.0, sets = 3, repsHigh = 12, unit = LoadUnit.PLATES)
+
+        assertEquals(expected, Json.decodeFromString(AdvicePayload.serializer(), payload))
+        assertEquals(Json.encodeToString<AdvicePayload>(expected), payload)
+
+        val jsForm = payload.replace("\"weightKg\":8.0", "\"weightKg\":8").replace("\"rpe\":8.0", "\"rpe\":8")
+        assertTrue(jsForm, jsForm.contains("\"weightKg\":8,") && jsForm.contains("\"rpe\":8,"))
+        assertEquals(expected, Json.decodeFromString(AdvicePayload.serializer(), jsForm))
+    }
+
+    /** The one TARGET payload in a web fixture that carries `"unit":"PLATES"`. */
+    private fun webPlateTargetPayload(fixture: JsonObject): String =
+        (fixture.getValue("advice") as JsonArray).map { it as JsonObject }
+            .filter { (it.getValue("type") as JsonPrimitive).content == "TARGET" }
+            .map { (it.getValue("payload") as JsonPrimitive).content }
+            .single { "\"unit\":\"PLATES\"" in it }
 
     /** An Android version 1 backup restores, and exports again as the current version with the strict press switch off. */
     @Test
@@ -450,6 +583,13 @@ class BackupFixtureTest {
         return withoutExportedAt(
             JsonObject(root + mapOf("version" to JsonPrimitive(Backup.VERSION), "checkIns" to JsonArray(emptyList()), "skips" to JsonArray(emptyList()))),
         )
+    }
+
+    /** What a version 5 file exports as once restored: the current version, and no new key on any row (kg and off). */
+    private fun asUpgradedV5(v5: JsonElement): JsonElement {
+        val root = v5 as JsonObject
+        assertEquals(JsonPrimitive(5), root.getValue("version"))
+        return withoutExportedAt(JsonObject(root + ("version" to JsonPrimitive(Backup.VERSION))))
     }
 
     /** What a version 4 file exports as once restored: the current version, with no skips. */

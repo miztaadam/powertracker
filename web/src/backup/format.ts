@@ -1,5 +1,5 @@
 /**
- * Android backup format, version 5: mirrors `BackupFile` and its DTOs in
+ * Android backup format, version 6: mirrors `BackupFile` and its DTOs in
  * app/src/main/kotlin/com/powertracker/data/Backup.kt field for field.
  * Dates are epochDay, weekdays 1–7 (Monday = 1), enums are their Kotlin names.
  */
@@ -11,11 +11,16 @@
  * no check-ins.
  * 5: 1.13's skipped planned exercises (a top-level `skips`) and the advice type SKIP. A version 1 to 4 file restores
  * with no skips; an app that reads only version 4 turns a version 5 file away as too new.
+ * 6: 1.17's counting plates (a set's `unit`, an exercise's `plateCount`, and a unit in a TARGET payload). Each is
+ * written only when it is not the default, so a row without it is in kg and off; a version 1 to 5 file restores with
+ * every set in kg and every exercise off. An app that reads only version 5 turns a version 6 file away as too new.
  */
-export const BACKUP_VERSION = 5
+export const BACKUP_VERSION = 6
 
 /** The domain's `TrainingMode` names. */
 export { TRAINING_MODES } from '../db/schema'
+/** Version 6: the domain's `LoadUnit` and `PlateCount` names. */
+export { LOAD_UNITS, PLATE_COUNTS } from '../db/schema'
 
 export const CATEGORIES = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS', 'VARIATION', 'ACCESSORY'] as const
 export const MAIN_LIFTS = ['SQUAT', 'BENCH', 'DEADLIFT', 'STRICT_PRESS'] as const
@@ -60,6 +65,8 @@ export type ExerciseDto = {
   muscles: string[]
   isBuiltIn: boolean
   archived: boolean
+  /** Version 6, the row's last key: written only as WHOLE or HALF; absent means OFF. The parser fills it in. */
+  plateCount?: string
 }
 
 /** `mode` (version 3) is absent from older files, which means POWERLIFTING; the parser fills it in, as on plan items and advice. */
@@ -75,6 +82,8 @@ export type SetDto = {
   failed: boolean
   missPoint: string | null
   isTopSet: boolean
+  /** Version 6, the row's last key: written only as PLATES; absent means KG. The parser fills it in. */
+  unit?: string
 }
 
 export type PlanItemDto = {

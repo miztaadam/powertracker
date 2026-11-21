@@ -14,7 +14,7 @@ import {
   type GritDb,
 } from './db'
 import { decodeBackup, restoreBackup } from '../backup/backup'
-import { SCHEMA_VERSIONS, type ExerciseRow, type SchemaVersion } from './schema'
+import { plateCountOf, SCHEMA_VERSIONS, setUnit, type ExerciseRow, type SchemaVersion } from './schema'
 import {
   adviceFromJs,
   adviceToJs,
@@ -430,9 +430,9 @@ describe('strict press upgrade', () => {
 
     // The same upgrade again, as a version on top.
     const upgrade = SCHEMA_VERSIONS.find((v) => v.version === 2)!.upgrade
-    const again = await openDb([...SCHEMA_VERSIONS, { version: 5, stores: {}, upgrade }])
+    const again = await openDb([...SCHEMA_VERSIONS, { version: 7, stores: {}, upgrade }])
 
-    expect(await installedVersion(name)).toBe(5)
+    expect(await installedVersion(name)).toBe(7)
     expect(await again.exercises.orderBy('id').toArray()).toEqual(once)
     expect((await rows(again)).slice(3)).toEqual([
       { id: 4, name: 'Strict press', category: 'STRICT_PRESS', isBuiltIn: true, archived: false },
@@ -450,5 +450,106 @@ describe('strict press upgrade', () => {
     const before = tables(v1)
     v1.close()
     expect(tables(await openDb(SCHEMA_VERSIONS.filter((v) => v.version <= 2)))).toEqual(before)
+  })
+})
+
+/** 1.17: schema version 6 is declared for a set's unit and an exercise's plate setting, and stamps nothing. */
+describe('schema version 6', () => {
+  const V5 = SCHEMA_VERSIONS.filter((v) => v.version <= 5)
+  const TABLES = ['exercises', 'sessions', 'sets', 'planItems', 'advice', 'baselines', 'checkIns', 'skips', 'settings'] as const
+
+  /** A version 5 database holding a row in every table, written as version 5 stored them; resolves to what it held. */
+  async function version5(): Promise<Record<string, unknown[]>> {
+    const v5 = await openDb(V5)
+    await v5.exercises.bulkAdd([
+      { id: 1, name: 'Squat', category: 'SQUAT', parentLift: null, muscles: ['Quads'], isBuiltIn: true, archived: false },
+      { id: 12, name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['Lats'], isBuiltIn: true, archived: false },
+    ])
+    await v5.sessions.add({ id: 1, date: '2026-10-27', bodyweightKg: 84.5, readiness: 4, mode: 'POWERLIFTING' })
+    await v5.sets.bulkAdd([
+      { id: 1, sessionId: 1, exerciseId: 1, weightKg: 140, reps: 5, rpe: 8, failed: false, missPoint: null, isTopSet: true },
+      { id: 2, sessionId: 1, exerciseId: 12, weightKg: 60, reps: 10, rpe: null, failed: false, missPoint: null, isTopSet: false },
+    ])
+    await v5.planItems.add({ id: 1, weekday: 3, exerciseId: 12, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' })
+    await v5.advice.add({
+      id: 1, type: 'TARGET', lift: null, createdAt: '2026-10-27', reason: 'Beat it.', severity: 1, status: 'OPEN', mode: 'POWERLIFTING',
+      payloadJson: '{"type":"com.powertracker.domain.model.AdvicePayload.Target","exerciseId":12,"weightKg":60.0,"reps":10,"rpe":8.0,"sets":3}',
+    })
+    await v5.baselines.put({ exerciseId: 1, e1rmKg: 172.5, date: '2026-09-01' })
+    await v5.checkIns.add({ id: 1, date: '2026-10-28', lagging: ['CHEST'], growingWell: [] })
+    await v5.skips.add({ id: 1, date: '2026-10-27', mode: 'POWERLIFTING', exerciseId: 12, planItemId: 1, reason: 'BUSY' })
+    await v5.settings.put({ key: 'trainingMode', value: 'BODYBUILDING' })
+    const before = Object.fromEntries(await Promise.all(TABLES.map(async (t) => [t, await v5.table(t).toArray()])))
+    v5.close()
+    return before
+  }
+
+  it('the installed version is 6', async () => {
+    expect(Math.max(...SCHEMA_VERSIONS.map((v) => v.version))).toBe(6)
+    // Declared with no new index and no upgrade step.
+    expect(SCHEMA_VERSIONS.find((v) => v.version === 6)).toEqual({ version: 6, stores: {} })
+    await openDb()
+    expect(await installedVersion(name)).toBe(6)
+  })
+
+  it('upgrade 5 → 6 changes no row, and every set reads kg and every exercise off', async () => {
+    const before = await version5()
+
+    const db = await openDb()
+
+    expect(await installedVersion(name)).toBe(6)
+    for (const t of TABLES) expect(await db.table(t).toArray(), t).toStrictEqual(before[t])
+    const sets = await db.sets.toArray()
+    const exercises = await db.exercises.toArray()
+    // Nothing was stamped: no row gained the key, not even as undefined.
+    expect(sets.every((s) => !('unit' in s))).toBe(true)
+    expect(exercises.every((e) => !('plateCount' in e))).toBe(true)
+    expect(sets.map(setUnit)).toEqual(['KG', 'KG'])
+    expect(exercises.map(plateCountOf)).toEqual(['OFF', 'OFF'])
+    const history = await loadHistory(db)
+    expect(history.sessions.flatMap((s) => s.sets.map((x) => x.unit))).toEqual(['KG', 'KG'])
+    expect(history.exercises.map((e) => e.plateCount)).toEqual(['OFF', 'OFF'])
+  })
+
+  it('the safety copy is written before version 6 is installed', async () => {
+    const before = await version5()
+
+    const db = await openDb()
+
+    // The copy holds the version 5 data, as a backup that decodes.
+    const copy = (await readSafetyCopy(db))!
+    expect(copy.kind).toBe('backup')
+    const decoded = decodeBackup(copy.json)
+    if (!decoded.ok) throw new Error(`the safety copy must decode: ${JSON.stringify(decoded)}`)
+    const sets = before.sets as { id: number; exerciseId: number; weightKg: number }[]
+    expect(decoded.file.sets.map((s) => [s.id, s.exerciseId, s.weightKg])).toEqual(sets.map((s) => [s.id, s.exerciseId, s.weightKg]))
+    expect(decoded.file.exercises.map((e) => e.name)).toEqual(['Squat', 'Lat pulldown'])
+    expect(decoded.file.skips).toHaveLength(1)
+    expect(decoded.file.checkIns).toHaveLength(1)
+  })
+
+  it('a safety copy that cannot be written leaves version 5 installed', async () => {
+    await version5()
+    const failMetaWrites = (d: Dexie) => {
+      if (d.name !== name) return
+      d.use({
+        stack: 'dbcore',
+        name: 'failMeta',
+        create: (down) => ({
+          ...down,
+          table: (n) => {
+            const t = down.table(n)
+            return n === 'meta' ? { ...t, mutate: () => Promise.reject(new Error('quota')) } : t
+          },
+        }),
+      })
+    }
+    Dexie.addons.push(failMetaWrites)
+    try {
+      await expect(openGritDb(name)).rejects.toBeInstanceOf(UpgradeFailedError)
+    } finally {
+      Dexie.addons.splice(Dexie.addons.indexOf(failMetaWrites), 1)
+    }
+    expect(await installedVersion(name)).toBe(5)
   })
 })

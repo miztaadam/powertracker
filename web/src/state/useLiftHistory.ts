@@ -46,8 +46,10 @@ export function buildLiftHistory(history: JsHistory, lift: Lift, today: string):
       for (const set of session.sets) {
         if (!main.has(set.exerciseId) && !variations.has(set.exerciseId)) continue
         const pr = prs[nextPr]
+        // Records are kg: a plate number that matches one is never marked as it (1.17).
         const isPr =
           pr != null &&
+          set.unit === 'KG' &&
           !set.failed &&
           main.has(set.exerciseId) &&
           pr.date === session.date &&

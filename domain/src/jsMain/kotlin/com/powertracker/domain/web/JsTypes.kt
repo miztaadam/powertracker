@@ -9,11 +9,13 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSession
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
@@ -62,6 +64,8 @@ data class JsExercise(
     val muscles: Array<String>,
     val isBuiltIn: Boolean,
     val archived: Boolean,
+    /** A `PlateCount` name: "OFF", "WHOLE" or "HALF"; left out, it is "OFF". */
+    val plateCount: String = "OFF",
 )
 
 @JsExport
@@ -73,6 +77,8 @@ data class JsSet(
     val failed: Boolean,
     val missPoint: String?,
     val isTopSet: Boolean,
+    /** A `LoadUnit` name: "KG", or "PLATES" when [weightKg] is a plate number; left out, it is "KG". */
+    val unit: String = "KG",
 )
 
 @JsExport
@@ -209,6 +215,8 @@ data class JsAdvicePayload(
     val skipId: Int? = null,
     /** Skipped: a `SkipReason` name, or null when the skip gave no reason. */
     val skipReason: String? = null,
+    /** Target: what [weightKg] means, a `LoadUnit` name ("KG", also for every payload stored before 1.17, or "PLATES"). */
+    val unit: String? = null,
 )
 
 /**
@@ -404,15 +412,17 @@ internal fun parseLift(field: String, text: String): MainLift = parseEnum<MainLi
 internal fun JsExercise.toDomain() = Exercise(
     id.toLong(), name, parseEnum<Category>("exercise.category", category),
     parentLift?.let { parseLift("exercise.parentLift", it) }, muscles.toList(), isBuiltIn, archived,
+    parseEnum<PlateCount>("exercise.plateCount", plateCount),
 )
 
 internal fun Exercise.toJs() = JsExercise(
     id.toFacadeId("exercise.id"), name, category.name, parentLift?.name, muscles.toTypedArray(), isBuiltIn, archived,
+    plateCount.name,
 )
 
 internal fun JsSet.toDomain() = LoggedSet(
     exerciseId.toLong(), weightKg, reps, rpe, failed,
-    missPoint?.let { parseEnum<MissPoint>("set.missPoint", it) }, isTopSet,
+    missPoint?.let { parseEnum<MissPoint>("set.missPoint", it) }, isTopSet, parseEnum<LoadUnit>("set.unit", unit),
 )
 
 internal fun JsSession.toDomain() = LoggedSession(
@@ -559,7 +569,7 @@ internal fun Pr.toJs() = JsPr(date.toString(), e1rmKg, weightKg, reps, rpe)
 
 internal fun AccessoryOption.toJs() = JsAccessoryOption(exerciseName, heavy)
 
-internal fun LoggedSet.toJs() = JsSet(exerciseId.toFacadeId("set.exerciseId"), weightKg, reps, rpe, failed, missPoint?.name, isTopSet)
+internal fun LoggedSet.toJs() = JsSet(exerciseId.toFacadeId("set.exerciseId"), weightKg, reps, rpe, failed, missPoint?.name, isTopSet, unit.name)
 
 /** Null when [payloadJson] is not an `AdvicePayload` as Android stores it. */
 internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
@@ -572,7 +582,7 @@ internal fun decodePayload(payloadJson: String): JsAdvicePayload? {
     return when (payload) {
         is AdvicePayload.Target -> JsAdvicePayload(
             "Target", exerciseId = payload.exerciseId.toFacadeId("payload.exerciseId"), weightKg = payload.weightKg,
-            reps = payload.reps, rpe = payload.rpe, sets = payload.sets, repsHigh = payload.repsHigh,
+            reps = payload.reps, rpe = payload.rpe, sets = payload.sets, repsHigh = payload.repsHigh, unit = payload.unit.name,
         )
         is AdvicePayload.Accessories -> JsAdvicePayload(
             "Accessories",

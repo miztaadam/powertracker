@@ -29,8 +29,10 @@ import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.library.MuscleGroups
 import com.powertracker.domain.library.RpeGuide
 import com.powertracker.domain.model.AdviceType
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.motion.ModeSwitchMotion
 import com.powertracker.domain.motion.Point
@@ -45,6 +47,8 @@ import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.progress.BodybuildingProgress
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.seed.SeedLibrary
+import com.powertracker.domain.stack.PlateStack
+import com.powertracker.domain.stack.inCurrentUnits
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.domain.validation.InputWarning
 import kotlinx.datetime.isoDayNumber
@@ -73,6 +77,46 @@ object GritDomain {
                 is InputWarning.BigJump -> "BIG_JUMP"
             }
         }.toTypedArray()
+
+    /** As [checkInput], in [unit] (a `LoadUnit` name); [plateCount] (a `PlateCount` name) sets the plate step. */
+    fun checkLoadInput(weight: Double, reps: Int, lastWeight: Double?, unit: String, plateCount: String): Array<String> =
+        InputValidator.check(
+            weight, reps, lastWeight, parseEnum<LoadUnit>("unit", unit),
+            PlateStack.step(parseEnum<PlateCount>("plateCount", plateCount)),
+        ).map {
+            when (it) {
+                InputWarning.HighReps -> "HIGH_REPS"
+                is InputWarning.BigJump -> "BIG_JUMP"
+            }
+        }.toTypedArray()
+
+    /** Whether [exercise] may count plates at all (a machine or cable accessory, or a custom accessory). */
+    fun plateCountOffered(exercise: JsExercise): Boolean = PlateStack.offered(exercise.toDomain())
+
+    /** "KG" or "PLATES": the unit [exercise]'s sets are logged in now. */
+    fun loadUnitOf(exercise: JsExercise): String = PlateStack.unitOf(exercise.toDomain()).name
+
+    /** One plate step for [plateCount] (a `PlateCount` name): 0.5 for "HALF", else 1. */
+    fun plateStep(plateCount: String): Double = PlateStack.step(parseEnum<PlateCount>("plateCount", plateCount))
+
+    /** The next plate up on [plateCount]'s grid, at most [maxPlate]; plate 1 from an empty field. */
+    fun plateUp(plate: Double?, plateCount: String): Double = PlateStack.up(plate, plateStep(plateCount))
+
+    /** The next plate down on [plateCount]'s grid, never under plate 1; plate 1 from an empty field. */
+    fun plateDown(plate: Double?, plateCount: String): Double = PlateStack.down(plate, plateStep(plateCount))
+
+    /** "OK", "STEP" (off [plateCount]'s grid) or "RANGE" (outside plate 1 to [maxPlate]) for a typed plate. */
+    fun plateCheck(plate: Double, plateCount: String): String =
+        PlateStack.check(plate, parseEnum<PlateCount>("plateCount", plateCount)).name
+
+    /** "plate 7", "plate 7½". */
+    fun plateText(plate: Double): String = PlateStack.text(plate)
+
+    /** "plate 7", "plate 7 and a half". */
+    fun plateSpoken(plate: Double): String = PlateStack.spoken(plate)
+
+    /** The highest plate that can be typed. */
+    fun maxPlate(): Double = PlateStack.MAX_PLATE
 
     fun parseBaselineKg(text: String): Double? = InputValidator.baselineKg(text)
 
@@ -437,11 +481,12 @@ object GritDomain {
     fun isMainLift(exercise: JsExercise): Boolean = exercise.toDomain().isMainLift
 
     /**
-     * The top set of the latest session strictly before [before] that has the exercise: the flagged set, else the
-     * heaviest good set, else the heaviest. Null when it was never logged before then.
+     * The top set of the latest session strictly before [before] that has the exercise in its current unit (1.17):
+     * the flagged set, else the heaviest good set, else the heaviest. Null when it was never logged in that unit
+     * before then.
      */
     fun lastTopSet(history: JsHistory, exerciseId: Int, before: String): JsSet? =
-        HistoryStats(history.toDomain()).lastTopSet(exerciseId.toLong(), parseDate("before", before))?.second?.toJs()
+        HistoryStats(history.toDomain().inCurrentUnits()).lastTopSet(exerciseId.toLong(), parseDate("before", before))?.second?.toJs()
 
     /** True once open advice of [type] created on [createdAt] no longer counts on [today] (a deload or re-entry after 14 days). */
     fun openAdviceExpired(type: String, createdAt: String, today: String): Boolean =

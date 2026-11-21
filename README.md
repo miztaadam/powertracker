@@ -127,6 +127,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Check-in: on the bodybuilding side, open Progress and do a check-in (mark a body part lagging), then apply a suggestion from Coach and check the plan changed.
 - [ ] Stretch and squeeze: on the bodybuilding side, read the stretch and squeeze lines on a Today card.
 - [ ] Update: deploy a second version. The prompt "Update ready — tap to refresh" shows only after you finish a session, and the app reloads only when tapped.
+- [ ] Two windows, one update: with Grit open in two windows (or tabs), deploy a new version and tap "Update ready — tap to refresh" in one. The other reloads by itself, with no tap.
 - [ ] Home Screen: add Grit to the Home Screen. The icon and name are "Grit", and it opens on Today.
 - [ ] The top of each screen sits clear of the status bar, with no smeared title.
 - [ ] Numbers such as 180 or 100 kg are not phone links.
@@ -169,6 +170,12 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
+- [ ] Count plates: with Lat pulldown in today's plan (add it on Plan if it isn't), start the session and log one kg set on it (60 kg × 10). Then ⋮ on Lat pulldown → Count plates on this machine → Whole plates: the sheet says "The coach starts this exercise fresh in plates. Your kg sets stay as they are." The field reads PLATE and is empty; + gives 1. Log plate 7 × 10: the row reads "plate 7 × 10", and the 60 kg set still reads 60 kg. Bench has no such item.
+- [ ] Half steps: choose Half steps too; + goes 7, 7.5, 8 in the field. Tap − back to 7.5 and log it: the row reads "plate 7½". Back on Whole plates, the keypad offers whole numbers, and from the logged 7.5, − and + go to 7 and 8. If your keypad lets you type 7.5, it is refused with "Whole plates only".
+- [ ] The next session: on a later day, on the bodybuilding side, with Lat pulldown on that day's bodybuilding plan (Progress rows are bodybuilding sessions only). The coach's chip is in plates ("plate 7 × …"), never kg. Log plate 7 × 10 there: Progress (bodybuilding) shows "plate 7 × 10". The chip in plates appears from the second plate session on: there is no suggestion until the first plate set is logged.
+- [ ] Switch back to In kg (⋮ on Lat pulldown → Count plates on this machine → In kg): the sheet says "The coach goes back to kg. Your plate sets stay as they are." The field reads kg again. A kg target shows only if there was one: it needs kg sets from an earlier day (here the 60 kg set). In the exercise's history the 60 kg set still reads 60 kg and the plate sets still read "plate …".
+- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 Android app says the file is too new.)
+- [ ] Large text (in Safari, aA, zoom to 200%): nothing in the sheet or the stepper is cut.
 
 ## Owner's manual Android checks (the web app in Chrome)
 
@@ -179,6 +186,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] On a narrow phone (360 px or less), no screen scrolls sideways. "Sound +" wraps over "vibrate" if needed.
 - [ ] In Chrome's settings, set page zoom to 130% (Accessibility): no name on the Exercises tab breaks inside a word. If the page becomes narrower than 320 px, its rows show no pictures.
 - [ ] Restore a backup from the Android app. An app set to vibrate comes back as Sound + vibrate.
+- [ ] Two windows, one update: with Grit open in two windows (or tabs), deploy a new version and tap "Update ready — tap to refresh" in one. The other reloads by itself, with no tap.
 - [ ] Press a button: it sinks a little and springs back.
 - [ ] A normal Log set buzzes once. A new squat best buzzes twice.
 - [ ] Turn off "Vibrate on taps" in Settings (under Rest alert): Log set no longer buzzes.
@@ -214,6 +222,12 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Open Progress: the charts draw in.
 - [ ] Change the range: the line draws again.
 - [ ] With reduce motion on, the charts are complete at once.
+- [ ] Count plates: with Lat pulldown in today's plan (add it on Plan if it isn't), start the session and log one kg set on it (60 kg × 10). Then ⋮ on Lat pulldown → Count plates on this machine → Whole plates: the sheet says "The coach starts this exercise fresh in plates. Your kg sets stay as they are." The field reads PLATE and is empty; + gives 1. Log plate 7 × 10: the row reads "plate 7 × 10", and the 60 kg set still reads 60 kg. Bench has no such item.
+- [ ] Half steps: choose Half steps too; + goes 7, 7.5, 8 in the field. Tap − back to 7.5 and log it: the row reads "plate 7½". Back on Whole plates, the keypad offers whole numbers, and from the logged 7.5, − and + go to 7 and 8. If your keypad lets you type 7.5, it is refused with "Whole plates only".
+- [ ] The next session: on a later day, on the bodybuilding side, with Lat pulldown on that day's bodybuilding plan (Progress rows are bodybuilding sessions only). The coach's chip is in plates ("plate 7 × …"), never kg. Log plate 7 × 10 there: Progress (bodybuilding) shows "plate 7 × 10". The chip in plates appears from the second plate session on: there is no suggestion until the first plate set is logged.
+- [ ] Switch back to In kg (⋮ on Lat pulldown → Count plates on this machine → In kg): the sheet says "The coach goes back to kg. Your plate sets stay as they are." The field reads kg again. A kg target shows only if there was one: it needs kg sets from an earlier day (here the 60 kg set). In the exercise's history the 60 kg set still reads 60 kg and the plate sets still read "plate …".
+- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 Android app says the file is too new.)
+- [ ] Large text (Chrome's page zoom at 200%): nothing in the sheet or the stepper is cut.
 
 ## Owner's manual checks in the Android app itself
 
@@ -258,6 +272,12 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] In that picker, your own exercise has an empty tile.
 - [ ] With text one or two steps up (115% or 130%), no exercise name in the picker or on the Exercises tab breaks inside a word. Where a row has too little room (large text on a narrower phone), it shows no tile at all.
 - [ ] With text one step up, on a phone 360 dp wide or more, the picker and the Exercises tab keep their pictures.
+- [ ] Count plates: with Lat pulldown in today's plan (add it on Plan if it isn't), start the session and log one kg set on it (60 kg × 10). Then ⋮ on Lat pulldown → Count plates on this machine → Whole plates: the sheet says "The coach starts this exercise fresh in plates. Your kg sets stay as they are." The field reads PLATE and is empty; + gives 1. Log plate 7 × 10: the row reads "plate 7 × 10", and the 60 kg set still reads 60 kg. Bench has no such item.
+- [ ] Half steps: choose Half steps too; + goes 7, 7.5, 8 in the field. Tap − back to 7.5 and log it: the row reads "plate 7½". Back on Whole plates, the keypad offers whole numbers, and from the logged 7.5, − and + go to 7 and 8. If your keypad lets you type 7.5, it is refused with "Whole plates only".
+- [ ] The next session: on a later day, on the bodybuilding side, with Lat pulldown on that day's bodybuilding plan (Progress rows are bodybuilding sessions only). The coach's chip is in plates ("plate 7 × …"), never kg. Log plate 7 × 10 there: Progress (bodybuilding) shows "plate 7 × 10". The chip in plates appears from the second plate session on: there is no suggestion until the first plate set is logged.
+- [ ] Switch back to In kg (⋮ on Lat pulldown → Count plates on this machine → In kg): the sheet says "The coach goes back to kg. Your plate sets stay as they are." The field reads kg again. A kg target shows only if there was one: it needs kg sets from an earlier day (here the 60 kg set). In the exercise's history the 60 kg set still reads 60 kg and the plate sets still read "plate …".
+- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 Android app says the file is too new.)
+- [ ] Large text (font size one or two steps up): nothing in the sheet or the stepper is cut.
 
 ## Where things are
 

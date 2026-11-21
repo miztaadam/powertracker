@@ -46,11 +46,14 @@ export default defineConfig({
     {
       // A private copy of the build for e2e/update.spec.ts, which rewrites its sw.js to fake a new
       // deploy; other spec files keep running against the untouched dist on 4173. Starts after the
-      // first server, so dist is already built.
-      command: "node -e \"require('node:fs').cpSync('dist','dist-update',{recursive:true})\" && npm run preview -- --outDir dist-update --port 4175 --strictPort",
+      // first server, so dist is already built. Never reused: each run removes the old copy, copies the dist
+      // this run tests and starts its own server on it (a server left running on 4175 stops the run, rather
+      // than serve an older copy). update.spec.ts also checks the copy matches dist before it starts.
+      command:
+        "node -e \"const fs=require('node:fs');fs.rmSync('dist-update',{recursive:true,force:true});fs.cpSync('dist','dist-update',{recursive:true})\" && npm run preview -- --outDir dist-update --port 4175 --strictPort",
       env,
       url: 'http://localhost:4175',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {

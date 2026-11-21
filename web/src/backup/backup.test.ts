@@ -2,8 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie from 'dexie'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { planFor, resolveCatalogue } from '../db/catalogue'
-import { activeTrainingDays, ensureSeeded, getSettings, openGritDb, setTrainingMode, updateSettings, type GritDb } from '../db/db'
+import { planFor, resolveCatalogue, setPlateCount } from '../db/catalogue'
+import { activeTrainingDays, ensureSeeded, getSettings, loadHistory, openGritDb, setTrainingMode, updateSettings, type GritDb } from '../db/db'
+import { exerciseToJs } from '../db/mapping'
+import { plateCountOf, setUnit, type ExerciseRow } from '../db/schema'
 import { readSafetyCopy } from '../db/safety'
 import {
   androidRestAlertOf,
@@ -32,8 +34,10 @@ const WEB_V2_FIXTURE = resolve(FIXTURES, 'web-v2.json')
 const WEB_V3_FIXTURE = resolve(FIXTURES, 'web-v3.json')
 /** What the check-in apps wrote (version 4): frozen since version 5, and must keep restoring. */
 const WEB_V4_FIXTURE = resolve(FIXTURES, 'web-v4.json')
-/** What this app writes now (version 5, skips). Regenerate with UPDATE_FIXTURES=1. */
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v5.json')
+/** What the skips apps wrote (version 5): frozen since version 6, and must keep restoring. */
+const WEB_V5_FIXTURE = resolve(FIXTURES, 'web-v5.json')
+/** What this app writes now (version 6, plates). Regenerate with UPDATE_FIXTURES=1. */
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v6.json')
 /** What the Android app wrote in 1.12 (version 4, stage 3 Task 2): frozen. */
 const ANDROID_V4_FIXTURE = resolve(FIXTURES, 'android-v4.json')
 /** What the Android app writes now (version 5, 1.13 Task 2). */
@@ -71,7 +75,7 @@ const decodeOk = (text: string): BackupFile => {
  * Mirrors the Android fixture's breadth, deterministically. `strictPress` adds what version 2 brought, as
  * Android's fixture has it: the switch on and a catalogue "Strict press" row with an "off the shoulders" miss.
  */
-async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false, skips = false } = {}) {
+async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false, skips = false, plates = false } = {}) {
   await ensureSeeded(db)
   const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
   const squat = byName.get('Squat')!
@@ -187,6 +191,30 @@ async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = f
       mode: 'BODYBUILDING',
     })
   }
+  if (plates) {
+    // Version 6: a WHOLE and a HALF exercise, plate sets with a half among them, one session holding a kg and a plate
+    // set of the same exercise (60 kg, then plates turned on), and a PLATES target, its payload as the domain writes it.
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    const press = await resolveCatalogue(db, 'Leg press')
+    await setPlateCount(db, lat, null, 'WHOLE')
+    await setPlateCount(db, press, null, 'HALF')
+    const plate = (sessionId: number, exerciseId: number, weightKg: number, reps: number, rpe: number | null, failed: boolean, isTopSet: boolean) =>
+      db.sets.add({ sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint: null, isTopSet, unit: 'PLATES' })
+    const s4 = (await db.sessions.add({ date: '2026-11-03', bodyweightKg: null, readiness: 3, mode: 'POWERLIFTING' })) as number
+    await set(s4, lat, 60, 10, 8, false, null, false)
+    await plate(s4, lat, 7, 10, 8, false, true)
+    await plate(s4, lat, 8, 6, 10, true, false)
+    const s5 = (await db.sessions.add({ date: '2026-11-05', bodyweightKg: 83.5, readiness: null, mode: 'BODYBUILDING' })) as number
+    await plate(s5, press, 7.5, 12, 8, false, false)
+    await plate(s5, press, 7.5, 11, 8.5, false, false)
+    await plate(s5, press, 8, 9, 9, false, false)
+    await db.advice.add({
+      ...adv('TARGET', null, 'Last time: plate 7½ × 12, plate 7½ × 11, plate 8 × 9. Beat it. Coach suggests plate 8 × 8–12 @ 8.', 1,
+        `{"type":"${P}Target","exerciseId":${press},"weightKg":8.0,"reps":8,"rpe":8.0,"sets":3,"repsHigh":12,"unit":"PLATES"}`, 'OPEN'),
+      createdAt: '2026-11-05',
+      mode: 'BODYBUILDING',
+    })
+  }
 }
 
 /** Version 3's fields as an older file means them: everything on the powerlifting side, neither side ever left. */
@@ -221,6 +249,12 @@ function withV4Defaults(file: Record<string, unknown>): Record<string, unknown> 
 /** A version 4 file as it exports here once restored: the current version, with no skips. */
 function withV5Defaults(file: Record<string, unknown>): Record<string, unknown> {
   return { ...file, version: BACKUP_VERSION, skips: [] }
+}
+
+/** A version 5 file as it exports here once restored: the current version, every row as it was (no plate keys). */
+function asUpgradedV5(file: Record<string, unknown>): Record<string, unknown> {
+  expect(file.version).toBe(5)
+  return { ...file, version: BACKUP_VERSION }
 }
 
 /** What a version-1 file with no strict press row exports as once restored here: the current version, switch off, all powerlifting. */
@@ -485,7 +519,7 @@ describe('backup', () => {
 
   it('webFixture_isUpToDate', async () => {
     const db = await openDb()
-    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true })
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true, plates: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     if (process.env.UPDATE_FIXTURES === '1') {
       writeFileSync(WEB_FIXTURE, JSON.stringify(JSON.parse(text), null, 4) + '\n')
@@ -495,7 +529,7 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
-    expect(file.version).toBe(5)
+    expect(file.version).toBe(6)
     expect(file.checkIns).toHaveLength(2)
     expect(file.skips).toHaveLength(3)
     expect(file.advice.filter((a) => a.type === 'SKIP')).toHaveLength(1)
@@ -869,13 +903,13 @@ describe('backup version 4', () => {
 describe('backup version 5', () => {
   it('everyBackup_isVersion5_withOrWithoutSkips', async () => {
     const db = await openDb()
-    expect(BACKUP_VERSION).toBe(5)
+    expect(BACKUP_VERSION).toBe(6)
     const empty = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
-    expect(empty.version).toBe(5)
+    expect(empty.version).toBe(6)
     expect(empty.skips).toEqual([])
     await buildSampleDb(db, { bodybuilding: true, skips: true })
     const full = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
-    expect(full.version).toBe(5)
+    expect(full.version).toBe(6)
     expect(full.skips).toHaveLength(3)
   })
 
@@ -930,11 +964,11 @@ describe('backup version 5', () => {
   })
 
   it('v5File_onVersion4Decoder_isTooNew_andVersion6IsTooNewHere', () => {
-    const text = readFileSync(WEB_FIXTURE, 'utf8')
+    const text = readFileSync(WEB_V5_FIXTURE, 'utf8')
     expect(decodeBackup(text, 4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
     expect(decodeBackup(readFileSync(ANDROID_V5_FIXTURE, 'utf8'), 4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
-    const v6 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 6 })
-    expect(decodeBackup(v6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
+    const v6 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 7 })
+    expect(decodeBackup(v6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 7 })
   })
 
   it('decode_skips_areOptionalButTyped', () => {
@@ -1167,5 +1201,306 @@ describe('rest alert and vibration', () => {
     delete (navigator as unknown as Record<string, unknown>).vibrate
     await restoreBackup(db, decoded)
     expect((await getSettings(db)).restAlert).toBe('SOUND')
+  })
+})
+
+/** 1.17: backup version 6 carries a set's unit and an exercise's plate setting, each only when it is not the default. */
+describe('backup version 6', () => {
+  /** The keys every set and exercise had in version 5, in their order. */
+  const V5_SET_KEYS = ['id', 'sessionId', 'exerciseId', 'weightKg', 'reps', 'rpe', 'failed', 'missPoint', 'isTopSet']
+  const V5_EXERCISE_KEYS = ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived']
+  type Json = Record<string, unknown>
+  const FROZEN = [ANDROID_FIXTURE, ANDROID_V2_FIXTURE, resolve(FIXTURES, 'android-v3.json'), ANDROID_V4_FIXTURE, ANDROID_V5_FIXTURE, WEB_V1_FIXTURE, WEB_V2_FIXTURE, WEB_V3_FIXTURE, WEB_V4_FIXTURE, WEB_V5_FIXTURE]
+
+  async function sampleWithPlates(db: GritDb) {
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true, plates: true })
+  }
+
+  it('version 6 round-trips unit and plateCount', async () => {
+    const db = await openDb()
+    await sampleWithPlates(db)
+    const exported = await exportBackup(db, EXPORTED_AT)
+    const text = encodeBackup(exported)
+    const json = JSON.parse(text) as { sets: Json[]; exercises: Json[] }
+    expect(json.exercises.filter((e) => 'plateCount' in e).map((e) => [e.name, e.plateCount])).toEqual([['Lat pulldown', 'WHOLE'], ['Leg press', 'HALF']])
+    expect(json.sets.filter((s) => 'unit' in s).map((s) => [s.weightKg, s.unit])).toEqual([[7, 'PLATES'], [8, 'PLATES'], [7.5, 'PLATES'], [7.5, 'PLATES'], [8, 'PLATES']])
+
+    // Everything changed here comes back from the file.
+    const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
+    await setPlateCount(db, byName.get('Lat pulldown')!, null, 'OFF')
+    await setPlateCount(db, byName.get('Leg press')!, null, 'WHOLE')
+    await db.sets.filter((s) => s.unit === 'PLATES').delete()
+    await restoreBackup(db, decodeOk(text))
+
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(exported)
+    const stored = await db.sets.toArray()
+    expect(stored.filter((s) => s.unit === 'PLATES')).toHaveLength(5)
+    // A restored kg set and off exercise are stored as the app writes them: no key, not even undefined.
+    expect(stored.filter((s) => s.unit !== 'PLATES').every((s) => !('unit' in s))).toBe(true)
+    const exercises = await db.exercises.toArray()
+    expect(exercises.filter((e) => 'plateCount' in e).map((e) => [e.name, e.plateCount])).toEqual([['Lat pulldown', 'WHOLE'], ['Leg press', 'HALF']])
+    // And the domain reads them in their units.
+    const history = await loadHistory(db)
+    expect(history.exercises.filter((e) => e.plateCount !== 'OFF').map((e) => e.plateCount)).toEqual(['WHOLE', 'HALF'])
+    expect(history.sessions.flatMap((s) => s.sets).filter((s) => s.unit === 'PLATES')).toHaveLength(5)
+  })
+
+  it('a kg set and an off exercise export with no new key', async () => {
+    const db = await openDb()
+    await sampleWithPlates(db)
+    const json = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as { sets: Json[]; exercises: Json[] }
+    for (const s of json.sets) expect(Object.keys(s)).toEqual(s.unit === undefined ? V5_SET_KEYS : [...V5_SET_KEYS, 'unit'])
+    for (const e of json.exercises) expect(Object.keys(e)).toEqual(e.plateCount === undefined ? V5_EXERCISE_KEYS : [...V5_EXERCISE_KEYS, 'plateCount'])
+    const plate = json.sets.find((s) => s.unit !== undefined)!
+    expect(JSON.stringify(plate).endsWith('"unit":"PLATES"}')).toBe(true)
+    const half = json.exercises.find((e) => e.plateCount === 'HALF')!
+    expect(JSON.stringify(half).endsWith('"plateCount":"HALF"}')).toBe(true)
+    // A log with no plates exports exactly as version 5 did but for the version number.
+    const plain = await openGritDb(`${name}-plain`)
+    try {
+      await buildSampleDb(plain, { strictPress: true, bodybuilding: true, checkIns: true, skips: true })
+      const out = JSON.parse(encodeBackup(await exportBackup(plain, EXPORTED_AT))) as Json
+      expect(withoutExportedAt(out)).toEqual(withoutExportedAt(asUpgradedV5(readJson(WEB_V5_FIXTURE))))
+      expect(JSON.stringify(out)).not.toMatch(/"unit"|"plateCount"/)
+    } finally {
+      plain.close()
+      await Dexie.delete(`${name}-plain`)
+    }
+  })
+
+  it('versions 1 to 5 restore with every set kg and every exercise off', async () => {
+    for (const path of FROZEN) {
+      const db = await openGritDb(`${name}-frozen`)
+      try {
+        const fixture = readJson(path)
+        expect(fixture.version, path).toBeLessThanOrEqual(5)
+        expect(JSON.stringify(fixture), path).not.toMatch(/"unit"|"plateCount"/)
+        await restoreBackup(db, decodeOk(readFileSync(path, 'utf8')))
+        const sets = await db.sets.toArray()
+        const exercises = await db.exercises.toArray()
+        expect(sets.length, path).toBeGreaterThan(0)
+        expect(sets.every((s) => !('unit' in s) && setUnit(s) === 'KG'), path).toBe(true)
+        expect(exercises.every((e) => !('plateCount' in e) && plateCountOf(e) === 'OFF'), path).toBe(true)
+        // And it exports again with no new key on any row.
+        expect(encodeBackup(await exportBackup(db, EXPORTED_AT)), path).not.toMatch(/"unit"|"plateCount"/)
+      } finally {
+        db.close()
+        await Dexie.delete(`${name}-frozen`)
+      }
+    }
+  })
+
+  /** The previous web app's backup (version 5, frozen since version 6) restores and exports as itself, raised to version 6. */
+  it('webV5Fixture_restoresAsItWasWritten', async () => {
+    const db = await openDb()
+    const v5 = readJson(WEB_V5_FIXTURE)
+    expect(v5.version).toBe(5)
+    await restoreBackup(db, decodeOk(readFileSync(WEB_V5_FIXTURE, 'utf8')))
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Json
+    const expected = withoutExportedAt(asUpgradedV5(v5))
+    ;(expected.settings as Json).appLock = false // this device's own
+    expect(withoutExportedAt(out)).toEqual(expected)
+  })
+
+  it('a version 6 file is too new for a version 5 reader', async () => {
+    const db = await openDb()
+    await sampleWithPlates(db)
+    const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
+    expect(decodeBackup(text, 5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
+    expect(decodeBackup(readFileSync(WEB_FIXTURE, 'utf8'), 5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
+    expect(decodeBackup(text).ok).toBe(true)
+  })
+
+  it('decode fills in kg and off where a row has neither', () => {
+    const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
+    expect(new Set(file.sets.map((s) => s.unit))).toEqual(new Set(['KG', 'PLATES']))
+    expect(new Set(file.exercises.map((e) => e.plateCount))).toEqual(new Set(['OFF', 'WHOLE', 'HALF']))
+    const old = decodeOk(readFileSync(WEB_V5_FIXTURE, 'utf8'))
+    expect(old.sets.every((s) => s.unit === 'KG')).toBe(true)
+    expect(old.exercises.every((e) => e.plateCount === 'OFF')).toBe(true)
+  })
+
+  type Loose = Json & { sets: Json[]; exercises: Json[] }
+  const mutFixture = (f: (o: Loose) => void) => {
+    const o = structuredClone(readJson(WEB_FIXTURE)) as Loose
+    f(o)
+    return JSON.stringify(o)
+  }
+  const plateSetIndex = (o: Loose) => o.sets.findIndex((s) => s.unit === 'PLATES')
+  const kgSetIndex = (o: Loose) => o.sets.findIndex((s) => s.unit === undefined)
+  const plateExerciseIndex = (o: Loose) => o.exercises.findIndex((e) => e.plateCount !== undefined)
+
+  it('an unknown unit or plateCount name is corrupt', () => {
+    const corrupt = (text: string) => expect(decodeBackup(text), text.slice(0, 80)).toMatchObject({ ok: false, kind: 'CORRUPT' })
+    corrupt(mutFixture((o) => (o.sets[plateSetIndex(o)]!.unit = 'STONES')))
+    corrupt(mutFixture((o) => (o.sets[plateSetIndex(o)]!.unit = 'plates')))
+    corrupt(mutFixture((o) => (o.sets[kgSetIndex(o)]!.unit = 'LB')))
+    corrupt(mutFixture((o) => (o.sets[plateSetIndex(o)]!.unit = null)))
+    corrupt(mutFixture((o) => (o.sets[plateSetIndex(o)]!.unit = 1)))
+    corrupt(mutFixture((o) => (o.exercises[plateExerciseIndex(o)]!.plateCount = 'QUARTER')))
+    corrupt(mutFixture((o) => (o.exercises[0]!.plateCount = 'whole')))
+    corrupt(mutFixture((o) => (o.exercises[plateExerciseIndex(o)]!.plateCount = null)))
+    corrupt(mutFixture((o) => (o.exercises[plateExerciseIndex(o)]!.plateCount = true)))
+    // The defaults written out are read as what they mean, as Android reads them.
+    const spelled = decodeOk(mutFixture((o) => {
+      o.sets[kgSetIndex(o)]!.unit = 'KG'
+      o.exercises[0]!.plateCount = 'OFF'
+    }))
+    expect(spelled.sets.every((s) => s.unit === 'KG' || s.unit === 'PLATES')).toBe(true)
+  })
+
+  it('a plate set below plate 1 is corrupt', async () => {
+    for (const weightKg of [0, 0.5, -1]) {
+      expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg)))).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set below plate 1' })
+    }
+    // A kg set at 0 kg is bodyweight, as before.
+    expect(decodeBackup(mutFixture((o) => (o.sets[kgSetIndex(o)]!.weightKg = 0))).ok).toBe(true)
+    expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = 1))).ok).toBe(true)
+
+    // Restored from a file as given, it is refused with nothing changed.
+    const db = await openDb()
+    await buildSampleDb(db)
+    const before = await exportBackup(db, EXPORTED_AT)
+    const bad = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
+    bad.sets.find((s) => s.unit === 'PLATES')!.weightKg = 0
+    await expect(restoreBackup(db, bad)).rejects.toThrow('A plate set below plate 1')
+    expect(await exportBackup(db, EXPORTED_AT)).toEqual(before)
+  })
+
+  it('a plate set on a main lift, or a setting on an exercise that is never offered, still restores', async () => {
+    const text = mutFixture((o) => {
+      const squat = o.exercises.find((e) => e.name === 'Squat')!
+      squat.plateCount = 'WHOLE'
+      o.sets.find((s) => s.exerciseId === squat.id)!.unit = 'PLATES'
+    })
+    const db = await openDb()
+    await restoreBackup(db, decodeOk(text))
+    const squat = (await db.exercises.toArray()).find((e) => e.name === 'Squat')!
+    expect(squat.plateCount).toBe('WHOLE')
+    // The domain still never counts plates on it.
+    expect(grit.loadUnitOf(exerciseToJs(squat as typeof squat & { id: number }))).toBe('KG')
+  })
+
+  it('a plate target\'s payload comes back unchanged', async () => {
+    const db = await openDb()
+    await sampleWithPlates(db)
+    const stored = (await db.advice.toArray()).find((a) => a.payloadJson.includes('"unit":"PLATES"'))!
+    expect(grit.advicePayload(stored.payloadJson)?.unit).toBe('PLATES')
+    const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
+    expect((JSON.parse(text) as { advice: { payload: string }[] }).advice.map((a) => a.payload)).toContain(stored.payloadJson)
+    await db.advice.clear()
+    await restoreBackup(db, decodeOk(text))
+    expect((await db.advice.get(stored.id!))!.payloadJson).toBe(stored.payloadJson)
+  })
+
+  it('webFixture_holdsPlates', () => {
+    const v6 = readJson(WEB_FIXTURE) as Json & Record<'exercises' | 'sessions' | 'sets' | 'advice', Json[]>
+    const v5 = readJson(WEB_V5_FIXTURE) as Json & Record<'exercises' | 'sessions' | 'sets' | 'advice', Json[]>
+    expect(v6.version).toBe(6)
+    // The plate rows are there: a WHOLE and a HALF exercise, plate sets with a half among them, a session holding a kg
+    // and a plate set of one exercise, and a PLATES target.
+    const plateExercises = v6.exercises.filter((e) => 'plateCount' in e)
+    expect(plateExercises.map((e) => e.plateCount)).toEqual(['WHOLE', 'HALF'])
+    for (const e of plateExercises) expect(grit.plateCountOffered(exerciseToJs(e as unknown as ExerciseRow & { id: number }))).toBe(true)
+    const plateSets = v6.sets.filter((s) => 'unit' in s)
+    expect(plateSets.every((s) => s.unit === 'PLATES')).toBe(true)
+    expect(plateSets.map((s) => s.weightKg)).toContain(7.5)
+    expect(plateSets.every((s) => plateExercises.some((e) => e.id === s.exerciseId))).toBe(true)
+    const mixed = v6.sessions.filter((session) => {
+      const sets = v6.sets.filter((s) => s.sessionId === session.id)
+      return sets.some((s) => s.unit === 'PLATES') && sets.some((s) => !('unit' in s) && s.exerciseId === sets.find((p) => p.unit === 'PLATES')!.exerciseId)
+    })
+    expect(mixed).toHaveLength(1)
+    const targets = v6.advice.filter((a) => a.type === 'TARGET' && grit.advicePayload(a.payload as string)?.unit === 'PLATES')
+    expect(targets).toHaveLength(1)
+    // Everything else is the version 5 file as it was, but for the version: no key on any other row.
+    const only = (key: 'exercises' | 'sessions' | 'sets' | 'advice') => {
+      const ids = new Set(v5[key].map((r) => r.id))
+      return v6[key].filter((r) => ids.has(r.id))
+    }
+    const kept = { ...v6, exercises: only('exercises'), sessions: only('sessions'), sets: only('sets'), advice: only('advice') }
+    expect(withoutExportedAt(kept)).toEqual(withoutExportedAt(asUpgradedV5(v5)))
+  })
+
+  /** Android's version 6 backup (1.17 Task 4). */
+  const ANDROID_V6_FIXTURE = resolve(FIXTURES, 'android-v6.json')
+  type Fixture = Json & Record<'exercises' | 'sets' | 'advice', Json[]>
+  const plateTargetPayload = (f: Fixture) => {
+    const payloads = f.advice.filter((a) => a.type === 'TARGET' && (a.payload as string).includes('"unit":"PLATES"')).map((a) => a.payload as string)
+    expect(payloads).toHaveLength(1)
+    return payloads[0]!
+  }
+
+  it('restores android-v6.json with its plate sets, settings and plate target', async () => {
+    const android = readJson(ANDROID_V6_FIXTURE) as Fixture
+    expect(android.version).toBe(6)
+    expect(android.version).toBe(BACKUP_VERSION)
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V6_FIXTURE, 'utf8')))
+
+    // It exports again as Android wrote it, which holds only if neither app writes a default. The documented
+    // differences are the settings this device keeps: the web fills webRestAlert, and App lock is this device's own.
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Json
+    const expected = withoutExportedAt(structuredClone(android))
+    expect((expected.settings as Json).webRestAlert).toBeNull()
+    ;(expected.settings as Json).webRestAlert = 'SOUND'
+    expect((expected.settings as Json).appLock).toBe(true)
+    ;(expected.settings as Json).appLock = false
+    expect(withoutExportedAt(out)).toEqual(expected)
+
+    // The plate sets keep their unit and their 7½, the two machines their setting; every other row is kg / off, keyless.
+    const sets = await db.sets.toArray()
+    const plates = sets.filter((s) => setUnit(s) === 'PLATES')
+    expect(plates.map((s) => [s.id, s.weightKg])).toEqual(android.sets.filter((s) => 'unit' in s).map((s) => [s.id, s.weightKg]))
+    expect(plates.map((s) => s.weightKg)).toContain(7.5)
+    expect(sets.filter((s) => setUnit(s) === 'KG').every((s) => !('unit' in s))).toBe(true)
+    const exercises = await db.exercises.toArray()
+    expect(exercises.filter((e) => plateCountOf(e) !== 'OFF').map((e) => [e.name, e.plateCount])).toEqual([['Lat pulldown', 'WHOLE'], ['Leg press', 'HALF']])
+    expect(exercises.filter((e) => plateCountOf(e) === 'OFF').every((e) => !('plateCount' in e))).toBe(true)
+    // The plate target's payload is stored as Android wrote it, and the domain reads it as a plate target.
+    const payload = plateTargetPayload(android)
+    const stored = (await db.advice.toArray()).filter((a) => a.payloadJson === payload)
+    expect(stored).toHaveLength(1)
+    expect(grit.advicePayload(stored[0]!.payloadJson)?.unit).toBe('PLATES')
+    // And the domain reads the history in its units.
+    const history = await loadHistory(db)
+    expect(history.sessions.flatMap((s) => s.sets).filter((s) => s.unit === 'PLATES')).toHaveLength(plates.length)
+  })
+
+  it('the two version 6 fixtures hold the same keys on a set and on an exercise', () => {
+    // The two files hold different rows (ids, dates) by design: only their shapes must agree.
+    const android = readJson(ANDROID_V6_FIXTURE) as Fixture
+    const web = readJson(WEB_FIXTURE) as Fixture
+    for (const f of [android, web]) {
+      const plateSet = f.sets.find((s) => s.unit === 'PLATES')!
+      expect(Object.keys(plateSet)).toEqual([...V5_SET_KEYS, 'unit'])
+      const plateExercise = f.exercises.find((e) => e.plateCount !== undefined)!
+      expect(Object.keys(plateExercise)).toEqual([...V5_EXERCISE_KEYS, 'plateCount'])
+      const kgSet = f.sets.find((s) => !('unit' in s))!
+      expect(Object.keys(kgSet)).toEqual(V5_SET_KEYS)
+      const offExercise = f.exercises.find((e) => !('plateCount' in e))!
+      expect(Object.keys(offExercise)).toEqual(V5_EXERCISE_KEYS)
+      // Every row of the file, not just the first of each kind.
+      for (const s of f.sets) expect(Object.keys(s)).toEqual('unit' in s ? [...V5_SET_KEYS, 'unit'] : V5_SET_KEYS)
+      for (const e of f.exercises) expect(Object.keys(e)).toEqual('plateCount' in e ? [...V5_EXERCISE_KEYS, 'plateCount'] : V5_EXERCISE_KEYS)
+    }
+    // And the two plate rows of each kind agree key for key across the apps.
+    expect(Object.keys(android.sets.find((s) => s.unit === 'PLATES')!)).toEqual(Object.keys(web.sets.find((s) => s.unit === 'PLATES')!))
+    expect(Object.keys(android.exercises.find((e) => e.plateCount !== undefined)!)).toEqual(Object.keys(web.exercises.find((e) => e.plateCount !== undefined)!))
+  })
+
+  it("Android's plate target payload decodes through the domain to a plate target with the same fields", () => {
+    const android = readJson(ANDROID_V6_FIXTURE) as Fixture
+    const payload = plateTargetPayload(android)
+    const latPulldown = android.exercises.find((e) => e.name === 'Lat pulldown')!.id
+    const p = grit.advicePayload(payload)!
+    expect([p.kind, p.exerciseId, p.weightKg, p.reps, p.rpe, p.sets ?? null, p.repsHigh ?? null, p.unit]).toEqual(['Target', latPulldown, 7, 11, 8, 3, null, 'PLATES'])
+    // The web fixture's hand-written payload decodes the same way, to the values it was written with. (That it is byte
+    // for byte what the domain's serializer writes is checked on Android, whose serializer writes "8.0".)
+    const web = readJson(WEB_FIXTURE) as Fixture
+    const legPress = web.exercises.find((e) => e.name === 'Leg press')!.id
+    const w = grit.advicePayload(plateTargetPayload(web))!
+    expect([w.kind, w.exerciseId, w.weightKg, w.reps, w.rpe, w.sets ?? null, w.repsHigh ?? null, w.unit]).toEqual(['Target', legPress, 8, 8, 8, 3, 12, 'PLATES'])
   })
 })

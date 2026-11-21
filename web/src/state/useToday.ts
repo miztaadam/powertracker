@@ -1,18 +1,22 @@
 import Dexie, { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { addSet, planFor } from '../db/catalogue'
+import { addSet, planFor, setPlateCount as storePlateCount } from '../db/catalogue'
 import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
-import { sideOf, type AdviceRow, type PlanItemRow, type SetRow, type SkipReason, type TrainingMode } from '../db/schema'
+import { LOAD_UNITS, setUnit, sideOf, type AdviceRow, type LoadUnit, type PlanItemRow, type PlateCount, type SetRow, type SkipReason, type TrainingMode } from '../db/schema'
 import { skip as storeSkip, skips as readSkips, skipToJs, unskip, type StoredSkip } from '../db/skips'
 import { haptic, hapticsPossible } from '../platform/haptics'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 
-/** The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one. */
-export type SetEditor = { weightKg: number | null; reps: number; rpe: number }
+/**
+ * The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one; it is a plate number when
+ * `unit` is PLATES (1.17). `unit` is there only for plates, so a kg editor is exactly as it was. An editor kept in
+ * another unit than its exercise's is never shown.
+ */
+export type SetEditor = { weightKg: number | null; reps: number; rpe: number; unit?: LoadUnit }
 
 export type StoredSet = SetRow & { id: number }
 export type PlannedItem = PlanItemRow & { id: number }
@@ -21,9 +25,10 @@ export type MissPoint = 'FLOOR' | 'MID' | 'LOCKOUT'
 
 /**
  * The coach's numbers for one exercise today; `sets` is set only when the coach changes the set count. `repsHigh`
- * is the top of a rep range (a bodybuilding target, `reps` its bottom); null for fixed reps.
+ * is the top of a rep range (a bodybuilding target, `reps` its bottom); null for fixed reps. `unit` is there only for a
+ * plate target (1.17): `weightKg` is then a plate number.
  */
-export type Target = { exerciseId: number; weightKg: number; reps: number; rpe: number; sets: number | null; repsHigh?: number | null }
+export type Target = { exerciseId: number; weightKg: number; reps: number; rpe: number; sets: number | null; repsHigh?: number | null; unit?: LoadUnit }
 
 /**
  * An OPEN target for today. Changes nothing until applied. `applyReps` is what Apply puts in the reps field: the
@@ -43,12 +48,23 @@ export type TodayItem = {
   isComplete: boolean
   /** Plates for the editor weight; null when there is no weight or it cannot be loaded exactly. */
   perSide: number[] | null
-  /** The weight a typo is judged against: the last set today, else the last top set before today. */
+  /** The weight a typo is judged against: the last set today, else the last top set before today, both in `unit`. */
   lastWeightKg: number | null
+  /**
+   * 1.17, each there only when it is not the default: the exercise's current unit (PLATES; absent is kg), which the
+   * editor, the targets and the typo check are in; its stored plate setting (WHOLE or HALF; absent is OFF), which the
+   * plate sheet marks; and whether it may count plates at all (true; absent is false), which puts the item in its menu.
+   */
+  unit?: LoadUnit
+  plateCount?: PlateCount
+  plateOffered?: boolean
 }
 
-/** What the lifter did, as the editor has it. Never a top set: that is worked out from the session afterwards. */
-export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean }
+/**
+ * What the lifter did, as the editor has it. Never a top set: that is worked out from the session afterwards. `unit`
+ * (1.17) is the field's it was typed in, there only for plates.
+ */
+export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit }
 
 export type InputWarning = 'HIGH_REPS' | 'BIG_JUMP'
 
@@ -153,6 +169,14 @@ export type TodayActions = {
   /** Takes back an added exercise that has no sets yet. */
   removeExercise: (exerciseId: number) => void
   /**
+   * Stores the plate setting of the item with this key (1.17). A stand-in key is a catalogue exercise with no row yet: its
+   * row is made in the same write, as its first set would make it. Needs no session. The numbers kept for its next set,
+   * under its id and its stand-in's, are dropped, so the field starts afresh; no stored set or target changes. The coach
+   * then works out today's targets again. Rejects when the write fails. Optional: the guide's Today has none, so it
+   * offers no plate item.
+   */
+  setPlateCount?: (itemKey: number, value: PlateCount) => Promise<void>
+  /**
    * Skips `exerciseId`, planned today with no sets logged, for today on the side shown, with an optional reason (null is
    * "Just skip"). The skip and the coach's card for it, if any, are stored together, and it ticks once. Skipping needs no
    * session; skipping one already skipped today replaces its reason and its card. Resolves to null when nothing was
@@ -213,8 +237,24 @@ export function weekdayOf(isoDate: string): number {
 function parseTarget(payloadJson: string): Target | null {
   const p = grit.advicePayload(payloadJson)
   if (p?.kind !== 'Target' || p.exerciseId == null || p.weightKg == null || p.reps == null || p.rpe == null) return null
-  return { exerciseId: p.exerciseId, weightKg: p.weightKg, reps: p.reps, rpe: p.rpe, sets: p.sets ?? null, repsHigh: p.repsHigh ?? null }
+  return { exerciseId: p.exerciseId, weightKg: p.weightKg, reps: p.reps, rpe: p.rpe, sets: p.sets ?? null, repsHigh: p.repsHigh ?? null, ...(p.unit === 'PLATES' ? { unit: 'PLATES' as const } : {}) }
 }
+
+/** `{ unit: 'PLATES' }` for plates, else nothing: a kg editor, target, set input or row never carries the key (1.17). */
+const unitKey = (unit: LoadUnit): { unit?: LoadUnit } => (unit === 'PLATES' ? { unit } : {})
+
+/** Today holds at most one target for each exercise and unit (1.17): a kg target does not stand in for the plate one. */
+const targetKey = (t: Target) => `${t.exerciseId}:${setUnit(t)}`
+
+/**
+ * Whether [t] can stand for its exercise under the setting [plateCount] (1.17): a kg target always; a plate one only
+ * when its plate is on the setting's grid. Plate 7½ stored under half steps is not used once whole plates are on, and
+ * the coach stores a fresh one beside it; a whole plate stays good under half steps.
+ */
+const onGrid = (t: Target, plateCount: PlateCount | undefined) => setUnit(t) !== 'PLATES' || grit.plateCheck(t.weightKg, plateCount ?? 'OFF') === 'OK'
+
+/** A plate number under plate 1 or over the highest plate (`plateCheck`'s RANGE): no machine has it, so it is never stored. */
+const plateOutOfRange = (plate: number) => !(plate >= 1 && plate <= grit.maxPlate())
 
 /** The TARGET advice stored for `date` on `side`, in every status, oldest first. Each side has its own targets. */
 function todaysTargets(advice: AdviceRow[], date: string, side: TrainingMode): Stored['targets'] {
@@ -228,7 +268,12 @@ function todaysTargets(advice: AdviceRow[], date: string, side: TrainingMode): S
 function isEditor(value: unknown): value is SetEditor {
   if (typeof value !== 'object' || value === null) return false
   const v = value as Record<string, unknown>
-  return (v.weightKg === null || typeof v.weightKg === 'number') && typeof v.reps === 'number' && typeof v.rpe === 'number'
+  return (
+    (v.weightKg === null || typeof v.weightKg === 'number') &&
+    typeof v.reps === 'number' &&
+    typeof v.rpe === 'number' &&
+    (v.unit === undefined || (LOAD_UNITS as readonly unknown[]).includes(v.unit))
+  )
 }
 
 /** The side Today follows for `date`: that day's session's side when it has one, else the side the app is on. */
@@ -296,16 +341,23 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
       const [history, settings, advice, skips] = await Promise.all([loadHistory(db), getSettings(db), db.advice.toArray(), readSkips(db)])
       const side = await sideFor(db, date, settings)
       const plan = await planFor(db, side)
-      const known = new Set(todaysTargets(advice, date, side).map((t) => t.target.exerciseId))
+      // Each unit has its own target (1.17): one stored in kg does not stand in for the plate one, nor the other way.
+      // A plate target off the exercise's current grid does not count: the pass stores one on it, beside the old one.
+      const settingOf = new Map(history.exercises.map((e) => [e.id, e.plateCount as PlateCount]))
+      const known = new Set(
+        todaysTargets(advice, date, side)
+          .filter((t) => onGrid(t.target, settingOf.get(t.target.exerciseId)))
+          .map((t) => targetKey(t.target)),
+      )
       // The whole advice list: the domain counts each side's own, and every deload and easing back in.
       const prior = advice.map((a) => adviceToJs(a as AdviceRow & { id: number }))
       const fresh: AdviceRow[] = []
       // Every skip, both sides': a pain skip on either holds the exercise's weight (1.13).
       const held = skips.map(skipToJs)
       for (const a of grit.coachingTargetsForWithSkips(side, weekdayOf(date), history, (plan as PlannedItem[]).map(planItemToJs), coachSettings(settings), date, prior, held)) {
-        const exerciseId = parseTarget(a.payloadJson)?.exerciseId
-        if (exerciseId == null || known.has(exerciseId)) continue
-        known.add(exerciseId)
+        const target = parseTarget(a.payloadJson)
+        if (target == null || known.has(targetKey(target))) continue
+        known.add(targetKey(target))
         fresh.push(withoutId(adviceFromJs(a)))
       }
       writing = true
@@ -322,6 +374,9 @@ async function coachPass(db: GritDb, date: string, today: () => string): Promise
   }
   return true
 }
+
+/** Each plate-counting exercise's [id, setting], for the coach pass's key (1.17). */
+const plateSettings = (history: JsHistory) => history.exercises.filter((e) => e.plateCount !== 'OFF').map((e) => [e.id, e.plateCount])
 
 // The domain reads the whole history for each answer, and the screen rebuilds on every stepper tap:
 // answers are kept for as long as the history object they were worked out from.
@@ -344,12 +399,13 @@ export async function buzzForSet(db: GritDb, setId: number, row: Parameters<type
 /** Whether [row], about to be saved on [date] in a [side] session, is a new record of its lift (ProgressMath.isNewPr). */
 export function isNewBest(
   history: JsHistory,
-  row: { exerciseId: number | null; weightKg: number; reps: number; rpe: number | null; failed: boolean },
+  row: { exerciseId: number | null; weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit },
   date: string,
   side: TrainingMode,
 ): boolean {
-  if (row.exerciseId == null) return false
-  return grit.isNewPr(history, new JsSet(row.exerciseId, row.weightKg, row.reps, row.rpe, row.failed, null, false), date, side)
+  // A record is only ever a kg set: a plate number is never judged a best (1.17).
+  if (row.exerciseId == null || setUnit(row) !== 'KG') return false
+  return grit.isNewPr(history, new JsSet(row.exerciseId, row.weightKg, row.reps, row.rpe, row.failed, null, false, 'KG'), date, side)
 }
 
 /** The top set of the latest session before `before` that has this exercise, as the coach picks it. */
@@ -407,20 +463,28 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
   const addedIds = [...new Set([...loggedIds.filter((id) => !added.includes(id)), ...added])].filter((id) => !plannedIds.has(id))
 
   function item(exercise: JsExercise, plan: PlannedItem | null): TodayItem {
+    // Each exercise is read in its current unit only (1.17): a kg number never fills the PLATE field, nor the other way.
+    const unit = grit.loadUnitOf(exercise) as LoadUnit
+    const offered = grit.plateCountOffered(exercise)
+    const plateCount = exercise.plateCount as PlateCount
     const sets = d.sets.filter((s) => s.exerciseId === exercise.id)
-    const mine = d.targets.filter((t) => t.target.exerciseId === exercise.id)
+    // A stored target in the other unit is neither shown nor applied.
+    // Nor is a plate target off the current grid (plate 7½ once whole plates are on): the coach's pass stores a fresh one.
+    const mine = d.targets.filter((t) => t.target.exerciseId === exercise.id && setUnit(t.target) === unit && onGrid(t.target, plateCount))
     const applied = mine.filter((t) => t.status === 'APPLIED').pop()?.target
+    // The domain's last top set is read in the exercise's current unit (`inCurrentUnits`).
     const top = lastTopSet(d.history, exercise.id, d.date)
-    const lastToday = sets[sets.length - 1]
+    const lastToday = sets.filter((s) => setUnit(s) === unit).at(-1)
     const rpe = plan?.targetRpe ?? d.settings.defaultRpe
+    // A kept editor in another unit (from before the switch, another tab, or kept across a reload) is never shown.
+    const kept = [l.editors[exercise.id], l.editors[standInOf.get(exercise.id) ?? exercise.id]].find((e) => e != null && setUnit(e) === unit)
     const editor: SetEditor =
-      l.editors[exercise.id] ??
-      l.editors[standInOf.get(exercise.id) ?? exercise.id] ??
+      kept ??
       (lastToday != null
-        ? { weightKg: lastToday.weightKg, reps: lastToday.reps, rpe: lastToday.rpe ?? rpe }
+        ? { weightKg: lastToday.weightKg, reps: lastToday.reps, rpe: lastToday.rpe ?? rpe, ...unitKey(unit) }
         : applied != null
-          ? { weightKg: applied.weightKg, reps: applied.reps, rpe: applied.rpe }
-          : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe })
+          ? { weightKg: applied.weightKg, reps: applied.reps, rpe: applied.rpe, ...unitKey(unit) }
+          : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe, ...unitKey(unit) })
     const targetSets = plan ? (applied?.sets ?? plan.sets) : null
     const open = mine.find((t) => t.status === 'OPEN')
     // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged. Under a pain hold the aim is
@@ -434,8 +498,12 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
       editor,
       targetSets,
       isComplete: targetSets != null && sets.length >= targetSets,
-      perSide: editor.weightKg != null ? (grit.platesPerSide(editor.weightKg, d.settings.changePlates) ?? null) : null,
+      // A plate number has no bar and no kg plates.
+      perSide: editor.weightKg != null && unit === 'KG' ? (grit.platesPerSide(editor.weightKg, d.settings.changePlates) ?? null) : null,
       lastWeightKg: lastToday?.weightKg ?? top?.weightKg ?? null,
+      ...unitKey(unit),
+      ...(offered && plateCount !== 'OFF' ? { plateCount } : {}),
+      ...(offered ? { plateOffered: true } : {}),
     }
   }
 
@@ -644,7 +712,16 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   // And again when a skip is stored or taken back (1.13): a pain skip, and taking any skip back, delete that day's target,
   // which is then worked out again, with or without the hold.
   const planKey = current
-    ? JSON.stringify([current.side, current.plan, current.settings.defaultRpe, current.settings.changePlates, current.skips.map((s) => [s.id, s.date, s.reason])])
+    ? JSON.stringify([
+        current.side,
+        current.plan,
+        current.settings.defaultRpe,
+        current.settings.changePlates,
+        current.skips.map((s) => [s.id, s.date, s.reason]),
+        // 1.17: a change of an exercise's plate setting asks again (the coach then reads it in its new unit). Only the
+        // exercises counting plates are in the key, so a kg-only lifter's passes are as they were.
+        ...plateSettings(current.history),
+      ])
     : null
   useEffect(() => {
     if (planKey == null) return
@@ -797,8 +874,16 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         if (now.sessionId == null) throw new Error('There is no session to log to.')
         const item = now.items.find((i) => i.exercise.id === (now.resolved[itemKey] ?? itemKey))
         const lastWeightKg = item?.lastWeightKg ?? null
+        // The backstop, whatever built the set (a hand-edited kept editor row): a plate number outside plate 1 to the
+        // highest plate is never stored. Off the grid is not refused here: a logged half stands with whole plates on.
+        if (setUnit(set) === 'PLATES' && plateOutOfRange(set.weightKg)) return
         if (!confirmed) {
-          const warnings = grit.checkInput(set.weightKg, set.reps, lastWeightKg) as InputWarning[]
+          // A number typed in one unit is never stored in the other (1.17): if the exercise's setting changed between
+          // the screen being drawn and the tap (another tab, a slow tap), the set is refused, not relabelled, and the
+          // lifter types it again in the new field. A set held for the typo dialog keeps its own unit when confirmed.
+          if (item != null && setUnit(set) !== setUnit(item)) return
+          // Judged against the last weight in the same unit only, with the plate step for a plate number.
+          const warnings = grit.checkLoadInput(set.weightKg, set.reps, lastWeightKg, setUnit(set), item?.plateCount ?? 'OFF') as InputWarning[]
           if (warnings.length > 0) {
             update((l) => ({ ...l, pending: { exerciseId: itemKey, set, warnings, lastWeightKg } }))
             return
@@ -807,7 +892,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)
-        const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false }
+        // `unit` goes last and only for plates: a kg row is exactly as it was.
+        const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false, ...unitKey(setUnit(set)) }
         slide.arm()
         let setId: number
         try {
@@ -873,7 +959,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
         await db.advice.update(adviceId, { status: 'APPLIED' })
         const { exerciseId, weightKg, reps, rpe } = suggestion.target
-        edit(exerciseId, { weightKg, reps: suggestion.applyReps ?? reps, rpe })
+        // In the target's unit, which is the exercise's: otherwise the screen would not show it.
+        edit(exerciseId, { weightKg, reps: suggestion.applyReps ?? reps, rpe, ...unitKey(setUnit(suggestion.target)) })
         applied = true
         // One tick once the target is in the editor.
         haptic('tick')
@@ -968,6 +1055,27 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       const gone = new Set([exerciseId, ...(standIn != null ? [Number(standIn)] : [])])
       update((l) => ({ ...l, added: l.added.filter((id) => !gone.has(id)), editors: Object.fromEntries(Object.entries(l.editors).filter(([id]) => !gone.has(Number(id)))) }))
       if (exerciseId >= 0) db.meta.delete(editorKey(date, exerciseId)).catch(() => {})
+    },
+    [db, date, update],
+  )
+
+  const setPlateCount = useCallback<NonNullable<TodayActions['setPlateCount']>>(
+    async (itemKey, value) => {
+      const entry = standInEntry(itemKey)
+      const id = await storePlateCount(db, entry ? null : itemKey, entry?.name ?? null, value)
+      // The numbers kept for the next set go, under the row's id, the key it was chosen under and any stand-in shown as
+      // it: the field starts afresh in the new unit (whole ↔ half too).
+      const standIns = Object.entries(latest.current.resolved).flatMap(([standIn, row]) => (row === id || row === itemKey ? [Number(standIn)] : []))
+      const dropped = new Set([itemKey, id, ...standIns])
+      update((l) => ({ ...l, editors: Object.fromEntries(Object.entries(l.editors).filter(([key]) => !dropped.has(Number(key)))) }))
+      await db.meta.bulkDelete([...dropped].filter((key) => key >= 0).map((key) => editorKey(date, key)))
+      // The coach reads the exercise in its new unit; what is stored already stays as it is.
+      try {
+        if (await coachPass(db, date, () => clock.current())) setCoachPasses((n) => n + 1)
+      } catch (e) {
+        // The setting is stored: a failed pass costs today's targets only, as on opening the screen.
+        if (!(e instanceof CoachWriteError)) throw e
+      }
     },
     [db, date, update],
   )
@@ -1074,6 +1182,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     addToOpenSession,
     createExercise,
     removeExercise,
+    setPlateCount,
     skip,
     undoSkip,
     bringBack,

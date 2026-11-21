@@ -24,10 +24,12 @@ export type StartSessionCardProps = {
   onSkipToday?: (item: TodayItem) => void
   /** How many of today's planned exercises are skipped (1.13). With none left on the list, the eyebrow counts them. */
   skipped?: number
+  /** Opens the plate sheet for a row whose exercise is offered it (`plateOffered`, 1.17); left out, no row offers it. */
+  onCountPlates?: (item: TodayItem) => void
 }
 
 /** Before the first set: what is planned today, two optional check-in numbers, and Start. */
-export function StartSessionCard({ items, dayName, onStart, onSkipToday, skipped = 0 }: StartSessionCardProps) {
+export function StartSessionCard({ items, dayName, onStart, onSkipToday, skipped = 0, onCountPlates }: StartSessionCardProps) {
   // Everything planned today was skipped: it is not a day with nothing planned. Anything on the list, an exercise the
   // lifter added included, is left to do.
   const allSkipped = items.length === 0 && skipped > 0
@@ -72,7 +74,11 @@ export function StartSessionCard({ items, dayName, onStart, onSkipToday, skipped
                 </div>
                 {item.planned && <span className="today-pair-second today-nowrap headline-small">{planText(item.planned)}</span>}
               </div>
-              {onSkipToday && item.planned && item.sets.length === 0 && <SkipMenu name={item.exercise.name} onSkipToday={() => onSkipToday(item)} />}
+              <SkipMenu
+                name={item.exercise.name}
+                onSkipToday={onSkipToday && item.planned && item.sets.length === 0 ? () => onSkipToday(item) : undefined}
+                onCountPlates={onCountPlates && item.plateOffered ? () => onCountPlates(item) : undefined}
+              />
             </li>
           ))}
         </ul>

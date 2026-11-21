@@ -1,0 +1,9 @@
+/* At large text on a narrow phone the button's words wrap onto a second line rather than push it off the screen. */
+.older-copy-action {
+  max-width: 100%;
+}
+
+.older-copy-action .gr-btn-text {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

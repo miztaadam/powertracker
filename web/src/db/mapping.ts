@@ -10,12 +10,14 @@ import type {
   AdviceRow,
   BaselineRow,
   ExerciseRow,
+  LoadUnit,
   PlanItemRow,
+  PlateCount,
   SessionRow,
   SetRow,
   TrainingMode,
 } from './schema'
-import { sideOf, TRAINING_MODES } from './schema'
+import { LOAD_UNITS, PLATE_COUNTS, plateCountOf, setUnit, sideOf, TRAINING_MODES } from './schema'
 
 /** The domain's mode name as a row's. */
 function mode(name: string): TrainingMode {
@@ -23,11 +25,25 @@ function mode(name: string): TrainingMode {
   return name as TrainingMode
 }
 
-export function exerciseToJs(r: ExerciseRow & { id: number }): JsExercise {
-  return new JsExercise(r.id, r.name, r.category, r.parentLift, [...r.muscles], r.isBuiltIn, r.archived)
+/** The domain's unit name as a row's. */
+function loadUnit(name: string): LoadUnit {
+  if (!(LOAD_UNITS as readonly string[]).includes(name)) throw new Error(`Unknown load unit ${name}`)
+  return name as LoadUnit
 }
 
+/** The domain's plate setting name as a row's. */
+function plateCount(name: string): PlateCount {
+  if (!(PLATE_COUNTS as readonly string[]).includes(name)) throw new Error(`Unknown plate setting ${name}`)
+  return name as PlateCount
+}
+
+export function exerciseToJs(r: ExerciseRow & { id: number }): JsExercise {
+  return new JsExercise(r.id, r.name, r.category, r.parentLift, [...r.muscles], r.isBuiltIn, r.archived, plateCountOf(r))
+}
+
+/** An exercise that is off stores no `plateCount` key, as every row before schema version 6. */
 export function exerciseFromJs(e: JsExercise): ExerciseRow & { id: number } {
+  const count = plateCount(e.plateCount)
   return {
     id: e.id,
     name: e.name,
@@ -36,14 +52,17 @@ export function exerciseFromJs(e: JsExercise): ExerciseRow & { id: number } {
     muscles: [...e.muscles],
     isBuiltIn: e.isBuiltIn,
     archived: e.archived,
+    ...(count !== 'OFF' ? { plateCount: count } : {}),
   }
 }
 
 export function setToJs(r: SetRow): JsSet {
-  return new JsSet(r.exerciseId, r.weightKg, r.reps, r.rpe, r.failed, r.missPoint, r.isTopSet)
+  return new JsSet(r.exerciseId, r.weightKg, r.reps, r.rpe, r.failed, r.missPoint, r.isTopSet, setUnit(r))
 }
 
+/** A kg set stores no `unit` key, as every row before schema version 6. */
 export function setFromJs(s: JsSet, sessionId: number): SetRow {
+  const unit = loadUnit(s.unit)
   return {
     sessionId,
     exerciseId: s.exerciseId,
@@ -53,6 +72,7 @@ export function setFromJs(s: JsSet, sessionId: number): SetRow {
     failed: s.failed,
     missPoint: s.missPoint ?? null,
     isTopSet: s.isTopSet,
+    ...(unit !== 'KG' ? { unit } : {}),
   }
 }
 

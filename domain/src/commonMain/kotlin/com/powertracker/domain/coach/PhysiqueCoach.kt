@@ -21,6 +21,7 @@ import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
 import com.powertracker.domain.plan.PlanBuilder
+import com.powertracker.domain.stack.inCurrentUnits
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -555,7 +556,8 @@ object PhysiqueCoach {
         val items = inWeekOrder(plan.on(TrainingMode.BODYBUILDING))
         val latest = checkIns.filter { it.date <= today }.maxByOrNull { it.date }
         val cutoff = today.minus(STUCK_DAYS, DateTimeUnit.DAY)
-        val sessions = history.sessions.filter { it.mode == TrainingMode.BODYBUILDING && it.date <= today }.sortedBy { it.date }
+        // Plate against plate, kg against kg: a change of unit starts the 21 days afresh (1.17).
+        val sessions = history.inCurrentUnits().sessions.filter { it.mode == TrainingMode.BODYBUILDING && it.date <= today }.sortedBy { it.date }
         val out = mutableListOf<Advice>()
         for (id in items.map { it.exerciseId }.distinct()) {
             val exercise = history.exercises[id] ?: continue

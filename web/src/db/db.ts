@@ -67,6 +67,35 @@ export class UpgradeFailedError extends Error {
   }
 }
 
+/**
+ * Thrown by `openGritDb` when the database was written by a newer Grit than this copy (1.17). Nothing is read from it
+ * or written to it: this copy would read plate counts as kilograms, and its backups would drop the plate markers.
+ * Dexie does not refuse on its own: it opens a newer database whose stores match. The app shows OlderCopyScreen.
+ */
+export class OlderCopyError extends Error {
+  constructor(
+    readonly nativeVersion: number,
+    readonly declaredVersion: number,
+  ) {
+    super(`This copy of Grit (storage version ${declaredVersion}) is older than the stored log (native version ${nativeVersion}).`)
+    this.name = 'OlderCopyError'
+  }
+}
+
+/**
+ * Whether a database at IndexedDB version `native` was made by a newer Grit than one that declares `declared`.
+ * Dexie stores declared version × 10, and adds 1 each time it patches in a missing index without a new declared
+ * version, so 60 to 69 are all version 6 (rounded, 65 would wrongly read as 7). Only 70 and up are newer.
+ */
+export function isNewerThan(native: number, declared: number): boolean {
+  return declaredVersionOf(native) > declared
+}
+
+/** The declared (Dexie) version a database at IndexedDB version `native` was made with: 50 to 59 are 5, 60 to 69 are 6. */
+function declaredVersionOf(native: number): number {
+  return Math.floor(native / 10)
+}
+
 export class GritDb extends Dexie {
   exercises!: EntityTable<ExerciseRow, 'id'>
   sessions!: EntityTable<SessionRow, 'id'>
@@ -117,6 +146,18 @@ export class GritDb extends Dexie {
         },
       }),
     })
+    // A newer Grit's database, found on the way in (another window moved it on after openGritDb looked, or Dexie
+    // reopened without a version after a VersionError): fail the open, so the connection is closed before anything
+    // is read. Sticky, so a reopen is checked too. A database with no stores is not a Grit log at all: left to the
+    // usual failure.
+    this.on(
+      'ready',
+      (vip) => {
+        const idb = (vip as Dexie).backendDB()
+        if (idb.objectStoreNames.length > 0 && isNewerThan(idb.version, this.verno)) throw new OlderCopyError(idb.version, this.verno)
+      },
+      true,
+    )
     // Another tab/version wants to upgrade: release the connection and never reopen
     // with this (older) schema. The UI prompts for a reload.
     this.on('versionchange', () => {
@@ -127,8 +168,14 @@ export class GritDb extends Dexie {
   }
 }
 
-/** Installed Dexie version of `name`, or 0 if the database does not exist (and is not created). */
+/** Installed Dexie version of `name` (its declared version, whatever Dexie's patches added), or 0 if the database does not exist (and is not created). */
 export async function installedVersion(name: string): Promise<number> {
+  const native = await installedNativeVersion(name)
+  return declaredVersionOf(native)
+}
+
+/** The IndexedDB version of `name` (Dexie's version × 10, plus its patches), or 0 if it does not exist or has no stores. */
+async function installedNativeVersion(name: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(name)
     let existed = true
@@ -139,7 +186,7 @@ export async function installedVersion(name: string): Promise<number> {
     req.onsuccess = () => {
       const { version, objectStoreNames } = req.result
       req.result.close()
-      resolve(existed && objectStoreNames.length > 0 ? Math.round(version / 10) : 0)
+      resolve(existed && objectStoreNames.length > 0 ? version : 0)
     }
     req.onerror = () => (existed ? reject(req.error) : resolve(0))
     req.onblocked = () => reject(new Error('Grit database is blocked by another tab'))
@@ -156,7 +203,10 @@ export async function openGritDb(
 ): Promise<GritDb> {
   const versions = options.schemaVersions ?? SCHEMA_VERSIONS
   const target = Math.max(...versions.map((v) => v.version))
-  const installed = await installedVersion(name)
+  const native = await installedNativeVersion(name)
+  // Written by a newer Grit: not opened at all, so nothing is read or written (not even a safety copy).
+  if (isNewerThan(native, target)) throw new OlderCopyError(native, target)
+  const installed = declaredVersionOf(native)
 
   if (installed > 0 && installed < target) {
     // Schema-less open reads the installed schema as-is.
@@ -176,6 +226,7 @@ export async function openGritDb(
     await db.open()
   } catch (e) {
     db.close()
+    if (e instanceof OlderCopyError) throw e
     if (installed > 0 && installed < target) throw new UpgradeFailedError(e, true)
     throw e
   }

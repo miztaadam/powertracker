@@ -1,3 +1,4 @@
+import { rememberRoute, stripReloadMarker } from './platform/reloadMarker'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
@@ -10,6 +11,10 @@ import './ui/press.css'
 // Things slide into place (stage 3): the names and timing of the few changes that move.
 import './ui/vt.css'
 
+// First: the address the service worker reloaded this window at loses its `u` parameter (and gets back the route this
+// window was on) before anything reads it. Then the route is kept from here on, for the next such reload.
+stripReloadMarker()
+rememberRoute()
 syncThemeColor()
 // A quick tap still shows its sink (press.css): one listener for the whole page.
 installPressHold()

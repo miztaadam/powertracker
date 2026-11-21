@@ -5,12 +5,15 @@ import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSession
+import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.on
 import com.powertracker.domain.model.repsText
+import com.powertracker.domain.stack.PlateStack
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
@@ -61,6 +64,7 @@ internal object ReturnRule {
 
         val plates = settings.changePlates
         val elsewhere = familySets(other).filter { !it.failed }
+        if (PlateStack.unitOf(exercise) == LoadUnit.PLATES) return platesEased(target, payload, item, exercise, history, mode, today, elsewhere)
         if (elsewhere.isNotEmpty()) {
             val best = elsewhere.maxOf { E1rm.estimate(it.weightKg, it.reps, it.rpe) }
             val supported = E1rm.loadFor(best, payload.reps, payload.rpe)
@@ -84,6 +88,40 @@ internal object ReturnRule {
         )
     }
 
+    /**
+     * [ease] for a plate-counted exercise (1.17), with no e1RM and no rep conversion: trained on the other side, the
+     * target is capped at the heaviest plate done there without a miss ([elsewhere]), on this exercise's grid; not
+     * trained on either side, the re-entry factor of the last plate top set on this side by the step rule, at the
+     * planned reps.
+     */
+    private fun platesEased(
+        target: Advice,
+        payload: AdvicePayload.Target,
+        item: PlanItem,
+        exercise: Exercise,
+        history: TrainingHistory,
+        mode: TrainingMode,
+        today: LocalDate,
+        elsewhere: List<LoggedSet>,
+    ): Advice {
+        val step = PlateStack.step(exercise.plateCount)
+        if (elsewhere.isNotEmpty()) {
+            val cap = PlateStack.floor(elsewhere.maxOf { it.weightKg }, step)
+            if (cap >= payload.weightKg) return target
+            return target.copy(
+                reason = withSuggestion(target.reason, cap, payload.reps, payload.repsHigh, payload.rpe, payload.unit) + Coach.RE_ENTRY_NOTE,
+                payload = payload.copy(weightKg = cap),
+            )
+        }
+        val (_, last) = HistoryStats(history.on(mode)).lastTopSet(item.exerciseId, today) ?: return target
+        val weight = minOf(payload.weightKg, PlateStack.eased(last.weightKg, AdvicePayload.ReEntry().loadFactor, step))
+        val reps = item.reps
+        return target.copy(
+            reason = withSuggestion(target.reason, weight, reps, payload.repsHigh, payload.rpe, payload.unit) + Coach.RE_ENTRY_NOTE,
+            payload = payload.copy(weightKg = weight, reps = reps),
+        )
+    }
+
     /** Rounded down as [mode]'s coach rounds: free loads on the bodybuilding side on its 0.5 kg grid. */
     private fun roundDown(mode: TrainingMode, kg: Double, anchorKg: Double, free: Boolean, changePlates: Boolean): Double =
         when (mode) {
@@ -99,9 +137,9 @@ internal object ReturnRule {
     }
 
     /** [reason] with its closing "Coach suggests ..." sentence rewritten for the new weight and reps. */
-    internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHigh: Int?, rpe: Double): String {
+    internal fun withSuggestion(reason: String, weightKg: Double, reps: Int, repsHigh: Int?, rpe: Double, unit: LoadUnit = LoadUnit.KG): String {
         val at = reason.lastIndexOf(SUGGESTION)
         val prefix = if (at < 0) (if (reason.isEmpty()) "" else "$reason ") else reason.substring(0, at)
-        return "$prefix$SUGGESTION${ProgressionRule.fmt(weightKg)} × ${repsText(reps, repsHigh)} @ ${ProgressionRule.fmt(rpe)}."
+        return "$prefix$SUGGESTION${ProgressionRule.fmt(weightKg, unit)} × ${repsText(reps, repsHigh)} @ ${ProgressionRule.fmt(rpe)}."
     }
 }

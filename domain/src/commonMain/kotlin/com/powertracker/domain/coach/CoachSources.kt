@@ -19,6 +19,9 @@ object CoachSources {
      * The trigger differs: the source raises the load at one to two reps past the range, the owner's trigger is
      * every planned set reaching the top of the range at or under the target RPE. The owner's trigger is kept.
      *
+     * On a plate-counted machine (1.17) the increase is one step, the smallest change the machine allows, which is
+     * often more than the band above; the owner chose one step.
+     *
      * Found with a web search restricted to the allowed sources; the page itself was not opened.
      *
      * The 2-10% figure was confirmed again on 2026-11-13 by a web search restricted to exrx.net, acsm.org and

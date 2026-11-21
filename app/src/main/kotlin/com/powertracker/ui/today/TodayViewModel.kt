@@ -21,8 +21,12 @@ import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.PlateCount
+import com.powertracker.domain.stack.PlateStack
+import com.powertracker.domain.stack.inCurrentUnits
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.Skip
@@ -57,8 +61,11 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
 import com.powertracker.domain.progress.ProgressMath
 
-/** The numbers in the steppers for the next set. [weightKg] is null until the lifter enters one. */
-data class SetEditor(val weightKg: Double?, val reps: Int, val rpe: Double)
+/**
+ * The numbers in the steppers for the next set. [weightKg] is null until the lifter enters one; it is a plate number
+ * when [unit] is plates (1.17). An editor kept in another unit than its exercise's is never shown.
+ */
+data class SetEditor(val weightKg: Double?, val reps: Int, val rpe: Double, val unit: LoadUnit = LoadUnit.KG)
 
 data class TodayItem(
     val exercise: Exercise,
@@ -72,8 +79,14 @@ data class TodayItem(
     val targetSets: Int?,
     /** Plates for the editor weight; null when there is no weight or it cannot be loaded exactly. */
     val perSide: List<Double>?,
-    /** The weight a typo is judged against: the last set today, else the last top set before today. */
+    /** The weight a typo is judged against: the last set today, else the last top set before today, both in [unit]. */
     val lastWeightKg: Double?,
+    /** The exercise's current unit ([PlateStack.unitOf]): what the editor, the targets and the typo check are in (1.17). */
+    val unit: LoadUnit = LoadUnit.KG,
+    /** The exercise's stored plate setting, which the plate sheet marks. */
+    val plateCount: PlateCount = PlateCount.OFF,
+    /** Whether the exercise may count plates at all ([PlateStack.offered]): the row menu then offers it. */
+    val plateOffered: Boolean = false,
 ) {
     val logged: List<LoggedSet> get() = sets.map { it.set }
     val isComplete: Boolean get() = targetSets != null && sets.size >= targetSets
@@ -114,6 +127,8 @@ data class TodayState(
     val welcomeBack: Boolean = false,
     /** Today's planned exercises skipped on the side shown, in plan order; they are not in [items]. */
     val skippedToday: List<SkippedToday> = emptyList(),
+    /** True while a plate setting chosen in the plate sheet is being stored (1.17): the sheet marks the tapped choice. */
+    val plateSaving: Boolean = false,
 ) {
     val pendingWarning: InputWarning? get() = pending?.warnings?.firstOrNull()
 
@@ -168,6 +183,8 @@ class TodayViewModel(
         val added: List<Long> = emptyList(),
         val pending: PendingLog? = null,
         val summary: FinishSummary? = null,
+        /** Plate settings being stored, not yet shown or failed. */
+        val plateSaves: Int = 0,
     )
 
     private data class Stored(
@@ -235,25 +252,45 @@ class TodayViewModel(
 
     private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
+    /** What the coach's pass is keyed by; [plates] is each plate-counting exercise's (id, setting). */
+    private data class CoachKey(
+        val mode: TrainingMode,
+        val plan: List<PlanItem>,
+        val coach: com.powertracker.domain.coach.CoachSettings,
+        val skips: List<Skip>,
+        val plates: Set<Pair<Long, PlateCount>>,
+    )
+
     val state: StateFlow<TodayState> = combine(stored, local, ::build)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayState(date))
 
     init {
         // Ask the coach for today's targets when the screen opens and again if the plan changes, or a skip is stored or
         // taken back: a pain skip, and taking any skip back, delete that day's target, which is then worked out again.
+        // A change of an exercise's plate setting asks again too (1.17): the coach then reads it in its new unit. Only
+        // the exercises counting plates are in the key, so a kg-only lifter's passes are as they were.
+        val plateSettings = training.exercises()
+            .map { list -> list.filter { it.plateCount != PlateCount.OFF }.map { it.id to it.plateCount }.toSet() }
+            .distinctUntilChanged()
         viewModelScope.launch {
-            combine(mode, plan, settings.settings, training.skips()) { mode, plan, s, skips -> Quad(mode, plan, s.coach(), skips) }
+            combine(mode, plan, settings.settings, training.skips(), plateSettings) { mode, plan, s, skips, plates -> CoachKey(mode, plan, s.coach(), skips, plates) }
                 .distinctUntilChanged()
                 .collect { (mode, plan, coach, skips) ->
                     // A view model kept from an earlier day (the screen keys a new one per day) must not
                     // store targets dated that day any more.
                     if (today() != date) return@collect
                     val prior = advice.all()
-                    // Each side has its own targets: one for the other side does not stand in for this one.
-                    val known = todaysTargets(prior.forSide(mode)).map { it.exerciseId() }.toSet()
-                    val fresh = Coaching.targetsFor(mode, date.dayOfWeek, training.history().first(), plan, coach, date, prior, skips)
-                        .filter { it.exerciseId() !in known }
-                        .distinctBy { it.exerciseId() }
+                    // Each side has its own targets: one for the other side does not stand in for this one. Each unit
+                    // has its own too: a kg target stored today does not stand in for the plate one, nor the other way.
+                    // A plate target off the exercise's current grid (plate 7½ once half steps are turned off) does not
+                    // count: a fresh one on the grid is stored beside it. Nothing stored is deleted or rewritten.
+                    val history = training.history().first()
+                    val known = todaysTargets(prior.forSide(mode))
+                        .filter { a -> (a.payload as AdvicePayload.Target).onGrid(history.exercises[a.exerciseId()]?.plateCount ?: PlateCount.OFF) }
+                        .map { it.targetKey() }.toSet()
+                    val fresh = Coaching.targetsFor(mode, date.dayOfWeek, history, plan, coach, date, prior, skips)
+                        .filter { it.targetKey() !in known }
+                        .distinctBy { it.targetKey() }
                     if (fresh.isNotEmpty()) advice.insert(fresh)
                     _coachPasses.update { it + 1 }
                 }
@@ -264,7 +301,8 @@ class TodayViewModel(
         all.filter { it.type == AdviceType.TARGET && it.createdAt == date && it.payload is AdvicePayload.Target }
 
     private fun build(d: Stored, l: Local): TodayState {
-        val stats = HistoryStats(d.history)
+        // Each exercise is read in its current unit only: a kg set never fills the PLATE field, nor the other way.
+        val stats = HistoryStats(d.history.inCurrentUnits())
         // One card per exercise: sets are stored per exercise, so a second plan line for the same one merges into the first.
         val allPlanned = d.plan.filter { it.weekday == date.dayOfWeek }.sortedBy { it.order }.distinctBy { it.exerciseId }
         val loggedIds = d.sets.map { it.set.exerciseId }.distinct()
@@ -283,16 +321,23 @@ class TodayViewModel(
         val addedIds = (loggedIds.filter { it !in added } + added).filter { it !in plannedIds }.distinct()
 
         fun item(exercise: Exercise, plan: PlanItem?): TodayItem {
+            val unit = PlateStack.unitOf(exercise)
             val sets = d.sets.filter { it.set.exerciseId == exercise.id }
-            val mine = d.targets.filter { it.exerciseId() == exercise.id }
+            // A stored target in the other unit is neither shown nor applied.
+            // ... nor is a plate target off the exercise's current grid.
+            val mine = d.targets.filter { a ->
+                val target = a.payload as AdvicePayload.Target
+                a.exerciseId() == exercise.id && target.unit == unit && target.onGrid(exercise.plateCount)
+            }
             val applied = mine.lastOrNull { it.status == AdviceStatus.APPLIED }?.payload as? AdvicePayload.Target
             val top = stats.lastTopSet(exercise.id, date)?.second
-            val lastToday = sets.lastOrNull()?.set
+            val lastToday = sets.lastOrNull { it.set.unit == unit }?.set
             val rpe = plan?.targetRpe ?: d.settings.defaultRpe
-            val editor = l.editors[exercise.id] ?: l.editors[standInOf[exercise.id]] ?: when {
-                lastToday != null -> SetEditor(lastToday.weightKg, lastToday.reps, lastToday.rpe ?: rpe)
-                applied != null -> SetEditor(applied.weightKg, appliedReps(applied, plan, d.history, sets.size + 1, d.skips), applied.rpe)
-                else -> SetEditor(top?.weightKg, plan?.reps ?: top?.reps ?: DEFAULT_REPS, rpe)
+            val kept = (l.editors[exercise.id] ?: l.editors[standInOf[exercise.id]])?.takeIf { it.unit == unit }
+            val editor = kept ?: when {
+                lastToday != null -> SetEditor(lastToday.weightKg, lastToday.reps, lastToday.rpe ?: rpe, unit)
+                applied != null -> SetEditor(applied.weightKg, appliedReps(applied, plan, d.history, sets.size + 1, d.skips), applied.rpe, unit)
+                else -> SetEditor(top?.weightKg, plan?.reps ?: top?.reps ?: DEFAULT_REPS, rpe, unit)
             }
             return TodayItem(
                 exercise = exercise,
@@ -301,8 +346,11 @@ class TodayViewModel(
                 sets = sets,
                 editor = editor,
                 targetSets = plan?.let { applied?.sets ?: it.sets },
-                perSide = editor.weightKg?.let { PlateLoader.perSide(it, d.settings.changePlates) },
+                perSide = if (unit == LoadUnit.KG) editor.weightKg?.let { PlateLoader.perSide(it, d.settings.changePlates) } else null,
                 lastWeightKg = lastToday?.weightKg ?: top?.weightKg,
+                unit = unit,
+                plateCount = exercise.plateCount,
+                plateOffered = PlateStack.offered(exercise),
             )
         }
 
@@ -334,6 +382,7 @@ class TodayViewModel(
                 Coaching.firstSessionOn(d.settings.trainingMode, d.history),
             ),
             skippedToday = skippedToday,
+            plateSaving = l.plateSaves > 0,
         )
     }
 
@@ -379,8 +428,16 @@ class TodayViewModel(
                 val now = loaded()
                 val sessionId = now.sessionId ?: return@launch
                 val item = now.items.firstOrNull { it.exercise.id == exerciseId }
+                // A new set must be in its exercise's current unit. One made in the other unit (the setting changed
+                // between the entry and the tap) is not saved and not relabelled: its number is re-entered in the new
+                // field. A held one keeps the unit it was checked in.
+                if (!confirmed && item != null && set.unit != item.unit) return@launch
+                // A backstop: a plate number under plate 1 or over the highest plate is never stored, held or not. One
+                // off the grid is (a logged half stands with whole plates on).
+                if (set.unit == LoadUnit.PLATES && (set.weightKg < PlateStack.MIN_PLATE || set.weightKg > PlateStack.MAX_PLATE)) return@launch
                 if (!confirmed) {
-                    val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg)
+                    // Judged against the last weight in the same unit only, with the plate step for a plate number.
+                    val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg, set.unit, PlateStack.step(item?.plateCount ?: PlateCount.OFF))
                     if (warnings.isNotEmpty()) {
                         local.update { it.copy(pending = PendingLog(planItemId, exerciseId, set, warnings)) }
                         return@launch
@@ -433,6 +490,39 @@ class TodayViewModel(
         viewModelScope.launch { training.deleteSet(setId) }
     }
 
+    /**
+     * Stores [exerciseId]'s plate setting (1.17). A stand-in id (negative) is a catalogue exercise with no row yet: its
+     * row is made in the same write, as its first set would make it. Needs no session. The numbers kept for its next
+     * set, under its id and its stand-in's, are dropped, so the field starts afresh in the new unit; no stored set or
+     * target changes. If the save fails, [events] sends [TodayEvent.SaveFailed] and nothing changes.
+     * [TodayState.plateSaving] is true from the call until the new setting is on screen, or the save has failed.
+     */
+    fun setPlateCount(exerciseId: Long, value: PlateCount) {
+        local.update { it.copy(plateSaves = it.plateSaves + 1) }
+        val request = ++plateRequests
+        viewModelScope.launch {
+            try {
+                val id = try {
+                    training.setPlateCount(exerciseId.takeIf { it > 0 }, catalogueEntry(exerciseId)?.name, value)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    _events.emit(TodayEvent.SaveFailed)
+                    return@launch
+                }
+                val standIns = state.value.resolved.filterValues { it == id || it == exerciseId }.keys
+                val dropped = setOf(exerciseId, id) + standIns
+                local.update { it.copy(editors = it.editors - dropped) }
+                // Settled once the stored setting is what the screen shows, or a later choice has been made (it settles then).
+                withTimeoutOrNull(SHOWN_TIMEOUT_MS) {
+                    state.first { s -> request != plateRequests || s.items.any { it.exercise.id == id && it.plateCount == value } }
+                }
+            } finally {
+                local.update { it.copy(plateSaves = (it.plateSaves - 1).coerceAtLeast(0)) }
+            }
+        }
+    }
+
     /** Puts the coach's numbers into the editor and marks the advice applied. */
     fun applyTarget(adviceId: Long) {
         // A second tap landing before the first has applied (a double tap) applies nothing more and says nothing more.
@@ -448,7 +538,7 @@ class TodayViewModel(
                 val reps = appliedReps(payload, item.planned, training.history().first(), item.sets.size + 1, training.skips().first())
                 // Status first: if storing it fails, the editor keeps its numbers and the chip stays.
                 advice.setStatus(adviceId, AdviceStatus.APPLIED)
-                edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe))
+                edit(payload.exerciseId, SetEditor(payload.weightKg, reps, payload.rpe, payload.unit))
                 applied = true
                 _events.emit(TodayEvent.TargetApplied)
             } finally {
@@ -457,6 +547,9 @@ class TodayViewModel(
             }
         }
     }
+
+    /** How many plate settings have been asked for; touched on the main thread only. */
+    private var plateRequests = 0
 
     /** Coach targets whose Apply is under way or done; touched on the main thread only. */
     private val applyingTargets = mutableSetOf<Long>()
@@ -668,6 +761,13 @@ class TodayViewModel(
         private const val SHOWN_TIMEOUT_MS = 2_000L
 
         private fun Advice.exerciseId(): Long? = (payload as? AdvicePayload.Target)?.exerciseId
+
+        /** A target's exercise and unit: today holds at most one target for each. */
+        private fun Advice.targetKey(): Pair<Long, LoadUnit>? = (payload as? AdvicePayload.Target)?.let { it.exerciseId to it.unit }
+
+        /** A kg target, or a plate target whose plate is on [count]'s grid ([PlateStack.check] is OK). */
+        private fun AdvicePayload.Target.onGrid(count: PlateCount): Boolean =
+            unit != LoadUnit.PLATES || PlateStack.check(weightKg, count) == com.powertracker.domain.stack.PlateCheck.OK
 
         /** The id a catalogue exercise is shown under while it has no row: negative, so it can never be a row's. */
         private fun standInId(entry: LibraryExercise): Long = -(Library.all().indexOf(entry) + 1L)

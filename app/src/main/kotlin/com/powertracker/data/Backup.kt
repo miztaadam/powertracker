@@ -16,14 +16,18 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.CheckIn
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -79,12 +83,17 @@ data class BackupSettings(
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class ExerciseDto(
     val id: Long, val name: String, val category: String, val parentLift: String?,
     val muscles: List<String>, val isBuiltIn: Boolean, val archived: Boolean,
+    /** Version 6: WHOLE or HALF. Left out when off, so a row without plates is written as version 5 wrote it. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val plateCount: String = PlateCount.OFF.name,
 ) {
-    fun toEntity() = ExerciseEntity(id, name, Category.valueOf(category), parentLift?.let(MainLift::valueOf), muscles, isBuiltIn, archived)
+    fun toEntity() = ExerciseEntity(
+        id, name, Category.valueOf(category), parentLift?.let(MainLift::valueOf), muscles, isBuiltIn, archived, PlateCount.valueOf(plateCount),
+    )
 }
 
 /** `mode` (version 3) is absent from older files, which means POWERLIFTING, as on plan items and advice. */
@@ -96,12 +105,15 @@ data class SessionDto(
     fun toEntity() = SessionEntity(id, LocalDate.fromEpochDays(date), bodyweightKg, readiness, TrainingMode.valueOf(mode))
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SetDto(
     val id: Long, val sessionId: Long, val exerciseId: Long, val weightKg: Double, val reps: Int,
     val rpe: Double?, val failed: Boolean, val missPoint: String?, val isTopSet: Boolean,
+    /** Version 6: PLATES for a plate set, whose [weightKg] is the plate number. Left out when kg. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val unit: String = LoadUnit.KG.name,
 ) {
-    fun toEntity() = SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint?.let(MissPoint::valueOf), isTopSet)
+    fun toEntity() = SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint?.let(MissPoint::valueOf), isTopSet, LoadUnit.valueOf(unit))
 }
 
 @Serializable
@@ -195,8 +207,13 @@ object Backup {
      * with no check-ins.
      * 5: 1.13's skipped planned exercises (`skips`) and the SKIP advice. A version 4 file restores with no skips; an app
      * that reads only version 4 turns a version 5 file away as too new.
+     * 6: 1.17's plates on stack machines (`unit` on sets, PLATES only; `plateCount` on exercises, WHOLE or HALF only;
+     * TARGET payloads may carry `"unit":"PLATES"`). Each key is written only when it is not the default, so a log with no
+     * plates exports as version 5 did but for the version. A version 5 or older file restores with every set in kg and
+     * every exercise off; an app that reads only version 5 turns a version 6 file away as too new. A plate set below
+     * plate 1 is a corrupt file.
      */
-    const val VERSION = 5
+    const val VERSION = 6
 
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
@@ -231,6 +248,8 @@ object Backup {
             file.exercises.forEach { it.toEntity() }
             file.sessions.forEach { it.toEntity() }
             file.sets.forEach { it.toEntity() }
+            // A plate number starts at plate 1; under it (0 included, which means bodyweight in kg) the file is damaged.
+            if (file.sets.any { it.unit == LoadUnit.PLATES.name && it.weightKg < 1.0 }) return BackupResult.Corrupt("A plate set below plate 1")
             file.planItems.forEach { it.toEntity() }
             file.advice.forEach { it.toEntity() }
             file.checkIns.forEach { it.toEntity() }
@@ -260,11 +279,11 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
                 exportedAt = nowMillis,
                 settings = BackupSettings.of(s),
                 exercises = db.exercises().all().map {
-                    ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived)
+                    ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived, it.plateCount.name)
                 },
                 sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDays(), it.bodyweightKg, it.readiness, it.mode.name) },
                 sets = db.sets().all().map {
-                    SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet)
+                    SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet, it.unit.name)
                 },
                 planItems = db.plan().all().map {
                     PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder, it.mode.name, it.repsHigh)

@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react'
 import { grit, muscleFocus } from '../../domain'
-import type { TrainingMode } from '../../db/schema'
+import { setUnit, type LoadUnit, type TrainingMode } from '../../db/schema'
 import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { CoachSuggestion } from '../../ui/components/CoachSuggestion'
 import { Dialog } from '../../ui/components/Dialog'
-import { cx, formatKg, formatRpe } from '../../ui/components/format'
+import { cx, formatKg, formatLoad, formatRpe } from '../../ui/components/format'
 import { ArrowForwardIcon, BoltIcon, CheckIcon, CloseIcon } from '../../ui/components/icons'
 import { Eyebrow } from '../../ui/components/NumberDisplay'
 import { NumberField } from '../../ui/components/NumberField'
@@ -18,7 +18,7 @@ import { StepperField } from '../../ui/components/StepperField'
 import { slideName, withTransition } from '../../ui/viewTransition'
 import { InfoButton } from '../library/InfoButton'
 import { RpeInfoButton } from '../library/RpeSheet'
-import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, type EntryKind } from './entry'
+import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, weightKind, type EntryKind } from './entry'
 import { SkipMenu } from './SkipToday'
 import './today.css'
 
@@ -35,9 +35,9 @@ const MISS_POINTS: readonly MissPoint[] = ['FLOOR', 'MID', 'LOCKOUT']
 /** "Floor / Mid / Lockout", or "Off the shoulders / …" for a strict press. An accessory has no lift: it gets the plain names. */
 const missLabels = (lift: string | null) => MISS_POINTS.map((point) => grit.missPointLabel(lift ?? 'SQUAT', point))
 
-/** "155 × 5 @ 8". */
-export function doseText(weightKg: number, reps: number, rpe: number | null): string {
-  return `${formatKg(weightKg)} × ${reps}` + (rpe != null ? ` @ ${formatRpe(rpe)}` : '')
+/** "155 × 5 @ 8"; "plate 7½ × 12 @ 8" for a plate number (1.17). */
+export function doseText(weightKg: number, reps: number, rpe: number | null, unit: LoadUnit = 'KG'): string {
+  return `${unit === 'PLATES' ? grit.plateText(weightKg) : formatKg(weightKg)} × ${reps}` + (rpe != null ? ` @ ${formatRpe(rpe)}` : '')
 }
 
 /** "5 × 5 @ 8", or "3 × 8–12 @ 8" for a rep range: sets × reps @ RPE as planned. */
@@ -47,10 +47,14 @@ export function planText(item: PlannedItem): string {
 
 /**
  * The chip headline for a coach target: "155 × 5 @ 8", or for a rep range "26 kg × 8–12 @ 8" (the mockup's
- * bodybuilding card), plus the set count when the coach changes it.
+ * bodybuilding card), plus the set count when the coach changes it. A plate target reads "plate 7 × 8–12 @ 8" (1.17).
  */
 export function targetHeadline(target: Target): string {
-  const dose = target.repsHigh != null ? `${formatKg(target.weightKg)} kg × ${grit.repsText(target.reps, target.repsHigh)} @ ${formatRpe(target.rpe)}` : doseText(target.weightKg, target.reps, target.rpe)
+  const unit = setUnit(target)
+  const dose =
+    target.repsHigh != null
+      ? `${formatLoad(target.weightKg, unit)} × ${grit.repsText(target.reps, target.repsHigh)} @ ${formatRpe(target.rpe)}`
+      : doseText(target.weightKg, target.reps, target.rpe, unit)
   return dose + (target.sets != null ? ` · ${target.sets} ${target.sets === 1 ? 'set' : 'sets'}` : '')
 }
 
@@ -62,14 +66,16 @@ export function targetReason(suggestion: Suggestion): string {
   return suggestion.reason.replace(SUGGESTION_SENTENCE, '').trim()
 }
 
-/** The set a later look at this session would call the top set; null while every set has the same weight. */
-function topSetIndex(sets: StoredSet[]): number | null {
-  if (new Set(sets.map((s) => s.weightKg)).size < 2) return null
-  let top: number | null = null
-  sets.forEach((s, i) => {
-    if (!s.failed && (top == null || s.weightKg >= (sets[top]?.weightKg ?? 0))) top = i
-  })
-  return top
+/**
+ * The set a later look at this session would call the top set, among the sets in `unit` only (a plate number is never
+ * weighed against kg), as an index into all of `sets`; null while every such set has the same weight.
+ */
+function topSetIndex(sets: StoredSet[], unit: LoadUnit): number | null {
+  const mine = sets.flatMap((s, i) => (setUnit(s) === unit ? [{ s, i }] : []))
+  if (new Set(mine.map(({ s }) => s.weightKg)).size < 2) return null
+  let top: { s: StoredSet; i: number } | null = null
+  for (const m of mine) if (!m.s.failed && (top == null || m.s.weightKg >= top.s.weightKg)) top = m
+  return top?.i ?? null
 }
 
 function stepWeight(current: number | null, deltaKg: number): number {
@@ -91,17 +97,19 @@ export type ExerciseCardProps = {
    * question (spec §7.4); a set can still be marked Missed.
    */
   side?: TrainingMode
-  /** Opens the reason sheet (1.13); left out, there is no row menu (an added exercise, or one with sets). */
+  /** Opens the reason sheet (1.13); left out, Skip today is not in the row menu (an added exercise, or one with sets). */
   onSkipToday?: () => void
+  /** Opens the plate sheet (1.17); left out, Count plates is not in the row menu. With neither, there is no menu. */
+  onCountPlates?: () => void
 }
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', onSkipToday }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', onSkipToday, onCountPlates }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
   const powerlifting = side === 'POWERLIFTING'
-  const top = powerlifting ? topSetIndex(item.sets) : null
+  const top = powerlifting ? topSetIndex(item.sets, setUnit(item)) : null
   const nextNumber = item.sets.length + 1
 
   return (
@@ -119,7 +127,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
           <Pill text={item.targetSets != null ? `Set ${nextNumber} of ${item.targetSets}` : `Set ${nextNumber}`} />
         )}
         <InfoButton name={item.exercise.name} />
-        {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
+        <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} />
       </div>
 
       {item.suggestion && (
@@ -144,6 +152,8 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
                 state={set.failed ? 'failed' : 'done'}
                 isTopSet={i === top}
                 onClick={() => setSelected({ number: i + 1, set })}
+                // Each set in its own unit, whatever the exercise's setting is now.
+                unit={set.unit}
               />
               {powerlifting && (set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
             </div>
@@ -156,7 +166,8 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
       {!item.isComplete || extraSet ? (
         <>
           <hr className="today-hairline" />
-          <Editor item={item} weightStepKg={weightStepKg} changePlates={changePlates} actions={actions} />
+          {/* A change of weight field (kg, whole plates, half steps) starts the editor afresh: nothing typed in one is read as the other. */}
+          <Editor key={weightKind(setUnit(item), item.plateCount ?? 'OFF')} item={item} weightStepKg={weightStepKg} changePlates={changePlates} actions={actions} />
         </>
       ) : (
         <>
@@ -186,7 +197,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
             </>
           }
         >
-          <p className="today-dose headline-small">{doseText(selected.set.weightKg, selected.set.reps, selected.set.rpe) + (selected.set.failed ? ' · failed' : '')}</p>
+          <p className="today-dose headline-small">{doseText(selected.set.weightKg, selected.set.reps, selected.set.rpe, setUnit(selected.set)) + (selected.set.failed ? ' · failed' : '')}</p>
         </Dialog>
       )}
     </Card>
@@ -241,9 +252,8 @@ function MissRow({ number, set, lift, onSelect }: { number: number; set: StoredS
   )
 }
 
-/** The editor value each field types into. */
-const FIELD_OF = { kg: 'weightKg', reps: 'reps', rpe: 'rpe' } as const satisfies Record<EntryKind, keyof SetEditor>
-const KINDS: readonly EntryKind[] = ['kg', 'reps', 'rpe']
+/** The editor value each field types into: both plate kinds type the weight, as a plate number (1.17). */
+const FIELD_OF = { kg: 'weightKg', reps: 'reps', rpe: 'rpe', plate: 'weightKg', plateHalf: 'weightKg' } as const satisfies Record<EntryKind, keyof SetEditor>
 
 /**
  * Text in a field that is not the editor's value (yet). `base` is the editor value it was typed over:
@@ -253,11 +263,15 @@ const KINDS: readonly EntryKind[] = ['kg', 'reps', 'rpe']
 type Draft = { text: string; base: number | null; error?: string }
 type Drafts = Partial<Record<EntryKind, Draft>>
 
-/** Puts every typed number that is good into the editor. What was refused stays, with its message; the rest is dropped. */
-function settle(editor: SetEditor, drafts: Drafts): { editor: SetEditor; drafts: Drafts } {
+/**
+ * Puts every typed number that is good into the editor. What was refused stays, with its message; the rest is dropped.
+ * Only the card's own `kinds` are read: a draft of another weight kind (a kg weight typed before plates were turned on)
+ * is dropped unread, never put in the PLATE field.
+ */
+function settle(editor: SetEditor, drafts: Drafts, kinds: readonly EntryKind[]): { editor: SetEditor; drafts: Drafts } {
   const next = { ...editor }
   const kept: Drafts = {}
-  for (const kind of KINDS) {
+  for (const kind of kinds) {
     const draft = drafts[kind]
     if (draft == null || draft.base !== editor[FIELD_OF[kind]]) continue
     if (draft.error != null) {
@@ -279,6 +293,11 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   const [drafts, setDrafts] = useState<Drafts>({})
   const [focused, setFocused] = useState<EntryKind | null>(null)
   const isBarbellLift = item.exercise.category !== 'ACCESSORY'
+  // The weight is typed as kg or as a plate number (1.17); each card settles only its own three kinds.
+  const unit = setUnit(item)
+  const plateCount = item.plateCount ?? 'OFF'
+  const weightField = weightKind(unit, plateCount)
+  const kinds: readonly EntryKind[] = [weightField, 'reps', 'rpe']
 
   // What a field shows instead of the editor's value. Text typed over an older value is stale: it
   // stays only where the cursor is, so the typing is not cut short. Anywhere else the newer value
@@ -288,46 +307,47 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
     return draft != null && (draft.base === e[FIELD_OF[kind]] || (draft.error == null && kind === focused)) ? draft : undefined
   }
   // What is not shown is dropped, so it cannot come back if the value returns to what it was.
-  if (KINDS.some((kind) => drafts[kind] != null && shown(kind) == null)) {
-    setDrafts(Object.fromEntries(KINDS.map((kind) => [kind, shown(kind)])))
+  if ((Object.keys(drafts) as EntryKind[]).some((kind) => drafts[kind] != null && (!kinds.includes(kind) || shown(kind) == null))) {
+    setDrafts(Object.fromEntries(kinds.map((kind) => [kind, shown(kind)])))
   }
   // The editor as it will be once the typing is committed: the plates and the buttons follow the typing.
-  const typed = settle(e, drafts).editor
+  const typed = settle(e, drafts, kinds).editor
   const weight = typed.weightKg
-  const perSide = weight == null ? null : weight === e.weightKg ? item.perSide : (grit.platesPerSide(weight, changePlates) ?? null)
+  const perSide = weight == null || unit === 'PLATES' ? null : weight === e.weightKg ? item.perSide : (grit.platesPerSide(weight, changePlates) ?? null)
 
   /** Leaving a field commits what was typed into it. */
   const commit = (kind: EntryKind) => {
-    const settled = settle(e, { [kind]: drafts[kind] })
+    const settled = settle(e, { [kind]: drafts[kind] }, kinds)
     setDrafts({ ...drafts, [kind]: settled.drafts[kind] })
     if (!sameEditor(settled.editor, e)) actions.edit(id, settled.editor)
   }
   /** − or +: steps from what is typed, or from the last good value when that was refused, and clears the message. */
   const step = (kind: EntryKind, next: (editor: SetEditor) => number) => {
-    const settled = settle(e, drafts)
+    const settled = settle(e, drafts, kinds)
     setDrafts({ ...settled.drafts, [kind]: undefined })
     actions.edit(id, { ...settled.editor, [FIELD_OF[kind]]: next(settled.editor) })
   }
   const fields = useRef<HTMLDivElement>(null)
   /** Log set or Missed. A refused entry on the card stops it: the lifter meant some other number, so the cursor goes to it instead. */
   const log = (failed: boolean) => {
-    const settled = settle(e, drafts)
-    const refused = KINDS.findIndex((kind) => settled.drafts[kind] != null)
+    const settled = settle(e, drafts, kinds)
+    const refused = kinds.findIndex((kind) => settled.drafts[kind] != null)
     // The cursor moves first: the field it leaves commits its own entry, and the whole card's is stored after it.
     if (refused >= 0) fields.current?.querySelectorAll('input')[refused]?.focus()
     setDrafts(settled.drafts)
     if (!sameEditor(settled.editor, e)) actions.edit(id, settled.editor)
     if (refused >= 0) return
     const now = settled.editor
-    if (now.weightKg != null) void actions.logSet(id, { weightKg: now.weightKg, reps: now.reps, rpe: now.rpe, failed })
+    // The set carries the unit of the field it was typed in; kg writes no unit key.
+    if (now.weightKg != null) void actions.logSet(id, { weightKg: now.weightKg, reps: now.reps, rpe: now.rpe, failed, ...(unit === 'PLATES' ? { unit } : {}) })
   }
 
-  const field = (kind: EntryKind, label: string, valueText: string, inputMode: 'decimal' | 'numeric', unit?: string) => (
+  const field = (kind: EntryKind, label: string, valueText: string, inputMode: 'decimal' | 'numeric', unitText?: string, placeholder = unitText) => (
     <NumberField
       label={label}
       valueText={shown(kind)?.text ?? valueText}
-      unit={unit}
-      placeholder={unit}
+      unit={unitText}
+      placeholder={placeholder}
       inputMode={inputMode}
       error={shown(kind)?.error}
       onDraft={(text) => setDrafts({ ...drafts, [kind]: { text, base: e[FIELD_OF[kind]] } })}
@@ -340,18 +360,34 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   return (
     <>
       <div className="today-steppers" ref={fields}>
-        <StepperField
-          className="today-stepper-weight"
-          label="Weight"
-          valueText={weightText}
-          unit="kg"
-          canDecrement={weight != null && weight > 0}
-          canIncrement={weight == null || weight < MAX_KG}
-          onDecrement={() => step('kg', (now) => stepWeight(now.weightKg, -weightStepKg))}
-          onIncrement={() => step('kg', (now) => stepWeight(now.weightKg, weightStepKg))}
-          tick
-          field={field('kg', 'Weight, kilograms', weightText, 'decimal', 'kg')}
-        />
+        {weightField === 'kg' ? (
+          <StepperField
+            className="today-stepper-weight"
+            label="Weight"
+            valueText={weightText}
+            unit="kg"
+            canDecrement={weight != null && weight > 0}
+            canIncrement={weight == null || weight < MAX_KG}
+            onDecrement={() => step('kg', (now) => stepWeight(now.weightKg, -weightStepKg))}
+            onIncrement={() => step('kg', (now) => stepWeight(now.weightKg, weightStepKg))}
+            tick
+            field={field('kg', 'Weight, kilograms', weightText, 'decimal', 'kg')}
+          />
+        ) : (
+          // A plate number: one step of the machine's grid; + on an empty field gives plate 1, − stops at plate 1. The
+          // field shows 7.5 (what it reads back), with nothing after it.
+          <StepperField
+            className="today-stepper-weight"
+            label="Plate"
+            valueText={weightText}
+            canDecrement={weight != null && weight > 1}
+            canIncrement={weight == null || weight < grit.maxPlate()}
+            onDecrement={() => step(weightField, (now) => grit.plateDown(now.weightKg, plateCount))}
+            onIncrement={() => step(weightField, (now) => grit.plateUp(now.weightKg, plateCount))}
+            tick
+            field={field(weightField, 'Weight, plates', weightText, weightField === 'plateHalf' ? 'decimal' : 'numeric', undefined, 'plate')}
+          />
+        )}
         <StepperField
           label="Reps"
           valueText={String(e.reps)}
@@ -375,7 +411,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
         />
       </div>
 
-      {weight == null ? (
+      {unit === 'PLATES' ? null : weight == null ? (
         <PlateStripNote title="No weight yet" caption="Type the weight to see the plates." />
       ) : perSide != null ? (
         // Accessories may be dumbbells or machines: only draw a bar when there are plates to put on it.
@@ -392,8 +428,11 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   )
 }
 
-/** Another exercise in today's session, folded to one line. Tap to log it. `onSkipToday` (1.13) adds the row menu. */
-export function ExerciseRow({ item, onClick, onSkipToday }: { item: TodayItem; onClick: () => void; onSkipToday?: () => void }) {
+/**
+ * Another exercise in today's session, folded to one line. Tap to log it. `onSkipToday` (1.13) and `onCountPlates` (1.17)
+ * put their items in the row menu; with neither there is none.
+ */
+export function ExerciseRow({ item, onClick, onSkipToday, onCountPlates }: { item: TodayItem; onClick: () => void; onSkipToday?: () => void; onCountPlates?: () => void }) {
   return (
     <Card contentPadding={0} className="today-row-card">
       <button type="button" className="today-row" onClick={onClick}>
@@ -425,7 +464,7 @@ export function ExerciseRow({ item, onClick, onSkipToday }: { item: TodayItem; o
           so that a long word of the name still has its room (1.13). */}
       <span className="today-row-actions">
         <InfoButton name={item.exercise.name} />
-        {onSkipToday && <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} />}
+        <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} />
       </span>
     </Card>
   )

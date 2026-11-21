@@ -1,7 +1,7 @@
 import { grit, type JsPlanChange } from '../domain'
 import type { GritDb } from './db'
 import { planItemFromJs } from './mapping'
-import { sideOf, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
+import { sideOf, type ExerciseRow, type PlateCount, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
 import { getSettings, updateSettings } from './settings'
 import { forgetPlanItems } from './skips'
 
@@ -44,6 +44,27 @@ async function exerciseFor(db: GritDb, exerciseId: number | null, catalogueName:
   if (catalogueName != null) return resolveCatalogue(db, catalogueName)
   if (exerciseId == null) throw new Error('There is no exercise to save.')
   return exerciseId
+}
+
+/**
+ * Sets an exercise's plate setting (1.17), in one transaction; resolves to the row's id. With a `catalogueName` the
+ * row is found, restored or inserted first (a Today stand-in gets its row here, as its first set would give it), and
+ * `exerciseId` is not used. `OFF` removes the key from the row, so it reads exactly as before plates: it is never
+ * written. Only that row changes: no set, target or other row is touched, so history is never rewritten.
+ */
+export function setPlateCount(db: GritDb, exerciseId: number | null, catalogueName: string | null, value: PlateCount): Promise<number> {
+  return db.transaction('rw', db.exercises, async () => {
+    const id = await exerciseFor(db, exerciseId, catalogueName)
+    if ((await db.exercises.get(id)) == null) throw new Error(`There is no exercise ${id}.`)
+    await db.exercises
+      .where(':id')
+      .equals(id)
+      .modify((row: ExerciseRow) => {
+        if (value === 'OFF') delete row.plateCount
+        else row.plateCount = value
+      })
+    return id
+  })
 }
 
 /** Every plan item of `mode`'s side, in id order. Each side keeps its own plan (bodybuilding mode spec §2). */

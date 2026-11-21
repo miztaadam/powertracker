@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
 import { MOTION_ON } from './storage'
 
@@ -261,3 +261,87 @@ for (const [label, viewport, oneLine] of [
     })
   })
 }
+
+// 1.17 (plate-count plan, Review Focus 5): a plate-counted machine on a 320 px phone at 200% text, laid out in half its
+// width and height (as guide.spec and pictures.spec do). The chip "plate 12½ × 8–12 @ 8", the PLATE stepper showing 12.5
+// and the plate sheet's three choices with their hints are each inside the screen; the page does not scroll sideways;
+// Done is reached and closes the sheet.
+test.describe('plates at 320 px and 200 % text', () => {
+  test.use({ viewport: { width: 160, height: 284 } })
+
+  test('plates at 320 px and 200 % text', async ({ page }) => {
+    await openOnWednesday(page)
+    // Lat pulldown on half steps, planned on Wednesdays on the bodybuilding side, with last week at plate 12½ and today's
+    // session open: the coach's chip and the stepper both read 12½.
+    await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      const tx = db.transaction(['exercises', 'planItems', 'settings', 'sessions', 'sets'], 'readwrite')
+      const settled = new Promise<void>((done, fail) => {
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      const add = (store: string, row: unknown) =>
+        new Promise<number>((done) => {
+          const request = tx.objectStore(store).add(row)
+          request.onsuccess = () => done(request.result as number)
+        })
+      const pulldown = await add('exercises', { name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['LATS', 'BICEPS'], isBuiltIn: true, archived: false, plateCount: 'HALF' })
+      await add('planItems', { weekday: 3, exerciseId: pulldown, sets: 3, reps: 8, repsHigh: 12, targetRpe: 8, order: 0, mode: 'BODYBUILDING' })
+      tx.objectStore('settings').put({ key: 'trainingMode', value: 'BODYBUILDING' })
+      const lastWeek = await add('sessions', { date: '2026-11-04', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })
+      for (const reps of [12, 11, 10]) await add('sets', { sessionId: lastWeek, exerciseId: pulldown, weightKg: 12.5, reps, rpe: 8, failed: false, missPoint: null, isTopSet: false, unit: 'PLATES' })
+      await add('sessions', { date: '2026-11-11', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })
+      await settled
+      db.close()
+    })
+    await page.reload()
+    await expect(tabBar(page)).toBeVisible()
+
+    const inside = async (what: string, locator: Locator) => {
+      await locator.scrollIntoViewIfNeeded()
+      const box = (await locator.boundingBox())!
+      expect(box, what).not.toBeNull()
+      expect(box.x, `${what} starts inside the screen`).toBeGreaterThanOrEqual(-0.5)
+      expect(box.x + box.width, `${what} ends inside the screen`).toBeLessThanOrEqual(160.5)
+      const cut = await locator.evaluate((el) => el.scrollWidth > el.clientWidth + 1)
+      expect(cut, `${what} is not cut`).toBe(false)
+    }
+    const field = page.getByRole('textbox', { name: 'Weight, plates' })
+    await expect(field).toHaveValue('12.5')
+    await inside('the chip', page.getByText('plate 12½ × 8–12 @ 8', { exact: true }))
+    // At this size the chip puts Apply and Dismiss under its text: both stay inside the chip and the screen.
+    const chip = page.locator('.gr-suggestion')
+    for (const name of ['Apply', 'Dismiss']) {
+      const button = chip.getByRole('button', { name })
+      await inside(name, button)
+      const [b, c] = [(await button.boundingBox())!, (await chip.boundingBox())!]
+      expect(b.x >= c.x - 0.5 && b.x + b.width <= c.x + c.width + 0.5, `${name} is inside the chip`).toBe(true)
+    }
+    await inside('the PLATE stepper', page.locator('.today-stepper-weight'))
+    await inside('Increase Plate', page.getByRole('button', { name: 'Increase Plate' }))
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+
+    await page.getByRole('button', { name: 'Options for Lat pulldown' }).click()
+    await page.getByRole('menuitem', { name: 'Count plates on this machine' }).click()
+    const sheet = page.getByRole('dialog', { name: 'Count plates on Lat pulldown' })
+    await expect(sheet).toBeVisible()
+    for (const [value, text] of [['OFF', 'In kg'], ['WHOLE', 'Whole plates'], ['HALF', 'Half steps too']] as const) {
+      await inside(`the choice ${text}`, sheet.getByTestId(`plate-option-${value}`))
+      await expect(sheet.getByTestId(`plate-option-${value}`)).toContainText(text)
+    }
+    await inside('the hint 1, 2, 3 …', sheet.getByText('1, 2, 3 …', { exact: true }))
+    await inside('the hint 1, 1½, 2 …', sheet.getByText('1, 1½, 2 …', { exact: true }))
+    // The sheet's own parts only: the rest of Today at this size was not held to this check before plates.
+    expect((await overflowing(page)).filter((f) => /gr-dialog|today-plate|today-skip/.test(f))).toEqual([])
+    // Done is reached by scrolling the sheet, and closes it.
+    const done = sheet.getByRole('button', { name: 'Done' })
+    await done.scrollIntoViewIfNeeded()
+    await expect(done).toBeInViewport()
+    await done.click()
+    await expect(sheet).toBeHidden()
+  })
+})

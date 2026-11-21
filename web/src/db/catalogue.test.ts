@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import Dexie from 'dexie'
-import { grit } from '../domain'
+import { grit, JsExercise, JsPlanChange, JsSet } from '../domain'
+import { JsAddedPlanItem } from '../domain/generated/powertracker-domain.mjs'
 import { TODAY, startSession, todayFixture } from '../test/todayFixture'
 import { decodeBackup, encodeBackup, exportBackup, restoreBackup } from '../backup/backup'
-import { addPlanItem, addSet, planFor, replacePlan, resolveCatalogue, updatePlanItem } from './catalogue'
-import { openGritDb, type GritDb } from './db'
-import type { ExerciseRow } from './schema'
+import { addPlanItem, addSet, applyPlanChange, planFor, replacePlan, resolveCatalogue, setPlateCount, updatePlanItem } from './catalogue'
+import { loadHistory, openGritDb, type GritDb } from './db'
+import { exerciseFromJs, exerciseToJs, planItemToJs, setFromJs, setToJs } from './mapping'
+import { plateCountOf, setUnit, type ExerciseRow, type PlanItemRow } from './schema'
 
 let fx: ReturnType<typeof todayFixture>
 let db: GritDb
@@ -245,5 +247,144 @@ describe('replacePlan', () => {
     await replacePlan(db, 'BODYBUILDING', [])
     expect(await planFor(db, 'BODYBUILDING')).toEqual([])
     expect(await planFor(db, 'POWERLIFTING')).toHaveLength(1)
+  })
+})
+
+/** 1.17: an exercise's plate setting is stored on its row, and only when it is not off. */
+describe('setPlateCount', () => {
+  const advice = { type: 'TARGET', lift: null, createdAt: TODAY, reason: 'Beat it.', severity: 1, status: 'OPEN', mode: 'BODYBUILDING' as const }
+  const everythingButExercises = async () => ({
+    sessions: await db.sessions.toArray(),
+    sets: await db.sets.toArray(),
+    planItems: await db.planItems.toArray(),
+    advice: await db.advice.toArray(),
+    baselines: await db.baselines.toArray(),
+  })
+
+  it('setPlateCount on a stored row changes only that row', async () => {
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    const before = await db.exercises.orderBy('id').toArray()
+
+    expect(await setPlateCount(db, lat, null, 'WHOLE')).toBe(lat)
+
+    const after = await db.exercises.orderBy('id').toArray()
+    expect(after.find((e) => e.id === lat)).toStrictEqual({ ...before.find((e) => e.id === lat), plateCount: 'WHOLE' })
+    expect(after.filter((e) => e.id !== lat)).toStrictEqual(before.filter((e) => e.id !== lat))
+    await setPlateCount(db, lat, null, 'HALF')
+    expect(plateCountOf((await db.exercises.get(lat))!)).toBe('HALF')
+  })
+
+  it('setPlateCount back to OFF leaves the row exactly as it was before plates', async () => {
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    const before = (await db.exercises.get(lat))!
+    expect('plateCount' in before).toBe(false)
+
+    await setPlateCount(db, lat, null, 'HALF')
+    await setPlateCount(db, lat, null, 'OFF')
+
+    const after = (await db.exercises.get(lat))!
+    expect(after).toStrictEqual(before)
+    expect(Object.keys(after)).not.toContain('plateCount')
+    expect(plateCountOf(after)).toBe('OFF')
+    // OFF on a row that was never on writes nothing either.
+    await setPlateCount(db, lat, null, 'OFF')
+    expect(await db.exercises.get(lat)).toStrictEqual(before)
+  })
+
+  it('a kg set is stored with no unit key and a plate set with unit PLATES', async () => {
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    const sessionId = await startSession(db, TODAY)
+    const kgId = await addSet(db, setFromJs(new JsSet(lat, 60, 10, 8, false, null, true), sessionId), null)
+    const plateId = await addSet(db, setFromJs(new JsSet(lat, 7.5, 10, 8, false, null, false, 'PLATES'), sessionId), null)
+
+    const kg = (await db.sets.get(kgId))!
+    const plate = (await db.sets.get(plateId))!
+    expect('unit' in kg).toBe(false)
+    expect(kg).toStrictEqual({ id: kgId, sessionId, exerciseId: lat, weightKg: 60, reps: 10, rpe: 8, failed: false, missPoint: null, isTopSet: true })
+    expect(plate).toStrictEqual({ id: plateId, sessionId, exerciseId: lat, weightKg: 7.5, reps: 10, rpe: 8, failed: false, missPoint: null, isTopSet: false, unit: 'PLATES' })
+    expect([setUnit(kg), setUnit(plate)]).toEqual(['KG', 'PLATES'])
+    // And back to the domain each in its own unit.
+    expect([setToJs(kg).unit, setToJs(plate).unit]).toEqual(['KG', 'PLATES'])
+    const history = await loadHistory(db)
+    expect(history.sessions.flatMap((s) => s.sets.map((x) => [x.weightKg, x.unit]))).toEqual([[60, 'KG'], [7.5, 'PLATES']])
+  })
+
+  it('an exercise row maps its setting both ways, and an off one carries no key', () => {
+    const row = { id: 3, name: 'Lat pulldown', category: 'ACCESSORY', parentLift: null, muscles: ['Lats'], isBuiltIn: true, archived: false }
+    expect(exerciseToJs(row).plateCount).toBe('OFF')
+    expect(exerciseToJs({ ...row, plateCount: 'HALF' }).plateCount).toBe('HALF')
+    expect(exerciseFromJs(exerciseToJs(row))).toStrictEqual(row)
+    expect(exerciseFromJs(exerciseToJs({ ...row, plateCount: 'WHOLE' }))).toStrictEqual({ ...row, plateCount: 'WHOLE' })
+    expect(() => exerciseFromJs(new JsExercise(3, 'Lat pulldown', 'ACCESSORY', null, [], true, false, 'LOTS'))).toThrow()
+    expect(() => setFromJs(new JsSet(3, 7, 10, 8, false, null, false, 'STONES'), 1)).toThrow()
+  })
+
+  it('setPlateCount with a catalogue name and no row inserts the row once, with the setting', async () => {
+    await unseed('Lat pulldown')
+    const count = await db.exercises.count()
+
+    const id = await setPlateCount(db, null, 'Lat pulldown', 'HALF')
+    const again = await setPlateCount(db, null, 'Lat pulldown', 'HALF')
+
+    expect(again).toBe(id)
+    expect(await db.exercises.count()).toBe(count + 1)
+    const entry = grit.findInLibrary('Lat pulldown')!
+    expect(await rows('Lat pulldown')).toStrictEqual([
+      { id, name: 'Lat pulldown', category: entry.category, parentLift: entry.parentLift ?? null, muscles: [...entry.muscles], isBuiltIn: true, archived: false, plateCount: 'HALF' },
+    ])
+  })
+
+  it('setPlateCount with a catalogue name, when the write fails, leaves no row behind', async () => {
+    await unseed('Lat pulldown')
+    db.exercises.hook('updating', () => {
+      throw new Error('forced failure')
+    })
+    await expect(setPlateCount(db, null, 'Lat pulldown', 'WHOLE')).rejects.toThrow()
+    expect(await rows('Lat pulldown')).toEqual([])
+  })
+
+  it('no set and no advice row changes', async () => {
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    const sessionId = await startSession(db, TODAY)
+    await addSet(db, { ...set(lat), sessionId, weightKg: 60 }, null)
+    await addSet(db, { ...set(lat), sessionId, weightKg: 7, unit: 'PLATES' }, null)
+    await db.advice.add({ ...advice, payloadJson: `{"type":"com.powertracker.domain.model.AdvicePayload.Target","exerciseId":${lat},"weightKg":60.0,"reps":10,"rpe":8.0,"sets":3}` })
+    await addPlanItem(db, planItem(lat), null, 'BODYBUILDING')
+    const before = await everythingButExercises()
+
+    await setPlateCount(db, lat, null, 'WHOLE')
+    expect(await everythingButExercises()).toStrictEqual(before)
+    await setPlateCount(db, lat, null, 'OFF')
+    expect(await everythingButExercises()).toStrictEqual(before)
+  })
+
+  it('a restored archived row keeps its setting', async () => {
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    await setPlateCount(db, lat, null, 'WHOLE')
+    await db.exercises.update(lat, { archived: true })
+
+    expect(await resolveCatalogue(db, 'Lat pulldown')).toBe(lat)
+    expect(await db.exercises.get(lat)).toMatchObject({ archived: false, plateCount: 'WHOLE' })
+    // Choosing a setting through the name restores it as well, and keeps the row.
+    await db.exercises.update(lat, { archived: true })
+    expect(await setPlateCount(db, null, 'Lat pulldown', 'HALF')).toBe(lat)
+    expect(await db.exercises.get(lat)).toMatchObject({ archived: false, plateCount: 'HALF' })
+  })
+
+  it('an exercise swapped in by a plan change starts off', async () => {
+    const lat = await resolveCatalogue(db, 'Lat pulldown')
+    await setPlateCount(db, lat, null, 'WHOLE')
+    await unseed('Seated cable row')
+    const itemId = await addPlanItem(db, planItem(lat), null, 'BODYBUILDING')
+    const item = planItemToJs((await db.planItems.get(itemId))! as PlanItemRow & { id: number })
+
+    await applyPlanChange(db, new JsPlanChange([], [item], [new JsAddedPlanItem(item, 'Seated cable row')], 'Swapped', true))
+
+    const [row] = await rows('Seated cable row')
+    expect(row).toBeDefined()
+    expect('plateCount' in row!).toBe(false)
+    expect(plateCountOf(row!)).toBe('OFF')
+    // The setting stays with the old exercise, ready if the lifter swaps back.
+    expect(plateCountOf((await db.exercises.get(lat))!)).toBe('WHOLE')
   })
 })

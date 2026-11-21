@@ -47,6 +47,7 @@ import com.powertracker.domain.library.MuscleFocus
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -54,6 +55,8 @@ import com.powertracker.domain.model.missPointLabel
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.repsText
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.stack.PlateStack
+import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.components.CoachSuggestion
 import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.Pill
@@ -108,22 +111,22 @@ private const val GRIND_RPE = 9.5
 /** "Floor / Mid / Lockout", or "Off the shoulders / …" for a strict press. An accessory has no lift: it gets the plain names. */
 private fun missLabels(lift: MainLift?): List<String> = MissPoint.entries.map { missPointLabel(lift ?: MainLift.SQUAT, it) }
 
-/** "155 × 5 @ 8". */
-fun doseText(weightKg: Double, reps: Int, rpe: Double?): String =
-    "${formatKg(weightKg)} × $reps" + if (rpe != null) " @ ${formatRpe(rpe)}" else ""
+/** "155 × 5 @ 8"; "plate 7½ × 12 @ 8" for a plate number (1.17). */
+fun doseText(weightKg: Double, reps: Int, rpe: Double?, unit: LoadUnit = LoadUnit.KG): String =
+    "${if (unit == LoadUnit.PLATES) PlateStack.text(weightKg) else formatKg(weightKg)} × $reps" + if (rpe != null) " @ ${formatRpe(rpe)}" else ""
 
 /** "5 × 5 @ 8": sets × reps @ RPE as planned; "3 × 8–12 @ 8" for a rep range. */
 fun planText(item: PlanItem): String = "${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
 
 /**
  * The chip headline for a coach target: "155 × 5 @ 8", or "26 kg × 8–12 @ 8" for a range (bodybuilding mode spec
- * §7.4), plus the set count when the coach changes it.
+ * §7.4), plus the set count when the coach changes it. A plate target reads "plate 7 × 8–12 @ 8" (1.17).
  */
 fun targetHeadline(target: AdvicePayload.Target): String {
     val dose = if (target.repsHigh == null) {
-        doseText(target.weightKg, target.reps, target.rpe)
+        doseText(target.weightKg, target.reps, target.rpe, target.unit)
     } else {
-        "${formatKg(target.weightKg)} kg × ${repsText(target.reps, target.repsHigh)} @ ${formatRpe(target.rpe)}"
+        "${formatLoad(target.weightKg, target.unit)} × ${repsText(target.reps, target.repsHigh)} @ ${formatRpe(target.rpe)}"
     }
     return dose + (target.sets?.let { " · $it ${if (it == 1) "set" else "sets"}" } ?: "")
 }
@@ -134,10 +137,14 @@ private val SUGGESTION_SENTENCE = Regex("""\s*Coach suggests .*? @ \d+(\.\d+)?\.
 
 fun targetReason(advice: Advice): String = advice.reason.replace(SUGGESTION_SENTENCE, "").trim()
 
-/** The set a later look at this session would call the top set; null while every set has the same weight. */
-private fun topSetIndex(sets: List<LoggedSet>): Int? {
-    if (sets.map { it.weightKg }.distinct().size < 2) return null
-    return sets.withIndex().filter { !it.value.failed }.maxWithOrNull(compareBy({ it.value.weightKg }, { it.index }))?.index
+/**
+ * The set a later look at this session would call the top set, among the sets in [unit] only (a plate number is never
+ * weighed against kg); null while every such set has the same weight.
+ */
+internal fun topSetIndex(sets: List<LoggedSet>, unit: LoadUnit = LoadUnit.KG): Int? {
+    val mine = sets.withIndex().filter { it.value.unit == unit }
+    if (mine.map { it.value.weightKg }.distinct().size < 2) return null
+    return mine.filter { !it.value.failed }.maxWithOrNull(compareBy({ it.value.weightKg }, { it.index }))?.index
 }
 
 private fun stepWeight(current: Double?, deltaKg: Double): Double {
@@ -165,6 +172,8 @@ fun ExerciseCard(
     slidingContent: Modifier? = null,
     /** Opens the reason sheet; null hides the row menu (an added exercise, or one with sets). */
     onSkipToday: (() -> Unit)? = null,
+    /** Opens the plate sheet (1.17); null leaves Count plates out of the row menu. */
+    onCountPlates: (() -> Unit)? = null,
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
@@ -172,10 +181,10 @@ fun ExerciseCard(
 
     PtCard(modifier, spacing = Space.s) {
         if (slidingContent == null) {
-            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday) { selected = it }
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
         } else {
             Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday) { selected = it }
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
             }
         }
     }
@@ -184,7 +193,8 @@ fun ExerciseCard(
         AlertDialog(
             onDismissRequest = { selected = null },
             title = { Text("Set $number") },
-            text = { Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe) + if (stored.set.failed) " · failed" else "", style = MaterialTheme.typography.headlineSmall) },
+            // Each set in its own unit, whatever the exercise's setting is now.
+            text = { Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe, stored.set.unit) + if (stored.set.failed) " · failed" else "", style = MaterialTheme.typography.headlineSmall) },
             confirmButton = {
                 val deleteSource = remember { MutableInteractionSource() }
                 TextButton(
@@ -216,6 +226,7 @@ private fun ColumnScope.CardContent(
     extraSet: Boolean,
     onAddSet: () -> Unit,
     onSkipToday: (() -> Unit)?,
+    onCountPlates: (() -> Unit)?,
     onSelect: (Pair<Int, StoredSet>) -> Unit,
 ) {
     val id = item.exercise.id
@@ -238,7 +249,7 @@ private fun ColumnScope.CardContent(
                     else -> Pill("Set ${item.sets.size + 1}")
                 }
             }
-            GuideAndMenu(item.exercise.name, onSkipToday, stacked)
+            GuideAndMenu(item.exercise.name, onSkipToday, onCountPlates, stacked)
         }
     }
 
@@ -261,7 +272,7 @@ private fun ColumnScope.CardContent(
         SideEffect { seen.shown = (shown ?: emptySet()) + ids }
         SlidingBlock(item.sets.isNotEmpty()) {
             val sets = item.sets.ifEmpty { lastSets.sets }
-            val top = if (bodybuilding) null else topSetIndex(sets.map { it.set })
+            val top = if (bodybuilding) null else topSetIndex(sets.map { it.set }, item.unit)
             Column {
                 SlidingColumnItems(sets, key = { it.id }) { i, stored ->
                     val set = stored.set
@@ -275,6 +286,7 @@ private fun ColumnScope.CardContent(
                         isTopSet = i == top,
                         onClick = { onSelect(i + 1 to stored) },
                         drawIn = drawIn,
+                        unit = set.unit,
                     )
                     if (!bodybuilding && (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE)) {
                         MissRow(i + 1, set, item.exercise.mainLift) { actions.onMissPoint(stored.id, it) }
@@ -355,9 +367,14 @@ private fun MissRow(number: Int, set: LoggedSet, lift: MainLift?, onSelect: (Mis
 private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean, actions: TodayActions) {
     val id = item.exercise.id
     val e = item.editor
-    var drafts by rememberSaveable(id, stateSaver = DraftsSaver) { mutableStateOf<Drafts>(emptyMap()) }
+    // The weight is typed as kg or as a plate number (1.17): a draft typed in one is never read as the other, so the
+    // drafts are kept per kind of weight field and only this card's three kinds are ever settled.
+    val weightKind = weightKind(item.unit, item.plateCount)
+    val kinds = setOf(weightKind, EntryKind.REPS, EntryKind.RPE)
+    var drafts by rememberSaveable(id, weightKind, stateSaver = DraftsSaver) { mutableStateOf<Drafts>(emptyMap()) }
     val focus = remember { EntryKind.entries.associateWith { FocusRequester() } }
     var focused by remember { mutableStateOf<EntryKind?>(null) }
+    fun settle(editor: SetEditor, drafts: Drafts) = settle(editor, drafts, kinds)
 
     // What a field shows instead of the editor's value. Text typed over an older value is stale: it
     // stays only where the cursor is, so the typing is not cut short. Anywhere else the newer value
@@ -408,16 +425,36 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
     )
 
     Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-        StepperField(
-            "Weight", shown(EntryKind.KG)?.text ?: e.weightKg?.let(::formatKg).orEmpty(),
-            canDecrement = weight != null && weight > 0.0,
-            canIncrement = weight == null || weight < MAX_KG,
-            onDecrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, -weightStepKg)) } },
-            onIncrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, weightStepKg)) } },
-            modifier = Modifier.weight(1.25f), unit = "kg",
-            entry = entry(EntryKind.KG, "Weight, kilograms", KeyboardType.Decimal, placeholder = "kg"),
-            tick = true,
-        )
+        if (weightKind == EntryKind.KG) {
+            StepperField(
+                "Weight", shown(EntryKind.KG)?.text ?: e.weightKg?.let(::formatKg).orEmpty(),
+                canDecrement = weight != null && weight > 0.0,
+                canIncrement = weight == null || weight < MAX_KG,
+                onDecrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, -weightStepKg)) } },
+                onIncrement = { step(EntryKind.KG) { it.copy(weightKg = stepWeight(it.weightKg, weightStepKg)) } },
+                modifier = Modifier.weight(1.25f), unit = "kg",
+                entry = entry(EntryKind.KG, "Weight, kilograms", KeyboardType.Decimal, placeholder = "kg"),
+                tick = true,
+            )
+        } else {
+            // A plate number: one step of the machine's grid; + on an empty field gives plate 1, − stops at plate 1.
+            // The field shows 7.5 (what it reads back), with no unit after it.
+            val plateStep = PlateStack.step(item.plateCount)
+            StepperField(
+                "Plate", shown(weightKind)?.text ?: e.weightKg?.let(::formatKg).orEmpty(),
+                canDecrement = weight != null && weight > PlateStack.MIN_PLATE,
+                canIncrement = weight == null || weight < PlateStack.MAX_PLATE,
+                onDecrement = { step(weightKind) { it.copy(weightKg = PlateStack.down(it.weightKg, plateStep)) } },
+                onIncrement = { step(weightKind) { it.copy(weightKg = PlateStack.up(it.weightKg, plateStep)) } },
+                modifier = Modifier.weight(1.25f),
+                entry = entry(
+                    weightKind, "Weight, plates",
+                    if (weightKind == EntryKind.PLATE_HALF) KeyboardType.Decimal else KeyboardType.Number,
+                    placeholder = "plate",
+                ),
+                tick = true,
+            )
+        }
         StepperField(
             "Reps", shown(EntryKind.REPS)?.text ?: e.reps.toString(),
             canDecrement = typed.reps > 1,
@@ -448,6 +485,8 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
     }
     val isBarbellLift = item.exercise.category != Category.ACCESSORY
     when {
+        // A plate number has no bar and no kg plates: nothing is drawn for it.
+        weightKind != EntryKind.KG -> Unit
         weight == null -> PlateStripNote("No weight yet", "Type the weight to see the plates.")
         // Accessories may be dumbbells or machines: only draw a bar when there are plates to put on it.
         perSide != null -> if (isBarbellLift || perSide.isNotEmpty()) PlateStrip(perSide)
@@ -475,23 +514,27 @@ internal val ROW_STACK_WIDTH = 260.dp
 /** Whether a row or card [width] wide, the whole card, stacks its guide button and menu ([ROW_STACK_WIDTH]). */
 internal fun stacksActions(width: Dp, fontScale: Float): Boolean = width / fontScale < ROW_STACK_WIDTH
 
-/** The guide button (ⓘ) and, with [onSkipToday], the row menu (⋮): side by side, or [stacked] one above the other. */
+/**
+ * The guide button (ⓘ) and, with [onSkipToday] or [onCountPlates], the row menu (⋮): side by side, or [stacked] one
+ * above the other.
+ */
 @Composable
-private fun GuideAndMenu(name: String, onSkipToday: (() -> Unit)?, stacked: Boolean) {
-    if (stacked && onSkipToday != null) {
+private fun GuideAndMenu(name: String, onSkipToday: (() -> Unit)?, onCountPlates: (() -> Unit)?, stacked: Boolean) {
+    val menu = onSkipToday != null || onCountPlates != null
+    if (stacked && menu) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             InfoButton(name)
-            SkipMenuButton(name, onSkipToday)
+            SkipMenuButton(name, onSkipToday, onCountPlates = onCountPlates)
         }
     } else {
         InfoButton(name)
-        if (onSkipToday != null) SkipMenuButton(name, onSkipToday)
+        if (menu) SkipMenuButton(name, onSkipToday, onCountPlates = onCountPlates)
     }
 }
 
 /** Another exercise in today's session, folded to one line. Tap to log it. */
 @Composable
-fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier, onSkipToday: (() -> Unit)? = null) {
+fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier, onSkipToday: (() -> Unit)? = null, onCountPlates: (() -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
     val fontScale = LocalDensity.current.fontScale
     val padding = Space.l
@@ -522,7 +565,7 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                     }
                 }
             }
-            GuideAndMenu(item.exercise.name, onSkipToday, stacked)
+            GuideAndMenu(item.exercise.name, onSkipToday, onCountPlates, stacked)
         }
     } }
 }
