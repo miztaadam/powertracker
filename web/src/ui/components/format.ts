@@ -19,11 +19,6 @@ export function formatLoad(value: number, unit: LoadUnit): string {
   return unit === 'PLATES' ? grit.plateText(value) : `${formatKg(value)} kg`
 }
 
-/** "plate 7 and a half" for a screen reader; "155 kg" in kg. */
-export function spokenLoad(value: number, unit: LoadUnit): string {
-  return unit === 'PLATES' ? grit.plateSpoken(value) : `${formatKg(value)} kg`
-}
-
 /** Chart figures to one decimal at most: 187.5, 92.4, 250. */
 export function formatChartValue(value: number): string {
   return String(Math.round(value * 10) / 10)

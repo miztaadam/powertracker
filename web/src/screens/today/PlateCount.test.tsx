@@ -301,7 +301,7 @@ describe('the PLATE stepper', () => {
     await waitFor(() => expect(plateField().value).toBe('7'))
   })
 
-  it('inHalfSteps', async () => {
+  it('theStepper_inHalfSteps', async () => {
     await inPlates('HALF')
     show()
     await screen.findByRole('heading', { name: 'Lat pulldown' })
