@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Dexie from 'dexie'
-import { GritDb, OlderCopyError, ensureSeeded, openGritDb } from './db'
+import { GritDb, OlderCopyError, ensureSeeded, installedVersion, isNewerThan, openGritDb } from './db'
 import { SCHEMA_VERSIONS } from './schema'
 
 // 1.17: a copy of Grit older than the database it finds refuses to open it, before reading or writing anything. An
@@ -147,5 +147,67 @@ describe('an older copy of Grit', () => {
       })
       .catch((e: unknown) => e)
     expect(error).not.toBeInstanceOf(OlderCopyError)
+  })
+})
+
+describe('isNewerThan, against declared version 6', () => {
+  it.each([
+    [50, false],
+    [59, false],
+    [60, false],
+    [61, false],
+    [69, false],
+    [70, true],
+    [9999, true],
+  ])('native %i: newer is %s', (native, newer) => {
+    expect(isNewerThan(native, 6)).toBe(newer)
+  })
+})
+
+/** Raises the native version of `name` to `native`, stores unchanged (what Dexie's schema patches leave). */
+function bumpTo(native: number): Promise<void> {
+  return new Promise((done, fail) => {
+    const req = indexedDB.open(name, native)
+    req.onupgradeneeded = () => {}
+    req.onsuccess = () => {
+      req.result.close()
+      done()
+    }
+    req.onerror = () => fail(req.error)
+  })
+}
+
+const safetyCopied = async () => ((await everything()).meta as { key: string }[]).some((r) => r.key === 'safetyCopy')
+
+describe('the installed version reads native 50 to 59 as 5 and 60 to 69 as 6 (whole declared versions)', () => {
+  it.each([55, 59])('native %i, Dexie-patched version 5: the safety copy is written and the upgrade to 6 runs', async (native) => {
+    const v5 = await openGritDb(name, { schemaVersions: SCHEMA_VERSIONS.filter((v) => v.version <= 5) })
+    await ensureSeeded(v5)
+    v5.close()
+    await bumpTo(native)
+    expect(await installedVersion(name)).toBe(5)
+
+    const db = await openGritDb(name)
+    opened.push(db)
+    expect(db.backendDB().version).toBe(60)
+    db.close()
+    expect(await safetyCopied()).toBe(true)
+  })
+
+  it.each([65, 69])('native %i, Dexie-patched version 6: opens as it is, no upgrade and no safety copy', async (native) => {
+    await storedAt(native)
+    expect(await installedVersion(name)).toBe(6)
+    const db = await openGritDb(name)
+    opened.push(db)
+    expect(db.backendDB().version).toBe(native)
+    db.close()
+    expect(await safetyCopied()).toBe(false)
+    expect(await nativeVersion()).toBe(native)
+  })
+
+  it("native 9999 with Grit's stores: refused as a newer Grit", async () => {
+    await storedAt(9999)
+    await expect(openGritDb(name)).rejects.toBeInstanceOf(OlderCopyError)
+    expect(await nativeVersion()).toBe(9999)
   })
 })

@@ -47,4 +47,25 @@ describe('App on a log a newer Grit wrote', () => {
       window.removeEventListener('error', swallow)
     }
   })
+
+  it("a database at native 9999 with no stores is no Grit log: the recovery screen, not this one", async () => {
+    await new Promise<void>((done, fail) => {
+      const req = indexedDB.open(name, 9999)
+      req.onsuccess = () => {
+        req.result.close()
+        done()
+      }
+      req.onerror = () => fail(req.error)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const swallow = (event: ErrorEvent) => event.preventDefault()
+    window.addEventListener('error', swallow)
+    try {
+      render(<App dbName={name} />)
+      expect(await screen.findByRole('heading', { name: /^Grit couldn't/ })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: 'Update Grit to carry on' })).toBeNull()
+    } finally {
+      window.removeEventListener('error', swallow)
+    }
+  })
 })

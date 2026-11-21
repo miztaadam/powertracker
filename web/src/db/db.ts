@@ -88,7 +88,12 @@ export class OlderCopyError extends Error {
  * version, so 60 to 69 are all version 6 (rounded, 65 would wrongly read as 7). Only 70 and up are newer.
  */
 export function isNewerThan(native: number, declared: number): boolean {
-  return Math.floor(native / 10) > declared
+  return declaredVersionOf(native) > declared
+}
+
+/** The declared (Dexie) version a database at IndexedDB version `native` was made with: 50 to 59 are 5, 60 to 69 are 6. */
+function declaredVersionOf(native: number): number {
+  return Math.floor(native / 10)
 }
 
 export class GritDb extends Dexie {
@@ -163,10 +168,10 @@ export class GritDb extends Dexie {
   }
 }
 
-/** Installed Dexie version of `name`, or 0 if the database does not exist (and is not created). */
+/** Installed Dexie version of `name` (its declared version, whatever Dexie's patches added), or 0 if the database does not exist (and is not created). */
 export async function installedVersion(name: string): Promise<number> {
   const native = await installedNativeVersion(name)
-  return Math.round(native / 10)
+  return declaredVersionOf(native)
 }
 
 /** The IndexedDB version of `name` (Dexie's version × 10, plus its patches), or 0 if it does not exist or has no stores. */
@@ -201,7 +206,7 @@ export async function openGritDb(
   const native = await installedNativeVersion(name)
   // Written by a newer Grit: not opened at all, so nothing is read or written (not even a safety copy).
   if (isNewerThan(native, target)) throw new OlderCopyError(native, target)
-  const installed = Math.round(native / 10)
+  const installed = declaredVersionOf(native)
 
   if (installed > 0 && installed < target) {
     // Schema-less open reads the installed schema as-is.
