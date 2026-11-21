@@ -35,6 +35,7 @@ export function FormGuideSheet({ name, onClose, actions }: FormGuideSheetProps) 
       open
       variant="sheet"
       portal
+      className="lib-guide-sheet"
       title={`Form guide for ${name}`}
       onDismiss={onClose}
       header={

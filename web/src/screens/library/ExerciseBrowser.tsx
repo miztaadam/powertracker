@@ -9,6 +9,7 @@ import { ChoiceChip } from '../../ui/components/SegmentedChoice'
 import { TextField } from '../../ui/components/TextField'
 import { ExerciseThumbnail } from './ExercisePicture'
 import { InfoButton } from './InfoButton'
+import { backToTop } from './listScroll'
 import { AREAS, EQUIPMENT, equipmentLabel } from './labels'
 import './library.css'
 
@@ -115,17 +116,25 @@ export function ExerciseBrowser({ state, muscleFilter, exercises, recentIds, onR
     }
   }, [cut, query, area, equipment, muscle, muscles])
 
-  // A new search or filter starts from its best match, not from wherever the last list was scrolled to.
+  // A new search or filter starts from its best match, not from wherever the last list was scrolled to. On a very
+  // narrow screen, where the whole screen may scroll with the search in it, that is under the search field, which stays
+  // on screen (listScroll.ts). Opening the list moves nothing.
   const scroller = useRef<HTMLDivElement>(null)
+  const searchBox = useRef<HTMLDivElement>(null)
+  const opened = useRef(false)
   useEffect(() => {
-    if (scroller.current) scroller.current.scrollTop = 0
+    if (!opened.current) {
+      opened.current = true
+      return
+    }
+    if (scroller.current) backToTop(scroller.current, searchBox.current)
   }, [query, area, equipment, muscle, muscles])
 
   const rows = (entries: readonly PickerEntry[]) => <BrowserRows entries={entries} onRow={onRow} onInfo={onInfo} rowLabel={rowLabel} thumbnails={thumbnails} ticked={ticked} />
 
   return (
     <>
-      <div className="lib-search">
+      <div ref={searchBox} className="lib-search">
         <TextField
           label="Search exercises"
           value={query}
@@ -296,6 +305,7 @@ export function MusclesSheet({ ticked, onToggle, onClose }: { ticked: readonly s
       open
       variant="sheet"
       portal
+      className="lib-muscles-sheet"
       title="Muscles"
       onDismiss={onClose}
       header={

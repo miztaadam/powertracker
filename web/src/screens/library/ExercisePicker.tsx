@@ -89,7 +89,7 @@ export function ExercisePicker({ title, exercises, recentIds, onPick, onCreateCu
 
   return (
     <>
-      <Dialog open variant="screen" title={title} onDismiss={stepBack} header={<ScreenHeader title={title} navigation={<IconButton label="Close" icon={<CloseIcon />} onClick={onDismiss} />} />}>
+      <Dialog open variant="screen" className="lib-picker" title={title} onDismiss={stepBack} header={<ScreenHeader title={title} navigation={<IconButton label="Close" icon={<CloseIcon />} onClick={onDismiss} />} />}>
         <ExerciseBrowser
           state={browser}
           muscleFilter="grid"

@@ -24,6 +24,11 @@ export type DialogProps = {
   header?: ReactNode
   /** Draws the dialog at the end of the page instead of where it is used: for one opened from inside a row, a heading or another dialog. */
   portal?: boolean
+  /**
+   * The dialog's own name for its styles: on the panel, and with "-scrim" on the scrim (1.17.3: the dialogs laid out
+   * for a very narrow screen, narrowDeeper.css). Without it the dialog's classes are exactly the shared ones.
+   */
+  className?: string
 }
 
 const FOCUSABLE = 'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
@@ -49,7 +54,7 @@ const openDialogs: object[] = []
  * A modal question or small form over a scrim. Focus moves into it, stays in it, and goes back on
  * close; the page behind it is inert meanwhile, so VoiceOver cannot wander out of it either.
  */
-export function Dialog({ open, title, children, actions, onDismiss, isolate = true, variant = 'dialog', header, portal = false }: DialogProps) {
+export function Dialog({ open, title, children, actions, onDismiss, isolate = true, variant = 'dialog', header, portal = false, className }: DialogProps) {
   const titleId = useId()
   const scrim = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
@@ -111,7 +116,7 @@ export function Dialog({ open, title, children, actions, onDismiss, isolate = tr
   const dialog = (
     <div
       ref={scrim}
-      className={cx('gr-dialog-scrim', variant !== 'dialog' && `gr-dialog-scrim-${variant}`)}
+      className={cx('gr-dialog-scrim', variant !== 'dialog' && `gr-dialog-scrim-${variant}`, className != null && `${className}-scrim`)}
       onPointerDown={(e) => {
         pressedOnScrim.current = e.target === e.currentTarget
       }}
@@ -126,7 +131,7 @@ export function Dialog({ open, title, children, actions, onDismiss, isolate = tr
     >
       <div
         ref={panel}
-        className={cx('gr-dialog', variant !== 'dialog' && `gr-dialog-${variant}`)}
+        className={cx('gr-dialog', variant !== 'dialog' && `gr-dialog-${variant}`, className)}
         role="dialog"
         aria-modal="true"
         aria-labelledby={header == null ? titleId : undefined}

@@ -86,7 +86,7 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
   const nextText = step === 'exercises' && state.ticked.size === 0 ? 'Choose for me' : step === 'bodyParts' && state.priorities.length === 0 ? 'Skip' : 'Next'
 
   return (
-    <section className={step === 'exercises' ? 'screen pb-screen pb-screen-fill' : 'screen pb-screen'}>
+    <section className={step === 'exercises' ? 'screen pb-screen pb-builder pb-screen-fill' : 'screen pb-screen pb-builder'}>
       <ScreenHeader title={BUILDER_TITLE} eyebrow={`Step ${number} of ${BUILDER_STEPS.length}`} label={<ModeLabel />} navigation={<IconButton label="Close" icon={<CloseIcon />} onClick={onLeave} />} />
       {step === 'days' && <DaysStep state={state} actions={actions} />}
       {step === 'exercises' && <ExercisesStep state={state} actions={actions} />}
@@ -100,6 +100,7 @@ function PlanBuilderContent({ state, actions, onLeave, onDone }: ContentProps) {
       {confirming && (
         <Dialog
           open
+          className="pb-confirm-dialog"
           title="Use this plan?"
           onDismiss={() => setConfirming(false)}
           actions={
