@@ -174,7 +174,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Half steps: choose Half steps too; + goes 7, 7½, 8. Back on Whole plates, typing 7.5 is refused with "Whole plates only".
 - [ ] The next session: the coach's chip is in plates ("plate 7 × …"), never kg, and Progress (bodybuilding) shows "plate 7 × 10".
 - [ ] Switch back to In kg: the old kg sets and the kg target are back; the plate sets still read "plate …" in the exercise's history.
-- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 web app says the file is too new.)
+- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 Android app says the file is too new.)
 - [ ] Large text (in Safari, aA, zoom to 200%): nothing in the sheet or the stepper is cut.
 
 ## Owner's manual Android checks (the web app in Chrome)
@@ -226,7 +226,7 @@ The automated tests run in Chromium, not Safari. Tick these off on a real iPhone
 - [ ] Half steps: choose Half steps too; + goes 7, 7½, 8. Back on Whole plates, typing 7.5 is refused with "Whole plates only".
 - [ ] The next session: the coach's chip is in plates ("plate 7 × …"), never kg, and Progress (bodybuilding) shows "plate 7 × 10".
 - [ ] Switch back to In kg: the old kg sets and the kg target are back; the plate sets still read "plate …" in the exercise's history.
-- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 web app says the file is too new.)
+- [ ] Backup: export on one app, restore on the other: the plate sets and the setting come across. (A 1.16 Android app says the file is too new.)
 - [ ] Large text (Chrome's page zoom at 200%): nothing in the sheet or the stepper is cut.
 
 ## Owner's manual checks in the Android app itself
