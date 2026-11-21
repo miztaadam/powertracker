@@ -1096,6 +1096,45 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
     await fits(page, 'Exercises, scrolled to the end')
   })
 
+  // In forced colours (Windows high contrast) a card's border is drawn: the days card, which gives up its sides at this
+  // width so three days fit, keeps an outline on all four sides, and each day stays 48 px.
+  test('Settings in forced colours: the days card is outlined all round, its days still 48 px', async ({ page }) => {
+    await page.emulateMedia({ forcedColors: 'active' })
+    await openOnWednesday(page)
+    await openTab(page, 'settings', 'Settings')
+    const card = page.locator('.settings-days')
+    const style = await card.evaluate((el) => {
+      const s = getComputedStyle(el)
+      return { outline: [s.outlineStyle, s.outlineWidth], top: s.borderTopWidth, bottom: s.borderBottomWidth, sides: [s.borderLeftWidth, s.borderRightWidth] }
+    })
+    // An outline is drawn on every side, inside the card; its top and bottom border stay.
+    expect(style.outline).toEqual(['solid', '1px'])
+    expect([style.top, style.bottom]).toEqual(['1px', '1px'])
+    const days = await card.locator('label.gr-chip').evaluateAll((all) => all.map((c) => c.getBoundingClientRect()).map((r) => [r.width, r.height]))
+    expect(days).toHaveLength(7)
+    for (const [width, height] of days) {
+      expect(width).toBeGreaterThanOrEqual(47.5)
+      expect(height).toBeGreaterThanOrEqual(47.5)
+    }
+    await fits(page, 'Settings in forced colours')
+  })
+
+  // The whole tab scrolls at this width, so a row is near when it is near the screen: the rows far below it make no
+  // picture (their tiles are hidden under 320 px, and a few hundred drawings would slow the tab down).
+  test('Exercises draws the pictures of the rows near the screen only', async ({ page }) => {
+    await openOnWednesday(page)
+    await openTab(page, 'exercises', 'Exercises')
+    await expect(page.getByRole('listitem', { name: 'Squat', exact: true })).toBeVisible()
+    // The whole list is drawn (the first screenful comes first, the rest straight after).
+    await expect.poll(() => page.locator('.lib-row').count()).toBeGreaterThan(200)
+    // Each row is at least 68 px tall here: the screen and 600 px past it each way hold fewer than 20.
+    await expect.poll(() => page.locator('.lib-thumb svg').count()).toBeGreaterThan(0)
+    expect(await page.locator('.lib-thumb svg').count()).toBeLessThan(20)
+    // Scrolled to the end, the last rows draw theirs.
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, el.scrollHeight))
+    await expect.poll(() => page.locator('.lib-row').last().locator('.lib-thumb svg').count()).toBe(1)
+  })
+
   for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
     test(`Exercises with two muscles chosen, ${side.toLowerCase()} side, fits`, async ({ page }) => {
       await openOnWednesday(page)

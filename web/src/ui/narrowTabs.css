@@ -4,7 +4,8 @@
  * that cannot fit goes under its text, and every touch target keeps at least its size. Today has its own rules
  * (today.css), so every rule here leaves it out (`.screen:not(.today-screen)`); and every rule is inside the app's
  * screen (`.shell-main`), so the guide's pictures of these screens, drawn outside it, are as before. Nothing changes
- * wider than 239 px.
+ * wider than 239 px. A dialog opened from these screens is left out too (`:not(.gr-dialog *)`): it keeps its look
+ * until it is made to fit on purpose, the same from every screen.
  */
 @media (max-width: 239px) {
   /* Room, as on Today: the screen's sides 8 px (were 16 or 20), the cards' padding at most 12 px. */
@@ -12,7 +13,7 @@
     padding-inline: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) .gr-card {
+  .shell-main .screen:not(.today-screen) .gr-card:not(.gr-dialog *) {
     padding: min(var(--card-padding, var(--space-5)), var(--space-4));
   }
 
@@ -23,17 +24,17 @@
     padding-inline: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) > .gr-screen-header > .gr-screen-header-text {
+  .shell-main .screen:not(.today-screen) > .gr-screen-header > .gr-screen-header-text:not(.gr-dialog *) {
     flex-basis: 100%;
     padding-left: 0;
   }
 
-  .shell-main .screen:not(.today-screen) > .gr-screen-header-nav > .gr-screen-header-text {
+  .shell-main .screen:not(.today-screen) > .gr-screen-header-nav > .gr-screen-header-text:not(.gr-dialog *) {
     order: 1;
   }
 
   /* The title at the next size down: "Exercises" at the large size is wider than the screen. */
-  .shell-main .screen:not(.today-screen) .gr-screen-title {
+  .shell-main .screen:not(.today-screen) .gr-screen-title:not(.gr-dialog *) {
     font: 700 26px/30px var(--font-display);
     white-space: normal;
     overflow: visible;
@@ -41,7 +42,7 @@
   }
 
   /* Eyebrows (a screen's, a section's, a card's tag, a figure's label) wrap, never cut. */
-  .shell-main .screen:not(.today-screen) .eyebrow {
+  .shell-main .screen:not(.today-screen) .eyebrow:not(.gr-dialog *) {
     white-space: normal;
     overflow: visible;
   }
@@ -58,71 +59,71 @@
 
   /* A button as wide as its card has its face's sides a little tighter, so its words have room, and a word wider than
      the card ("Swap for" a one-word name) breaks inside it rather than run past the card. */
-  .shell-main .screen:not(.today-screen) :is(.gr-card, .gr-advice-actions, .welcome-back-actions, .coach-swaps, .bb-check-in) > .gr-btn > .gr-btn-face,
-  .shell-main .screen:not(.today-screen) .plan-empty > .plan-empty-wide > .gr-btn-face {
+  .shell-main .screen:not(.today-screen) :is(.gr-card, .gr-advice-actions, .welcome-back-actions, .coach-swaps, .bb-check-in) > .gr-btn > .gr-btn-face:not(.gr-dialog *),
+  .shell-main .screen:not(.today-screen) .plan-empty > .plan-empty-wide > .gr-btn-face:not(.gr-dialog *) {
     min-width: 0;
     padding-inline: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) :is(.gr-card, .gr-advice-actions, .welcome-back-actions, .coach-swaps, .bb-check-in) > .gr-btn .gr-btn-text,
-  .shell-main .screen:not(.today-screen) .plan-empty > .plan-empty-wide .gr-btn-text {
+  .shell-main .screen:not(.today-screen) :is(.gr-card, .gr-advice-actions, .welcome-back-actions, .coach-swaps, .bb-check-in) > .gr-btn .gr-btn-text:not(.gr-dialog *),
+  .shell-main .screen:not(.today-screen) .plan-empty > .plan-empty-wide .gr-btn-text:not(.gr-dialog *) {
     min-width: 0;
     overflow-wrap: break-word;
   }
 
   /* A row of buttons stacks, each as wide as its card. */
-  .shell-main .screen:not(.today-screen) .gr-advice-actions {
+  .shell-main .screen:not(.today-screen) .gr-advice-actions:not(.gr-dialog *) {
     flex-direction: column;
     align-items: stretch;
   }
 
   /* Figures: a number and its unit may take two lines; a word value ("Off the shoulders") wraps at its spaces. */
-  .shell-main .screen:not(.today-screen) .gr-number-row {
+  .shell-main .screen:not(.today-screen) .gr-number-row:not(.gr-dialog *) {
     flex-wrap: wrap;
     column-gap: var(--space-1);
   }
 
-  .shell-main .screen:not(.today-screen) .gr-number-value {
+  .shell-main .screen:not(.today-screen) .gr-number-value:not(.gr-dialog *) {
     white-space: normal;
   }
 
   /* The total, Progress's hero figure, at the next size down: "557.5" at the hero size is wider than the card. */
-  .shell-main .screen:not(.today-screen) .gr-number-value.display-large {
+  .shell-main .screen:not(.today-screen) .gr-number-value.display-large:not(.gr-dialog *) {
     font: 700 44px/46px var(--font-display);
   }
 
-  .shell-main .screen:not(.today-screen) .gr-stat {
+  .shell-main .screen:not(.today-screen) .gr-stat:not(.gr-dialog *) {
     padding: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) .gr-stat-note {
+  .shell-main .screen:not(.today-screen) .gr-stat-note:not(.gr-dialog *) {
     white-space: normal;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-pill {
+  .shell-main .screen:not(.today-screen) .gr-pill:not(.gr-dialog *) {
     white-space: normal;
   }
 
   /* A ratio: its name on a line of its own, then the rating and the figure. */
-  .shell-main .screen:not(.today-screen) .gr-ratio-head {
+  .shell-main .screen:not(.today-screen) .gr-ratio-head:not(.gr-dialog *) {
     flex-wrap: wrap;
     row-gap: var(--space-2);
   }
 
-  .shell-main .screen:not(.today-screen) .gr-ratio-label {
+  .shell-main .screen:not(.today-screen) .gr-ratio-label:not(.gr-dialog *) {
     flex-basis: 100%;
   }
 
   /* A segmented choice that cannot fit one line: two to a row, each a full 48 px target. */
-  .shell-main .screen:not(.today-screen) .gr-segmented {
+  .shell-main .screen:not(.today-screen) .gr-segmented:not(.gr-dialog *) {
     flex-wrap: wrap;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-segmented .gr-segment {
+  .shell-main .screen:not(.today-screen) .gr-segmented .gr-segment:not(.gr-dialog *) {
     flex: 1 1 50%;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-segment-face {
+  .shell-main .screen:not(.today-screen) .gr-segment-face:not(.gr-dialog *) {
     white-space: normal;
     text-align: center;
   }
@@ -130,146 +131,146 @@
   /* ---- Coach ---- */
 
   /* An accessory or an addition: its name on the list's whole width, then sets × reps and its ⓘ under it. */
-  .shell-main .screen:not(.today-screen) .coach-list {
+  .shell-main .screen:not(.today-screen) .coach-list:not(.gr-dialog *) {
     padding-left: var(--space-4);
   }
 
-  .shell-main .screen:not(.today-screen) .coach-list-row {
+  .shell-main .screen:not(.today-screen) .coach-list-row:not(.gr-dialog *) {
     flex-wrap: wrap;
     column-gap: var(--space-2);
     padding-top: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) .coach-list-name {
+  .shell-main .screen:not(.today-screen) .coach-list-name:not(.gr-dialog *) {
     flex-basis: 100%;
     overflow-wrap: break-word;
   }
 
-  .shell-main .screen:not(.today-screen) .coach-list-row > :last-child {
+  .shell-main .screen:not(.today-screen) .coach-list-row > :last-child:not(.gr-dialog *) {
     margin-left: auto;
   }
 
   /* The e1RM over its trend, and the deload's two figures one over the other. */
-  .shell-main .screen:not(.today-screen) .coach-trend,
-  .shell-main .screen:not(.today-screen) .coach-row {
+  .shell-main .screen:not(.today-screen) .coach-trend:not(.gr-dialog *),
+  .shell-main .screen:not(.today-screen) .coach-row:not(.gr-dialog *) {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .shell-main .screen:not(.today-screen) .coach-spark {
+  .shell-main .screen:not(.today-screen) .coach-spark:not(.gr-dialog *) {
     flex: none;
   }
 
   /* A long one-word name breaks only where it would otherwise run past the card. */
-  .shell-main .screen:not(.today-screen) .gr-advice-title,
-  .shell-main .screen:not(.today-screen) .gr-advice-body {
+  .shell-main .screen:not(.today-screen) .gr-advice-title:not(.gr-dialog *),
+  .shell-main .screen:not(.today-screen) .gr-advice-body:not(.gr-dialog *) {
     overflow-wrap: break-word;
   }
 
   /* ---- Progress ---- */
 
   /* The total over its trend; the lifts one under the other. */
-  .shell-main .screen:not(.today-screen) .progress-total {
+  .shell-main .screen:not(.today-screen) .progress-total:not(.gr-dialog *) {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .shell-main .screen:not(.today-screen) .progress-total-spark {
+  .shell-main .screen:not(.today-screen) .progress-total-spark:not(.gr-dialog *) {
     flex: none;
   }
 
-  .shell-main .screen:not(.today-screen) .progress-tiles,
-  .shell-main .screen:not(.today-screen) .progress-tiles-pairs {
+  .shell-main .screen:not(.today-screen) .progress-tiles:not(.gr-dialog *),
+  .shell-main .screen:not(.today-screen) .progress-tiles-pairs:not(.gr-dialog *) {
     display: flex;
     flex-direction: column;
   }
 
   /* A record: the cup and the lift, then the e1RM under them. */
-  .shell-main .screen:not(.today-screen) .progress-records {
+  .shell-main .screen:not(.today-screen) .progress-records:not(.gr-dialog *) {
     padding-inline: var(--space-4);
   }
 
-  .shell-main .screen:not(.today-screen) .progress-record-visual {
+  .shell-main .screen:not(.today-screen) .progress-record-visual:not(.gr-dialog *) {
     flex-wrap: wrap;
     column-gap: var(--space-3);
     padding-block: var(--space-2);
   }
 
-  .shell-main .screen:not(.today-screen) .progress-record-text {
+  .shell-main .screen:not(.today-screen) .progress-record-text:not(.gr-dialog *) {
     flex-basis: calc(100% - 36px - var(--space-3));
   }
 
 
   /* A line chart's dates may take two lines each ("18" over "May"), so the three fit under a narrow plot without
      overlapping; the row under the plot is two lines tall. */
-  .shell-main .screen:not(.today-screen) .gr-plot {
+  .shell-main .screen:not(.today-screen) .gr-plot:not(.gr-dialog *) {
     height: calc(168px + 16px);
   }
 
-  .shell-main .screen:not(.today-screen) .gr-plot-x {
+  .shell-main .screen:not(.today-screen) .gr-plot-x:not(.gr-dialog *) {
     height: 32px;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-plot-x-label {
+  .shell-main .screen:not(.today-screen) .gr-plot-x-label:not(.gr-dialog *) {
     width: min-content;
     white-space: normal;
     text-align: center;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-plot-x-first {
+  .shell-main .screen:not(.today-screen) .gr-plot-x-first:not(.gr-dialog *) {
     text-align: left;
   }
 
-  .shell-main .screen:not(.today-screen) .gr-plot-x-last {
+  .shell-main .screen:not(.today-screen) .gr-plot-x-last:not(.gr-dialog *) {
     text-align: right;
   }
 
   /* Weekly volume: the lift and this week's figure over its eight bars, each line the card's width. */
-  .shell-main .screen:not(.today-screen) .progress-volume {
+  .shell-main .screen:not(.today-screen) .progress-volume:not(.gr-dialog *) {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-2);
   }
 
-  .shell-main .screen:not(.today-screen) .progress-volume-label {
+  .shell-main .screen:not(.today-screen) .progress-volume-label:not(.gr-dialog *) {
     width: auto;
   }
 
-  .shell-main .screen:not(.today-screen) .progress-volume-name {
+  .shell-main .screen:not(.today-screen) .progress-volume-name:not(.gr-dialog *) {
     white-space: normal;
   }
 
-  .shell-main .screen:not(.today-screen) .progress-volume-bars {
+  .shell-main .screen:not(.today-screen) .progress-volume-bars:not(.gr-dialog *) {
     flex: none;
   }
 
   /* The bodybuilding side: a name wraps; a body part's rating goes under its name when they do not fit. */
-  .shell-main .screen:not(.today-screen) .bb-row {
+  .shell-main .screen:not(.today-screen) .bb-row:not(.gr-dialog *) {
     padding-inline: var(--space-4) var(--space-2);
   }
 
   /* A row of the bodybuilding side: its name and best sets on the row's whole width, the trend and the chevron under
      them on the right. */
-  .shell-main .screen:not(.today-screen) .bb-row {
+  .shell-main .screen:not(.today-screen) .bb-row:not(.gr-dialog *) {
     flex-wrap: wrap;
     justify-content: flex-end;
     row-gap: var(--space-1);
   }
 
-  .shell-main .screen:not(.today-screen) .bb-row-text {
+  .shell-main .screen:not(.today-screen) .bb-row-text:not(.gr-dialog *) {
     flex-basis: 100%;
   }
 
-  .shell-main .screen:not(.today-screen) .bb-row-name {
+  .shell-main .screen:not(.today-screen) .bb-row-name:not(.gr-dialog *) {
     white-space: normal;
     overflow-wrap: break-word;
   }
 
-  .shell-main .screen:not(.today-screen) .bb-part {
+  .shell-main .screen:not(.today-screen) .bb-part:not(.gr-dialog *) {
     padding-inline: var(--space-4);
   }
 
-  .shell-main .screen:not(.today-screen) .bb-part-head {
+  .shell-main .screen:not(.today-screen) .bb-part-head:not(.gr-dialog *) {
     flex-wrap: wrap;
     row-gap: var(--space-1);
   }
@@ -329,103 +330,111 @@
 
   /* ---- Plan ---- */
 
-  .shell-main .screen:not(.today-screen) .plan-day-head {
+  .shell-main .screen:not(.today-screen) .plan-day-head:not(.gr-dialog *) {
     padding-inline: var(--space-4);
   }
 
-  .shell-main .screen:not(.today-screen) .plan-rows {
+  .shell-main .screen:not(.today-screen) .plan-rows:not(.gr-dialog *) {
     padding-inline: var(--space-4) var(--space-2);
   }
 
   /* A row's sets × reps @ RPE wraps at its spaces; its four controls go under it, two to a line, on the right. */
-  .shell-main .screen:not(.today-screen) .plan-row-dose {
+  .shell-main .screen:not(.today-screen) .plan-row-dose:not(.gr-dialog *) {
     white-space: normal;
   }
 
-  .shell-main .screen:not(.today-screen) .plan-row-name {
+  .shell-main .screen:not(.today-screen) .plan-row-name:not(.gr-dialog *) {
     overflow-wrap: break-word;
   }
 
   /* Known bests: the lift and its best, then Set best under them on the right, as a row's controls. */
-  .shell-main .screen:not(.today-screen) .plan-best {
+  .shell-main .screen:not(.today-screen) .plan-best:not(.gr-dialog *) {
     flex-wrap: wrap;
     justify-content: flex-end;
     padding-bottom: var(--space-2);
   }
 
-  .shell-main .screen:not(.today-screen) .plan-best > .plan-grow {
+  .shell-main .screen:not(.today-screen) .plan-best > .plan-grow:not(.gr-dialog *) {
     flex-basis: 100%;
     padding-top: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) .plan-best-text {
+  .shell-main .screen:not(.today-screen) .plan-best-text:not(.gr-dialog *) {
     padding-block: 0;
   }
 
   /* ---- Settings ---- */
 
-  .shell-main .screen:not(.today-screen) .settings-group {
+  .shell-main .screen:not(.today-screen) .settings-group:not(.gr-dialog *) {
     padding-inline: var(--space-4);
   }
 
   /* A setting's name and line, then its switch or stepper under them, on the right. */
-  .shell-main .screen:not(.today-screen) .settings-row {
+  .shell-main .screen:not(.today-screen) .settings-row:not(.gr-dialog *) {
     flex-wrap: wrap;
     justify-content: flex-end;
     column-gap: var(--space-3);
     padding-bottom: var(--space-3);
   }
 
-  .shell-main .screen:not(.today-screen) .settings-row > .settings-label {
+  .shell-main .screen:not(.today-screen) .settings-row > .settings-label:not(.gr-dialog *) {
     flex-basis: 100%;
     padding-bottom: 0;
   }
 
-  .shell-main .screen:not(.today-screen) .settings-title {
+  .shell-main .screen:not(.today-screen) .settings-title:not(.gr-dialog *) {
     white-space: normal;
   }
 
   /* A stepper too wide for the row: its value on a line of its own, then − and + at either end. */
-  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper {
+  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper:not(.gr-dialog *) {
     flex: 1 1 100%;
     display: grid;
     grid-template-columns: var(--touch) 1fr var(--touch);
     row-gap: var(--space-2);
   }
 
-  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper > .gr-stepper-value {
+  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper > .gr-stepper-value:not(.gr-dialog *) {
     grid-row: 1;
     grid-column: 1 / -1;
     min-width: 0;
   }
 
-  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper > .gr-step-btn:last-child {
+  .shell-main .screen:not(.today-screen) .settings-row > .gr-stepper > .gr-step-btn:last-child:not(.gr-dialog *) {
     grid-column: 3;
   }
 
   /* The rest alerts one over the other, each the row's width and a full 48 px target. */
-  .shell-main .screen:not(.today-screen) .settings-rest-alert.gr-segmented {
+  .shell-main .screen:not(.today-screen) .settings-rest-alert.gr-segmented:not(.gr-dialog *) {
     flex-direction: column;
     padding: var(--space-2);
   }
 
-  .shell-main .screen:not(.today-screen) .settings-rest-alert .gr-segment-face {
+  .shell-main .screen:not(.today-screen) .settings-rest-alert .gr-segment-face:not(.gr-dialog *) {
     padding-block: var(--space-2);
   }
 
   /* The seven days, three to a row (Mon Tue Wed, Thu Fri Sat, Sun), each chip a full 48 px target: the card gives up its
      sides (its border is transparent) so three fit the screen's 144 px. */
-  .shell-main .screen:not(.today-screen) .settings-days {
+  .shell-main .screen:not(.today-screen) .settings-days:not(.gr-dialog *) {
     padding-inline: 0;
     border-inline-width: 0;
   }
 
-  .shell-main .screen:not(.today-screen) .settings-days-row {
+  /* In forced colours the card's border is its outline: drawn inside the card instead, so it takes no room. */
+  @media (forced-colors: active) {
+    .shell-main .screen:not(.today-screen) .settings-days:not(.gr-dialog *) {
+      outline: 1px solid transparent;
+      outline-offset: -1px;
+    }
+  }
+
+  .shell-main .screen:not(.today-screen) .settings-days-row:not(.gr-dialog *) {
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  .shell-main .screen:not(.today-screen) .settings-days-row .gr-chip {
+  .shell-main .screen:not(.today-screen) .settings-days-row .gr-chip:not(.gr-dialog *) {
     flex: 0 0 calc(100% / 3);
   }
 }
