@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MenuDefaults
+import com.powertracker.ui.today.PlateMenuItem
+import com.powertracker.ui.today.SkipMenuItem
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -85,6 +90,34 @@ private fun platesItems(mode: TrainingMode): List<TodayItem> {
 @Composable
 fun TodayPlatesShowcase(mode: TrainingMode) {
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = platesItems(mode), mode = mode), TodayActions(onCountPlates = { _, _ -> }))
+}
+
+/**
+ * Where the setting is: Today with Lat pulldown still in kg (the coach's kg target, the kg field), its ⋮ menu open
+ * with Skip today and Count plates on this machine. The menu is its own window, so its real items are drawn in a
+ * stand-in where it drops from the card's ⋮.
+ */
+@Composable
+fun TodayPlatesMenuShowcase() {
+    val mode = TrainingMode.POWERLIFTING
+    val target = AdvicePayload.Target(1, 62.5, 8, 8.0)
+    val advice = Advice(AdviceType.TARGET, null, SHOWCASE_DATE, "Last time: 60 × 8 @ 8. Coach suggests 62.5 × 8 @ 8.", 0, target, id = 1, mode = mode)
+    val items = listOf(platesItem(1, "Lat pulldown", mode, 60.0, suggestion = advice)) + platesItems(mode).drop(1)
+    Box(Modifier.fillMaxSize()) {
+        TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items, mode = mode), TodayActions(onCountPlates = { _, _ -> }))
+        Surface(
+            Modifier.align(Alignment.TopEnd).padding(top = 150.dp, end = 24.dp).width(280.dp),
+            shape = MenuDefaults.shape,
+            color = MenuDefaults.containerColor,
+            tonalElevation = MenuDefaults.TonalElevation,
+            shadowElevation = MenuDefaults.ShadowElevation,
+        ) {
+            Column(Modifier.padding(vertical = 8.dp)) {
+                SkipMenuItem {}
+                PlateMenuItem {}
+            }
+        }
+    }
 }
 
 /** The plate sheet over Today, just after Whole plates was chosen for Lat pulldown, which had kg sets. */

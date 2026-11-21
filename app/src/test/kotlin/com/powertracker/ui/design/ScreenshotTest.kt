@@ -280,6 +280,9 @@ class ScreenshotTest {
     fun todayPlatesBodybuilding() = render("today-plates-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodayPlatesShowcase(TrainingMode.BODYBUILDING) }
 
     @Test
+    fun todayPlatesMenu() = render("today-plates-menu", Tab.TODAY) { TodayPlatesMenuShowcase() }
+
+    @Test
     fun plateSheet() = render("plate-sheet", Tab.TODAY) { PlateSheetShowcase() }
 
     @Test
