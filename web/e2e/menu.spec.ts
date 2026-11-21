@@ -45,7 +45,7 @@ async function seed(page: Page, plates: boolean) {
  * The open menu's box and the part of the screen it may use (the window, above the rest bar and the tab bar), read
  * together in one go once the menu has settled: the same box on two frames running.
  */
-const settled = (page: Page, name: string) =>
+const settled = (page: Page, name: string, label = `Options for ${name}`) =>
   page.evaluate(async (label) => {
     const frame = () => new Promise((done) => requestAnimationFrame(done))
     const read = () => {
@@ -74,11 +74,16 @@ const settled = (page: Page, name: string) =>
       last = now
     }
     throw new Error('the menu did not settle')
-  }, `Options for ${name}`)
+  }, label)
 
 /** Opens `name`'s menu (`scope`'s ⋮), checks it is wholly on screen, then picks Count plates on this machine: its sheet opens. */
 async function opensInside(page: Page, scope: Locator, name: string, what: string) {
   await scope.getByRole('button', { name: `Options for ${name}` }).click()
+  await opensInsideOpen(page, name, what)
+}
+
+/** The same checks on `name`'s menu, already open. */
+async function opensInsideOpen(page: Page, name: string, what: string) {
   const menu = page.getByRole('menu', { name: `Options for ${name}` })
   await expect(menu).toBeVisible()
   const box = await settled(page, name)
@@ -196,7 +201,7 @@ test.describe('the ⋮ menu, more cases', () => {
     expect(item!.y).toBeGreaterThanOrEqual(list!.y - 1)
   })
 
-  test('a menu closes when the window changes size', async ({ page }) => {
+  test('a menu closes when the window changes width (turning the phone)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await openOnWednesday(page)
     await seed(page, false)
@@ -204,5 +209,61 @@ test.describe('the ⋮ menu, more cases', () => {
     await expect(page.getByRole('menu')).toBeVisible()
     await page.setViewportSize({ width: 844, height: 390 })
     await expect(page.getByRole('menu')).toHaveCount(0)
+  })
+
+  // The lifter has just typed a weight, so the on-screen keyboard is up, and taps ⋮: the menu takes focus, the field
+  // loses it and the keyboard slides away. That changes the window's height only: the menu stays open and on screen.
+  for (const [what, from, to] of [
+    ['the keyboard going away (taller)', 480, 844],
+    ['the keyboard coming up (shorter)', 844, 480],
+  ] as const) {
+    test(`a change of height only keeps the menu open and on screen: ${what}`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: from })
+      await openOnWednesday(page)
+      await seed(page, false)
+      await page.getByRole('button', { name: 'Start session', exact: true }).click()
+      const head = page.locator('.today-card-head')
+      await expect(head.getByRole('heading', { name: 'Cable chest press' })).toBeVisible()
+      await page.getByRole('textbox', { name: 'Weight, kilograms' }).focus()
+      await head.getByRole('button', { name: 'Options for Cable chest press' }).click()
+      const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
+      await expect(menu).toBeVisible()
+      await page.setViewportSize({ width: 390, height: to })
+      await page.waitForTimeout(200)
+      await expect(menu).toBeVisible()
+      await expect(menu.getByRole('menuitem').first()).toBeFocused()
+      // Placed again for the new height: whole on screen, above the tab bar; Count plates opens its sheet.
+      await opensInsideOpen(page, 'Cable chest press', `after ${what}`)
+    })
+  }
+
+  test('after a change of height only, Skip today opens its sheet', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 480 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    await page.getByRole('button', { name: 'Start session', exact: true }).click()
+    await page.getByRole('textbox', { name: 'Weight, kilograms' }).focus()
+    await page.locator('.today-card-head').getByRole('button', { name: 'Options for Cable chest press' }).click()
+    const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
+    await expect(menu).toBeVisible()
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.waitForTimeout(200)
+    await menu.getByRole('menuitem', { name: 'Skip today' }).click()
+    await expect(page.getByRole('dialog', { name: 'Why skip Cable chest press?' })).toBeVisible()
+  })
+
+  test("a change of height only keeps Plan's ⋮ menu open", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 480 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    await page.goto('/#/plan')
+    await page.getByRole('button', { name: 'Plan options' }).click()
+    const menu = page.getByRole('menu', { name: 'Plan options' })
+    await expect(menu).toBeVisible()
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.waitForTimeout(200)
+    await expect(menu).toBeVisible()
+    const box = await settled(page, 'Plan options', 'Plan options')
+    expect(box.x >= 0 && box.x + box.width <= box.roomWidth && box.y >= 0 && box.y + box.height <= box.roomBottom).toBe(true)
   })
 })

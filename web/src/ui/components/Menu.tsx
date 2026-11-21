@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
@@ -50,7 +50,26 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   const list = useRef<HTMLDivElement>(null)
   const listId = useId()
   const [placement, setPlacement] = useState<MenuPlacement>(AS_BEFORE)
-  const placed = useRef(false)
+
+  // `first`: the placing when it opens (then it is brought into view and its first action focused); else a placing again
+  // after a change of height, which brings it into view and leaves the focus where it is.
+  const reveal = useRef<'first' | 'again' | null>(null)
+
+  /** Measures the menu's own size and the button's place now, and places it (`placeMenu`). */
+  const place = useCallback((why: 'first' | 'again') => {
+    const button = trigger.current?.getBoundingClientRect()
+    const menu = list.current
+    if (!button || !menu) return
+    const style = getComputedStyle(menu)
+    const px = (key: 'paddingTop' | 'paddingBottom' | 'borderTopWidth' | 'borderBottomWidth') => parseFloat(style[key]) || 0
+    const borders = px('borderTopWidth') + px('borderBottomWidth')
+    // Its whole height even while capped (scrollHeight holds the padding, not the border).
+    const where = placeMenu(button, { width: menu.offsetWidth, height: menu.scrollHeight + borders }, menuRoom(menu))
+    // The cap is on the whole box: max-height counts the content only, so take the padding and the border off.
+    const chrome = px('paddingTop') + px('paddingBottom') + borders
+    reveal.current = why
+    setPlacement(where.maxHeight != null ? { ...where, maxHeight: Math.max(0, where.maxHeight - chrome) } : where)
+  }, [])
 
   // Placed before it is drawn: measured where it would open as before, then moved only if it leaves the screen.
   useLayoutEffect(() => {
@@ -58,39 +77,47 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
       setPlacement(AS_BEFORE)
       return
     }
-    const button = trigger.current?.getBoundingClientRect()
-    const menu = list.current
-    if (!button || !menu) return
-    const where = placeMenu(button, { width: menu.offsetWidth, height: menu.offsetHeight }, menuRoom(menu))
-    // The cap is on the whole box: max-height counts the content only, so take the padding and the border off.
-    const style = getComputedStyle(menu)
-    const chrome = ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce((sum, key) => sum + (parseFloat(style[key as 'paddingTop']) || 0), 0)
-    placed.current = true
-    setPlacement(where.maxHeight != null ? { ...where, maxHeight: Math.max(0, where.maxHeight - chrome) } : where)
-  }, [open])
+    place('first')
+  }, [open, place])
 
-  // Placed once, when it opens: a change of the window's size (a rotation, the on-screen keyboard) closes it rather than
-  // leave it where it may no longer fit.
+  // A change of the window's width, or turning the phone, closes it. A change of height only (the on-screen keyboard
+  // coming up or going away, as it does when the menu takes the focus from a field) keeps it open and places it again,
+  // once per frame however many events come.
   useEffect(() => {
     if (!open) return
-    const close = () => setOpen(false)
     const viewport = window.visualViewport
-    window.addEventListener('resize', close)
-    window.addEventListener('orientationchange', close)
-    viewport?.addEventListener('resize', close)
-    return () => {
-      window.removeEventListener('resize', close)
-      window.removeEventListener('orientationchange', close)
-      viewport?.removeEventListener('resize', close)
+    const widths = () => [window.innerWidth, viewport?.width ?? null]
+    const opened = widths()
+    let frame = 0
+    const onResize = () => {
+      const now = widths()
+      if (now[0] !== opened[0] || now[1] !== opened[1]) {
+        setOpen(false)
+        return
+      }
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => place('again'))
     }
-  }, [open])
+    const close = () => setOpen(false)
+    window.addEventListener('resize', onResize)
+    window.addEventListener('orientationchange', close)
+    viewport?.addEventListener('resize', onResize)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', onResize)
+      window.removeEventListener('orientationchange', close)
+      viewport?.removeEventListener('resize', onResize)
+    }
+  }, [open, place])
 
-  // Once it is placed (the render after the layout effect above): brought into view, and its first action focused.
+  // Once it is placed (the render after a placing): brought into view, and, when it has just opened, its first action
+  // focused.
   useEffect(() => {
-    if (!open || !placed.current) return
-    placed.current = false
+    if (!open || reveal.current == null) return
+    const why = reveal.current
+    reveal.current = null
     list.current?.scrollIntoView?.({ block: 'nearest' })
-    list.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+    if (why === 'first') list.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
   }, [open, placement])
 
   useEffect(() => {
