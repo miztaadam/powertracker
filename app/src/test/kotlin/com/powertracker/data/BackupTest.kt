@@ -7,6 +7,7 @@ import com.powertracker.data.db.ExerciseEntity
 import com.powertracker.data.db.SessionEntity
 import com.powertracker.data.db.SetEntity
 import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleGroup
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.LoggedSet
@@ -753,6 +754,49 @@ class BackupTest {
         // A kg set at 7.3 kg is fine.
         val kg = file.sets.first()
         assertTrue(Backup.decode(Backup.encode(file.copy(sets = listOf(kg.copy(weightKg = 7.3)) + file.sets.drop(1)))) is BackupResult.Ok)
+    }
+
+    /** Every table and the settings, as they stand. */
+    private suspend fun everything(): List<Any> = listOf(
+        db.exercises().all(), db.sessions().all(), db.sets().all(), db.plan().all(), db.advice().all(),
+        db.skips().all(), db.baselines().all(), db.checkIns().all(), settings.settings.first(),
+    )
+
+    /** What Settings does with a chosen file: restore it only when the check passes it. */
+    private suspend fun attemptRestore(file: BackupFile) {
+        when (val check = com.powertracker.ui.plan.checkBackupText(Backup.encode(file))) {
+            is com.powertracker.ui.plan.RestoreCheck.Ready -> service.restore(check.file)
+            is com.powertracker.ui.plan.RestoreCheck.Rejected -> Unit
+        }
+    }
+
+    /** 1.17.1: a file refused for its plate numbers changes nothing: every table and the settings are as they were. */
+    @Test
+    fun aRefusedBackup_changesNothing() = runTest {
+        seedBothSides()
+        val (pulldown, _) = seedPlates()
+        val training = TrainingRepository(db)
+        training.saveCheckIn(com.powertracker.domain.model.CheckIn(LocalDate(2026, 11, 3), setOf(MuscleGroup.CHEST), setOf(MuscleGroup.LATS)))
+        training.setBaseline(com.powertracker.domain.model.Baseline(pulldown, 80.0, LocalDate(2026, 11, 1)))
+        db.skips().insert(com.powertracker.data.db.SkipEntity(date = LocalDate(2026, 11, 4), mode = TrainingMode.BODYBUILDING, exerciseId = pulldown, planItemId = null, reason = null))
+        val before = everything()
+        assertTrue("every table holds rows", before.take(8).all { (it as List<*>).isNotEmpty() })
+
+        // A file that, were it restored, would change every table and the settings.
+        val file = service.export(1L)
+        val plate = file.sets.last()
+        fun withPlate(weight: Double) = file.copy(
+            settings = file.settings.copy(defaultRpe = 9.5),
+            sets = file.sets.dropLast(2) + plate.copy(weightKg = weight),
+            planItems = file.planItems.drop(1), advice = file.advice.drop(1), skips = emptyList(), baselines = emptyList(), checkIns = emptyList(),
+        )
+        for (weight in listOf(80.0, 7.3, 0.5)) {
+            attemptRestore(withPlate(weight))
+            assertEquals("plate $weight: refused, nothing changed", before, everything())
+        }
+        // The same file with a storable plate is restored, so the comparison would have seen a change.
+        attemptRestore(withPlate(7.5))
+        assertNotEquals(before, everything())
     }
 
     /** 1.17.1: the check is the half-plate grid and plate 1 to 50, never the exercise's setting now. */
