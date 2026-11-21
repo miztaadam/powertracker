@@ -583,7 +583,7 @@ describe('plates on Today', () => {
     expect(await todaysPayloads()).toHaveLength(2)
   })
 
-  it('theNewestTargetDecides_anEarlierOpenOneDoesNotComeBack: the newest dismissed', async () => {
+  it('theNewestTargetDecides_whenItWasDismissed', async () => {
     const { id, vm, half, whole } = await halfThenWhole()
     await act(() => vm.current.dismissTarget(whole))
     await waitFor(() => expect(itemOf(vm, id)!.suggestion).toBeNull())
@@ -592,8 +592,9 @@ describe('plates on Today', () => {
 
     await waitFor(() => expect(itemOf(vm, id)!.plateCount).toBe('HALF'))
     expect(itemOf(vm, id)!.suggestion).toBeNull()
-    // As for any dismissed target: the field holds the last plate top set.
+    // As with no target: the field holds the last plate top set, and the sets to do are the plan's.
     expect(itemOf(vm, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
+    expect(itemOf(vm, id)!.targetSets).toBe(3)
     expect((await db.advice.get(half))!.status).toBe('OPEN')
     expect(await todaysPayloads()).toHaveLength(2)
   })
@@ -613,7 +614,35 @@ describe('plates on Today', () => {
     expect(await todaysPayloads()).toHaveLength(2)
   })
 
-  it('theNewestTargetDecides: kg control, the one kg target open, applied and dismissed', async () => {
+  it('theNewestAppliedTargetDecides_anOlderAppliedOneDoesNotFillTheField', async () => {
+    const id = await pulldownRow()
+    await db.exercises.update(id, { plateCount: 'HALF' })
+    await planToday(id)
+    await past(addDays(TODAY, -7), id, plates(7, 12))
+    await startSession(db, TODAY)
+    const vm = show()
+    await waitFor(() => expect(itemOf(vm, id)?.suggestion?.target).toMatchObject({ weightKg: 7.5, unit: 'PLATES' }))
+    // Plate 7½ applied on half steps; on whole plates a plate 8 one is stored beside it.
+    await act(() => vm.current.applyTarget(itemOf(vm, id)!.suggestion!.id))
+    await choose(vm, id, 'WHOLE')
+    await waitFor(() => expect(itemOf(vm, id)!.suggestion?.target).toMatchObject({ weightKg: 8, unit: 'PLATES' }))
+    const whole = itemOf(vm, id)!.suggestion!.id
+    // Back on half steps, with no kept editor (as after it is lost): the newest, plate 8, is OPEN and is the chip; the
+    // older applied 7½ does not fill the field, which holds the last plate top set.
+    await choose(vm, id, 'HALF')
+    await db.meta.where('key').startsWith('editor:').delete()
+    const open = show()
+    await waitFor(() => expect(itemOf(open, id)?.suggestion?.id).toBe(whole))
+    expect(itemOf(open, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
+    expect(itemOf(open, id)!.targetSets).toBe(3)
+
+    // Dismissed, the same: no chip, and still not the older 7½.
+    await act(() => open.current.dismissTarget(whole))
+    await waitFor(() => expect(itemOf(open, id)!.suggestion).toBeNull())
+    expect(itemOf(open, id)!.editor).toMatchObject({ weightKg: 7, unit: 'PLATES' })
+  })
+
+  it('aKgExercise_newestTargetRule_changesNothing', async () => {
     const id = await pulldownRow()
     await planToday(id)
     await past(addDays(TODAY, -7), id, { weightKg: 40 })
@@ -700,7 +729,7 @@ describe('plates on Today', () => {
     expect((await setsOn(db, TODAY)).map((s) => [s.weightKg, s.unit])).toEqual([[7.5, 'PLATES']])
   })
 
-  it('aPlateSetOffTheHalfPlateGrid_isNeverStored_whateverBuiltIt: 7.3 and 7.25, and 7.5 under whole plates stands', async () => {
+  it('aPlateSetOffTheHalfPlateGrid_isNeverStored', async () => {
     const id = await pulldownRow()
     await db.exercises.update(id, { plateCount: 'WHOLE' })
     await planToday(id)

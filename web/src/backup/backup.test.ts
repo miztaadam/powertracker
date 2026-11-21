@@ -1380,7 +1380,7 @@ describe('backup version 6', () => {
   }
 
   it('aPlateSetAbovePlate50_isCorrupt', async () => {
-    for (const weightKg of [50.5, 51, 80, 80.3, 1e30]) {
+    for (const weightKg of [50.5, 51, 80, 1e30]) {
       expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg))), String(weightKg)).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set above plate 50' })
     }
     expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = 50))).ok).toBe(true)
@@ -1391,15 +1391,34 @@ describe('backup version 6', () => {
   })
 
   it('aPlateSetOffTheHalfPlateGrid_isCorrupt', async () => {
-    for (const weightKg of [7.3, 7.25, 1.1, 49.9]) {
+    for (const weightKg of [7.3, 7.25, 0.3, 1.1, 49.9, 80.3]) {
       expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg))), String(weightKg)).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set that is not a whole or half plate' })
     }
-    // Under plate 1 is said as such, on the grid or not.
-    for (const weightKg of [0, 0.5, 0.3]) {
+    // The grid is checked first: 0 and 0.5 are on it, and are below plate 1.
+    for (const weightKg of [0, 0.5]) {
       expect(decodeBackup(mutFixture((o) => (o.sets[plateSetIndex(o)]!.weightKg = weightKg))), String(weightKg)).toEqual({ ok: false, kind: 'CORRUPT', message: 'A plate set below plate 1' })
     }
     expect(decodeBackup(mutFixture((o) => (o.sets[kgSetIndex(o)]!.weightKg = 7.3))).ok).toBe(true)
     await refusedWithNothingChanged(7.3, 'A plate set that is not a whole or half plate')
+  })
+
+  it('a refused plate file leaves the database exactly as it was, and the first bad set in file order names the fault', async () => {
+    const db = await openDb()
+    await buildSampleDb(db)
+    const everyRow = async () => Object.fromEntries(await Promise.all(db.tables.map(async (t) => [t.name, await t.toArray()] as const)))
+    const before = await everyRow()
+    for (const [weights, message] of [
+      [[7.3, 80], 'A plate set that is not a whole or half plate'],
+      [[80, 7.3], 'A plate set above plate 50'],
+      [[0, 7.3], 'A plate set below plate 1'],
+    ] as const) {
+      const bad = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
+      const plateSets = bad.sets.filter((s) => s.unit === 'PLATES')
+      plateSets[0]!.weightKg = weights[0]
+      plateSets[1]!.weightKg = weights[1]
+      await expect(restoreBackup(db, bad)).rejects.toThrow(message)
+      expect(await everyRow()).toStrictEqual(before)
+    }
   })
 
   it('aHalfPlateOnAWholePlateOrKgExercise_stillRestores', async () => {
