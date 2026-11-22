@@ -2,8 +2,9 @@
 //
 // One owner for the whole app: while any dialog, sheet or ⋮ menu is open, exactly one CloseWatcher is alive, and its
 // close event goes to the newest of them only. A watcher per dialog would not do: the browser puts watchers made with no
-// tap between them into one group, and one Back closes a whole group (seen in Chromium: two dialogs opened by
-// themselves closed together). With a single live watcher there is never a group of more than one.
+// user activation between them into one group, and one Back closes a whole group (seen in Chromium on a probe page:
+// three watchers made at load, and one Escape closed two of them). With a single live watcher there is never a group of
+// more than one.
 //
 // A watcher is spent once it has fired close. If something is still open afterwards (a dialog whose dismiss left it
 // open, or the one under it), a fresh one is made straight away, so the next Back has one too.
