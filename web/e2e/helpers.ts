@@ -49,7 +49,9 @@ function dialogHasRun(panel: Element): boolean {
  * just after it is drawn, so a close request sent as soon as it is visible can come too early (`dialogHasRun` is the
  * condition). Await it once the dialog is open, before anything takes the focus out of it (a tap that redraws what had
  * the focus, as a muscle tile in the picker does): it listens from then on until it closes. Await it again for a dialog
- * once one over it has closed: that one's close gives the focus back into it as its last step.
+ * once one over it has closed: that one's close gives the focus back into it as its last step. Before a Back on the
+ * iPhone path, wait for the dialog's history entry as well (its depth): the entry is pushed a microtask after the effect,
+ * or later while a step back is on its way, so this condition alone does not say the entry is there.
  */
 export async function dialogListening(dialog: Locator) {
   await expect.poll(() => dialog.evaluate(dialogHasRun), { message: "the dialog's effect has run: the page around it inert, the focus inside it" }).toBe(true)
