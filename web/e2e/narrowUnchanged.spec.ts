@@ -227,3 +227,65 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     await untouched(dialog(page, 'Replace all data?'), 'Replace all data')
   })
 })
+
+// 1.17.3: at this width the form guide's and the Muscles sheet's head (the name and Close) scroll away with the sheet,
+// so Close is out of view once the sheet is scrolled (the owner's call). Escape and a tap on the strip of page above the
+// sheet still close it, at the top and scrolled, and focus goes back to what opened it, as at every other width.
+
+const SHEETS = [
+  {
+    what: 'the form guide',
+    open: async (page: Page) => {
+      await page.getByRole('button', { name: 'Open Squat', exact: true }).click()
+      return dialog(page, 'Form guide for Squat')
+    },
+    opener: (page: Page) => page.getByRole('button', { name: 'Open Squat', exact: true }),
+  },
+  {
+    what: 'the Muscles sheet',
+    open: async (page: Page) => {
+      await page.locator('.lib-dropdown').click()
+      return dialog(page, 'Muscles')
+    },
+    opener: (page: Page) => page.locator('.lib-dropdown'),
+  },
+] as const
+
+/** Where the sheet's head and its top edge are, and the point halfway down the strip above it, with what is drawn there. */
+const sheetPlace = (sheet: Locator) =>
+  sheet.evaluate((el) => {
+    const panel = el.getBoundingClientRect()
+    const head = el.querySelector('.lib-guide-head')!.getBoundingClientRect()
+    const x = panel.left + panel.width / 2
+    const y = panel.top / 2
+    const there = document.elementFromPoint(x, y)
+    return { top: panel.top, headBottom: head.bottom, x, y, onScrim: there != null && there === el.closest('.gr-dialog-scrim') }
+  })
+
+test.describe('the form guide and the Muscles sheet close without their head, at 320 px and 200 % text', () => {
+  test.use({ viewport: { width: 160, height: 284 } })
+
+  for (const sheetKind of SHEETS)
+    for (const scrolled of [false, true])
+      for (const how of ['Escape', 'a tap above the sheet'] as const)
+        test(`${sheetKind.what}, ${scrolled ? 'scrolled until its head is out of view' : 'at its top'}: ${how} closes it, and focus goes back to its opener`, async ({ page }) => {
+          await openOnWednesday(page, '#/exercises')
+          const sheet = await sheetKind.open(page)
+          await expect(sheet).toBeVisible()
+          await sheet.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
+          if (scrolled) {
+            await sheet.evaluate((el) => el.scrollTo(0, el.querySelector('.lib-guide-head')!.getBoundingClientRect().height + 40))
+            await expect.poll(async () => (await sheetPlace(sheet)).headBottom).toBeLessThanOrEqual((await sheetPlace(sheet)).top)
+            await expect(sheet.getByRole('button', { name: /^Close/ })).not.toBeInViewport()
+          }
+          if (how === 'Escape') await page.keyboard.press('Escape')
+          else {
+            const at = await sheetPlace(sheet)
+            expect(at.top, 'there is a strip above the sheet').toBeGreaterThan(0)
+            expect(at.onScrim, 'the tap lands on the page behind the sheet').toBe(true)
+            await page.touchscreen.tap(at.x, at.y)
+          }
+          await expect(sheet).toHaveCount(0)
+          await expect(sheetKind.opener(page)).toBeFocused()
+        })
+})
