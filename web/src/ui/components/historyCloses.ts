@@ -29,6 +29,8 @@ const DEPTH = 'gritDialog'
 
 /** How often a step back that has not arrived yet is looked at again (`expectPop`). */
 const POP_CHECK_MS = 1500
+/** After this many looks with the page visible and unmoved, the app's queued calls are let go (`checkOnStep`). */
+const UNMOVED_CHECKS = 3
 
 type Held = { onClose: () => void }
 
@@ -49,6 +51,10 @@ let timer: ReturnType<typeof setTimeout> | undefined
 let started: (() => void) | null = null
 /** Where the page was (address and state) when the step back now expected was asked for. */
 let stepFrom = ''
+/** Looks at that step, with the page visible, that found the page where it was. */
+let unmoved = 0
+/** Steps back this module asked for that are still expected, after the queue was let go without them. */
+let late = 0
 
 const depthOf = (state: unknown): number => {
   const depth = (state as Record<string, unknown> | null)?.[DEPTH]
@@ -68,22 +74,28 @@ function expectPop(own: boolean) {
   if (own) ownPending++
   else appPending++
   stepFrom = position()
+  unmoved = 0
   clearTimeout(timer)
   timer = setTimeout(checkOnStep, POP_CHECK_MS)
 }
 
 /**
- * A step back has not arrived after a while. A step is never asked for twice: while the page is still where it was
- * when the step was asked for, the step is on its way (a slow browser), so it is still expected, its popstate will be
- * taken as this module's, and the queued calls go on waiting; this is looked at again later. Only if the page has
- * moved without a popstate (none came for it) is the step taken as done, and everything carries on from where the page
- * now is.
+ * A step back has not arrived after a while. A step is never asked for twice. While the page is still where it was
+ * when the step was asked for, the step is on its way (a slow browser): it is still expected, and the queued calls go
+ * on waiting, for up to `UNMOVED_CHECKS` looks counted only while the page is visible (a suspended app does not count).
+ * After that the queue is let go: the app's calls run from where the page is, at once, but the step stays expected
+ * (`late`), so if it does arrive its popstate is still taken as this module's, and what it leaves is reconciled then.
+ * Until it arrives no other step back is asked for. If the page has moved without a popstate, the step is taken as done.
  */
 function checkOnStep() {
   if (settled()) return
   if (position() === stepFrom) {
-    timer = setTimeout(checkOnStep, POP_CHECK_MS)
-    return
+    if (document.visibilityState === 'visible') unmoved++
+    if (unmoved < UNMOVED_CHECKS) {
+      timer = setTimeout(checkOnStep, POP_CHECK_MS)
+      return
+    }
+    late += ownPending
   }
   ownPending = 0
   appPending = 0
@@ -110,7 +122,8 @@ function reconcile() {
       // again.
     }
     lastDepth = here()
-  } else if (at > want) {
+  } else if (at > want && late === 0) {
+    // With a step of its own still expected (`late`), none is asked for: that one may yet arrive.
     stepBack(at - want)
   }
 }
@@ -149,9 +162,10 @@ function onPopState(e: PopStateEvent) {
   const before = lastDepth
   const landed = depthOf(e.state)
   lastDepth = landed
-  if (ownPending > 0) {
-    // Ours: the app never sees it.
-    ownPending--
+  if (ownPending > 0 || late > 0) {
+    // Ours (or the step let go of earlier, arriving late): the app never sees it. Then whatever it left is reconciled.
+    if (ownPending > 0) ownPending--
+    else late--
     e.stopImmediatePropagation()
     afterSettle()
     return
@@ -242,7 +256,8 @@ export function holdHistoryEntry(onClose: () => void): () => void {
  * stack, after any calls queued before it. Off iPhone and iPad, or with no entries, it runs at once.
  */
 export function afterDialogEntries(fn: () => void): void {
-  if (!active || draining || (queue.length === 0 && settled() && here() === 0)) {
+  // After a step was let go of (`late`), calls run at once, from where the page is: none waits for that step again.
+  if (!active || draining || late > 0 || (queue.length === 0 && settled() && here() === 0)) {
     fn()
     return
   }
@@ -276,5 +291,8 @@ export function resetHistoryCloses(): void {
   draining = false
   scheduled = false
   started = null
+  stepFrom = ''
+  unmoved = 0
+  late = 0
   clearTimeout(timer)
 }
