@@ -313,6 +313,110 @@ describe('a slow browser, and a browser that refuses an entry (iPhone)', () => {
   })
 })
 
+describe('a step back that never arrives, or arrives after the queue was let go (iPhone)', () => {
+  beforeEach(() => {
+    expect(installHistoryCloses(IPHONE)).toBeNull()
+    window.addEventListener('popstate', appListener)
+  })
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+  /** The sheet on Exercises closed by its own button; the browser never carries out the step back it causes. */
+  async function closedWithAStepThatNeverComes() {
+    const release = holdHistoryEntry(() => {})
+    await settle()
+    const go = vi.spyOn(history, 'go').mockImplementationOnce(() => {})
+    release()
+    await settle()
+    return go
+  }
+
+  it('never arrives: the queue waits three visible looks (about 4.5 s), then a tab tap runs; Back from there is one press back to Exercises', async () => {
+    const go = await closedWithAStepThatNeverComes()
+    afterDialogEntries(() => {
+      location.hash = '#/plan'
+    })
+    await wait(3200)
+    expect(location.hash).toBe('#/exercises')
+    await wait(1600)
+    await settle()
+    expect(location.hash).toBe('#/plan')
+    // Asked for once, never again.
+    expect(go).toHaveBeenCalledTimes(1)
+    // Back from Plan lands on the old entry (Exercises' address): taken as the step it was waiting for, then stepped off.
+    history.back()
+    await settle()
+    expect(location.hash).toBe('#/exercises')
+    expect(depth()).toBe(0)
+    expect(go).toHaveBeenCalledTimes(2)
+    // Then an ordinary Back.
+    history.back()
+    await settle()
+    expect(location.hash).toBe('#/today')
+  }, 15_000)
+
+  it('never arrives and nothing else happens: the first Back changes nothing visible (one dead Back), the next is ordinary', async () => {
+    const go = await closedWithAStepThatNeverComes()
+    await wait(4800)
+    expect(depth()).toBe(1)
+    history.back()
+    await settle()
+    expect(location.hash).toBe('#/exercises')
+    expect(depth()).toBe(0)
+    expect(go).toHaveBeenCalledTimes(1)
+    history.back()
+    await settle()
+    expect(location.hash).toBe('#/today')
+    expect(seenByApp).toEqual([null])
+  }, 15_000)
+
+  it('arrives 6 s late, after the queue was let go and the app moved to Plan: still its own, no second step, and the lifter is taken back to Exercises', async () => {
+    const release = holdHistoryEntry(() => {})
+    await settle()
+    const realGo = history.go.bind(history)
+    const go = vi.spyOn(history, 'go').mockImplementationOnce((delta?: number) => void setTimeout(() => realGo(delta), 6000))
+    release()
+    afterDialogEntries(() => {
+      location.hash = '#/plan'
+    })
+    await wait(4800)
+    expect(location.hash).toBe('#/plan')
+    await wait(1600)
+    await settle()
+    // The late step went back from Plan onto the old entry; that was stepped off, to Exercises' own entry.
+    expect(location.hash).toBe('#/exercises')
+    expect(depth()).toBe(0)
+    expect(go).toHaveBeenCalledTimes(2)
+    expect(seenByApp).toEqual([])
+  }, 15_000)
+
+  it('arrives late with nothing else done: it is its own, and the page ends on Exercises with no entry left', async () => {
+    const release = holdHistoryEntry(() => {})
+    await settle()
+    const realGo = history.go.bind(history)
+    const go = vi.spyOn(history, 'go').mockImplementationOnce((delta?: number) => void setTimeout(() => realGo(delta), 6000))
+    release()
+    await wait(6400)
+    await settle()
+    expect(location.hash).toBe('#/exercises')
+    expect(depth()).toBe(0)
+    expect(go).toHaveBeenCalledTimes(1)
+    expect(seenByApp).toEqual([])
+  }, 15_000)
+
+  it('looks made while the page is hidden do not count: the queue is let go only after three looks with it visible', async () => {
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+    await closedWithAStepThatNeverComes()
+    let ran = false
+    afterDialogEntries(() => (ran = true))
+    await wait(4800)
+    expect(ran).toBe(false)
+    visibility.mockReturnValue('visible')
+    await wait(3200)
+    expect(ran).toBe(false)
+    await wait(1600)
+    expect(ran).toBe(true)
+  }, 20_000)
+})
+
 describe('start-up on one of its entries (a reload with something open)', () => {
   it('steps off before the app renders, and says so with a promise', async () => {
     history.pushState({ gritDialog: 1 }, '')
