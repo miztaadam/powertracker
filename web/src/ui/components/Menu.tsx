@@ -30,9 +30,10 @@ export type MenuProps = {
 const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false, maxHeight: null }
 
 /**
- * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside, Back on a phone (1.17.4,
- * where the browser has CloseWatcher) or choosing an action closes it; the arrow keys move between the actions. The list opens under the button, right edges aligned;
- * one that would leave the screen there opens where it fits (1.17.1, `placeMenu`).
+ * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside, Back on a phone (1.17.4:
+ * through CloseWatcher on Android, through a history entry on an iPhone or iPad) or choosing an action closes it; the
+ * arrow keys move between the actions. The list opens under the button, right edges aligned; one that would leave the
+ * screen there opens where it fits (1.17.1, `placeMenu`).
  */
 export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuProps) {
   const [open, setOpen] = useState(false)

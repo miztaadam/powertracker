@@ -27,8 +27,8 @@ import { isIos, type DeviceNavigator } from '../../platform/device'
 /** The key on our entries' state; its value is the entry's depth, 1 for the first thing open. */
 const DEPTH = 'gritDialog'
 
-/** How long an expected popstate may take before the count is taken again from where the page is. */
-const POP_TIMEOUT_MS = 1500
+/** How often a step back that has not arrived yet is looked at again (`expectPop`). */
+const POP_CHECK_MS = 1500
 
 type Held = { onClose: () => void }
 
@@ -47,6 +47,8 @@ let draining = false
 let scheduled = false
 let timer: ReturnType<typeof setTimeout> | undefined
 let started: (() => void) | null = null
+/** Where the page was (address and state) when the step back now expected was asked for. */
+let stepFrom = ''
 
 const depthOf = (state: unknown): number => {
   const depth = (state as Record<string, unknown> | null)?.[DEPTH]
@@ -54,18 +56,39 @@ const depthOf = (state: unknown): number => {
 }
 const here = () => depthOf(window.history.state)
 const settled = () => ownPending === 0 && appPending === 0
+const position = () => {
+  try {
+    return `${window.location.href} ${JSON.stringify(window.history.state)}`
+  } catch {
+    return window.location.href
+  }
+}
 
 function expectPop(own: boolean) {
   if (own) ownPending++
   else appPending++
+  stepFrom = position()
   clearTimeout(timer)
-  // A step that never arrives (a browser's own timing, or nothing to go back to) must not hold the app's calls forever.
-  timer = setTimeout(() => {
-    ownPending = 0
-    appPending = 0
-    lastDepth = here()
-    afterSettle()
-  }, POP_TIMEOUT_MS)
+  timer = setTimeout(checkOnStep, POP_CHECK_MS)
+}
+
+/**
+ * A step back has not arrived after a while. A step is never asked for twice: while the page is still where it was
+ * when the step was asked for, the step is on its way (a slow browser), so it is still expected, its popstate will be
+ * taken as this module's, and the queued calls go on waiting; this is looked at again later. Only if the page has
+ * moved without a popstate (none came for it) is the step taken as done, and everything carries on from where the page
+ * now is.
+ */
+function checkOnStep() {
+  if (settled()) return
+  if (position() === stepFrom) {
+    timer = setTimeout(checkOnStep, POP_CHECK_MS)
+    return
+  }
+  ownPending = 0
+  appPending = 0
+  lastDepth = here()
+  afterSettle()
 }
 
 function stepBack(by: number) {
@@ -79,8 +102,14 @@ function reconcile() {
   const at = here()
   const want = open.length
   if (at < want) {
-    for (let depth = at + 1; depth <= want; depth++) window.history.pushState({ [DEPTH]: depth }, '')
-    lastDepth = want
+    try {
+      for (let depth = at + 1; depth <= want; depth++) window.history.pushState({ [DEPTH]: depth }, '')
+    } catch {
+      // Safari refuses pushState beyond about 100 calls in 30 seconds (a SecurityError). What is open stays open;
+      // the things without an entry have none (Back leaves the screen, as before 1.17.4), and the next change tries
+      // again.
+    }
+    lastDepth = here()
   } else if (at > want) {
     stepBack(at - want)
   }
