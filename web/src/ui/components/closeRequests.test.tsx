@@ -206,3 +206,16 @@ describe('Menu with CloseWatcher', () => {
     expect(FakeWatcher.live()).toHaveLength(0)
   })
 })
+
+describe('on an iPhone or iPad, even with CloseWatcher', () => {
+  it('is not used: Dialog keeps its Escape keydown, and no watcher is made (Back goes through historyCloses.ts there)', async () => {
+    const ua = vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148')
+    const onDismiss = vi.fn()
+    render(<Dialog open title="Q" onDismiss={onDismiss} />)
+    expect(FakeWatcher.made).toHaveLength(0)
+    expect(keydownListeners()).toBe(1)
+    await userEvent.keyboard('{Escape}')
+    expect(onDismiss).toHaveBeenCalledTimes(1)
+    ua.mockRestore()
+  })
+})

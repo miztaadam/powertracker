@@ -1,11 +1,15 @@
 import { existsSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
 import { SHARED_STATE } from './e2e/storage'
+import { ANDROID_CHROME_UA } from './e2e/userAgents'
 
 // The container only has a pre-installed Chromium (no WebKit), so e2e runs in Chromium
 // with the iPhone 13 viewport and touch emulation.
 const CHROMIUM = '/opt/pw-browsers/chromium'
 const iphone = { ...devices['iPhone 13'], browserName: 'chromium' as const }
+// The iPhone 13 descriptor brings Safari's iPhone user agent, so the app takes its iPhone paths. E2E_UA=android runs the
+// same phone with Chrome on Android's user agent instead (e2e/userAgents.ts), for the paths of every other phone.
+const ANDROID_RUN = process.env.E2E_UA === 'android'
 
 // The timing checks (tagged @speed in e2e/library.spec.ts and e2e/pictures.spec.ts) hold the picker and the
 // Exercises tab to 100 ms on the page's own clock. Beside other workers they measure the machine, not the
@@ -32,6 +36,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     ...iphone,
+    ...(ANDROID_RUN ? { userAgent: ANDROID_CHROME_UA } : {}),
     storageState: SHARED_STATE,
     launchOptions: existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
   },

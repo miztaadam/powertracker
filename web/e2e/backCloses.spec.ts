@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { openOnWednesday, tabBar } from './helpers'
+import { ANDROID_CHROME_UA } from './userAgents'
 
 // 1.17.4: Back on an Android phone closes the open dialog, sheet or ⋮ menu, through the browser's CloseWatcher, and
 // leaves the screen where it is. Playwright's goBack() is the toolbar's Back, which is not a close request, so it is
@@ -11,6 +12,10 @@ import { openOnWednesday, tabBar } from './helpers'
 // the browser can never put two in one group (where one Back would close both): each step below checks that.
 
 const rpeGuide = GritDomain.getInstance().rpeGuide()
+
+// Android's path: the default project's iPhone user agent would send Back through a history entry instead
+// (historyCloses.ts, tested in backClosesIphone.spec.ts).
+test.use({ userAgent: ANDROID_CHROME_UA })
 
 const RECORD = () => {
   const Real = (window as unknown as { CloseWatcher?: new () => EventTarget & { destroy(): void } }).CloseWatcher
@@ -119,9 +124,21 @@ async function pickerOnAMuscle(page: Page) {
   expect(await live(page)).toBe(1)
 }
 
-test('the browser under test has CloseWatcher, so the Escape tests in every spec run the close-request path', async ({ page }) => {
+test('the browser under test has CloseWatcher, and with this user agent the app does not take its iPhone path', async ({ page }) => {
   await openOnWednesday(page)
-  expect(await page.evaluate(() => 'CloseWatcher' in window)).toBe(true)
+  const seen = await page.evaluate(() => ({ watcher: 'CloseWatcher' in window, ua: navigator.userAgent, platform: navigator.platform, touch: navigator.maxTouchPoints }))
+  expect(seen.watcher).toBe(true)
+  // What isIos() reads (platform/device.ts): no iPhone, iPad or iPod in the user agent, and not a Mac with touch.
+  expect(seen.ua).not.toMatch(/iPad|iPhone|iPod/)
+  expect(seen.platform).not.toBe('MacIntel')
+  // No entry of the iPhone path: opening a menu adds nothing to history.
+  await squatOnWednesday(page)
+  const before = await page.evaluate(() => history.length)
+  await tabBar(page).getByRole('link', { name: 'Plan' }).click()
+  await page.getByRole('button', { name: 'Plan options' }).click()
+  await expect(page.getByRole('menu')).toBeVisible()
+  expect(await page.evaluate(() => history.length)).toBe(before + 1)
+  expect(await page.evaluate(() => history.state)).toBeNull()
 })
 
 test.describe('with CloseWatcher', () => {
