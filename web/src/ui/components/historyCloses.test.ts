@@ -224,6 +224,95 @@ describe('on an iPhone or iPad', () => {
   })
 })
 
+describe('a slow browser, and a browser that refuses an entry (iPhone)', () => {
+  beforeEach(() => {
+    expect(installHistoryCloses(IPHONE)).toBeNull()
+    window.addEventListener('popstate', appListener)
+  })
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+  it('a step back that takes longer than the check is never asked for twice, and its late popstate is still its own', async () => {
+    const release = holdHistoryEntry(() => {})
+    await settle()
+    expect(depth()).toBe(1)
+    // The browser carries out the step 2.2 s late (the checker's repro), past the 1.5 s check.
+    const realGo = history.go.bind(history)
+    const go = vi.spyOn(history, 'go').mockImplementation((delta?: number) => void setTimeout(() => realGo(delta), 2200))
+    release()
+    await wait(1800)
+    // Still on its way: nothing else was done meanwhile.
+    expect(go).toHaveBeenCalledTimes(1)
+    expect(depth()).toBe(1)
+    await wait(700)
+    await settle()
+    expect(go).toHaveBeenCalledTimes(1)
+    expect(depth()).toBe(0)
+    expect(location.hash).toBe('#/exercises')
+    expect(seenByApp).toEqual([])
+    // The next Back is one ordinary step.
+    go.mockRestore()
+    history.back()
+    await settle()
+    expect(location.hash).toBe('#/today')
+  }, 10_000)
+
+  it("the lifter's Back while that slow step is still on its way: the step, then one ordinary Back", async () => {
+    const release = holdHistoryEntry(() => {})
+    await settle()
+    // Traversals are carried out in the order asked for, each 2.2 s late, as a slow browser would.
+    const realGo = history.go.bind(history)
+    let line: Promise<unknown> = Promise.resolve()
+    const slowly = (delta: number) => {
+      line = line.then(() => wait(2200)).then(() => realGo(delta)).then(() => wait(20))
+    }
+    const go = vi.spyOn(history, 'go').mockImplementation((delta?: number) => slowly(delta ?? 0))
+    release()
+    // The lifter swipes back meanwhile.
+    slowly(-1)
+    await wait(4800)
+    await settle()
+    expect(go).toHaveBeenCalledTimes(1)
+    expect(depth()).toBe(0)
+    expect(location.hash).toBe('#/today')
+    // Only the lifter's step reached the app.
+    expect(seenByApp).toEqual([null])
+    go.mockRestore()
+  }, 15_000)
+
+  it('pushState refused (Safari past its limit): the thing stays open with no entry, Back leaves as before, and the next change recovers', async () => {
+    const push = vi.spyOn(history, 'pushState').mockImplementationOnce(() => {
+      throw new DOMException('Attempt to use history.pushState() more than 100 times per 30 seconds', 'SecurityError')
+    })
+    const closed = vi.fn()
+    const releaseFirst = holdHistoryEntry(closed)
+    await settle()
+    expect(push).toHaveBeenCalledTimes(1)
+    expect(depth()).toBe(0)
+    // The next change tries again: both now have their entries.
+    const releaseSecond = holdHistoryEntry(() => {})
+    await settle()
+    expect(depth()).toBe(2)
+    releaseSecond()
+    releaseFirst()
+    await settle()
+    expect(depth()).toBe(0)
+    expect(closed).not.toHaveBeenCalled()
+    // With no entry, Back is the browser's own: it leaves, as before 1.17.4.
+    vi.spyOn(history, 'pushState').mockImplementation(() => {
+      throw new DOMException('refused', 'SecurityError')
+    })
+    const releaseThird = holdHistoryEntry(closed)
+    await settle()
+    expect(depth()).toBe(0)
+    history.back()
+    await settle()
+    expect(location.hash).toBe('#/today')
+    expect(closed).not.toHaveBeenCalled()
+    expect(seenByApp).toEqual([null])
+    releaseThird()
+  })
+})
+
 describe('start-up on one of its entries (a reload with something open)', () => {
   it('steps off before the app renders, and says so with a promise', async () => {
     history.pushState({ gritDialog: 1 }, '')

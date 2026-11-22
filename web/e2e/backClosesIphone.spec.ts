@@ -38,6 +38,12 @@ const countHistoryCalls = (page: Page) =>
       }
     }
   })
+/** A slow browser: each `history.go` the page asks for is carried out `ms` late. */
+const slowGo = (page: Page, ms: number) =>
+  page.evaluate((ms) => {
+    const real = history.go.bind(history)
+    history.go = (delta?: number) => void setTimeout(() => real(delta), ms)
+  }, ms)
 const historyCalls = (page: Page) => page.evaluate(() => (window as unknown as { __historyCalls: string[] }).__historyCalls)
 const onTab = async (page: Page, tab: string) => {
   await expect(tabBar(page).getByRole('link', { name: tab, exact: true })).toHaveAttribute('aria-current', 'page')
@@ -336,6 +342,24 @@ test('5. "Use this plan?" → Replace lands on Plan; Back from Plan then goes wh
   await ordinaryBackToToday(page)
 })
 
+test('a slow step back (2.2 s, past the 1.5 s check): it is not asked for twice, the screen stays, and the next Back is ordinary', async ({ page }) => {
+  await openOnWednesday(page)
+  await goToTab(page, 'Exercises')
+  const sheet = guideSheet(page, 'Hack squat')
+  await page.getByRole('button', { name: 'Open Hack squat', exact: true }).click()
+  await expect(sheet).toBeVisible()
+  await entries(page, 1)
+  await slowGo(page, 2200)
+  await sheet.getByRole('button', { name: 'Close' }).click()
+  await expect(sheet).toHaveCount(0)
+  // The step arrives late; then nothing more happens.
+  await expect.poll(() => depth(page), { timeout: 6000 }).toBe(0)
+  await page.waitForTimeout(2500)
+  await expect(page).toHaveURL(/#\/exercises$/)
+  await onTab(page, 'Exercises')
+  await ordinaryBackToToday(page)
+})
+
 test.describe('6. Templates', () => {
   async function draftOverAPlan(page: Page) {
     await openOnWednesday(page)
@@ -368,6 +392,21 @@ test.describe('6. Templates', () => {
     await confirm(page).getByRole('button', { name: 'Replace' }).click()
     await expect(page.getByText('Plan set: 3-day powerlifting.')).toBeVisible()
     await expect(page).toHaveURL(/#\/plan$/)
+    await ordinaryBackToToday(page)
+  })
+
+  test('Replace while the question\'s entry is still being taken off (a slow step): Templates waits for it, then lands on Plan', async ({ page }) => {
+    // The save is quicker than the step back here, so Templates' own step off the draft must wait for the dialog's
+    // entry to be gone (afterDialogEntries): run at once, it would read the dialog's entry as where it is.
+    await draftOverAPlan(page)
+    await page.getByRole('button', { name: 'Use this plan' }).click()
+    await expect(confirm(page)).toBeVisible()
+    await entries(page, 1)
+    await slowGo(page, 800)
+    await confirm(page).getByRole('button', { name: 'Replace' }).click()
+    await expect(page.getByText('Plan set: 3-day powerlifting.')).toBeVisible()
+    await expect(page).toHaveURL(/#\/plan$/)
+    await onTab(page, 'Plan')
     await ordinaryBackToToday(page)
   })
 
