@@ -115,6 +115,10 @@ test('guide_browserBackAndEscape_leaveTheGuide_forTheScreenItWasOpenedFrom', asy
   await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
   await page.goForward()
   await expect(page.getByTestId('guide')).toBeVisible()
+  // The guide adds its Escape listener in an effect, after it is drawn: wait for the title's focus, which only the
+  // first page's effect gives. React runs a commit's effects in one pass, the page's before the guide's, so once the
+  // focus shows from here the listener is on.
+  await expect(page.getByTestId('guide-title')).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(page.getByTestId('guide')).toHaveCount(0)
   await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
