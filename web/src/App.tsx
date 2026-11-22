@@ -46,6 +46,7 @@ import { ModeSwitchOverlay } from './ui/motion/ModeSwitchOverlay'
 import { useElementHeight } from './ui/useElementHeight'
 import './ui/shell.css'
 import './ui/narrowTabs.css'
+import './ui/narrowDeeper.css'
 
 export type AppProps = {
   /** The database to open. Default `grit`; tests use their own. */

@@ -78,7 +78,7 @@ export function PlanItemDialog({ title, item, exerciseName, confirmText = 'Save'
     </>
   )
   const dialog = (
-    <Dialog open title={title} onDismiss={onDismiss} actions={ignoreTapsFor > 0 ? <span ref={actionsRef} className="plan-form-actions">{buttons}</span> : buttons}>
+    <Dialog open className="plan-item-dialog" title={title} onDismiss={onDismiss} actions={ignoreTapsFor > 0 ? <span ref={actionsRef} className="plan-form-actions">{buttons}</span> : buttons}>
       <div className="plan-form">
         <div className="plan-exercise" role="group" aria-label="Exercise">
           <div className="plan-grow">
@@ -192,6 +192,7 @@ export function BaselineDialog({ liftName, onSave, onDismiss }: BaselineDialogPr
   return (
     <Dialog
       open
+      className="plan-best-dialog"
       title={`Known best: ${liftName}`}
       onDismiss={onDismiss}
       actions={

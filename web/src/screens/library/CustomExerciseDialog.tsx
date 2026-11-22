@@ -42,6 +42,7 @@ export function CustomExerciseDialog({ initialName, onCreate, onDismiss, failure
   return (
     <Dialog
       open
+      className="lib-create-dialog"
       title="Add custom exercise"
       onDismiss={onDismiss}
       actions={

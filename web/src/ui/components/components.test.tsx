@@ -339,6 +339,19 @@ describe('Dialog', () => {
     await userEvent.tab()
     expect(screen.getByRole('dialog').contains(document.activeElement)).toBe(true)
   })
+
+  // 1.17.3: a dialog laid out for a very narrow screen is named by a class of its own, on its panel and (with
+  // "-scrim") on its scrim; a dialog given none keeps exactly its classes.
+  it('puts its own class on the panel and the scrim, and nothing without one', () => {
+    const { unmount } = render(<Dialog open title="Add" onDismiss={() => {}} variant="sheet" className="lib-guide-sheet" />)
+    const panel = screen.getByRole('dialog')
+    expect(panel.className).toBe('gr-dialog gr-dialog-sheet lib-guide-sheet')
+    expect(panel.parentElement!.className).toBe('gr-dialog-scrim gr-dialog-scrim-sheet lib-guide-sheet-scrim')
+    unmount()
+    render(<Dialog open title="Replace all data?" onDismiss={() => {}} />)
+    expect(screen.getByRole('dialog').className).toBe('gr-dialog')
+    expect(screen.getByRole('dialog').parentElement!.className).toBe('gr-dialog-scrim')
+  })
 })
 
 describe('Dialog carry-ins', () => {
