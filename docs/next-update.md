@@ -1308,6 +1308,15 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 - **The builder's exercises step after a search** (call 12). The field stays on screen, and the list starts just under the chips, a short swipe away. Back and Next and the tab bar leave about 130 px, so the first result cannot be on screen with the field. Other ways: hide the chips while typing at this width, or let Back and Next scroll away on this step.
 - **A failed save's message over a small dialog.** At this height, while "Couldn't save — try again." is up (4 s), it is drawn over the foot of Create your own and of Plan's add form, Cancel and Create or Add among it. Once the message goes, both buttons can be tapped. Left as it is (A). Other ways: (B) at this width, show the message at the top of the screen; (C) give the dialog room at its foot while a message is up.
 
+**Decided (owner, 2026-11-22, "Approved"):** A stands on all three, as built. The approval request said that approving accepts A on each.
+
+**Released 2026-11-22.** The full suites ran once, on merged main, and passed: Gradle, 1,650 web unit tests, 465 browser tests (12 skipped), and the speed project 6 of 6 three times.
+
+**Follow-ups from the review (not in 1.17.3):**
+- No test pins the dialogs that must stay unchanged at 160 px (Templates, the day chooser, Replace all data, the RPE, plate and skip sheets, the typo check). They were compared by screenshot only.
+- No test covers Escape or a tap above the sheet closing the form guide and the Muscles sheet at 160 px. Both were checked by hand.
+- `menu.spec.ts:132` ("⋮ menu at 360 px, kg") failed once during the review while other work was running: ⓘ and ⋮ were 12 px apart. Alone it passed 100 of 100 across its widths, and it passed in the full run on merged main.
+
 **My calls:**
 1. **One new stylesheet, `web/src/ui/narrowDeeper.css`,** every rule inside `@media (max-width: 239px)`. The screen rules sit inside the app's screen (`.shell-main`) and leave out a dialog drawn inside the screen (`:not(.gr-dialog *)`). The dialog rules are scoped to the dialog's own class. `Dialog` takes an optional `className`, which goes on the panel and, with "-scrim", on the scrim. A dialog given none keeps exactly its classes, so the dialogs that already fit are untouched. Only these take a class: the picker (`lib-picker`), the form guide (`lib-guide-sheet`), the Muscles sheet (`lib-muscles-sheet`), Create your own (`lib-create-dialog`), Plan's add and edit form (`plan-item-dialog`), Set best (`plan-best-dialog`) and "Use this plan?" (`pb-confirm-dialog`). The builder gets `pb-builder`, because Templates shares its `pb-screen` class and must not change.
 2. **Today's rules inside a dialog:** Today's narrow rules (its eyebrows and button labels wrap) reach into the picker and Create your own, because both are drawn inside Today. Rather than touch `today.css`, the dialogs' own rules state the same thing for every opener, more specifically. The picker and Create your own now look the same from Today and from Plan, and a test compares the two.
