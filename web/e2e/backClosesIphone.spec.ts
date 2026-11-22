@@ -130,6 +130,9 @@ async function editFormOpen(page: Page) {
   await rowMenuButton(page).click()
   await page.getByRole('menuitem', { name: 'Edit' }).click()
   await expect(editForm(page)).toBeVisible()
+  // The menu's entry stays for the form, which opens in the same commit that closes the menu: the depth is 1 before the
+  // form has taken it over, so the wait is on the form itself (dialogListening, e2e/helpers.ts).
+  await dialogListening(editForm(page))
   await entries(page, 1)
 }
 
@@ -200,6 +203,7 @@ test('2b. the form guide over the picker: Back closes the guide only', async ({ 
   await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
   await expect(editForm(page)).toBeVisible()
   await entries(page, 2)
+  await dialogListening(picker(page))
   // Each Back once the one before has settled, as swipes are (see the notes on a Back within a few ms of the last).
   await back(page)
   await expect(picker(page).getByRole('group', { name: 'Browse by muscle' })).toBeVisible()
