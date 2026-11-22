@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { E2E_BUILD_ID } from '../playwright.config'
 import { shownVersion } from '../src/screens/settings/appVersion'
-import { pastTheTapWindow } from './helpers'
+import { menuListening, pastTheTapWindow } from './helpers'
 
 // Plan and Settings with the same sample story as the Android mockups (docs/design/screens/plan-dark.png,
 // settings-dark.png). A normal run writes the screenshots to test-results/; UPDATE_SCREENSHOTS=1 rewrites
@@ -143,6 +143,7 @@ for (const scheme of ['dark', 'light'] as const) {
     await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeInViewport({ ratio: 1 })
     expect(await overflowing(page)).toEqual([])
     expect(await smallTargets(page)).toEqual([])
+    await menuListening(page.getByRole('menu'))
     await page.keyboard.press('Escape')
     await expect(page.getByRole('menu')).toHaveCount(0)
 

@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, pastTheTapWindow, seedFlatBench, tabBar } from './helpers'
+import { dialogListening, menuListening, openOnWednesday, pastTheTapWindow, seedFlatBench, tabBar } from './helpers'
 
 const grit = GritDomain.getInstance()
 
@@ -86,7 +86,7 @@ test('skip_painOnBench_rowLeaves_cardShows_undoTakesBoth', async ({ page }) => {
   await expect(page.getByText('Wednesday · 2 exercises')).toBeVisible()
 
   // Back cancels: nothing is stored, the row stays.
-  await openSheet(page, 'Bench')
+  await dialogListening(await openSheet(page, 'Bench'))
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog', { name: 'Why skip Bench?' })).toBeHidden()
   await expect(page.getByText('Wednesday · 2 exercises')).toBeVisible()
@@ -168,6 +168,7 @@ for (const scheme of ['dark', 'light'] as const) {
       await shoot(page, `today-skip-menu${suffix}`)
 
       // Squat first, a main lift: its card is the hold notice, Dismiss only.
+      await menuListening(page.getByRole('menu'))
       await page.keyboard.press('Escape')
       await (await openSheet(page, 'Squat')).getByRole('button', { name: 'Pain' }).click()
       await expect(skippedLine(page).getByRole('listitem')).toHaveCount(1)

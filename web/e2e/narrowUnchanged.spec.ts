@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import postcss, { type ChildNode, type Rule } from 'postcss'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, seedFlatBench, tabBar, tap, weightField } from './helpers'
+import { dialogListening, menuListening, openOnWednesday, seedFlatBench, tabBar, tap, weightField } from './helpers'
 import { bodybuildingStory, powerliftingStory, seedStory } from './narrowChecks'
 
 // 1.17.3 laid out some dialogs for a 320 px phone at 200 % text (160 × 284) in web/src/ui/narrowDeeper.css, each by its
@@ -167,6 +167,7 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
     await page.locator('.today-plan').getByRole('button', { name: 'Options for Cable chest press' }).click()
     await untouched(menu, 'the ⋮ menu on the start card')
+    await menuListening(menu)
     await page.keyboard.press('Escape')
     await expect(menu).toHaveCount(0)
 
@@ -179,6 +180,7 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     const plates = dialog(page, 'Count plates on Cable chest press')
     await expect(plates.getByRole('radiogroup', { name: 'How does this machine show its weight?' })).toBeVisible()
     await untouched(plates, 'the plate sheet')
+    await dialogListening(plates)
     await page.keyboard.press('Escape')
     await expect(plates).toHaveCount(0)
 
@@ -194,6 +196,7 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     await page.getByRole('button', { name: 'What RPE means' }).first().click()
     const rpe = rpeSheet(page)
     await untouched(rpe, 'the RPE sheet from Today')
+    await dialogListening(rpe)
     await page.keyboard.press('Escape')
     await expect(rpe).toHaveCount(0)
 
@@ -264,6 +267,7 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     // The start card's bodyweight line: Add.
     await page.getByRole('button', { name: 'Add', exact: true }).click()
     await untouched(dialog(page, 'Bodyweight'), 'the bodyweight entry')
+    await dialogListening(dialog(page, 'Bodyweight'))
     await page.keyboard.press('Escape')
     await tap(page, 'Start session')
     await tap(page, 'Log set 1')
@@ -358,8 +362,10 @@ test.describe('the form guide and the Muscles sheet close without their head, at
             await expect.poll(async () => (await sheetPlace(sheet)).headBottom).toBeLessThanOrEqual((await sheetPlace(sheet)).top)
             await expect(sheet.getByRole('button', { name: /^Close/ })).not.toBeInViewport()
           }
-          if (how === 'Escape') await page.keyboard.press('Escape')
-          else {
+          if (how === 'Escape') {
+            await dialogListening(sheet)
+            await page.keyboard.press('Escape')
+          } else {
             const at = await sheetPlace(sheet)
             expect(at.top, 'there is a strip above the sheet').toBeGreaterThan(0)
             expect(at.onScrim, 'the tap lands on the page behind the sheet').toBe(true)

@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
+import { menuListening, openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
 
 const grit = GritDomain.getInstance()
 
@@ -197,6 +197,7 @@ test('no plate item on Bench or on Assisted dip', async ({ page }) => {
   for (const name of ['Bench', 'Assisted dip']) {
     await page.getByRole('button', { name: `Options for ${name}` }).click()
     await expect(page.getByRole('menuitem')).toHaveText(['Skip today'])
+    await menuListening(page.getByRole('menu'))
     await page.keyboard.press('Escape')
   }
   await page.getByRole('button', { name: 'Options for Lat pulldown' }).click()

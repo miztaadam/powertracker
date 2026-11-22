@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
 import { AREAS } from '../src/screens/library/labels'
-import { openOnWednesday, tabBar } from './helpers'
+import { dialogListening, openOnWednesday, tabBar } from './helpers'
 
 // The exercise pictures on the narrowest iPhone, where they are really laid out and really coloured: the two-pose
 // picture in the guide sheet and the thumbnails on the Exercises tab. The same names as src/screens/library/
@@ -399,6 +399,7 @@ test('picture_noOverflow_atPhoneWidth', async ({ page }) => {
     expect(caption.cut, caption.text!).toBe(false)
     expect(caption.lines, caption.text!).toBe(1)
   }
+  await dialogListening(guide(page, 'Bench'))
   await page.keyboard.press('Escape')
   await expect(guide(page, 'Bench')).toHaveCount(0)
   expect(await overflowing(page)).toEqual([])

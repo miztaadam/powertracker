@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
+import { menuListening, openOnWednesday, pastTheTapWindow, tabBar, tap, weightField } from './helpers'
 import { MOTION_ON } from './storage'
 
 // The narrowest phones in use: many Android phones are 306–360 px wide (an iPhone is 375 px and up). On each
@@ -1037,6 +1037,7 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
       await expect(page.getByRole('menuitem', { name: 'Edit' })).toBeVisible()
       await fits(page, `Plan, row ${i + 1}'s menu open`)
       await menuInRoom(page, `Plan, row ${i + 1}'s menu`)
+      await menuListening(page.getByRole('menu'))
       await page.keyboard.press('Escape')
       await expect(page.getByRole('menuitem')).toHaveCount(0)
     }
@@ -1060,6 +1061,7 @@ test.describe('the other tabs at 320 px and 200 % text', () => {
       await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
       await fits(page, `Plan, bodybuilding, row ${i + 1}'s menu open`)
       await menuInRoom(page, `Plan, bodybuilding, row ${i + 1}'s menu`)
+      await menuListening(page.getByRole('menu'))
       await page.keyboard.press('Escape')
       await expect(page.getByRole('menuitem')).toHaveCount(0)
     }
