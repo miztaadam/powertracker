@@ -32,6 +32,9 @@ export const tabBar = (page: Page) => page.getByRole('navigation', { name: 'Main
  * - a dialog left open when one over it closes (Plan's form under the picker) is listened to again only once that one's
  *   effect cleanup has run; from the moment that one is taken off the page until then, the page around this one is
  *   inert again but the focus is on nothing, and the cleanup gives it back into this one as its last step.
+ * Not covered: a dialog with an `autoFocus` field drawn in the same commit that closes another. It would have the focus
+ * and an inert page when drawn, before its effect. No dialog is opened that way today; one that is needs its own
+ * condition.
  * Runs in the page; kept self-contained for that.
  */
 function dialogHasRun(panel: Element): boolean {
