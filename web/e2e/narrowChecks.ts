@@ -78,9 +78,26 @@ export const wrongHere = (page: Page) =>
       return null
     }
     const designedOver = (a: Element, b: Element) => a.closest('.gr-stepper-action, .lib-rpe-inline') != null || b.closest('.gr-stepper-action, .lib-rpe-inline') != null
+    // What of a box is drawn: its box cut to every box round it that clips (a list scrolled under its header is not
+    // drawn over the header).
+    const drawn = (el: Element) => {
+      const r = el.getBoundingClientRect()
+      let { left, right, top, bottom } = r
+      for (let n = el.parentElement; n != null; n = n.parentElement) {
+        const s = getComputedStyle(n)
+        if (s.position === 'fixed') break
+        if (s.overflowX === 'visible' && s.overflowY === 'visible') continue
+        const c = n.getBoundingClientRect()
+        left = Math.max(left, c.left)
+        right = Math.min(right, c.right)
+        top = Math.max(top, c.top)
+        bottom = Math.min(bottom, c.bottom)
+      }
+      return { left, right, top, bottom }
+    }
     const overlaps = (a: Element, b: Element) => {
-      const ra = a.getBoundingClientRect()
-      const rb = b.getBoundingClientRect()
+      const ra = drawn(a)
+      const rb = drawn(b)
       const x = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left)
       const y = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top)
       return x > 1 && y > 1
@@ -135,7 +152,7 @@ export const clearOfBars = (page: Page) =>
     const scrollers = [root, ...root.querySelectorAll<HTMLElement>('*')].filter((el) => ['auto', 'scroll'].includes(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight + 1)
     const frame = () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
     const stuck = (el: Element, within: Element) => {
-      for (let n: Element | null = el; n != null && n !== within.parentElement; n = n.parentElement) if (['sticky', 'fixed'].includes(getComputedStyle(n).position)) return n
+      for (let n: Element | null = el; n != null && n !== within.parentElement; n = n.parentElement) if (getComputedStyle(n).position === 'sticky') return n
       return null
     }
     for (const scroller of scrollers) {
@@ -144,7 +161,9 @@ export const clearOfBars = (page: Page) =>
           el.closest('.sr-only, [hidden]') == null &&
           (el.matches('button, a, input:not([type=checkbox], [type=radio]), label') || [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent!.trim() !== '')),
       )
-      const bars = [...scroller.querySelectorAll<HTMLElement>('*')].filter((el) => ['sticky', 'fixed'].includes(getComputedStyle(el).position))
+      // A bar held in place as the box scrolls (sticky). A fixed box (a message) is drawn over the page for a moment, not
+      // held in the scroll: it is not one of these.
+      const bars = [...scroller.querySelectorAll<HTMLElement>('*')].filter((el) => getComputedStyle(el).position === 'sticky')
       for (const [end, where] of [
         [true, 'bottom'],
         [false, 'top'],

@@ -93,9 +93,40 @@ async function createYourOwn(page: Page, picker: Locator, where: string) {
   // Create is off until a parent lift is chosen: the form's only way of saying something is missing.
   await expect(form.getByRole('button', { name: 'Create' })).toBeDisabled()
   await holds(page, `${where}: Create your own, a variation without its lift`, form.getByRole('button', { name: 'Create' }), cancel)
+  // A create that fails: the form says so over itself (a message said there is not said again by the picker).
+  await form.getByText('Squat', { exact: true }).click()
+  await failSaves(page)
+  await form.getByRole('button', { name: 'Create' }).click()
+  await expect(form.getByText(SAVE_FAILED)).toBeVisible()
+  await holds(page, `${where}: Create your own, its save failed`)
+  // While the message is up (4 s) it is drawn over the foot of the form at this height; then the form's buttons are free.
+  await expect(form.getByText(SAVE_FAILED)).toBeHidden({ timeout: 8000 })
+  await holds(page, `${where}: Create your own, after its message`, form.getByRole('button', { name: 'Create' }), cancel)
   await cancel.click()
   await expect(form).toHaveCount(0)
+  await holds(page, `${where}: the picker, back from a failed save`)
+  await saveAgain(page)
 }
+
+const SAVE_FAILED = "Couldn't save — try again."
+
+/** From now on every new row written to the log fails. */
+const failSaves = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { realAdd?: typeof IDBObjectStore.prototype.add }
+    w.realAdd ??= IDBObjectStore.prototype.add
+    // Not a full disk (that has a dialog of its own): a write that fails.
+    IDBObjectStore.prototype.add = () => {
+      throw new DOMException('write failed', 'UnknownError')
+    }
+  })
+
+/** Writes work again. */
+const saveAgain = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { realAdd?: typeof IDBObjectStore.prototype.add }
+    if (w.realAdd) IDBObjectStore.prototype.add = w.realAdd
+  })
 
 test.describe('the deeper screens and dialogs at 320 px and 200 % text', () => {
   test.use({ viewport: { width: 160, height: 284 } })
@@ -251,6 +282,24 @@ test.describe('the deeper screens and dialogs at 320 px and 200 % text', () => {
       await change.getByRole('listitem', { name: LONG_NAME }).getByRole('button').first().click()
       await expect(change).toHaveCount(0)
       await holds(page, `Plan's add form, changed to the long name`, add.getByRole('button', { name: 'Add', exact: true }))
+      // A create from Change's picker that fails: its form says so, then the picker, then (the picker closed) this form.
+      await add.getByRole('button', { name: 'Change' }).click()
+      await change.getByRole('textbox', { name: 'Search exercises' }).fill('zzzz')
+      await change.getByRole('button', { name: 'Create your own' }).click()
+      const create = dialog(page, 'Add custom exercise')
+      await create.getByRole('textbox', { name: 'Name' }).fill(ONE_WORD)
+      await failSaves(page)
+      await create.getByRole('button', { name: 'Create' }).click()
+      await expect(create.getByText(SAVE_FAILED)).toBeVisible()
+      await holds(page, `Change's Create your own, its save failed`)
+      await create.getByRole('button', { name: 'Cancel' }).click()
+      await change.getByRole('button', { name: 'Close', exact: true }).click()
+      await expect(change).toHaveCount(0)
+      await expect(add.getByText(SAVE_FAILED)).toBeVisible()
+      await holds(page, `Plan's add form, saying the failed save`)
+      await expect(add.getByText(SAVE_FAILED)).toBeHidden({ timeout: 8000 })
+      await reachable(add.getByRole('button', { name: 'Add', exact: true }), `Plan's add form, after its message: Add`)
+      await saveAgain(page)
       await add.getByRole('button', { name: 'Cancel' }).click()
       // The edit form of the one-word row.
       const row = page.getByRole('listitem', { name: new RegExp(`^${ONE_WORD}`) })
@@ -276,6 +325,20 @@ test.describe('the deeper screens and dialogs at 320 px and 200 % text', () => {
     await holds(page, 'Set best, an impossible best typed', best.getByRole('button', { name: 'Save' }))
     await best.getByRole('textbox').fill('182.5')
     await holds(page, 'Set best, a best typed', best.getByRole('button', { name: 'Save' }))
+    await best.getByRole('button', { name: 'Save' }).click()
+    await expect(best).toHaveCount(0)
+    await holds(page, 'Plan, the best saved')
+    // A save that fails: Plan says so.
+    await page.getByRole('button', { name: 'Set best' }).first().click()
+    await best.getByRole('textbox').fill('185')
+    await page.evaluate(() => {
+      IDBObjectStore.prototype.put = () => {
+        throw new DOMException('write failed', 'UnknownError')
+      }
+    })
+    await best.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText(SAVE_FAILED)).toBeVisible()
+    await holds(page, 'Plan, a best that could not be saved')
   })
 
   for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
@@ -366,6 +429,20 @@ test.describe('the deeper screens and dialogs at 320 px and 200 % text', () => {
     await at('plan builder, days', async () => {
       await page.goto('/#/plan/build')
       await expect(page.getByText('Step 1 of 4')).toBeVisible()
+    })
+    // Steps 2 to 4, where Back and Next (or Use this plan) share the bar.
+    for (const [step, heading] of [[2, /^Which exercises/], [3, /^Which body parts/], [4, /^Your draft week/]] as const)
+      await at(`plan builder, step ${step}`, async () => {
+        await page.goto('/#/plan/build')
+        for (let i = 1; i < step; i++) await page.getByRole('button', { name: /^(Next|Choose for me|Skip)$/ }).click()
+        await expect(page.getByRole('heading', { name: heading })).toBeVisible()
+      })
+    await at('the form guide with a session open, Add to today and Add to plan', async () => {
+      if (await page.getByRole('button', { name: 'Start session' }).count()) await tap(page, 'Start session')
+      await tabBar(page).getByRole('link', { name: 'Exercises' }).click()
+      await page.getByRole('textbox', { name: 'Search exercises' }).fill('Squat')
+      await page.getByRole('button', { name: 'Open Squat', exact: true }).click()
+      await expect(dialog(page, 'Form guide for Squat').getByRole('button', { name: 'Add to today' })).toBeVisible()
     })
     await at('the picker from Plan', async () => {
       await page.goto('/#/plan')
@@ -522,7 +599,9 @@ test.describe('the picker and Create your own at 320 px and 200 % text, from Tod
     await openOnWednesday(page)
     await seedStory(page, bodybuildingStory())
     const states = async (picker: Locator) => {
-      // Drawn alike: rows, then searched rows, then Create your own.
+      // Drawn alike: the whole list (Create your own comes under it once it is all drawn), then searched rows, then
+      // Create your own.
+      await expect(picker.getByRole('button', { name: 'Create your own' })).toBeAttached()
       await drawAllRows(page)
       const grid = await layout(page)
       await picker.getByRole('textbox', { name: 'Search exercises' }).fill('raise')
