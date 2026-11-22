@@ -84,7 +84,8 @@ const settled = (page: Page, name: string, label = `Options for ${name}`) =>
  * The boxes of `parts` (each in page coordinates, with its scroll and client width), read together in one go, once the
  * fonts are in and the boxes are the same on two frames running. Start session scrolls the open card into view
  * smoothly (a quarter of a second or so, which no animation or font load shows): boxes read one call at a time while
- * it runs are read at different moments, and under load a frame can fall between two calls.
+ * it runs are read at different moments, and under load a frame can fall between two calls. An element with no box
+ * (present but not drawn) throws, naming it.
  */
 type Box = { x: number; y: number; width: number; height: number; right: number; scroll: number; client: number }
 
@@ -108,6 +109,10 @@ async function boxesTogether<T extends Locator[]>(...parts: T): Promise<{ [K in 
       }
       throw new Error('the boxes did not settle')
     }, handles)
+    // An element that is there but not drawn has no box: as boundingBox() gave null for it, that is a failure, never a 0 × 0 box.
+    boxes.forEach((box, i) => {
+      if (box.width === 0 || box.height === 0) throw new Error(`${parts[i]} is not drawn: its box is ${box.width} × ${box.height}`)
+    })
     return boxes as { [K in keyof T]: Box }
   } finally {
     await Promise.all(handles.map((h) => h?.dispose()))
