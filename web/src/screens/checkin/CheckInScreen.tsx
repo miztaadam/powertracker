@@ -4,6 +4,7 @@ import { grit, todayIso } from '../../domain'
 import { useCheckIn, type CheckInActions, type CheckInState, type SavedLine } from '../../state/useCheckIn'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
+import { afterDialogEntries, historyBack } from '../../ui/components/historyCloses'
 import { CloseIcon } from '../../ui/components/icons'
 import { ModeLabel } from '../../ui/components/ModeLabel'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
@@ -89,19 +90,22 @@ function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: Content
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [back])
+  // Every history call here, and every read of `history.state` that decides one, goes through `afterDialogEntries`
+  // (1.17.4): on an iPhone or iPad it runs once the entries kept for open dialogs are off the stack; elsewhere at once.
   const next = () => {
-    window.history.pushState({ ...((window.history.state as object | null) ?? {}), checkInStep: 'growing' } satisfies StepEntry, '')
+    afterDialogEntries(() => window.history.pushState({ ...((window.history.state as object | null) ?? {}), checkInStep: 'growing' } satisfies StepEntry, ''))
     actions.next()
   }
   /** Drops step 2's entry, then does `then` ('stay' keeps the screen as it is). */
-  const dropStepEntry = (then: 'stay' | (() => void)) => {
-    if (!onStepEntry()) {
-      if (then !== 'stay') then()
-      return
-    }
-    nextPop.current = then
-    window.history.back()
-  }
+  const dropStepEntry = (then: 'stay' | (() => void)) =>
+    afterDialogEntries(() => {
+      if (!onStepEntry()) {
+        if (then !== 'stay') then()
+        return
+      }
+      nextPop.current = then
+      historyBack()
+    })
   // A failed save is a plain line over the buttons, until the next try.
   const [failed, setFailed] = useState(false)
   const failure = useRef<HTMLParagraphElement>(null)
@@ -176,7 +180,7 @@ function CheckInContent({ state, actions, onLeave, onSeeCoach, onDone }: Content
         {step === 'growing' && (
           <>
             {/* As the browser's Back: through history when step 2 has its entry. */}
-            <SecondaryButton text="Back" onClick={() => (onStepEntry() ? window.history.back() : actions.back())} />
+            <SecondaryButton text="Back" onClick={() => afterDialogEntries(() => (onStepEntry() ? historyBack() : actions.back()))} />
             <PrimaryButton text="Save" onClick={() => void save()} enabled={!state.saving} />
           </>
         )}

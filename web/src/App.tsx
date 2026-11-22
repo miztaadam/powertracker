@@ -5,6 +5,7 @@ import { singleTabGuard, type SingleTabGuard, type TabRole } from './platform/si
 import { acceptPrivateMode, detectPrivateMode, privateModeAccepted, requestPersistence } from './platform/storage'
 import { UPDATE_READY, useUpdatePrompt, type RegisterSW } from './platform/update'
 import { goBack, leave, navigate, routeToHash, useRoute, type Route } from './router'
+import { afterDialogEntries } from './ui/components/historyCloses'
 import { liveQuery } from 'dexie'
 import { pickFirstSide } from './db/db'
 import type { TrainingMode } from './db/schema'
@@ -147,10 +148,13 @@ function GuideRoute({ db, firstLaunch, onFailed }: { db: GritDb; firstLaunch: bo
   const onClose = useCallback(
     (exit: GuideExit) => {
       if (exit === 'skipped' || exit === 'done') return close()
-      // In place of the guide's entry: Plan, then what was asked for over it.
-      window.location.replace(routeToHash({ tab: 'plan' }))
-      if (exit === 'choose-template') navigate({ page: 'templates', mode })
-      else if (exit === 'build-plan') navigate({ page: 'planBuilder' })
+      // In place of the guide's entry: Plan, then what was asked for over it. As one call, after any entries kept for
+      // open dialogs (1.17.4, iPhone and iPad; elsewhere at once).
+      afterDialogEntries(() => {
+        window.location.replace(routeToHash({ tab: 'plan' }))
+        if (exit === 'choose-template') navigate({ page: 'templates', mode })
+        else if (exit === 'build-plan') navigate({ page: 'planBuilder' })
+      })
     },
     [close, mode],
   )

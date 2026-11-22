@@ -80,6 +80,45 @@ const settled = (page: Page, name: string, label = `Options for ${name}`) =>
     throw new Error('the menu did not settle')
   }, label)
 
+/**
+ * The boxes of `parts` (each in page coordinates, with its scroll and client width), read together in one go, once the
+ * fonts are in and the boxes are the same on two frames running. Start session scrolls the open card into view
+ * smoothly (a quarter of a second or so, which no animation or font load shows): boxes read one call at a time while
+ * it runs are read at different moments, and under load a frame can fall between two calls. An element with no box
+ * (present but not drawn) throws, naming it.
+ */
+type Box = { x: number; y: number; width: number; height: number; right: number; scroll: number; client: number }
+
+async function boxesTogether<T extends Locator[]>(...parts: T): Promise<{ [K in keyof T]: Box }> {
+  const handles = await Promise.all(parts.map((part) => part.elementHandle()))
+  try {
+    const boxes: Box[] = await handles[0]!.evaluate(async (_, els) => {
+      await document.fonts.ready
+      const frame = () => new Promise((done) => requestAnimationFrame(done))
+      const read = () =>
+        els.map((el) => {
+          const r = el!.getBoundingClientRect()
+          return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, scroll: el!.scrollWidth, client: el!.clientWidth }
+        })
+      let last = JSON.stringify(read())
+      for (let i = 0; i < 60; i++) {
+        await frame()
+        const now = JSON.stringify(read())
+        if (now === last) return read()
+        last = now
+      }
+      throw new Error('the boxes did not settle')
+    }, handles)
+    // An element that is there but not drawn has no box: as boundingBox() gave null for it, that is a failure, never a 0 × 0 box.
+    boxes.forEach((box, i) => {
+      if (box.width === 0 || box.height === 0) throw new Error(`${parts[i]} is not drawn: its box is ${box.width} × ${box.height}`)
+    })
+    return boxes as { [K in keyof T]: Box }
+  } finally {
+    await Promise.all(handles.map((h) => h?.dispose()))
+  }
+}
+
 /** Opens `name`'s menu (`scope`'s ⋮), checks it is wholly on screen, then picks Count plates on this machine: its sheet opens. */
 async function opensInside(page: Page, scope: Locator, name: string, what: string) {
   await scope.getByRole('button', { name: `Options for ${name}` }).click()
@@ -139,11 +178,11 @@ for (const load of ['kg', 'plates'] as const) {
       const head = page.locator('.today-card-head')
       await expect(head.getByRole('heading', { name: 'Cable chest press' })).toBeVisible()
       // ⓘ and ⋮ side by side, the ⋮ at the head's right edge, whatever wraps.
-      const [info, more, edge] = await Promise.all([
-        head.getByRole('button', { name: /^Form guide for / }).boundingBox(),
-        head.getByRole('button', { name: 'Options for Cable chest press' }).boundingBox(),
-        head.boundingBox(),
-      ])
+      const [info, more, edge] = await boxesTogether(
+        head.getByRole('button', { name: /^Form guide for / }),
+        head.getByRole('button', { name: 'Options for Cable chest press' }),
+        head,
+      )
       expect(Math.abs(info!.y - more!.y), 'ⓘ and ⋮ on one line').toBeLessThanOrEqual(1)
       expect(more!.x, 'ⓘ just before ⋮').toBeGreaterThan(info!.x)
       expect(Math.abs(more!.x + more!.width - (edge!.x + edge!.width)), '⋮ at the right edge').toBeLessThanOrEqual(1)
@@ -181,11 +220,7 @@ test.describe('the ⋮ menu, more cases', () => {
     await page.getByRole('button', { name: 'Start session', exact: true }).click()
     const head = page.locator('.today-card-head')
     await expect(head.getByRole('heading', { name: word })).toBeVisible()
-    const [title, more, card] = await Promise.all([
-      head.getByRole('heading', { name: word }).evaluate((h) => ({ right: h.getBoundingClientRect().right, scroll: h.scrollWidth, client: h.clientWidth })),
-      head.getByRole('button', { name: `Options for ${word}` }).boundingBox(),
-      head.boundingBox(),
-    ])
+    const [title, more, card] = await boxesTogether(head.getByRole('heading', { name: word }), head.getByRole('button', { name: `Options for ${word}` }), head)
     expect(more!.x + more!.width, 'the ⋮ inside the card').toBeLessThanOrEqual(card!.x + card!.width + 0.5)
     expect(title.scroll, 'the name breaks rather than run past its box').toBeLessThanOrEqual(title.client + 1)
     await opensInside(page, head, word, 'open card, one long word')
@@ -211,7 +246,7 @@ test.describe('the ⋮ menu, more cases', () => {
     const last = menu.getByRole('menuitem').last()
     await expect(last).toBeFocused()
     // The focused item is scrolled into the menu's view.
-    const [item, list] = await Promise.all([last.boundingBox(), menu.boundingBox()])
+    const [item, list] = await boxesTogether(last, menu)
     expect(item!.y + item!.height).toBeLessThanOrEqual(list!.y + list!.height + 1)
     expect(item!.y).toBeGreaterThanOrEqual(list!.y - 1)
   })

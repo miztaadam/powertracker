@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { closeRequestsSupported, holdCloseRequests } from './closeRequests'
+import { holdHistoryEntry } from './historyCloses'
 import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
@@ -28,9 +30,10 @@ export type MenuProps = {
 const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false, maxHeight: null }
 
 /**
- * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside or choosing
- * an action closes it; the arrow keys move between the actions. The list opens under the button, right edges aligned;
- * one that would leave the screen there opens where it fits (1.17.1, `placeMenu`).
+ * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside, Back on a phone (1.17.4:
+ * through CloseWatcher on Android, through a history entry on an iPhone or iPad) or choosing an action closes it; the
+ * arrow keys move between the actions. The list opens under the button, right edges aligned; one that would leave the
+ * screen there opens where it fits (1.17.1, `placeMenu`).
  */
 export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuProps) {
   const [open, setOpen] = useState(false)
@@ -122,6 +125,19 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     }
   }, [open, place])
 
+  // 1.17.4: where the browser has CloseWatcher, Back on a phone, and Escape (itself a close request there, so the key is
+  // not handled below as well), close it and give the focus back to its button, through the app's one close watcher.
+  // On an iPhone or iPad, a swipe back does the same through a history entry of its own (historyCloses.ts); Escape keeps
+  // its handling below there.
+  useEffect(() => {
+    if (!open) return
+    const close = () => {
+      setOpen(false)
+      trigger.current?.focus()
+    }
+    return closeRequestsSupported() ? holdCloseRequests(close) : holdHistoryEntry(close)
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const onPress = (e: PointerEvent) => {
@@ -134,6 +150,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   const onKeyDown = (e: KeyboardEvent) => {
     if (!open) return
     if (e.key === 'Escape') {
+      if (closeRequestsSupported()) return
       setOpen(false)
       trigger.current?.focus()
       return
