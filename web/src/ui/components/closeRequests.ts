@@ -10,7 +10,10 @@
 // open, or the one under it), a fresh one is made straight away, so the next Back has one too.
 //
 // Where the API does not exist (Safari, jsdom), `closeRequestsSupported()` is false and nothing here is used: Dialog
-// and Menu keep their Escape keydown handling exactly as before.
+// and Menu keep their Escape keydown handling exactly as before. On an iPhone or iPad it is false even once Safari has
+// the API: there Back goes through a history entry instead (historyCloses.ts), whatever the browser offers.
+
+import { isIos } from '../../platform/device'
 
 /** The part of the API used here (TypeScript's DOM lib does not have it yet). */
 type Watcher = {
@@ -25,7 +28,7 @@ function watcherConstructor(): WatcherConstructor | undefined {
 
 /** Whether close requests come through CloseWatcher here. Read when a dialog or menu opens, not once at load. */
 export function closeRequestsSupported(): boolean {
-  return typeof watcherConstructor() === 'function'
+  return typeof watcherConstructor() === 'function' && !isIos()
 }
 
 /** What is open, oldest first; a close request goes to the last one. */

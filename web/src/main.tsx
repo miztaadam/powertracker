@@ -1,4 +1,5 @@
 import { rememberRoute, stripReloadMarker } from './platform/reloadMarker'
+import { installHistoryCloses } from './ui/components/historyCloses'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
@@ -18,6 +19,10 @@ rememberRoute()
 syncThemeColor()
 // A quick tap still shows its sink (press.css): one listener for the whole page.
 installPressHold()
+// On an iPhone or iPad (1.17.4), Back closes what is open through history entries of its own: its popstate listener
+// goes first, before any screen's. A page reloaded on one of those entries steps off it before anything renders.
+// Elsewhere this does nothing and the app renders at once, as before.
+const historyReady = installHistoryCloses()
 
 const root = document.getElementById('root')
 if (!root) throw new Error('missing #root')
@@ -34,11 +39,15 @@ if (import.meta.env.DEV && window.location.hash === '#/showcase') {
     ),
   )
 } else {
-  app.render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-  // The catalogue the picker and the Exercises tab open on, worked out once just after the first paint.
-  warmCatalogue()
+  const start = () => {
+    app.render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+    // The catalogue the picker and the Exercises tab open on, worked out once just after the first paint.
+    warmCatalogue()
+  }
+  if (historyReady == null) start()
+  else void historyReady.then(start)
 }

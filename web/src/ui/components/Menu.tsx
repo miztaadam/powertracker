@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import { closeRequestsSupported, holdCloseRequests } from './closeRequests'
+import { holdHistoryEntry } from './historyCloses'
 import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
@@ -125,12 +126,15 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
 
   // 1.17.4: where the browser has CloseWatcher, Back on a phone, and Escape (itself a close request there, so the key is
   // not handled below as well), close it and give the focus back to its button, through the app's one close watcher.
+  // On an iPhone or iPad, a swipe back does the same through a history entry of its own (historyCloses.ts); Escape keeps
+  // its handling below there.
   useEffect(() => {
-    if (!open || !closeRequestsSupported()) return
-    return holdCloseRequests(() => {
+    if (!open) return
+    const close = () => {
       setOpen(false)
       trigger.current?.focus()
-    })
+    }
+    return closeRequestsSupported() ? holdCloseRequests(close) : holdHistoryEntry(close)
   }, [open])
 
   useEffect(() => {

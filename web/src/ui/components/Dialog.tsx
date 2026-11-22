@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { closeRequestsSupported, holdCloseRequests } from './closeRequests'
+import { holdHistoryEntry } from './historyCloses'
 import { cx } from './format'
 import './Dialog.css'
 
@@ -11,7 +12,7 @@ export type DialogProps = {
   children?: ReactNode
   /** Buttons, right-aligned: a `QuietButton` to cancel, then the compact `PrimaryButton`. */
   actions?: ReactNode
-  /** Called for Escape, a tap outside the dialog and (1.17.4, where the browser has CloseWatcher) Back on a phone. */
+  /** Called for Escape, a tap outside the dialog and (1.17.4) Back on a phone: through CloseWatcher on Android, a history entry on an iPhone or iPad. */
   onDismiss: () => void
   /** Default true: the rest of the page is inert while the dialog is open. Off only where a dialog is drawn as a sample. */
   isolate?: boolean
@@ -96,7 +97,11 @@ export function Dialog({ open, title, children, actions, onDismiss, isolate = tr
       if (e.key === 'Escape' && openDialogs.at(-1) === me) dismiss.current()
     }
     document.addEventListener('keydown', onKey)
+    // 1.17.4: on an iPhone or iPad, a swipe back dismisses the dialog on top, through a history entry of its own
+    // (historyCloses.ts). Elsewhere this does nothing.
+    const letGoEntry = holdHistoryEntry(() => dismiss.current())
     return () => {
+      letGoEntry()
       document.removeEventListener('keydown', onKey)
       openDialogs.splice(openDialogs.indexOf(me), 1)
       release()

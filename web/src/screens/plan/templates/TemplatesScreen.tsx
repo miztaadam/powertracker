@@ -7,6 +7,7 @@ import { canSwap, replaceTitle, useTemplates, type PlanTemplate, type TemplatesA
 import { dayName } from '../../../state/weekdayNames'
 import { IconButton, PrimaryButton, QuietButton, SecondaryButton } from '../../../ui/components/Button'
 import { Dialog } from '../../../ui/components/Dialog'
+import { afterDialogEntries, historyBack } from '../../../ui/components/historyCloses'
 import { CloseIcon } from '../../../ui/components/icons'
 import { ModeLabel } from '../../../ui/components/ModeLabel'
 import { ScreenHeader } from '../../../ui/components/ScreenHeader'
@@ -60,11 +61,16 @@ function useDraftEntry(step: TemplatesState['step'], back: () => boolean) {
   // that entry once, or Close and a save would land on it rather than on the screen's own entry. Once: StrictMode runs
   // this twice, and a second step back would leave the screen.
   const steppedOff = useRef(false)
+  // Every history call here, and every read of `history.state` that decides one, goes through `afterDialogEntries`
+  // (1.17.4): on an iPhone or iPad it runs once the entries kept for open dialogs are off the stack; elsewhere at once.
   useEffect(() => {
-    if (steppedOff.current || !onDraftEntry()) return
+    if (steppedOff.current) return
     steppedOff.current = true
-    nextPop.current = 'stay'
-    window.history.back()
+    afterDialogEntries(() => {
+      if (!onDraftEntry()) return
+      nextPop.current = 'stay'
+      historyBack()
+    })
   }, [])
   useEffect(() => {
     const onPop = () => {
@@ -80,25 +86,30 @@ function useDraftEntry(step: TemplatesState['step'], back: () => boolean) {
   useEffect(() => {
     if (step === 'draft' && !pushed.current) {
       pushed.current = true
-      window.history.pushState({ ...((window.history.state as object | null) ?? {}), templatesStep: 'draft' } satisfies DraftEntry, '')
+      afterDialogEntries(() => window.history.pushState({ ...((window.history.state as object | null) ?? {}), templatesStep: 'draft' } satisfies DraftEntry, ''))
     } else if (step === 'list' && pushed.current) {
       pushed.current = false
       // Back to the list by the screen's own Back: its entry goes too. After the browser's Back it is gone already.
-      if (onDraftEntry()) {
+      afterDialogEntries(() => {
+        if (!onDraftEntry()) return
         nextPop.current = 'stay'
-        window.history.back()
-      }
+        historyBack()
+      })
     }
   }, [step])
-  return useCallback((then: () => void) => {
-    if (!pushed.current || !onDraftEntry()) {
-      then()
-      return
-    }
-    pushed.current = false
-    nextPop.current = then
-    window.history.back()
-  }, [])
+  return useCallback(
+    (then: () => void) =>
+      afterDialogEntries(() => {
+        if (!pushed.current || !onDraftEntry()) {
+          then()
+          return
+        }
+        pushed.current = false
+        nextPop.current = then
+        historyBack()
+      }),
+    [],
+  )
 }
 
 /** Choosing a plan template for one side (1.14): the list, then the chosen template's draft to adjust and use. */

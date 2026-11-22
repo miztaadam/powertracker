@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { TrainingMode } from './db/schema'
+import { afterDialogEntries, historyBack } from './ui/components/historyCloses'
 
 /** The main lifts, in the domain's order. */
 export type Lift = 'SQUAT' | 'BENCH' | 'DEADLIFT' | 'STRICT_PRESS'
@@ -43,13 +44,18 @@ export function routeToHash(route: Route): string {
 /** Kept on a history entry: the hash of the page it was opened from inside the app. */
 type EntryState = { gritFrom?: string } | null
 
+// Each of these runs through `afterDialogEntries` (1.17.4): on an iPhone or iPad, once the entries kept for open dialogs
+// and menus are off the stack, so `history.state` is the page's own; elsewhere, at once.
+
 export function navigate(route: Route): void {
-  const hash = routeToHash(route)
-  const from = window.location.hash
-  if (from === hash) return
-  window.location.hash = hash
-  // Remember on the new entry where it was opened from, so `goBack` can return there.
-  window.history.replaceState({ gritFrom: from }, '')
+  afterDialogEntries(() => {
+    const hash = routeToHash(route)
+    const from = window.location.hash
+    if (from === hash) return
+    window.location.hash = hash
+    // Remember on the new entry where it was opened from, so `goBack` can return there.
+    window.history.replaceState({ gritFrom: from }, '')
+  })
 }
 
 /**
@@ -58,9 +64,11 @@ export function navigate(route: Route): void {
  * a cold start) `to` takes this page's place in history.
  */
 export function goBack(to: Route): void {
-  const hash = routeToHash(to)
-  if ((window.history.state as EntryState)?.gritFrom === hash) window.history.back()
-  else window.location.replace(hash)
+  afterDialogEntries(() => {
+    const hash = routeToHash(to)
+    if ((window.history.state as EntryState)?.gritFrom === hash) historyBack()
+    else window.location.replace(hash)
+  })
 }
 
 /**
@@ -68,8 +76,10 @@ export function goBack(to: Route): void {
  * was not opened from inside the app (a deep link, a cold start), which then takes its place in history.
  */
 export function leave(fallback: Route): void {
-  if ((window.history.state as EntryState)?.gritFrom != null) window.history.back()
-  else window.location.replace(routeToHash(fallback))
+  afterDialogEntries(() => {
+    if ((window.history.state as EntryState)?.gritFrom != null) historyBack()
+    else window.location.replace(routeToHash(fallback))
+  })
 }
 
 function subscribe(onChange: () => void): () => void {
