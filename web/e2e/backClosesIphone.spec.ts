@@ -24,6 +24,21 @@ const depth = async (page: Page) => (await where(page)).depth
 const entries = (page: Page, want: number) => expect.poll(() => depth(page)).toBe(want)
 
 const back = (page: Page) => page.goBack()
+
+/** Counts the page's own history calls from now on (pushState, replaceState, go, back, forward). */
+const countHistoryCalls = (page: Page) =>
+  page.evaluate(() => {
+    const calls: string[] = []
+    ;(window as unknown as { __historyCalls: string[] }).__historyCalls = calls
+    for (const name of ['pushState', 'replaceState', 'go', 'back', 'forward'] as const) {
+      const real = (history[name] as (...args: unknown[]) => void).bind(history)
+      ;(history as unknown as Record<string, unknown>)[name] = (...args: unknown[]) => {
+        calls.push(name)
+        real(...args)
+      }
+    }
+  })
+const historyCalls = (page: Page) => page.evaluate(() => (window as unknown as { __historyCalls: string[] }).__historyCalls)
 const onTab = async (page: Page, tab: string) => {
   await expect(tabBar(page).getByRole('link', { name: tab, exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('heading', { level: 1, name: tab })).toBeVisible()
@@ -126,10 +141,15 @@ test('1. a sheet on Exercises: Back closes it and stays on Exercises; the next B
   await entries(page, 1)
   expect((await where(page)).length).toBe(start.length + 1)
 
+  // A Back-close makes no history call of the app's: the Back took the entry off, and nothing is pushed or popped after.
+  await countHistoryCalls(page)
   await back(page)
   await expect(guideSheet(page, 'Hack squat')).toHaveCount(0)
   await expect(page).toHaveURL(/#\/exercises$/)
   await onTab(page, 'Exercises')
+  await entries(page, 0)
+  await page.waitForTimeout(300)
+  expect(await historyCalls(page)).toEqual([])
   await ordinaryBackToToday(page)
 })
 
@@ -333,11 +353,15 @@ test.describe('6. Templates', () => {
     await page.getByRole('button', { name: 'Use this plan' }).click()
     await expect(confirm(page)).toBeVisible()
     await entries(page, 1)
+    await countHistoryCalls(page)
     await back(page)
     await expect(confirm(page)).toHaveCount(0)
     await expect(page.getByRole('heading', { level: 1, name: '3-day powerlifting' })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Use this plan' })).toBeVisible()
     await entries(page, 0)
+    // No history call of the app's after the Back: Templates did not step back from its draft either.
+    await page.waitForTimeout(300)
+    expect(await historyCalls(page)).toEqual([])
     expect(await page.evaluate(() => (history.state as { templatesStep?: string } | null)?.templatesStep)).toBe('draft')
 
     await page.getByRole('button', { name: 'Use this plan' }).click()
@@ -424,25 +448,46 @@ test.describe('8. the check-in', () => {
     await ordinaryBackToToday(page)
   })
 
-  test('with "Set up App lock again?" opened by itself over step 2: Back closes it, then steps back, then leaves', async ({ page }) => {
+  /** What a reload on step 2 leads to, and each Back after it: the same with or without a dialog open over it. */
+  async function afterAReloadOnStep2(page: Page) {
+    // The page's own state: step 1 shown, on step 2's entry (how a reload there has always ended).
+    await expect(page.getByRole('heading', { name: 'Which body parts are lagging?' })).toBeVisible()
+    expect(await page.evaluate(() => history.state)).toEqual({ gritFrom: '#/progress', checkInStep: 'growing' })
+    await back(page)
+    await expect(page.getByRole('heading', { name: 'Which body parts are lagging?' })).toBeVisible()
+    await expect.poll(() => page.evaluate(() => history.state)).toEqual({ gritFrom: '#/progress' })
+    await back(page)
+    await onTab(page, 'Progress')
+    await ordinaryBackToToday(page)
+  }
+
+  test('a reload on step 2 with nothing open: the baseline', async ({ page }) => {
     await checkIn(page)
     await page.getByRole('button', { name: 'Next' }).click()
     await expect(page.getByRole('heading', { name: 'Which are growing well?' })).toBeVisible()
+    await page.reload()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await afterAReloadOnStep2(page)
+  })
+
+  test('a reload on step 2 with "Set up App lock again?" open over it: Back closes it, then as the baseline', async ({ page }) => {
+    await checkIn(page)
+    await page.getByRole('button', { name: 'Next' }).click()
+    await expect(page.getByRole('heading', { name: 'Which are growing well?' })).toBeVisible()
+    // App lock on with no passkey here: the dialog opens by itself on each load.
     await putSetting(page, 'appLock', true)
     await page.reload()
     const lockSetup = page.getByRole('dialog', { name: 'Set up App lock again?' })
     await expect(lockSetup).toBeVisible()
     await entries(page, 1)
+    // The reload that matters: with the dialog open, on its entry.
+    await page.reload()
+    await expect(lockSetup).toBeVisible()
+    await entries(page, 1)
     await back(page)
     await expect(lockSetup).toHaveCount(0)
     await entries(page, 0)
-    // As after a reload on step 2 with nothing open.
-    await expect(page).toHaveURL(/#\/checkin$/)
-    const onStep2 = await page.evaluate(() => (history.state as { checkInStep?: string } | null)?.checkInStep === 'growing')
-    await back(page)
-    if (onStep2) await back(page)
-    await onTab(page, 'Progress')
-    await ordinaryBackToToday(page)
+    await afterAReloadOnStep2(page)
   })
 })
 
@@ -474,9 +519,10 @@ test.describe('9. reload with a dialog open', () => {
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await entries(page, 0)
     expect(await page.evaluate(() => (history.state as { templatesStep?: string } | null)?.templatesStep)).toBeUndefined()
-    // Close lands on Plan, as from a list never left.
-    await page.getByRole('button', { name: 'Close' }).click()
+    // Back from the list lands on Plan, as from a list never left; then Today.
+    await back(page)
     await expect(page).toHaveURL(/#\/plan$/)
+    await onTab(page, 'Plan')
     await ordinaryBackToToday(page)
   })
 })

@@ -358,7 +358,7 @@ test.describe('with CloseWatcher', () => {
   })
 })
 
-test.describe('without CloseWatcher (Safari today)', () => {
+test.describe('without CloseWatcher, on a phone that is not an iPhone or iPad', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       delete (window as unknown as { CloseWatcher?: unknown }).CloseWatcher
