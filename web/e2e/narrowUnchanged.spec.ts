@@ -11,7 +11,19 @@ import { bodybuildingStory, powerliftingStory, seedStory } from './narrowChecks'
 // run, so this pins the rule instead of the picture: with each dialog that must stay unchanged open from its real
 // opener, no selector of narrowDeeper.css matches its scrim, its panel, anything inside it, or anything round it (an
 // ancestor, which could pass on an inherited property such as font-size). The ⋮ menu has no scrim: its list, its
-// items and the ⋮ button's own box (`.gr-menu`) are checked instead. Rules in other stylesheets are not checked here.
+// items and the ⋮ button's own box (`.gr-menu`) are checked instead.
+//
+// Limits:
+// - Only narrowDeeper.css is read; rules in other stylesheets are not checked here. postcss, which parses it, comes
+//   with Vite (it is not listed in package.json).
+// - The ancestor check fails on any rule in that file whose selector matches what is round a dialog (`.shell-main`,
+//   `#root`, `body`, `html`), even one that cannot change a dialog (`.shell-main { padding: 0 }` fails it). That is the
+//   price of catching inherited leaks: scope such a rule to what it lays out, or extend this check on purpose.
+// - `matches()` sees an element at rest. `:hover`, `:active`, `:focus` and `:focus-visible` are dropped before matching
+//   (stricter); a state that matches() does see for real (`:focus-within`, `:checked`, `:disabled`) is left as it is,
+//   so a rule for one of those only fails here if that state is on while the dialog is checked. The media conditions
+//   (the width, forced colours) are ignored: every selector counts as if in force.
+// - Not every untouched dialog is pinned: "Storage is full" (StorageFullDialog) needs a full storage quota to open.
 
 const SOURCE = resolve(process.cwd(), 'src/ui/narrowDeeper.css')
 
@@ -21,6 +33,29 @@ const SOURCE = resolve(process.cwd(), 'src/ui/narrowDeeper.css')
  * rules. Anything else (another top-level rule or at-rule, a rule nested in a rule, `&`) throws: the parse below would
  * no longer be the whole of what the file does.
  */
+/** The user-action states `matches()` cannot see on an element at rest: dropped, so a rule for them is checked as if always on. */
+const STATE = /:(hover|active|focus|focus-visible)(?![\w-])/g
+
+/**
+ * `selector` as `matches()` can check it on a page at rest. Pseudo-elements, in both spellings (`::after`, and the old
+ * single-colon `:after`), are dropped: `matches()` never matches them. So are the states in STATE, which makes the
+ * check stricter (`.x:hover` is checked as `.x`; a lone `:hover` after a space as `*`). Inside `:not(…)` dropping one
+ * would turn the meaning round, so that throws: the check would need extending first.
+ */
+function atRest(selector: string): string {
+  for (const m of selector.matchAll(/:not\(/g)) {
+    let depth = 1
+    let i = m.index + m[0].length
+    for (; i < selector.length && depth > 0; i++) depth += selector[i] === '(' ? 1 : selector[i] === ')' ? -1 : 0
+    const inner = selector.slice(m.index + m[0].length, i - 1)
+    if (new RegExp(STATE.source).test(inner)) throw new Error(`narrowDeeper.css has a user-action state inside :not(): "${selector}". The check in narrowUnchanged.spec.ts needs extending for it.`)
+  }
+  return selector
+    .replace(/::[a-z-]+(\([^)]*\))?|:(before|after|first-line|first-letter)\b/g, '')
+    .replace(STATE, (_, __, at: number, whole: string) => (at === 0 || /[\s>+~(,]/.test(whole[at - 1]!) ? '*' : ''))
+    .trim()
+}
+
 function narrowSelectors(): string[] {
   const root = postcss.parse(readFileSync(SOURCE, 'utf8'), { from: SOURCE })
   const top = root.nodes.filter((n) => n.type !== 'comment')
@@ -31,8 +66,7 @@ function narrowSelectors(): string[] {
   const plainRule = (rule: Rule) => {
     for (const child of rule.nodes) if (child.type !== 'decl' && child.type !== 'comment') throw new Error(`narrowDeeper.css nests inside "${rule.selector}": ${child.toString().slice(0, 60)}`)
     if (rule.selector.includes('&')) throw new Error(`narrowDeeper.css uses nesting: ${rule.selector}`)
-    // Pseudo-elements, in both spellings (`::after`, and the old single-colon `:after`), which `matches()` never matches.
-    for (const s of rule.selectors) selectors.push(s.replace(/::[a-z-]+(\([^)]*\))?|:(before|after|first-line|first-letter)\b/g, '').trim())
+    for (const s of rule.selectors) selectors.push(atRest(s))
   }
   const walk = (nodes: ChildNode[], inForcedColors: boolean) => {
     for (const node of nodes) {
@@ -222,6 +256,49 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     const days = dialog(page, 'Add to plan')
     await expect(days.getByText('Which day?')).toBeVisible()
     await untouched(days, 'the day chooser')
+  })
+
+  test("Today: the bodyweight entry and a logged set's \"Set 1\"", async ({ page }) => {
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    // The start card's bodyweight line: Add.
+    await page.getByRole('button', { name: 'Add', exact: true }).click()
+    await untouched(dialog(page, 'Bodyweight'), 'the bodyweight entry')
+    await page.keyboard.press('Escape')
+    await tap(page, 'Start session')
+    await tap(page, 'Log set 1')
+    await page.locator('button.gr-set').first().click()
+    await untouched(dialog(page, 'Set 1'), 'a logged set')
+  })
+
+  test('Set up App lock again', async ({ page }) => {
+    await openOnWednesday(page)
+    // App lock on in a backup from another phone: no passkey here, as in screenshots.spec.ts.
+    await page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((done, fail) => {
+        const request = indexedDB.open('grit')
+        request.onsuccess = () => done(request.result)
+        request.onerror = () => fail(request.error)
+      })
+      await new Promise<void>((done, fail) => {
+        const tx = db.transaction('settings', 'readwrite')
+        tx.objectStore('settings').put({ key: 'appLock', value: true })
+        tx.oncomplete = () => done()
+        tx.onerror = () => fail(tx.error)
+      })
+      db.close()
+    })
+    await page.reload()
+    await untouched(dialog(page, 'Set up App lock again?'), 'Set up App lock again')
+  })
+
+  test('Settings: a backup with no plan for a side that has one', async ({ page }) => {
+    await openOnWednesday(page)
+    await seedFlatBench(page)
+    await page.goto('/#/settings')
+    const file = JSON.parse(readFileSync(resolve(process.cwd(), 'src/backup/__fixtures__/web-v1.json'), 'utf8'))
+    await page.getByLabel('Backup file').setInputFiles({ name: 'no-plan.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...file, planItems: [] })) })
+    await untouched(dialog(page, /^This backup has no /), 'the no-plan dialog')
   })
 
   test('Settings: Replace all data', async ({ page }) => {
