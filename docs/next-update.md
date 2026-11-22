@@ -1473,6 +1473,16 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 
 **Release routine for 1.17.4 (on merged main):** the default full Playwright run takes the iPhone path (the default project emulates an iPhone 13, with Safari's user agent). So after it, one extra pass runs with `E2E_UA=android`, over the dialog and history specs: `backCloses`, `library`, `plan`, `rpe`, `skip`, `plates`, `menu`, `templates`, `bodybuilding`, `guide`, `today`, `session`, `progress`, `update` (not the screenshot specs, which are iPhone shots). For example, from `web/`: `E2E_UA=android npx playwright test e2e/backCloses.spec.ts e2e/library.spec.ts … --project e2e`.
 
+**Released 2026-11-22** (owner: "approved"). On merged main (`2b27544`):
+- Gradle (domain tests, the web-domain check, the app's unit tests): passed. Web unit tests: 1,684 of 1,684. Type check and build: clean. Speed project, three times: 6 of 6 each. The extra `E2E_UA=android` pass: 252 passed, 12 skipped.
+- **Full Playwright run, first time: 512 passed, 1 failed, 12 skipped, 6 not run** (the speed tests, held back by the failure; they passed three times in their own runs). The failure was `guide.spec.ts:105` (`guide_browserBackAndEscape_leaveTheGuide_forTheScreenItWasOpenedFrom`), at line 119: Escape did not leave the guide.
+  - **Cause: the test presses Escape before the guide listens.** An instrumented copy, repeated under heavy load (1 failure in 450), recorded one `keydown` listener on `window` when Escape arrived, against two in passing runs; the guide's listener was attached straight afterwards, and nine seconds later the page was still on `#/guide` (the iPhone path would have let go after about 4.5 s, so it is not what held it). The guide's code and this test are unchanged since 1.17.3. Whether it could already fail on 1.17.3 is not known: 200 of 200 passed there under the same load, which is too few to tell at about 1 in 300.
+  - Alone it passed 30 of 30; under load 1 failed in 150.
+- **Full Playwright run, second time, same commit, nothing changed: 519 passed, 12 skipped.** Main was pushed after this run.
+- Live: `assets/index-DjVSL2N1.js` contains 1.17.4; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (JavaScript, with its `activate` listener) and is served `cache-control: no-cache`.
+
+**Follow-up from the release (rides the next one):** `guide.spec.ts:105` presses Escape as soon as the guide is visible, and the guide adds its Escape listener in an effect just after it is drawn. A sound fix waits on a named condition that holds only once the listener is attached; if nothing on the page shows that, it is an app change (for example the guide marking itself ready), not a test tweak. No retry and no longer timeout, as with the menu test.
+
 **Version:** Android 1.17.4 (versionCode 32), web 1.17.4. Android changes nothing but the version. No database or backup change. Settings re-shot on both apps for the version line: six shots on each, and no other tracked shot changed. The web six were byte-identical across two runs; the Android six were shot once (`:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful). Part 2 changes no shot.
 
 **Follow-ups:**
