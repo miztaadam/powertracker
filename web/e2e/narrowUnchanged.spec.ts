@@ -31,7 +31,8 @@ function narrowSelectors(): string[] {
   const plainRule = (rule: Rule) => {
     for (const child of rule.nodes) if (child.type !== 'decl' && child.type !== 'comment') throw new Error(`narrowDeeper.css nests inside "${rule.selector}": ${child.toString().slice(0, 60)}`)
     if (rule.selector.includes('&')) throw new Error(`narrowDeeper.css uses nesting: ${rule.selector}`)
-    for (const s of rule.selectors) selectors.push(s.replace(/::[a-z-]+(\([^)]*\))?/g, '').trim())
+    // Pseudo-elements, in both spellings (`::after`, and the old single-colon `:after`), which `matches()` never matches.
+    for (const s of rule.selectors) selectors.push(s.replace(/::[a-z-]+(\([^)]*\))?|:(before|after|first-line|first-letter)\b/g, '').trim())
   }
   const walk = (nodes: ChildNode[], inForcedColors: boolean) => {
     for (const node of nodes) {
@@ -122,6 +123,8 @@ test.describe('the dialogs 1.17.3 left as they were, at 320 px and 200 % text', 
     const r = await matchesIn(dialog(page, /^Known best: /), SELECTORS)
     expect(r.narrow).toBe(true)
     expect(r.found).toContain('.plan-best-dialog-scrim → div.gr-dialog-scrim.plan-best-dialog-scrim')
+    // And inside its panel: its buttons one over the other.
+    expect(r.found).toContain('.gr-dialog:is(.lib-create-dialog, .plan-item-dialog, .plan-best-dialog, .pb-confirm-dialog) > .gr-dialog-actions → div.gr-dialog-actions')
   })
 
   test("Today: the ⋮ menu on the start card and the open card, the plate sheet and the skip sheet", async ({ page }) => {
