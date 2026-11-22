@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { closeRequestsSupported, holdCloseRequests } from './closeRequests'
 import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
@@ -28,8 +29,8 @@ export type MenuProps = {
 const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false, maxHeight: null }
 
 /**
- * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside or choosing
- * an action closes it; the arrow keys move between the actions. The list opens under the button, right edges aligned;
+ * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside, Back on a phone (1.17.4,
+ * where the browser has CloseWatcher) or choosing an action closes it; the arrow keys move between the actions. The list opens under the button, right edges aligned;
  * one that would leave the screen there opens where it fits (1.17.1, `placeMenu`).
  */
 export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuProps) {
@@ -122,6 +123,16 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     }
   }, [open, place])
 
+  // 1.17.4: where the browser has CloseWatcher, Back on a phone, and Escape (itself a close request there, so the key is
+  // not handled below as well), close it and give the focus back to its button, through the app's one close watcher.
+  useEffect(() => {
+    if (!open || !closeRequestsSupported()) return
+    return holdCloseRequests(() => {
+      setOpen(false)
+      trigger.current?.focus()
+    })
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     const onPress = (e: PointerEvent) => {
@@ -134,6 +145,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   const onKeyDown = (e: KeyboardEvent) => {
     if (!open) return
     if (e.key === 'Escape') {
+      if (closeRequestsSupported()) return
       setOpen(false)
       trigger.current?.focus()
       return
