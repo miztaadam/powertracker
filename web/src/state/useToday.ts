@@ -1133,14 +1133,15 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         const skipped = await db.skips.where('[date+mode+exerciseId]').between([now.date, side, Dexie.minKey], [now.date, side, Dexie.maxKey]).count()
         return [fresh.length, skipped] as const
       })
-      // Finished: it no longer keeps the screen, here or after a reload.
-      activity.current = null
-      db.meta.delete(ACTIVITY_KEY).catch(() => {})
       const done = now.items.filter((i) => i.sets.length > 0)
       const summary: FinishSummary = { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes, ...(skipped > 0 ? { skipped } : {}) }
       // Stored before it is shown, so the summary on screen means the session stays finished over a reload. A failed
       // write only costs that: the session is finished on screen all the same.
       await db.meta.put({ key: FINISHED_KEY, value: { sessionId: now.sessionId, date: now.date, summary } }).catch(() => {})
+      // Finished: it no longer keeps the screen, here or after a reload. Only now, in the step that puts the summary up:
+      // from here the summary keeps the screen, so a phone unlocked after midnight meanwhile never finds neither.
+      activity.current = null
+      db.meta.delete(ACTIVITY_KEY).catch(() => {})
       // A summary already up is kept: it is the one that counted the new notes.
       update((l) => (l.summary != null ? l : { ...l, summary }))
     } finally {

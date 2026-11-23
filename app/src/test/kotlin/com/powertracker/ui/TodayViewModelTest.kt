@@ -131,6 +131,11 @@ class TodayViewModelTest {
         // Still finished, with the numbers Finish showed, from the first moment the screen has its data.
         assertEquals(first.state.value.summary, second.state.value.summary)
         assertEquals(false, second.state.value.inSession)
+        // And nothing is added to it from the Exercises tab, as before the app was closed.
+        val results = mutableListOf<TodayAdd>()
+        second.addToOpenSession("Hammer curl", null) { results += it }
+        await("result") { results.isNotEmpty() }
+        assertEquals(listOf(TodayAdd.REFUSED), results)
 
         // Keep logging opens the session again, and it is still open when the app is next opened.
         second.dismissSummary()
