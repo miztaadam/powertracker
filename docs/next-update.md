@@ -1538,9 +1538,19 @@ Reported by the owner on 2026-11-23: "When I finish a workout on the today page 
 - Web, `useToday.test.tsx`: `finishedSession_staysFinished_afterAReload` (failed before the fix; also Keep logging, then a third mount), `finishedYesterday_reloadedToday_opensOnTheNewDay`, `finishedNote_ofASessionThatIsGone_isIgnored`, `finishedNote_thatIsDamaged_isIgnored`. `backup.test.ts`: the restore test now also expects `today:finished` gone (failed before the fix).
 - Web e2e, `reload.spec.ts`: `reloadAfterFinish_staysFinished` reloads the page with "Session saved" showing.
 
-**Checks:** not finished when this was written; the results follow in the next commit.
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-23, one at a time:**
+- Gradle: `:domain:allTests` passed (the domain is unchanged); `:app:testDebugUnitTest` passed, 1,113 tests, 0 failed, 1 skipped; `:domain:checkWebDomain` passed. `:app:assembleDebug` built before the change, and `:app:assembleRelease` after it: versionCode 33, versionName 1.17.5 (the APK was not distributed).
+- Web: `npm run typecheck` clean; unit tests 1,688 of 1,688; build clean.
+- **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 520 passed, 12 skipped, first time** (519 before, plus the new reload test).
+- **The `E2E_UA=android` pass,** the 1.17.4 list plus `reload.spec.ts`: 254 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- **Not run on merged main:** these ran on the branch. The routine's run on merged main comes with "publish".
+- **Not checked on a phone,** neither app.
 
-**Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: the six Android shots are in (`:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, no other tracked shot changed); the web six follow with the checks.
+**Shots, before and after the change:** the full run was repeated on the code before this release (`47fc711`, in a scratch worktree, `--project e2e`: 513 passed, 12 skipped), and the 174 web shots of the two runs were compared. 163 are byte-identical, every Today shot among them. The six Settings shots differ in the version line only (about 280 pixels in a 17 by 27 pixel box). Five differ by a few pixels in pictures no part of this release touches, shots already known not to be byte-stable between runs: `form-guide-dark` (169 pixels), `guide-side-first-launch-bodybuilding-light` and `guide-side-first-launch-powerlifting-light` (221 each), `guide-targets-bodybuilding-dark` and `-light` (9 each).
+
+**Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws.
+
+**Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: six shots on each. Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, and no other tracked shot changed. Web: from the full run above; the other shots it rewrote were put back (see the shots paragraph).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
