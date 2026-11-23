@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, pastTheTapWindow, readAllTables, tap, typeInto, weightField } from './helpers'
+import { dialogListening, openOnWednesday, pastTheTapWindow, readAllTables, tap, typeInto, weightField } from './helpers'
 
 // The exercise library on the narrowest iPhone: the picker stays fast with the whole catalogue,
 // nothing overflows, every target is a full 48 px, and the form guide can be read to its last line
@@ -317,6 +317,7 @@ test('the muscle grid fits a 375 px phone with full-size targets', async ({ page
   await pickerRow(page, 'Squat').getByRole('button', { name: 'Form guide for Squat' }).click()
   const guide = page.getByRole('dialog', { name: 'Form guide for Squat' })
   await expect(guide.getByText(SAFETY)).toBeAttached()
+  await dialogListening(guide)
   await page.keyboard.press('Escape')
   await expect(guide).toHaveCount(0)
   await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
@@ -384,6 +385,7 @@ test('the picker fits a 375 px phone with full-size targets', async ({ page }) =
   await expect(guide.getByText(SAFETY)).toBeAttached()
   expect(await overflowing(page)).toEqual([])
   expect(await smallTargets(page, '.gr-dialog-sheet')).toEqual([])
+  await dialogListening(guide)
   await page.keyboard.press('Escape')
   await expect(guide).toHaveCount(0)
   await expect(picker(page)).toBeVisible()

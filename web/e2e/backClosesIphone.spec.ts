@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, tabBar } from './helpers'
+import { dialogListening, openOnWednesday, tabBar } from './helpers'
 import { IPHONE_SAFARI_UA } from './userAgents'
 
 // 1.17.4 on an iPhone or iPad: Back (a swipe back, or Back in the installed app) closes the open dialog, sheet or ⋮ menu
@@ -130,6 +130,9 @@ async function editFormOpen(page: Page) {
   await rowMenuButton(page).click()
   await page.getByRole('menuitem', { name: 'Edit' }).click()
   await expect(editForm(page)).toBeVisible()
+  // The menu's entry stays for the form, which opens in the same commit that closes the menu: the depth is 1 before the
+  // form has taken it over, so the wait is on the form itself (dialogListening, e2e/helpers.ts).
+  await dialogListening(editForm(page))
   await entries(page, 1)
 }
 
@@ -177,6 +180,8 @@ test("2a. picker on a muscle over Plan's form: Back steps back from the muscle, 
   await expect(picker(page)).toHaveCount(0)
   await expect(editForm(page)).toBeVisible()
   await entries(page, 1)
+  // The form again, once the picker's close has run its course (dialogListening, e2e/helpers.ts).
+  await dialogListening(editForm(page))
 
   await back(page)
   await expect(editForm(page)).toHaveCount(0)
@@ -198,6 +203,7 @@ test('2b. the form guide over the picker: Back closes the guide only', async ({ 
   await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
   await expect(editForm(page)).toBeVisible()
   await entries(page, 2)
+  await dialogListening(picker(page))
   // Each Back once the one before has settled, as swipes are (see the notes on a Back within a few ms of the last).
   await back(page)
   await expect(picker(page).getByRole('group', { name: 'Browse by muscle' })).toBeVisible()
@@ -205,6 +211,7 @@ test('2b. the form guide over the picker: Back closes the guide only', async ({ 
   await back(page)
   await expect(picker(page)).toHaveCount(0)
   await entries(page, 1)
+  await dialogListening(editForm(page))
   await back(page)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page).toHaveURL(/#\/plan$/)
@@ -220,6 +227,8 @@ test("2c. the RPE sheet over Plan's form: Back closes the sheet, then the form",
   await back(page)
   await expect(sheet).toHaveCount(0)
   await expect(editForm(page).getByRole('group', { name: 'RPE' })).toContainText('8.5')
+  await entries(page, 1)
+  await dialogListening(editForm(page))
   await back(page)
   await expect(editForm(page)).toHaveCount(0)
   await expect(page).toHaveURL(/#\/plan$/)
@@ -426,6 +435,8 @@ test.describe('6. Templates', () => {
   test('Close from the draft with a question closed before: lands on Plan', async ({ page }) => {
     await draftOverAPlan(page)
     await page.getByRole('button', { name: 'Use this plan' }).click()
+    await expect(confirm(page)).toBeVisible()
+    await entries(page, 1)
     await back(page)
     await expect(confirm(page)).toHaveCount(0)
     await page.getByRole('button', { name: 'Close' }).click()
@@ -442,6 +453,10 @@ test('7. the form guide → Add to plan → day chooser: Back closes the chooser
   await guideSheet(page, 'Hack squat').getByRole('button', { name: 'Add to plan' }).click()
   const chooser = page.getByRole('dialog', { name: 'Add to plan' })
   await expect(chooser).toBeVisible()
+  // The guide's entry stays for the chooser, which opens in the same commit that closes the guide: the depth is 1 before
+  // the chooser has taken it over, so the wait is on the chooser itself.
+  await dialogListening(chooser)
+  await entries(page, 1)
   await back(page)
   await expect(chooser).toHaveCount(0)
   await expect(page.getByRole('dialog')).toHaveCount(0)
@@ -588,6 +603,7 @@ test('11. open and close quickly several times, then Back: one ordinary step, an
   for (let i = 0; i < 6; i++) {
     await page.getByRole('button', { name: 'Open Hack squat', exact: true }).click()
     await expect(sheet).toBeVisible()
+    await dialogListening(sheet)
     await page.keyboard.press('Escape')
     await expect(sheet).toHaveCount(0)
   }

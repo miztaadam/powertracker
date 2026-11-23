@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, tabBar } from './helpers'
+import { dialogListening, menuListening, openOnWednesday, tabBar } from './helpers'
 import { ANDROID_CHROME_UA } from './userAgents'
 
 // 1.17.4: Back on an Android phone closes the open dialog, sheet or ⋮ menu, through the browser's CloseWatcher, and
@@ -119,6 +119,9 @@ async function pickerOnAMuscle(page: Page) {
   await expect(editForm(page)).toBeVisible()
   await editForm(page).getByRole('button', { name: 'Change' }).click()
   await expect(picker(page)).toBeVisible()
+  // Before the tap on a muscle, which takes the focus out of the picker with the tile it redraws: the picker listens from
+  // here on, until it closes (dialogListening, e2e/helpers.ts).
+  await dialogListening(picker(page))
   await picker(page).getByRole('group', { name: 'Browse by muscle' }).getByRole('button').filter({ hasText: 'Quads' }).click()
   await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
   expect(await live(page)).toBe(1)
@@ -154,6 +157,8 @@ test.describe('with CloseWatcher', () => {
       await pickerOnAMuscle(page)
       const url = page.url()
 
+      // Each close request once the dialog it is for listens: the picker since pickerOnAMuscle, the form once the picker's
+      // close has run.
       await press(page)
       await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toHaveCount(0)
       await expect(picker(page).getByRole('group', { name: 'Browse by muscle' })).toBeVisible()
@@ -165,6 +170,7 @@ test.describe('with CloseWatcher', () => {
       await expect(editForm(page)).toBeVisible()
       expect(await live(page)).toBe(1)
 
+      await dialogListening(editForm(page))
       await press(page)
       await expect(editForm(page)).toHaveCount(0)
       expect(await live(page)).toBe(0)
@@ -182,6 +188,7 @@ test.describe('with CloseWatcher', () => {
     await expect(guide).toBeVisible()
     expect(await live(page)).toBe(1)
 
+    await dialogListening(guide)
     await backButton(page)
     await expect(guide).toHaveCount(0)
     await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
@@ -190,6 +197,7 @@ test.describe('with CloseWatcher', () => {
     // Again, by Escape this time.
     await picker(page).getByRole('listitem', { name: 'Squat', exact: true }).getByRole('button', { name: 'Form guide for Squat' }).click()
     await expect(guide).toBeVisible()
+    await dialogListening(guide)
     await escape(page)
     await expect(guide).toHaveCount(0)
     await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
@@ -207,10 +215,12 @@ test.describe('with CloseWatcher', () => {
     await expect(sheet).toBeVisible()
     expect(await live(page)).toBe(1)
 
+    await dialogListening(sheet)
     await backButton(page)
     await expect(sheet).toHaveCount(0)
     await expect(editForm(page).getByRole('group', { name: 'RPE' })).toContainText('8.5')
     expect(await live(page)).toBe(1)
+    await dialogListening(editForm(page))
     await escape(page)
     await expect(editForm(page)).toHaveCount(0)
     expect(await live(page)).toBe(0)
@@ -241,6 +251,7 @@ test.describe('with CloseWatcher', () => {
     expect(await live(page)).toBe(1)
     const url = page.url()
 
+    await dialogListening(lockSetup)
     await backButton(page)
     await expect(lockSetup).toHaveCount(0)
     expect(await live(page)).toBe(0)
@@ -253,9 +264,11 @@ test.describe('with CloseWatcher', () => {
     const sheet = page.getByRole('dialog', { name: rpeGuide.title })
     await expect(sheet).toBeVisible()
     expect(await live(page)).toBe(1)
+    await dialogListening(sheet)
     await backButton(page)
     await expect(sheet).toHaveCount(0)
     await expect(editForm(page)).toBeVisible()
+    await dialogListening(editForm(page))
     await backButton(page)
     await expect(editForm(page)).toHaveCount(0)
     expect(page.url()).toBe(url)
@@ -286,10 +299,12 @@ test.describe('with CloseWatcher', () => {
     expect(await live(page)).toBe(1)
     const url = page.url()
 
+    await dialogListening(full)
     await backButton(page)
     await expect(full).toHaveCount(0)
     await expect(sheet).toBeVisible()
     expect(await live(page)).toBe(1)
+    await dialogListening(sheet)
     await escape(page)
     await expect(sheet).toHaveCount(0)
     expect(await live(page)).toBe(0)
@@ -307,6 +322,7 @@ test.describe('with CloseWatcher', () => {
     await planMenuButton(page).click()
     await expect(menu).toBeVisible()
     expect(await live(page)).toBe(1)
+    await menuListening(menu)
     await escape(page)
     await expect(menu).toHaveCount(0)
     await expect(planMenuButton(page)).toBeFocused()
@@ -314,6 +330,7 @@ test.describe('with CloseWatcher', () => {
 
     await planMenuButton(page).click()
     await expect(menu).toBeVisible()
+    await menuListening(menu)
     await backButton(page)
     await expect(menu).toHaveCount(0)
     await expect(planMenuButton(page)).toBeFocused()
@@ -322,6 +339,7 @@ test.describe('with CloseWatcher', () => {
     // The header's ⋮ as well.
     await page.getByRole('button', { name: 'Plan options' }).click()
     await expect(menu).toBeVisible()
+    await menuListening(menu)
     await backButton(page)
     await expect(menu).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Plan options' })).toBeFocused()
@@ -332,6 +350,7 @@ test.describe('with CloseWatcher', () => {
     await expect(menu).toHaveCount(0)
     await expect(editForm(page)).toBeVisible()
     expect(await live(page)).toBe(1)
+    await dialogListening(editForm(page))
     await backButton(page)
     await expect(editForm(page)).toHaveCount(0)
     expect(await live(page)).toBe(0)
@@ -347,6 +366,7 @@ test.describe('with CloseWatcher', () => {
     const url = page.url()
     const entries = await page.evaluate(() => history.length)
 
+    await dialogListening(guide)
     await backButton(page)
     await expect(guide).toHaveCount(0)
     expect(page.url()).toBe(url)
@@ -379,6 +399,8 @@ test.describe('without CloseWatcher, on a phone that is not an iPhone or iPad', 
     await planMenuButton(page).click()
     await page.getByRole('menuitem', { name: 'Edit' }).click()
     await editForm(page).getByRole('button', { name: 'Change' }).click()
+    // The picker listens from here on, until it closes; the tap on a muscle then takes the focus out of it.
+    await dialogListening(picker(page))
     await picker(page).getByRole('group', { name: 'Browse by muscle' }).getByRole('button').filter({ hasText: 'Quads' }).click()
     await expect(picker(page).getByRole('heading', { name: 'Quads exercises' })).toBeVisible()
 
@@ -388,6 +410,7 @@ test.describe('without CloseWatcher, on a phone that is not an iPhone or iPad', 
     await escape(page)
     await expect(picker(page)).toHaveCount(0)
     await expect(editForm(page)).toBeVisible()
+    await dialogListening(editForm(page))
     await escape(page)
     await expect(editForm(page)).toHaveCount(0)
     await expect(planMenuButton(page)).toBeFocused()

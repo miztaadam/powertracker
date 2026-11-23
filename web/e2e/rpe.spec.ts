@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { GritDomain } from '../src/domain/generated/powertracker-domain.mjs'
-import { openOnWednesday, rpeField, tap, typeInto, weightField } from './helpers'
+import { dialogListening, openOnWednesday, rpeField, tap, typeInto, weightField } from './helpers'
 
 // The "What RPE means" button and its sheet, and a strict press on Today, on the narrowest iPhone:
 // the button is a full 48 px target that leaves the RPE field easy to hit, nothing overflows, and the
@@ -182,6 +182,7 @@ test('plan: the RPE info button in the item dialog fits beside the stepper', asy
   // The sheet opens over the dialog and leaves it as it was.
   await dialog.getByRole('button', { name: 'What RPE means' }).click()
   await expect(sheet(page)).toBeVisible()
+  await dialogListening(sheet(page))
   await page.keyboard.press('Escape')
   await expect(sheet(page)).toHaveCount(0)
   await expect(dialog.getByRole('group', { name: 'RPE' })).toContainText('8.5')
