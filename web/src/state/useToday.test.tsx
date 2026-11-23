@@ -74,6 +74,8 @@ describe('useToday', () => {
     await waitFor(() => expect(second.result.current.loading).toBe(false))
     expect(second.result.current.summary).toEqual(summary)
     expect(second.result.current.sessionId).not.toBeNull()
+    // And nothing is added to it from the Exercises tab, as before the reload.
+    expect(await second.result.current.addToOpenSession('Hammer curl', null)).toBe('REFUSED')
 
     // Keep logging opens the session again, and it is still open after the next reload.
     act(() => second.result.current.dismissSummary())

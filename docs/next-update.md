@@ -1502,6 +1502,46 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
 - The desktop toolbar Back still leaves the screen with a dialog open.
 - **Should an Android user-agent run join the default full run?** `E2E_UA=android` exists now. The default project has only ever run with the iPhone user agent, so the Android branches (the install card's Android text, `CloseWatcher` everywhere but `backCloses.spec.ts`) are covered only where a spec pins them.
 
+## Done: 1.17.5, a finished session stays finished when the app is closed and opened (both apps)
+Reported by the owner on 2026-11-23: "When I finish a workout on the today page I hit finish. If I close and reopen the app the session becomes active again and I have to click finish again."
+
+**Cause:** Finish was kept only in the Today screen's memory (`Local.summary`, in `TodayViewModel.kt` and in `useToday.ts`). Nothing stored it, and a session row has no "finished" mark. An app opened again found today's session and showed it as open, with its Finish button. Both apps did this, from their first version; it is not from a recent change. Reproduced in a failing test on each app before anything was changed.
+
+**What the lifter gets:**
+- **After Finish, closing and opening Grit shows "Session saved" again,** with the same numbers (sets, exercises, new coach notes, skipped), not the session with a Finish button. The same after a reload of the web app, and after Android has closed the app in the background.
+- **Keep logging opens the session again, and it then stays open** over a close and reopen, until Finish is tapped again.
+- The next day opens on the new day's start card, as before.
+- "Add to today" on the Exercises tab stays refused for a finished session after a reopen too, as it was before the app was closed.
+
+**How:**
+- Finish stores a small note on the device: the session's id, its day, and the summary's four numbers. Android: one key of its own in the settings store (`finished_session`, beside `guide_seen`, outside `AppSettings`). Web: one `meta` row (`today:finished`).
+- **Stored before the summary is shown,** so "Session saved" on screen means it is stored. If that write fails, the summary still shows and nothing crashes; only the reopen is lost.
+- **Read back before Today has its data** (`loading` stays true until then), so the session never flashes as open first, and "Add to today" cannot slip in before the read. The web already waited there for the kept numbers; Android's `build` gained the same gate (`restored`).
+- **Used only when it names the session stored for the day on screen** (same id, same day). A note from another day, a damaged one, or one about a session that is gone finishes nothing.
+- Keep logging deletes it. Restore backup deletes it on both apps: it is about the replaced log.
+- **No database, Dexie or backup change.** The note is not in a backup: it belongs to the device, like the kept numbers and the guide's "seen".
+
+**My calls:**
+1. **A reopened finished session shows the same "Session saved" card** it showed when Finish was tapped. The owner was not asked: it is the plain reading of "stays finished", and Keep logging is on that card for going back in.
+2. **A note on the device, not a column on the session.** A column would mean a new Room version, a new Dexie version and a new backup version (both apps updated together, older copies refusing the file) for a mark that matters for one day.
+3. **The numbers are stored, not counted again on reopen.** The count of new coach notes cannot be worked out afterwards, and the card should say what it said.
+4. **The Android tests forget the note before each test** (`TestDatabase.before`). The settings store is one per process and outlives each test's database, where session ids start again at 1; without this, one test's Finish could open another test's Today on the summary.
+
+**Limits:**
+- **Two copies open at once (web):** a second tab, or Safari beside the Home Screen app's own log, does not hear of a Finish in the other until it is reloaded. Android's two view models for one day (should that ever happen) likewise.
+- A set deleted from Progress after Finish leaves the card's numbers as they were at Finish.
+- A summary left on screen overnight without closing the app still holds the screen until it is dismissed, as before.
+- **Not checked on a phone.** The tests stand in for closing and opening: a new view model over the same stored data (Android, Robolectric), a remounted hook, and a real page reload in Chromium (web).
+
+**Tests:**
+- Android, `TodayViewModelTest`: `finishedSession_staysFinished_whenTheAppIsOpenedAgain` (failed before the fix; also Keep logging, then a third open) and `finishedNote_ofAnotherDayOrAnotherSession_finishesNothing`. `SettingsRepositoryTest`: the note round-trips, a change of settings leaves it, damaged text reads as none. `BackupTest.restore_forgetsTheFinishedSession`.
+- Web, `useToday.test.tsx`: `finishedSession_staysFinished_afterAReload` (failed before the fix; also Keep logging, then a third mount), `finishedYesterday_reloadedToday_opensOnTheNewDay`, `finishedNote_ofASessionThatIsGone_isIgnored`, `finishedNote_thatIsDamaged_isIgnored`. `backup.test.ts`: the restore test now also expects `today:finished` gone (failed before the fix).
+- Web e2e, `reload.spec.ts`: `reloadAfterFinish_staysFinished` reloads the page with "Session saved" showing.
+
+**Checks:** not finished when this was written; the results follow in the next commit.
+
+**Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: the six Android shots are in (`:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, no other tracked shot changed); the web six follow with the checks.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
