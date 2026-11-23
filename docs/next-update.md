@@ -1551,6 +1551,15 @@ Reported by the owner on 2026-11-23: "When I finish a workout on the today page 
 
 **Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws.
 
+**Published 2026-11-23 (owner: "publish"), on main as `c5f7754`** (a `--no-ff` merge of the branch; its tree is the branch's, `02b2a91`). On merged main, one at a time, before the push:
+- Gradle: `:domain:allTests` passed; `:app:testDebugUnitTest` passed, 1,113 tests, 0 failed, 1 skipped; `:domain:checkWebDomain` passed.
+- Web: `npm run typecheck` clean; unit tests 1,688 of 1,688; build clean.
+- **Full Playwright run: 520 passed, 12 skipped, first time.** The `E2E_UA=android` pass (the 1.17.4 list plus `reload.spec.ts`): 254 passed, 12 skipped. Speed project alone, three times: 6 of 6 each. So the two late changes have now been through every run.
+- Live, about a minute after the push: `/` names `assets/index-2b98uWcf.js`, which carries 1.17.5 (no 1.17.4) and build id `c5f7754`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 33, versionName 1.17.5. **No APK was handed over:** the owner installs from Android Studio (Update Project on `main`, then Run), which builds and installs the debug build on the phone.
+- **Still not checked on a phone,** neither app: the owner's checks are in `README.md`, "Finished stays finished (1.17.5)".
+- A session finished before the update has no note, so it shows as open once more after the update; one more Finish, and it stays finished.
+
 **Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: six shots on each. Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, and no other tracked shot changed. Web: from the full run above; the other shots it rewrote were put back (see the shots paragraph).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
