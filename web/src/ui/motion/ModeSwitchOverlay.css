@@ -1,0 +1,89 @@
+/*
+ * The mode switch animations' layer (1.15): over the whole app, never in the way. It takes no taps (the controller
+ * listens for the tap that skips), and a screen reader never finds it (aria-hidden).
+ */
+.ms-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ms-overlay > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/*
+ * The POWERLIFTING stamp, in the label's own style (ModeLabel.css), just below the title, inside the header so it hops
+ * with it. It takes no room, and grows from its top edge, away from the title.
+ */
+.ms-stamp-host {
+  position: relative;
+}
+
+.ms-stamp {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  transform-origin: left top;
+  white-space: nowrap;
+}
+
+/* The pump: the switch turns blue at the tap, while the screen around it is still grey (the prototype). */
+:root.ms-pumping .settings-mode-switch[aria-checked='true'] .gr-switch-track {
+  border-color: #8db8ff;
+  background: #8db8ff;
+}
+
+:root.ms-pumping .settings-mode-switch[aria-checked='true'] .gr-switch-thumb {
+  background: #0a1020;
+}
+
+/*
+ * The reveal: a view transition whose update puts the new side on. The old side is its still picture, shaken or
+ * swollen by an animation the overlay holds on it; the new side, live, is let in through a circle (another such
+ * animation). Both move with the clock. The overlay is its own live layer on top, so it is never clipped or frozen.
+ * None of vt.css's fades apply.
+ */
+:root.ms-revealing .ms-overlay {
+  view-transition-name: ms-fx;
+}
+
+:root.ms-revealing::view-transition-group(root),
+:root.ms-revealing::view-transition-image-pair(root),
+:root.ms-revealing::view-transition-old(root),
+:root.ms-revealing::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+:root.ms-revealing::view-transition-new(root) {
+  clip-path: circle(0px at var(--ms-x, 50%) var(--ms-y, 100%));
+}
+
+:root.ms-revealing::view-transition-group(ms-fx) {
+  z-index: 100;
+  animation: none;
+}
+
+:root.ms-revealing::view-transition-old(ms-fx) {
+  display: none;
+}
+
+:root.ms-revealing::view-transition-new(ms-fx) {
+  animation: none;
+}
+
+/*
+ * Browsers without view transitions: the shell, already the new side, is clipped to the growing circle (set by the
+ * overlay); outside it the page shows the old side's background colour.
+ */
+:root.ms-revealing-plain,
+:root.ms-revealing-plain body {
+  background: var(--ms-old-bg);
+}

@@ -1,0 +1,39 @@
+.gr-screen-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 72px;
+  padding: var(--space-3) var(--space-3) 0 var(--space-5);
+}
+
+.gr-screen-header-nav {
+  padding-left: var(--space-2);
+}
+
+.gr-screen-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.gr-screen-header-nav .gr-screen-header-text {
+  padding-left: var(--space-2);
+}
+
+.gr-screen-title {
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gr-section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+}
+
+.gr-section-title {
+  flex: 1;
+  color: var(--text-secondary);
+}

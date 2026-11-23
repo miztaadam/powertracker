@@ -1,0 +1,678 @@
+<title>Grit Mode Switch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --page: #ECEDE9; --page-ink: #14161A; --page-dim: #5A6068; --page-line: #CFD2CD;
+  --page-card: #FAFAF7; --page-accent: #2A2E33; --page-accent-ink: #F3F4EF;
+  --bezel: #17191C; --bezel-edge: #3A3E44;
+  --body: 'Barlow', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --cond: 'Barlow Condensed', 'Arial Narrow', 'Roboto Condensed', Impact, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #060708; --page-ink: #F3F4EF; --page-dim: #959BA4; --page-line: #262A30;
+    --page-card: #131518; --page-accent: #D5D8DC; --page-accent-ink: #0B0C0E;
+    --bezel: #1A1D21; --bezel-edge: #34383F;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #060708; --page-ink: #F3F4EF; --page-dim: #959BA4; --page-line: #262A30;
+  --page-card: #131518; --page-accent: #D5D8DC; --page-accent-ink: #0B0C0E;
+  --bezel: #1A1D21; --bezel-edge: #34383F;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--page); color: var(--page-ink); font-family: var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-top: 28px; padding-bottom: 48px; overflow-x: hidden;
+}
+.wrap { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+.intro { width: 100%; margin-bottom: 18px; }
+.intro .kick { font: 600 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--page-dim); }
+.intro h1 { font: 700 40px/0.95 var(--cond); text-transform: uppercase; letter-spacing: .01em; margin: 8px 0 8px; text-wrap: balance; }
+.intro p { margin: 0; font-size: 15px; line-height: 1.45; color: var(--page-dim); max-width: 42ch; }
+
+/* ---------- phone ---------- */
+.stage { width: 100%; display: flex; justify-content: center; padding: 16px 0 44px; }
+.phone-box { width: calc(410px * var(--s, 1)); height: calc(780px * var(--s, 1)); flex: none; will-change: transform; }
+.phone {
+  width: 410px; height: 780px; padding: 10px; border-radius: 46px; background: var(--bezel);
+  box-shadow: inset 0 0 0 1.5px var(--bezel-edge), 0 24px 50px -24px rgba(0,0,0,.55);
+  transform-origin: 0 0; transform: scale(var(--s, 1)); will-change: transform;
+}
+.screen {
+  position: relative; width: 390px; height: 760px; border-radius: 36px; overflow: hidden;
+  background: #000; cursor: default; -webkit-tap-highlight-color: transparent; user-select: none;
+  isolation: isolate;
+}
+.shaker { position: absolute; inset: 0; will-change: transform; }
+.app {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background: var(--bg); color: var(--text); font-family: var(--body);
+}
+.app.bb {
+  --bg: #0A1020; --surface: #0F182C; --container: #142038; --container-high: #1A2A48;
+  --hairline: #20304F; --text: #F3F4EF; --text2: #A9B4C8; --muted: #8F9BB3;
+  --accent: #8DB8FF; --accent-ink: #0A1020;
+}
+.app.pl {
+  --bg: #0B0C0E; --surface: #131518; --container: #1A1D21; --container-high: #22262B;
+  --hairline: #262A30; --text: #F3F4EF; --text2: #A9AEB6; --muted: #959BA4;
+  --accent: #93979D; --accent-ink: #0B0C0E;
+  opacity: 0; transition: opacity .34s ease;
+}
+.screen[data-mode="pl"] .app.pl { opacity: 1; }
+.screen.dropping .app.pl { transition: none; opacity: 1; }
+/* the pump: grey stays underneath, blue is raised and let in through a growing circle */
+.screen.pumping .app.pl { transition: none; opacity: 1; }
+.screen.pumping .app.bb { z-index: 1; }
+.screen.pumping .app.pl .switch[aria-checked="true"] { background: #8DB8FF; }
+.screen.pumping .app.pl .switch[aria-checked="true"]::after { background: #0A1020; }
+.screen.snap .app.pl { transition: none; }
+
+.status { height: 44px; padding: 14px 26px 0; display: flex; justify-content: space-between; font: 600 14px/1 var(--body); color: var(--text); }
+.status i { display: inline-block; width: 24px; height: 11px; border-radius: 3px; border: 1.5px solid var(--text2); position: relative; }
+.status i::after { content: ''; position: absolute; inset: 1.5px 6px 1.5px 1.5px; background: var(--text2); border-radius: 1px; }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 12px; }
+.top h2 { margin: 0; font: 700 38px/1 var(--cond); text-transform: uppercase; letter-spacing: .01em; }
+.pill {
+  font: 600 12px/1 var(--body); letter-spacing: .1em; text-transform: uppercase;
+  padding: 8px 12px; border-radius: 999px; color: var(--accent);
+  background: var(--container); box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.card { margin: 4px 16px 14px; padding: 18px 18px 16px; border-radius: 20px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--hairline); }
+.eyebrow { font: 600 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.card h3 { margin: 10px 0 4px; font: 700 34px/1 var(--cond); text-transform: uppercase; }
+.card .meta { font-size: 14px; color: var(--text2); }
+.card .go {
+  margin-top: 16px; height: 46px; border-radius: 12px; background: var(--accent); color: var(--accent-ink);
+  display: flex; align-items: center; justify-content: center;
+  font: 700 18px/1 var(--cond); letter-spacing: .08em; text-transform: uppercase;
+}
+.rows { margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 14px; border-radius: 14px; background: var(--container); }
+.row .n { width: 28px; height: 28px; border-radius: 8px; background: var(--container-high); color: var(--text2); font: 700 15px/28px var(--cond); text-align: center; flex: none; }
+.row .nm { flex: 1; font: 500 16px/1.2 var(--body); }
+.row .st { font: 600 17px/1 var(--cond); letter-spacing: .03em; color: var(--text2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.modebar {
+  margin-top: auto; padding: 14px 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--surface); border-top: 1px solid var(--hairline);
+}
+.modebar b { display: block; font: 600 16px/1.2 var(--body); }
+.modebar small { display: block; margin-top: 3px; font-size: 13px; color: var(--muted); }
+.switch {
+  flex: none; width: 58px; height: 34px; border-radius: 999px; border: 0; padding: 0; position: relative; cursor: pointer;
+  background: var(--container-high); box-shadow: inset 0 0 0 1.5px var(--hairline); transition: background .14s;
+}
+.switch::after {
+  content: ''; position: absolute; top: 5px; left: 5px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--muted); transition: transform .14s ease-out, background .14s;
+}
+.switch[aria-checked="true"] { background: var(--accent); box-shadow: none; }
+.switch[aria-checked="true"]::after { transform: translateX(24px); background: var(--accent-ink); }
+.switch:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+
+/* ---------- controls ---------- */
+.controls { width: 100%; margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 14px; }
+.controls button {
+  height: 46px; padding: 0 14px; border: 0; border-radius: 12px; cursor: pointer;
+  background: var(--page-accent); color: var(--page-accent-ink);
+  font: 700 18px/1 var(--cond); letter-spacing: .08em; text-transform: uppercase;
+}
+.controls button:active { transform: translateY(1px); }
+.controls label { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; min-height: 44px; cursor: pointer; }
+.controls input { width: 20px; height: 20px; accent-color: var(--page-accent); margin: 0; }
+.controls button:focus-visible, .controls input:focus-visible { outline: 2px solid var(--page-ink); outline-offset: 3px; }
+.note { width: 100%; margin: 14px 0 0; font-size: 13px; line-height: 1.45; color: var(--page-dim); text-align: center; }
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <div class="kick">Grit · mode switch</div>
+    <h1>The hammer and the pump</h1>
+    <p>Flip Bodybuilding mode at the bottom of the phone. Off drops the hammer; on starts the pump. Tap the screen mid-animation to skip.</p>
+  </div>
+
+  <div class="stage">
+    <div class="phone-box" id="phoneBox">
+      <div class="phone" id="phone">
+        <div class="screen" id="screen" data-mode="bb">
+          <div class="shaker" id="shaker">
+            <div class="app bb" id="appBB"></div>
+            <div class="app pl" id="appPL"></div>
+          </div>
+          <svg class="fx" id="fx" viewBox="0 0 390 760" aria-hidden="true">
+            <defs>
+              <linearGradient id="gIron" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7B828B"/><stop offset=".38" stop-color="#4A5058"/><stop offset="1" stop-color="#1D2024"/>
+              </linearGradient>
+              <linearGradient id="gBand" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#2A2E33"/><stop offset=".35" stop-color="#9AA1AA"/><stop offset="1" stop-color="#23262A"/>
+              </linearGradient>
+              <linearGradient id="gWood" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#15110E"/><stop offset=".4" stop-color="#4A3A2C"/><stop offset="1" stop-color="#120F0C"/>
+              </linearGradient>
+              <radialGradient id="gHalo"><stop offset="0" stop-color="#BFD7FF" stop-opacity=".75"/><stop offset=".4" stop-color="#6FA4FF" stop-opacity=".32"/><stop offset="1" stop-color="#4F8DFF" stop-opacity="0"/></radialGradient>
+              <radialGradient id="gChalk"><stop offset="0" stop-color="#E4E6E2" stop-opacity=".9"/><stop offset=".55" stop-color="#C9CED6" stop-opacity=".45"/><stop offset="1" stop-color="#C9CED6" stop-opacity="0"/></radialGradient>
+              <!-- The hammer. Origin (0,0) is the striking boss; it stands on that point, haft up. -->
+              <g id="hammerShape">
+                <!-- hanging ring and pommel -->
+                <circle cx="0" cy="-306" r="11" fill="none" stroke="url(#gBand)" stroke-width="6"/>
+                <path d="M-22,-278 Q-24,-296 0,-296 Q24,-296 22,-278 Z" fill="url(#gBand)"/>
+                <!-- haft: bare dark oak, tapered, three plain iron bands -->
+                <path d="M-15,-280 L15,-280 L21,-150 L-21,-150 Z" fill="url(#gWood)"/>
+                <path d="M-6,-276 L-8,-154 M3,-276 L4,-154 M10,-276 L13,-154" stroke="#0C0A08" stroke-width="1.2" opacity=".7" fill="none"/>
+                <path d="M-19,-284 L19,-284 L19.6,-272 L-19.6,-272 Z" fill="url(#gBand)"/>
+                <path d="M-20,-226 L20,-226 L20.6,-214 L-20.6,-214 Z" fill="url(#gBand)"/>
+                <!-- socket where haft meets head -->
+                <path d="M-25,-176 L25,-176 L34,-142 L-34,-142 Z" fill="url(#gBand)"/>
+                <!-- head: broad pendant-style wedge, flared ends, keel underside -->
+                <path id="headPath" d="M-30,-150 C-70,-150 -108,-140 -148,-114 L-160,-52 Q-86,-34 -30,-7 Q-12,0 0,0 Q12,0 30,-7 Q86,-34 160,-52 L148,-114 C108,-140 70,-150 30,-150 Z"
+                      fill="url(#gIron)" stroke="#0B0C0E" stroke-width="2" stroke-linejoin="round"/>
+                <!-- top bevel catching light -->
+                <path d="M-30,-148 C-70,-148 -108,-138 -146,-113 L-144,-104 C-106,-128 -70,-138 -30,-139 L30,-139 C70,-138 106,-128 144,-104 L146,-113 C108,-138 70,-148 30,-148 Z" fill="#C9CED6" opacity=".55"/>
+                <!-- end faces -->
+                <path d="M-148,-114 L-160,-52 L-146,-56 L-137,-108 Z" fill="#0F1113" opacity=".7"/>
+                <path d="M148,-114 L160,-52 L146,-56 L137,-108 Z" fill="#9AA1AA" opacity=".35"/>
+                <!-- incised border -->
+                <path d="M-30,-128 C-66,-127 -98,-120 -130,-100 L-138,-62 Q-78,-46 -28,-22 Q-10,-14 0,-14 Q10,-14 28,-22 Q78,-46 138,-62 L130,-100 C98,-120 66,-127 30,-128 Z"
+                      fill="none" stroke="#0B0C0E" stroke-width="2.4" opacity=".75"/>
+                <path d="M-30,-126 C-66,-125 -98,-118 -129,-98.500 L-136.500,-61 Q-78,-44 -28,-20 Q-10,-12 0,-12 Q10,-12 28,-20 Q78,-44 136.500,-61 L129,-98.500 C98,-118 66,-125 30,-126 Z"
+                      fill="none" stroke="#B8BEC6" stroke-width="1" opacity=".35"/>
+                <!-- ring-and-dot punch marks -->
+                <g fill="none" stroke="#0B0C0E" stroke-width="2.6">
+                  <circle cx="-98" cy="-84" r="13"/><circle cx="98" cy="-84" r="13"/>
+                  <circle cx="-58" cy="-66" r="6"/><circle cx="58" cy="-66" r="6"/>
+                </g>
+                <g fill="#0B0C0E">
+                  <circle cx="-98" cy="-84" r="4"/><circle cx="98" cy="-84" r="4"/>
+                  <circle cx="-58" cy="-66" r="1.800"/><circle cx="58" cy="-66" r="1.800"/>
+                </g>
+                <!-- thurisaz, cut into the iron -->
+                <path d="M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56" fill="none" stroke="#08090A" stroke-width="8" stroke-linejoin="miter" stroke-linecap="square"/>
+              </g>
+            </defs>
+
+            <!-- the pump (powerlifting to bodybuilding) -->
+            <g id="px">
+              <rect id="pxTint" x="0" y="0" width="390" height="760" fill="#4F8DFF" opacity="0"/>
+              <g id="pxHalos"><circle fill="url(#gHalo)" opacity="0"/><circle fill="url(#gHalo)" opacity="0"/><circle fill="url(#gHalo)" opacity="0"/></g>
+              <g id="pxRings" fill="none" stroke="#8DB8FF"><circle opacity="0"/><circle opacity="0"/></g>
+              <circle id="pxEdgeSoft" r="0" fill="none" stroke="#8DB8FF" stroke-width="50" opacity="0"/>
+              <circle id="pxEdge" r="0" fill="none" stroke="#DCE9FF" opacity="0"/>
+              <g id="pxVeins" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0">
+                <g id="pxGlow" stroke="#4F8DFF"></g>
+                <g id="pxCore" stroke="#8DB8FF"></g>
+                <g id="pxHot" stroke="#EAF2FF"></g>
+                <g id="pxNodes" fill="#DCE9FF" stroke="none"></g>
+                <g id="pxPulse" stroke="#FFFFFF"></g>
+              </g>
+            </g>
+
+            <ellipse id="fxShadow" cx="195" cy="752" rx="150" ry="46" fill="#000" opacity="0"/>
+            <g id="fxCracks" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"></g>
+            <rect id="fxFlash" x="0" y="0" width="390" height="760" fill="#F3F4EF" opacity="0"/>
+            <circle id="fxRing1" cx="195" cy="756" r="0" fill="none" stroke="#F3F4EF" opacity="0"/>
+            <circle id="fxRing2" cx="195" cy="756" r="0" fill="none" stroke="#93979D" opacity="0"/>
+            <g id="fxDust"></g>
+            <polygon id="fxBurst" fill="#FFF6E8" opacity="0"/>
+            <g id="fxGhosts">
+              <use href="#hammerShape" opacity="0"/><use href="#hammerShape" opacity="0"/><use href="#hammerShape" opacity="0"/>
+            </g>
+            <g id="fxHammer" opacity="0">
+              <use href="#hammerShape"/>
+              <path id="fxRune" d="M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56" fill="none" stroke="#FFC98A" stroke-width="5" stroke-linejoin="miter" stroke-linecap="square" opacity="0"/>
+            </g>
+            <g id="fxSparks" stroke="#FFB36B" stroke-width="2.4" stroke-linecap="round"></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button type="button" id="replay">Replay the drop</button>
+    <button type="button" id="replayPump">Replay the pump</button>
+    <label><input type="checkbox" id="slow"> Slow motion (4×)</label>
+  </div>
+  <p class="note" id="note"></p>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+
+  /* ---------- the mock screen, drawn twice: one layer per mode ---------- */
+  const MODES = {
+    bb: { pill: 'Bodybuilding', eyebrow: 'Wednesday · 5 exercises', title: 'Upper A', meta: 'Hypertrophy · about 55 min', on: true,
+      rows: [['Dumbbell bench press', '4 × 8–12'], ['Seated cable row', '4 × 8–12'], ['Lat pulldown', '3 × 8–12'], ['Lateral raise', '3 × 8–12']] },
+    pl: { pill: 'Powerlifting', eyebrow: 'Wednesday · 4 exercises', title: 'Squat & bench', meta: 'Strength · about 70 min', on: false,
+      rows: [['Squat', '4 × 4 @ 8'], ['Bench press', '4 × 4 @ 8'], ['Seated cable row', '3 × 10 @ 8'], ['Cable crunch', '3 × 10 @ 8']] },
+  };
+  function build(el, m) {
+    el.innerHTML =
+      `<div class="status"><span>9:41</span><i></i></div>
+       <div class="top" data-hop><h2>Today</h2><span class="pill">${m.pill}</span></div>
+       <div class="card" data-hop><div class="eyebrow">${m.eyebrow}</div><h3>${m.title.replace('&', '&amp;')}</h3>
+         <div class="meta">${m.meta}</div><div class="go">Start workout</div></div>
+       <div class="rows">${m.rows.map((r, i) => `<div class="row" data-hop><span class="n">${i + 1}</span><span class="nm">${r[0]}</span><span class="st">${r[1]}</span></div>`).join('')}</div>
+       <div class="modebar" data-hop><div><b>Bodybuilding mode</b><small>Off is powerlifting</small></div>
+         <button type="button" class="switch" role="switch" aria-checked="${m.on}" aria-label="Bodybuilding mode"></button></div>`;
+  }
+  const screen = $('screen'), shaker = $('shaker'), phone = $('phone'), appBB = $('appBB'), appPL = $('appPL');
+  build(appBB, MODES.bb); build(appPL, MODES.pl);
+  const bbSwitch = appBB.querySelector('.switch'), plPill = appPL.querySelector('.pill');
+  const plSwitch = appPL.querySelector('.switch'), bbPill = appBB.querySelector('.pill'), phoneBox = $('phoneBox');
+
+  /* ---------- timeline constants (ms at 1x). One clock drives everything. ---------- */
+  const HIT = { x: 195, y: 756 };      // the floor: the very bottom of the app
+  const S = 0.42;                      // the hammer's size: small, but it hits like a heavy single      // where the boss lands
+  const T_FALL = 115;                  // shadow gathers before this
+  const T_IMPACT = 250;                // 135 ms fall
+  const T_HOLD = 330;                  // 80 ms hit-stop: the weight of it
+  const T_SETTLE = 520;                // recoil over
+  const T_LIFT = 640;                  // hammer hauls out
+  const T_END = 1120;
+  const VIBE = [420, 35, 180, 45, 110, 60, 60, 80, 30]; // one long slam, then decaying aftershocks (~1 s)
+
+  /* ---------- seeded shapes: cracks, chalk, sparks ---------- */
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const R = rng(7);
+  const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+
+  const cracks = [];
+  (function makeCracks() {
+    const g = $('fxCracks'), N = 15;
+    for (let i = 0; i < N; i++) {
+      let a = (i / N) * Math.PI * 2 + (R() - .5) * .45, len = 150 + R() * 260, x = HIT.x, y = HIT.y;
+      let d = `M${x},${y}`; const segs = 5 + (R() * 3 | 0);
+      let bx = 0, by = 0, ba = 0;
+      for (let s = 0; s < segs; s++) {
+        a += (R() - .5) * .7; x += Math.cos(a) * len / segs; y += Math.sin(a) * len / segs;
+        d += ` L${x.toFixed(1)},${y.toFixed(1)}`;
+        if (s === 2) { bx = x; by = y; ba = a + (R() > .5 ? .8 : -.8); }
+      }
+      const w = 1.8 + R() * 2.2;
+      cracks.push(mk('path', { d, stroke: '#000', 'stroke-width': w + 2.5, opacity: .55, pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1 }, g));
+      cracks.push(mk('path', { d, stroke: '#F3F4EF', 'stroke-width': w, pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1 }, g));
+      if (i % 2 === 0) {
+        const bl = 40 + R() * 70;
+        const bd = `M${bx.toFixed(1)},${by.toFixed(1)} L${(bx + Math.cos(ba) * bl * .5).toFixed(1)},${(by + Math.sin(ba) * bl * .5).toFixed(1)} L${(bx + Math.cos(ba + .4) * bl).toFixed(1)},${(by + Math.sin(ba + .4) * bl).toFixed(1)}`;
+        cracks.push(mk('path', { d: bd, stroke: '#C9CED6', 'stroke-width': 1, pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1 }, g));
+      }
+    }
+  })();
+
+  const dust = [];
+  for (let i = 0; i < 30; i++) {
+    const side = i % 2 ? 1 : -1, u = R();
+    const ox = HIT.x + side * u * 158 * S, oy = HIT.y - u * 50 * S;             // along the underside of the head
+    const ang = -Math.PI / 2 + side * (.5 + R() * 1.0), sp = 60 + R() * 170;
+    dust.push({ el: mk('circle', { fill: 'url(#gChalk)', opacity: 0, r: 0 }, $('fxDust')),
+      ox, oy, dx: Math.cos(ang) * sp, dy: Math.sin(ang) * sp * .75, r0: 9 + R() * 14, life: 380 + R() * 340, a: .45 + R() * .4 });
+  }
+  const sparks = [];
+  for (let i = 0; i < 34; i++) {
+    const ang = -Math.PI / 2 + (R() - .5) * 3.4, sp = 160 + R() * 300;
+    sparks.push({ el: mk('line', { opacity: 0 }, $('fxSparks')), dx: Math.cos(ang) * sp, dy: Math.sin(ang) * sp, life: 240 + R() * 260 });
+  }
+  (function makeBurst() {
+    const pts = [], n = 18;
+    for (let i = 0; i < n * 2; i++) { const a = i / (n * 2) * Math.PI * 2, r = i % 2 ? 16 + R() * 10 : 70 + R() * 70; pts.push((Math.cos(a) * r * 1.5).toFixed(1) + ',' + (Math.sin(a) * r * .55).toFixed(1)); }
+    $('fxBurst').setAttribute('points', pts.join(' '));
+  })();
+
+  /* ---------- things that hop when the shock passes under them ---------- */
+  let hops = [];
+  function measureHops() {
+    hops = [...appPL.querySelectorAll('[data-hop]')].map(el => {
+      const cy = el.offsetTop + el.offsetHeight / 2;
+      return { el, delay: Math.abs(cy - HIT.y) * .22, amp: 24 - Math.min(10, Math.abs(cy - HIT.y) * .015) };
+    });
+  }
+
+  /* ---------- pure function of time: where everything is at t ---------- */
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+  const easeOut = p => 1 - Math.pow(1 - p, 3);
+  const fx = { shadow: $('fxShadow'), cracks: $('fxCracks'), flash: $('fxFlash'), r1: $('fxRing1'), r2: $('fxRing2'),
+    ghosts: [...$('fxGhosts').children], hammer: $('fxHammer'), rune: $('fxRune'), burst: $('fxBurst') };
+
+  function fallPose(t) {             // t in [T_FALL, T_IMPACT]: swung down from the upper right, accelerating hard
+    const p = clamp01((t - T_FALL) / (T_IMPACT - T_FALL)), e = Math.pow(p, 3.4);
+    return { x: HIT.x + 64 * (1 - e), y: -70 + (HIT.y + 70) * e, r: -32 * (1 - e), sx: 1 - .04 * e, sy: 1 + .1 * e };
+  }
+  function hammerPose(t) {
+    if (t < T_FALL || t >= T_END) return null;
+    if (t < T_IMPACT) return fallPose(t);
+    if (t < T_HOLD) return { x: HIT.x, y: HIT.y + 4, r: 0, sx: 1.14, sy: .8 };          // hit-stop, squashed into the glass
+    if (t < T_SETTLE) { const q = (t - T_HOLD) / (T_SETTLE - T_HOLD), b = Math.sin(Math.PI * q) * (1 - q * .4);
+      return { x: HIT.x + 5 * b, y: HIT.y - 24 * b, r: 6 * b, sx: 1, sy: 1 }; }          // recoil
+    if (t < T_LIFT) return { x: HIT.x, y: HIT.y, r: 0, sx: 1, sy: 1 };
+    const q = (t - T_LIFT) / (T_END - 30 - T_LIFT), e = q * q * q;                       // wrenched back out of frame
+    return { x: HIT.x + 30 * e, y: HIT.y - 960 * e, r: -14 * e, sx: 1, sy: 1 };
+  }
+  const poseT = p => `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${p.r.toFixed(2)}) scale(${(p.sx * S).toFixed(3)} ${(p.sy * S).toFixed(3)})`;
+
+  function render(t) {
+    const tau = t - T_IMPACT;                               // time since impact
+    // gathering shadow under the incoming head
+    const g = clamp01(t / T_IMPACT);
+    fx.shadow.setAttribute('opacity', tau < 0 ? (.5 * g * g).toFixed(3) : 0);
+    fx.shadow.setAttribute('rx', 36 + 66 * g); fx.shadow.setAttribute('ry', 9 + 22 * g);
+
+    // hammer + motion smear
+    const pose = hammerPose(t);
+    if (pose) { fx.hammer.setAttribute('opacity', 1); fx.hammer.setAttribute('transform', poseT(pose)); }
+    else fx.hammer.setAttribute('opacity', 0);
+    fx.ghosts.forEach((gh, i) => {
+      const gt = t - (i + 1) * 13;
+      if (t >= T_FALL && t < T_IMPACT + 20 && gt > T_FALL) { gh.setAttribute('opacity', [.32, .2, .1][i]); gh.setAttribute('transform', poseT(fallPose(Math.min(gt, T_IMPACT)))); }
+      else gh.setAttribute('opacity', 0);
+    });
+    fx.rune.setAttribute('opacity', tau < 0 ? 0 : clamp01(1 - tau / 620).toFixed(3));
+
+    // powerlifting look bursts out from the strike point
+    if (tau < 0) appPL.style.clipPath = `circle(0px at ${HIT.x}px ${HIT.y}px)`;
+    else if (tau < 170) appPL.style.clipPath = `circle(${(30 + 790 * easeOut(tau / 170)).toFixed(1)}px at ${HIT.x}px ${HIT.y}px)`;
+    else appPL.style.clipPath = 'none';
+
+    // screen shake: slammed down first, then a fast decaying rattle
+    if (tau >= 0 && tau < 620) {
+      const d = Math.exp(-tau / 165);
+      const y = 36 * d * Math.cos(tau * .098), x = 18 * d * Math.sin(tau * .151 + .6), r = 2.4 * d * Math.sin(tau * .12 + 1);
+      shaker.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(3)}deg) scale(${(1 + .07 * d).toFixed(4)})`;
+      phone.style.translate = `0 ${(12 * d * Math.cos(tau * .098)).toFixed(2)}px`;
+    } else { shaker.style.transform = ''; phone.style.translate = ''; }
+
+    // rows, card and bars hop as the shock reaches them; the pill is stamped in
+    for (const h of hops) {
+      const u = tau - h.delay;
+      h.el.style.transform = (u > 0 && u < 560) ? `translateY(${(-h.amp * Math.exp(-u / 120) * Math.sin(u * .052)).toFixed(2)}px)` : '';
+    }
+    plPill.style.transform = (tau >= 0 && tau < 420) ? `scale(${(1 + .7 * Math.exp(-tau / 80)).toFixed(3)})` : '';
+
+    // flash, starburst, shock rings
+    fx.flash.setAttribute('opacity', tau < 0 ? 0 : clamp01(1 - tau / 150).toFixed(3));
+    const bp = clamp01(tau / 170);
+    fx.burst.setAttribute('opacity', tau < 0 ? 0 : (1 - bp).toFixed(3));
+    fx.burst.setAttribute('transform', `translate(${HIT.x} ${HIT.y}) scale(${(.5 + 1.5 * easeOut(bp)).toFixed(3)})`);
+    [[fx.r1, 0, 340, 26], [fx.r2, 60, 460, 14]].forEach(([el, dl, dur, w]) => {
+      const p = clamp01((tau - dl) / dur), on = tau >= dl && p < 1;
+      el.setAttribute('opacity', on ? (.9 * (1 - p)).toFixed(3) : 0);
+      el.setAttribute('r', (20 + 780 * easeOut(p)).toFixed(1)); el.setAttribute('stroke-width', (w * (1 - p) + .5).toFixed(2));
+    });
+
+    // cracks race outward, hold, heal
+    const cp = clamp01(tau / 85);
+    fx.cracks.setAttribute('opacity', tau < 0 ? 0 : clamp01(1 - (tau - 380) / 420).toFixed(3));
+    for (const c of cracks) c.setAttribute('stroke-dashoffset', (1 - easeOut(cp)).toFixed(3));
+
+    // chalk cloud and sparks
+    for (const p of dust) {
+      if (tau < 0 || tau > p.life) { p.el.setAttribute('opacity', 0); continue; }
+      const s = 1 - Math.exp(-tau / 190);
+      p.el.setAttribute('cx', (p.ox + p.dx * s).toFixed(1)); p.el.setAttribute('cy', (p.oy + p.dy * s + .00016 * tau * tau).toFixed(1));
+      p.el.setAttribute('r', (p.r0 * (1 + 2.4 * s)).toFixed(1)); p.el.setAttribute('opacity', (p.a * (1 - tau / p.life)).toFixed(3));
+    }
+    for (const p of sparks) {
+      if (tau < 0 || tau > p.life) { p.el.setAttribute('opacity', 0); continue; }
+      const s = 1 - Math.exp(-tau / 110), s0 = Math.max(0, s - .16), gy = .0009 * tau * tau;
+      p.el.setAttribute('x1', (HIT.x + p.dx * s0).toFixed(1)); p.el.setAttribute('y1', (HIT.y - 6 + p.dy * s0 + gy).toFixed(1));
+      p.el.setAttribute('x2', (HIT.x + p.dx * s).toFixed(1)); p.el.setAttribute('y2', (HIT.y - 6 + p.dy * s + gy).toFixed(1));
+      p.el.setAttribute('opacity', (1 - tau / p.life).toFixed(3));
+    }
+  }
+
+  /* =====================================================================
+     THE PUMP: powerlifting -> bodybuilding. Three swelling beats on the same clock.
+     Its shapes use their own seed so the hammer's cracks and dust stay exactly as they were.
+     ===================================================================== */
+  const P_BEAT = [90, 400, 750];        // onset of each beat (ms at 1x)
+  const P_AMP = [.36, .62, 1];          // each beat bigger than the last
+  const P_RISE = [110, 120, 180], P_FALL = [190, 210, 370];
+  const P_REACH = [175, 390, 1000];     // how far the veins have run by the end of each beat (px)
+  const P_SURGE = [200, 230, 420];
+  const P_FLOOD = 380;                  // the blue takes the screen during the third beat
+  const P_END = 1330;
+  const P_VIBE = [28, 55, 120];         // three heartbeats, each longer (stronger) than the last
+  const SRC = { x: 341, y: 715 };       // the switch; measured again when a pump starts
+
+  const PR = rng(23);
+  const px = { tint: $('pxTint'), halos: [...$('pxHalos').children], rings: [...$('pxRings').children],
+    edge: $('pxEdge'), edgeSoft: $('pxEdgeSoft'), veins: $('pxVeins'), glow: $('pxGlow') };
+  const veins = [], nodes = [], pulses = [];
+  const f1 = p => p[0].toFixed(1) + ',' + p[1].toFixed(1);
+  const midp = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  function smoothD(pts, toMid) {        // soft curve through the midpoints; toMid stops on the last midpoint
+    let d = 'M' + f1(pts[0]) + ' L' + f1(midp(pts[0], pts[1]));
+    for (let i = 1; i < pts.length - 1; i++) d += ' Q' + f1(pts[i]) + ' ' + f1(midp(pts[i], pts[i + 1]));
+    return toMid ? d : d + ' L' + f1(pts[pts.length - 1]);
+  }
+  function vein(parent, pts, toMid, d0, len, w) {
+    const el = mk('path', { d: smoothD(pts, toMid), 'stroke-width': w, pathLength: 1, 'stroke-dasharray': 1, 'stroke-dashoffset': 1, opacity: 0 }, $(parent));
+    veins.push({ el, d0, len, w, swell: parent !== 'pxGlow' });
+  }
+  function branch(p0, ang, length, d0, level) {
+    const step = 24, n = Math.max(2, Math.round(length / step)), pts = [p0], heads = [];
+    let x = p0[0], y = p0[1], wander = 0;
+    for (let s = 0; s < n; s++) { wander = wander * .7 + (PR() - .5) * .8; const h = ang + wander; x += Math.cos(h) * step; y += Math.sin(h) * step; pts.push([x, y]); heads.push(h); }
+    vein('pxGlow', pts, false, d0, n * step, level === 1 ? 6 : 4);
+    vein('pxCore', pts, false, d0, n * step, level === 1 ? 1.3 : .9);
+    nodes.push({ el: mk('circle', { cx: p0[0].toFixed(1), cy: p0[1].toFixed(1), r: 0, opacity: 0 }, $('pxNodes')), d0, r: level === 1 ? 2.6 : 1.7 });
+    if (level === 1 && n > 2 && PR() < .65) {
+      const k = 1 + (PR() * (n - 1) | 0);
+      branch(pts[k], heads[k - 1] + (PR() > .5 ? 1 : -1) * (.5 + PR() * .45), 30 + PR() * 55, d0 + k * step, 2);
+    }
+  }
+  (function makeVeins() {
+    const N = 7, step = 34;
+    for (let i = 0; i < N; i++) {
+      const base = (168 + i * (120 / (N - 1)) + (PR() - .5) * 8) * Math.PI / 180;   // 180 is left, 270 is up
+      const dx = Math.cos(base), dy = Math.sin(base);
+      const toEdge = Math.min(dx < 0 ? SRC.x / -dx : (390 - SRC.x) / dx, dy < 0 ? SRC.y / -dy : (760 - SRC.y) / dy);
+      const n = Math.max(4, Math.round(Math.min(840, toEdge + 30) / step)), pts = [[0, 0]], heads = [];
+      let x = 0, y = 0, wander = 0;
+      for (let s = 0; s < n; s++) { wander = wander * .72 + (PR() - .5) * .62; const h = base + wander; x += Math.cos(h) * step; y += Math.sin(h) * step; pts.push([x, y]); heads.push(h); }
+      const len = n * step, k1 = Math.max(2, Math.round(n * .6)), k2 = Math.max(2, Math.round(n * .28));
+      vein('pxGlow', pts, false, 0, len, 9);
+      vein('pxCore', pts, false, 0, len, 1.5);                                       // tapers: thin all the way,
+      vein('pxCore', pts.slice(0, k1 + 1), true, 0, (k1 - .5) * step, 2.4);          // thicker for the first 60%,
+      vein('pxCore', pts.slice(0, k2 + 1), true, 0, (k2 - .5) * step, 3.4);          // thickest at the root
+      vein('pxHot', pts.slice(0, k1 + 1), true, 0, (k1 - .5) * step, .9);
+      pulses.push({ el: mk('path', { d: smoothD(pts, false), 'stroke-width': 2.6, pathLength: 1, 'stroke-dasharray': '.06 3', opacity: 0 }, $('pxPulse')), len });
+      let side = PR() > .5 ? 1 : -1;
+      for (let s = 2; s < n - 1; s++) {
+        if (PR() < .5) { side = -side; branch(pts[s], heads[s - 1] + side * (.45 + PR() * .5), 60 + PR() * 130 * (1 - .4 * s / n), s * step, 1); }
+      }
+    }
+  })();
+
+  // one beat: swell up, relax a touch past rest, settle
+  function beatEnv(u, rise, fall) {
+    if (u <= 0 || u >= rise + fall) return 0;
+    if (u < rise) return .5 - .5 * Math.cos(Math.PI * u / rise);
+    const v = (u - rise) / fall, dip = .12;
+    if (v < .68) return -dip + (1 + dip) * (.5 + .5 * Math.cos(Math.PI * v / .68));
+    return -dip * (.5 + .5 * Math.cos(Math.PI * (v - .68) / .32));
+  }
+  const pumpSwell = t => { let s = 0; for (let i = 0; i < 3; i++) s += P_AMP[i] * beatEnv(t - P_BEAT[i], P_RISE[i], P_FALL[i]); return s; };
+  const smooth01 = p => p * p * (3 - 2 * p);
+  function veinFront(t) {               // surge on each beat, ebb a little between them
+    let f = 0;
+    for (let i = 0; i < 3; i++) {
+      const u = t - P_BEAT[i]; if (u <= 0) break;
+      const from = i ? P_REACH[i - 1] * .93 : 0, p = clamp01(u / P_SURGE[i]);
+      f = from + (P_REACH[i] - from) * (i < 2 ? easeOut(p) : smooth01(p));
+      if (p >= 1 && i < 2) f = P_REACH[i] * (1 - .07 * smooth01(clamp01((u - P_SURGE[i]) / (P_BEAT[i + 1] - P_BEAT[i] - P_SURGE[i]))));
+    }
+    return f;
+  }
+
+  let swells = [];
+  function measurePump() {              // in the screen's own 390 x 760 space, whatever the page scale
+    SRC.x = plSwitch.offsetLeft + plSwitch.offsetWidth / 2; SRC.y = plSwitch.offsetTop + plSwitch.offsetHeight / 2;
+    px.veins.setAttribute('transform', `translate(${SRC.x} ${SRC.y})`);
+    for (const el of [...px.halos, ...px.rings, px.edge, px.edgeSoft]) { el.setAttribute('cx', SRC.x); el.setAttribute('cy', SRC.y); }
+    swells = [...appPL.querySelectorAll('[data-hop]'), ...appBB.querySelectorAll('[data-hop]')].map(el =>
+      ({ el, delay: Math.hypot(195 - SRC.x, el.offsetTop + el.offsetHeight / 2 - SRC.y) * .16 }));
+  }
+
+  function renderPump(t) {
+    if (t >= P_END) {                    // rest: nothing of the pump remains
+      phoneBox.style.transform = ''; appBB.style.clipPath = ''; bbPill.style.transform = '';
+      for (const s of swells) s.el.style.transform = '';
+      for (const el of [px.tint, px.edge, px.edgeSoft, px.veins, ...px.halos, ...px.rings]) el.setAttribute('opacity', 0);
+      return;
+    }
+    // the whole phone inflates and relaxes; most of the size is carried by the device, a little by the screen
+    const sw = pumpSwell(t);
+    shaker.style.transform = `scale(${(1 + .03 * sw).toFixed(4)})`;
+    phoneBox.style.transform = `scale(${(1 + .032 * sw).toFixed(4)})`;
+    // cards and rows swell as the pulse reaches them, nearest the switch first
+    for (const s of swells) s.el.style.transform = `scale(${(1 + .034 * pumpSwell(t - s.delay)).toFixed(4)})`;
+
+    // glow that jumps on each beat and fades between them
+    let glow = 0;
+    for (let i = 0; i < 3; i++) { const u = t - P_BEAT[i]; if (u > 0) glow = Math.max(glow, P_AMP[i] * Math.exp(-u / 190)); }
+    px.tint.setAttribute('opacity', (.15 * glow).toFixed(3));
+    const HR = [70, 120, 210];
+    px.halos.forEach((el, i) => {
+      const u = t - P_BEAT[i], p = clamp01(u / 440), on = u >= 0 && p < 1;
+      el.setAttribute('opacity', on ? (.9 * Math.sqrt(P_AMP[i]) * (1 - p)).toFixed(3) : 0);
+      el.setAttribute('r', (26 + HR[i] * easeOut(p)).toFixed(1));
+    });
+    px.rings.forEach((el, i) => {
+      const u = t - P_BEAT[i], p = clamp01(u / 460), on = u >= 0 && p < 1;
+      el.setAttribute('opacity', on ? (.32 * (1 - p)).toFixed(3) : 0);
+      el.setAttribute('r', (20 + P_REACH[i] * 1.05 * easeOut(p)).toFixed(1)); el.setAttribute('stroke-width', (12 * (1 - p) + 1).toFixed(2));
+    });
+
+    // veins of light run out from the switch, further on every beat
+    const F = veinFront(t);
+    px.veins.setAttribute('opacity', t < P_BEAT[0] ? 0 : (1 - clamp01((t - (P_BEAT[2] + 280)) / 300)).toFixed(3));
+    px.glow.setAttribute('opacity', (.16 + .42 * glow).toFixed(3));
+    for (const v of veins) {
+      const p = clamp01((F - v.d0) / v.len);
+      if (p <= 0) { v.el.setAttribute('opacity', 0); continue; }
+      v.el.setAttribute('opacity', 1); v.el.setAttribute('stroke-dashoffset', (1 - p).toFixed(4));
+      if (v.swell) v.el.setAttribute('stroke-width', (v.w * (1 + .45 * glow)).toFixed(2));
+    }
+    for (const n of nodes) {
+      const on = F > n.d0 + 6;
+      n.el.setAttribute('opacity', on ? (.55 + .45 * glow).toFixed(3) : 0); n.el.setAttribute('r', (n.r * (1 + .7 * glow)).toFixed(2));
+    }
+    let bi = -1; for (let i = 0; i < 3; i++) if (t > P_BEAT[i]) bi = i;
+    for (const q of pulses) {            // a bright bead rides the head of each surge
+      const pp = bi < 0 ? 1 : clamp01((t - P_BEAT[bi]) / P_SURGE[bi]), pos = F / q.len;
+      if (pp >= 1 || pos > 1.02) { q.el.setAttribute('opacity', 0); continue; }
+      q.el.setAttribute('opacity', (.95 * Math.sin(Math.PI * pp)).toFixed(3));
+      q.el.setAttribute('stroke-dashoffset', (-Math.max(0, pos - .06)).toFixed(4));
+    }
+
+    // the blue floods out of the switch on the third beat
+    const u3 = t - P_BEAT[2], fp = clamp01(u3 / P_FLOOD), rad = 12 + 860 * smooth01(fp);
+    if (u3 < 0) appBB.style.clipPath = `circle(0px at ${SRC.x}px ${SRC.y}px)`;
+    else if (fp < 1) appBB.style.clipPath = `circle(${rad.toFixed(1)}px at ${SRC.x}px ${SRC.y}px)`;
+    else appBB.style.clipPath = 'none';
+    const edgeOn = u3 >= 0 && fp < 1;
+    px.edge.setAttribute('opacity', edgeOn ? (.5 * (1 - fp * fp)).toFixed(3) : 0);
+    px.edge.setAttribute('r', rad.toFixed(1)); px.edge.setAttribute('stroke-width', (2 + 6 * (1 - fp)).toFixed(2));
+    px.edgeSoft.setAttribute('opacity', edgeOn ? (.2 * (1 - fp)).toFixed(3) : 0); px.edgeSoft.setAttribute('r', rad.toFixed(1));
+    // the pill swells into place as the blue reaches it
+    bbPill.style.transform = `scale(${(1 + .28 * Math.max(0, beatEnv(u3 - 230, 120, 260))).toFixed(3)})`;
+  }
+
+  /* ---------- state + clock ---------- */
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const st = { mode: 'bb', kind: 'drop', running: false, impacted: false, beats: [false, false, false], t: 0, last: 0, raf: 0, held: false };
+
+  function setMode(mode) {                 // the resting look, no hammer
+    st.mode = mode; screen.dataset.mode = mode;
+    appBB.inert = mode === 'pl'; appPL.inert = mode === 'bb';
+  }
+  function buzz(pattern) { try { if (typeof navigator.vibrate === 'function') navigator.vibrate(pattern); } catch (e) { /* not allowed here: fine */ } }
+  function impact(natural) {               // the one moment: look, content and haptics change together
+    if (st.impacted) return; st.impacted = true;
+    setMode('pl'); buzz(natural ? VIBE : 40);
+  }
+  function rest() {                        // everything the drop touched goes back to nothing
+    cancelAnimationFrame(st.raf); st.running = false; st.held = false;
+    render(T_END); appPL.style.clipPath = ''; renderPump(P_END);
+    screen.classList.add('snap'); screen.classList.remove('dropping', 'pumping');   // no cross-fade as the layers swap back
+    void appPL.offsetWidth; screen.classList.remove('snap');
+    bbSwitch.setAttribute('aria-checked', 'true'); plSwitch.setAttribute('aria-checked', 'false');
+  }
+  function frame(now) {
+    if (!st.running) return;
+    const dt = Math.min(50, now - st.last); st.last = now;
+    if (!st.held) st.t += dt * ($('slow').checked ? .25 : 1);
+    step();
+    if (st.running) st.raf = requestAnimationFrame(frame);
+  }
+  function step() {
+    if (st.kind === 'pump') {
+      for (let i = 0; i < 3; i++) if (!st.beats[i] && st.t >= P_BEAT[i]) {
+        st.beats[i] = true; buzz(P_VIBE[i]);
+        if (i === 2) setMode('bb');          // the flood beat: look and content change here
+      }
+      if (st.t >= P_END) { rest(); return; }
+      renderPump(st.t); return;
+    }
+    if (!st.impacted && st.t >= T_IMPACT) impact(true);
+    if (st.t >= T_END) { rest(); return; }
+    render(st.t);
+  }
+  function drop() {
+    if (st.running) rest();
+    if (reduce.matches) { setMode('pl'); return; }   // reduced motion: colour change only
+    screen.classList.add('dropping'); setMode('bb');
+    bbSwitch.setAttribute('aria-checked', 'false');   // the thumb answers the tap before the hammer lands
+    measureHops();
+    st.kind = 'drop'; st.t = 0; st.impacted = false; st.running = true; st.last = performance.now();
+    render(0); st.raf = requestAnimationFrame(frame);
+  }
+  function pump() {
+    if (st.running) rest();
+    if (reduce.matches) { setMode('bb'); return; }   // reduced motion: colour change only, no vibration
+    screen.classList.add('pumping'); setMode('pl');
+    plSwitch.setAttribute('aria-checked', 'true');    // the thumb answers the tap, and turns blue: the seed of the pump
+    measurePump();
+    st.kind = 'pump'; st.t = 0; st.beats = [false, false, false]; st.running = true; st.last = performance.now();
+    renderPump(0); st.raf = requestAnimationFrame(frame);
+  }
+  function skip() {
+    if (st.kind === 'pump') { setMode('bb'); buzz(30); rest(); return; }   // replaces any beat still buzzing
+    impact(false); rest();
+  }
+
+  screen.addEventListener('click', e => {
+    if (st.running) { skip(); return; }               // a tap mid-animation only skips
+    if (!e.target.closest('.switch')) return;
+    if (st.mode === 'bb') drop(); else pump();
+  });
+  $('replay').addEventListener('click', drop);
+  $('replayPump').addEventListener('click', pump);
+
+  /* ---------- fit the phone to narrow screens ---------- */
+  const box = $('phoneBox');
+  function fit() { const w = box.parentElement.clientWidth; box.style.setProperty('--s', Math.min(1, w / 410).toFixed(4)); }
+  fit(); window.addEventListener('resize', fit);
+
+  setMode('bb'); render(T_END); appPL.style.clipPath = '';
+  $('note').textContent = (typeof navigator.vibrate === 'function')
+    ? 'Vibration on phones that allow it. The drop: one long slam, then aftershocks. The pump: three heartbeats, each longer than the last.'
+    : 'This browser has no vibration support, so both animations are visual only here.';
+
+  // seekable clock for testing and frame-by-frame review
+  window.__drop = { T: { T_FALL, T_IMPACT, T_HOLD, T_SETTLE, T_LIFT, T_END }, state: st, VIBE,
+    hold(t) { if (!st.running || st.kind !== 'drop') drop(); st.held = true; st.t = t; step(); } };
+  window.__pump = { T: { P_BEAT, P_FLOOD, P_END }, state: st, VIBE: P_VIBE,
+    hold(t) { if (!st.running || st.kind !== 'pump') pump(); st.held = true; st.t = t; step(); } };
+})();
+</script>

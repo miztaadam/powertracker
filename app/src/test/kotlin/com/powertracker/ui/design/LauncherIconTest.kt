@@ -86,7 +86,7 @@ class LauncherIconTest {
             assertTrue("chalk letters", bitmap.count(CHALK) > 1_500)
             assertTrue("steel plates", bitmap.count(PLATE) > 300)
             assertTrue("steel bar", bitmap.count(BAR) > 60)
-            // No volt anywhere: nothing in the icon is more green than red or blue by a real margin.
+            // No green anywhere: nothing in the icon is more green than red or blue by a real margin.
             val pixels = IntArray(SIZE * SIZE).also { bitmap.getPixels(it, 0, SIZE, 0, 0, SIZE, SIZE) }
             assertTrue("no green", pixels.none { Color.green(it) > Color.red(it) + 24 && Color.green(it) > Color.blue(it) + 24 })
             // The word sits inside the safe zone: the outer ring of the visible area is background only.

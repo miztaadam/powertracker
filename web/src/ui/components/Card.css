@@ -1,0 +1,17 @@
+.gr-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap, var(--space-4));
+  width: 100%;
+  min-width: 0;
+  padding: var(--card-padding, var(--space-5));
+  background: var(--surface);
+  /* No visible border: a transparent one keeps the card's size, and forced colours draw it as the outline. */
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-card);
+}
+
+.gr-card > * {
+  min-width: 0;
+}

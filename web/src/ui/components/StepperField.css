@@ -1,0 +1,126 @@
+.gr-step-btn {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch);
+  height: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--container-highest);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: filter 120ms ease;
+}
+
+.gr-step-btn-wide {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.gr-step-btn:active:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.gr-step-btn:disabled {
+  background: var(--container);
+  color: color-mix(in srgb, var(--text-secondary) 40%, transparent);
+  cursor: default;
+}
+
+.gr-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.gr-stepper-value {
+  min-width: 72px;
+  padding: 0 var(--space-3);
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+/* Never narrower than two 48 px buttons and the gap between them. */
+.gr-stepper-field {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: calc(2 * var(--touch) + var(--space-2));
+}
+
+.gr-stepper-figure {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* A row of steppers may give its captions more height (`--stepper-caption`), so an action beside one has room. */
+.gr-stepper-figure > .eyebrow {
+  line-height: var(--stepper-caption, 14px);
+}
+
+/* The caption moves over by the action's width, so the two are centred together. */
+.gr-stepper-field-action .gr-stepper-figure > .eyebrow {
+  padding-right: var(--stepper-action-width);
+}
+
+.gr-stepper-field-action {
+  --stepper-action-width: 24px;
+}
+
+/* The caption's line again, laid over it: an unseen copy of the caption, then the action. Taps go through it, except on the action. */
+.gr-stepper-action {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--stepper-caption, 14px);
+  pointer-events: none;
+}
+
+.gr-stepper-action-spacer {
+  flex: none;
+  visibility: hidden;
+}
+
+.gr-stepper-action-spacer::before {
+  content: attr(data-text);
+}
+
+.gr-stepper-action button {
+  pointer-events: auto;
+}
+
+label.gr-stepper-figure {
+  cursor: text;
+  touch-action: manipulation;
+}
+
+/* The buttons of three steppers stay on one line when a message makes one figure taller. */
+.gr-stepper-buttons {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+}

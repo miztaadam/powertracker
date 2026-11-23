@@ -11,16 +11,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -29,6 +26,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,9 +35,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.powertracker.BuildConfig
 import com.powertracker.data.AppSettings
 import com.powertracker.data.Backup
 import com.powertracker.data.BackupFile
@@ -47,6 +58,10 @@ import com.powertracker.data.BackupResult
 import com.powertracker.data.BackupService
 import com.powertracker.data.RestAlert
 import com.powertracker.data.SettingsRepository
+import com.powertracker.domain.model.TrainingMode
+import kotlinx.coroutines.flow.first
+import androidx.compose.runtime.LaunchedEffect
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.ChoiceChip
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
@@ -57,15 +72,27 @@ import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.SegmentedChoice
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.library.RpeInfoButton
+import com.powertracker.ui.motion.LocalModeSwitch
+import com.powertracker.ui.motion.ModeSwitchEnd
+import com.powertracker.ui.motion.ModeSwitchKind
+import com.powertracker.ui.motion.modeSwitchElement
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.pressToggleable
 
 /** Outcome of reading a backup file chosen by the user. */
 sealed interface RestoreCheck {
@@ -78,6 +105,15 @@ fun checkBackupText(text: String): RestoreCheck = when (val r = Backup.decode(te
     is BackupResult.TooNew -> RestoreCheck.Rejected("This backup is from a newer version of Grit.")
     is BackupResult.Corrupt -> RestoreCheck.Rejected("This file isn't a valid Grit backup.")
 }
+
+/** The quiet line at the very bottom of Settings, for example "Grit 1.1 · AppsbyAdam". */
+fun appVersionLine(versionName: String): String = "Grit $versionName · AppsbyAdam"
+
+/** The same line as a screen reader says it, without the middle dots. */
+fun appVersionSpoken(versionName: String): String = "Grit version $versionName, by AppsbyAdam"
+
+/** The "Vibrate on taps" row's second line; the web app says the same. */
+const val VIBRATE_ON_TAPS_SUPPORTING = "A short buzz when you log a set and on other main taps"
 
 /** The name offered when exporting a backup on [date]. */
 fun backupFileName(date: LocalDate): String = "grit-backup-$date.json"
@@ -93,17 +129,35 @@ fun SettingsScreen(
     settingsRepo: SettingsRepository,
     backup: BackupService,
     onBack: () -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
     now: () -> Long = System::currentTimeMillis,
+    onOpenGuide: () -> Unit = {},
 ) {
     val settings by settingsRepo.settings.collectAsState(initial = AppSettings())
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
-    var pendingRestore by remember { mutableStateOf<BackupFile?>(null) }
+    var pendingRestore by remember { mutableStateOf<PendingRestore?>(null) }
 
     fun update(f: (AppSettings) -> AppSettings) {
         scope.launch { settingsRepo.update(f) }
+    }
+
+    // Leaving Settings, or the app going away, ends a mode switch animation at its end state (1.15).
+    val modeSwitch = LocalModeSwitch.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(modeSwitch, lifecycle) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_PAUSE) modeSwitch?.finish(ModeSwitchEnd.LEAVE) }
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            modeSwitch?.finish(ModeSwitchEnd.LEAVE)
+        }
+    }
+    // Settings holds the switch: its sounds are loaded now, the one the next switch plays first (never at app start).
+    LaunchedEffect(modeSwitch) {
+        val stored = settingsRepo.settings.first().trainingMode
+        modeSwitch?.prefetch(ModeSwitchKind.into(if (stored == TrainingMode.POWERLIFTING) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING))
     }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri: Uri? ->
@@ -127,7 +181,8 @@ fun SettingsScreen(
             }.getOrNull()
             val check = if (text == null) RestoreCheck.Rejected("This file isn't a valid Grit backup.") else checkBackupText(text)
             when (check) {
-                is RestoreCheck.Ready -> pendingRestore = check.file
+                // Before asking: the sides whose plan this backup would remove get the warning instead (1.14.1).
+                is RestoreCheck.Ready -> pendingRestore = PendingRestore(check.file, runCatching { backup.sidesLosingPlan(check.file) }.getOrDefault(emptyList()))
                 is RestoreCheck.Rejected -> snackbar.showSnackbar(check.message)
             }
         }
@@ -140,29 +195,63 @@ fun SettingsScreen(
         onRestore = { importLauncher.launch(arrayOf("*/*")) },
         onBack = onBack,
         snackbar = snackbar,
+        // Not a plain copy: switching sides dates the side left and, the first time, copies the training days.
+        onTrainingMode = { mode -> scope.launch { settingsRepo.setTrainingMode(mode, today()) } },
+        onOpenGuide = onOpenGuide,
     )
 
-    pendingRestore?.let { file ->
-        AlertDialog(
-            onDismissRequest = { pendingRestore = null },
-            title = { Text("Replace all data?") },
-            text = { Text("Restoring replaces everything in Grit with the contents of this backup.") },
-            confirmButton = {
-                PrimaryButton(
-                    "Replace",
-                    onClick = {
-                        pendingRestore = null
-                        scope.launch {
-                            val ok = runCatching { backup.restore(file) }.isSuccess
-                            snackbar.showSnackbar(if (ok) "Backup restored." else "Couldn't restore the backup.")
-                        }
-                    },
-                    compact = true,
-                )
+    pendingRestore?.let { pending ->
+        RestoreConfirmDialog(
+            losing = pending.losing,
+            onConfirm = {
+                pendingRestore = null
+                scope.launch {
+                    val ok = runCatching { backup.restore(pending.file) }.isSuccess
+                    snackbar.showSnackbar(if (ok) "Backup restored." else "Couldn't restore the backup.")
+                }
             },
-            dismissButton = { QuietButton("Cancel", { pendingRestore = null }) },
+            onCancel = { pendingRestore = null },
         )
     }
+}
+
+/** A backup file picked to restore, with the sides whose plan restoring it would remove ([BackupService.sidesLosingPlan]). */
+data class PendingRestore(val file: BackupFile, val losing: List<TrainingMode>)
+
+private fun sideNames(sides: List<TrainingMode>, joiner: String): String =
+    sides.joinToString(" $joiner ") { if (it == TrainingMode.BODYBUILDING) "bodybuilding" else "powerlifting" }
+
+/** The warning's title (1.14.1): "This backup has no powerlifting plan", or "no powerlifting or bodybuilding plan" for both. */
+fun restoreWarningTitle(losing: List<TrainingMode>): String = "This backup has no ${sideNames(losing, "or")} plan"
+
+/** The warning's body (1.14.1); with both sides, "your current powerlifting and bodybuilding plans". */
+fun restoreWarningBody(losing: List<TrainingMode>): String {
+    val plans = if (losing.size > 1) "${sideNames(losing, "and")} plans" else "${sideNames(losing, "and")} plan"
+    return "Restoring it removes your current $plans. Your other data is replaced by the backup's too."
+}
+
+const val RESTORE_ANYWAY = "Restore anyway"
+
+/** The guide's row (1.16) and the section it sits in. */
+const val GUIDE_SECTION = "Help"
+const val GUIDE_ROW = "Guide"
+const val GUIDE_ROW_SUPPORTING = "See how Grit works"
+
+/**
+ * The question before a restore. When the backup would remove a side's plan ([losing] is not empty) it is the warning
+ * (1.14.1), with Restore anyway and Cancel; otherwise it is "Replace all data?" as before. [onConfirm] restores; Cancel,
+ * or dismissing, restores nothing.
+ */
+@Composable
+fun RestoreConfirmDialog(losing: List<TrainingMode>, onConfirm: () -> Unit, onCancel: () -> Unit) {
+    val warn = losing.isNotEmpty()
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(if (warn) restoreWarningTitle(losing) else "Replace all data?") },
+        text = { Text(if (warn) restoreWarningBody(losing) else "Restoring replaces everything in Grit with the contents of this backup.") },
+        confirmButton = { PrimaryButton(if (warn) RESTORE_ANYWAY else "Replace", onClick = onConfirm, compact = true) },
+        dismissButton = { QuietButton("Cancel", onCancel) },
+    )
 }
 
 /** The Settings screen without its repositories or file pickers: grouped cards of rows. */
@@ -174,14 +263,26 @@ fun SettingsContent(
     onRestore: () -> Unit,
     onBack: () -> Unit,
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
+    /** The installed build's version name; only tests pass another. */
+    versionName: String = BuildConfig.VERSION_NAME,
+    onTrainingMode: (TrainingMode) -> Unit = {},
+    onOpenGuide: () -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
+    // While a mode switch animation runs, the rows are the side the theme shows (it lags the stored side until the
+    // drop's impact or the pump's third beat); the switch itself says the stored side from the tap.
+    val modeSwitch = LocalModeSwitch.current
+    val side = modeSwitch?.shownMode ?: settings.trainingMode
+    val shown = if (side == settings.trainingMode) settings else settings.copy(trainingMode = side)
+    val switchAt = remember { SwitchPlace() }
     Scaffold(
         containerColor = scheme.background,
         topBar = {
             ScreenHeader(
                 "Settings",
-                navigation = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+                Modifier.modeSwitchElement(),
+                modeLabel = true,
+                navigation = { PtIconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
             )
         },
         snackbarHost = { SnackbarHost(snackbar) },
@@ -189,27 +290,64 @@ fun SettingsContent(
         Column(
             Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
         ) {
-            SectionHeader("Loading and targets")
+            SectionHeader("Training style")
+            Group {
+                SwitchRow(
+                    "Bodybuilding mode",
+                    "Rep ranges, a physique coach and a blue look. Your powerlifting plan is kept.",
+                    settings.trainingMode == TrainingMode.BODYBUILDING,
+                    Modifier.testTag("bodybuilding-mode").onGloballyPositioned { switchAt.row = it },
+                    switchModifier = Modifier.testTag("bodybuilding-mode-switch").onGloballyPositioned { switchAt.switch = it },
+                ) { on ->
+                    val mode = if (on) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING
+                    // The only place an animation starts (1.15): the switch measured now, wherever Settings is scrolled.
+                    modeSwitch?.start(ModeSwitchKind.into(mode), switchAt.centre(), switchAt.rowBounds())
+                    onTrainingMode(mode)
+                }
+            }
+
+            // The bodybuilding side hides the powerlifting-only rows (main-lift RPE, strict press, main-lift rest);
+            // their stored values stay as they are and the rows come back on the powerlifting side.
+            val powerlifting = side == TrainingMode.POWERLIFTING
+            SectionHeader("Loading and targets", Modifier.padding(top = Space.m))
             Group {
                 SwitchRow("Change plates", "Adds 0.5 and 0.25 kg plates, so loads round to 0.5 kg", settings.changePlates) { v ->
                     onUpdate { it.copy(changePlates = v) }
                 }
-                RowDivider()
-                StepperRow(
-                    "Default RPE", "Planned effort for main lifts", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
-                    { onUpdate { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
-                    { onUpdate { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
-                )
+                if (powerlifting) {
+                    RowDivider()
+                    StepperRow(
+                        "Default RPE", "Planned effort for main lifts", formatRpe(settings.defaultRpe), settings.defaultRpe > 6.0, settings.defaultRpe < 10.0,
+                        { onUpdate { it.copy(defaultRpe = (it.defaultRpe - 0.5).coerceAtLeast(6.0)) } },
+                        { onUpdate { it.copy(defaultRpe = (it.defaultRpe + 0.5).coerceAtMost(10.0)) } },
+                        labelAction = { RpeInfoButton(inline = true) },
+                    )
+                }
+            }
+
+            if (powerlifting) {
+                SectionHeader("Progress", Modifier.padding(top = Space.m))
+                Group {
+                    SwitchRow("Strict press", "Show it on Progress and add it to your total.", settings.showStrictPress) { v ->
+                        onUpdate { it.copy(showStrictPress = v) }
+                    }
+                }
             }
 
             SectionHeader("Training days", Modifier.padding(top = Space.m))
-            PtCard(contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
+            PtCard(Modifier.modeSwitchElement(), contentPadding = PaddingValues(horizontal = Space.s, vertical = Space.s)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.xxs)) {
                     for (day in DayOfWeek.entries) {
                         ChoiceChip(
-                            text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
-                            selected = day in settings.trainingDays,
-                            onClick = { onUpdate { s -> s.copy(trainingDays = if (day in s.trainingDays) s.trainingDays - day else s.trainingDays + day) } },
+                            text = day.toJavaDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
+                            // The side the app is on keeps its own days (bodybuilding mode spec §6).
+                            selected = day in shown.activeTrainingDays,
+                            onClick = {
+                                onUpdate { s ->
+                                    val days = s.activeTrainingDays
+                                    s.withActiveTrainingDays(if (day in days) days - day else days + day)
+                                }
+                            },
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -218,14 +356,19 @@ fun SettingsContent(
 
             SectionHeader("Rest timer", Modifier.padding(top = Space.m))
             Group {
+                if (powerlifting) {
+                    StepperRow(
+                        "Main lift rest", "Squat, bench, deadlift", "${settings.restMainSec} s", settings.restMainSec > 60, settings.restMainSec < 600,
+                        { onUpdate { it.copy(restMainSec = (it.restMainSec - 30).coerceAtLeast(60)) } },
+                        { onUpdate { it.copy(restMainSec = (it.restMainSec + 30).coerceAtMost(600)) } },
+                    )
+                    RowDivider()
+                }
+                // Every bodybuilding exercise gets the accessory rest, so on that side it is the one rest row.
                 StepperRow(
-                    "Main lift rest", "Squat, bench, deadlift", "${settings.restMainSec} s", settings.restMainSec > 60, settings.restMainSec < 600,
-                    { onUpdate { it.copy(restMainSec = (it.restMainSec - 30).coerceAtLeast(60)) } },
-                    { onUpdate { it.copy(restMainSec = (it.restMainSec + 30).coerceAtMost(600)) } },
-                )
-                RowDivider()
-                StepperRow(
-                    "Accessory rest", "Everything else", "${settings.restAccessorySec} s", settings.restAccessorySec > 30, settings.restAccessorySec < 300,
+                    if (powerlifting) "Accessory rest" else "Rest",
+                    if (powerlifting) "Everything else" else "Every exercise",
+                    "${settings.restAccessorySec} s", settings.restAccessorySec > 30, settings.restAccessorySec < 300,
                     { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec - 15).coerceAtLeast(30)) } },
                     { onUpdate { it.copy(restAccessorySec = (it.restAccessorySec + 15).coerceAtMost(300)) } },
                 )
@@ -236,7 +379,11 @@ fun SettingsContent(
                     REST_ALERT_LABELS.indexOfFirst { it.first == settings.restAlert },
                     { i -> onUpdate { it.copy(restAlert = REST_ALERT_LABELS[i].first) } },
                     Modifier.padding(bottom = Space.m),
+                    // At 320 dp and 130% text the labels would be cut short at their usual 15 sp.
+                    minFontSize = 12.sp,
                 )
+                RowDivider()
+                SwitchRow("Vibrate on taps", VIBRATE_ON_TAPS_SUPPORTING, settings.vibrateOnTaps) { v -> onUpdate { it.copy(vibrateOnTaps = v) } }
             }
 
             SectionHeader("Privacy", Modifier.padding(top = Space.m))
@@ -245,7 +392,7 @@ fun SettingsContent(
             }
 
             SectionHeader("Backup", Modifier.padding(top = Space.m))
-            PtCard {
+            PtCard(Modifier.modeSwitchElement()) {
                 Text(
                     "Your log lives only on this phone. Export a file now and then so you can restore it.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -254,32 +401,78 @@ fun SettingsContent(
                 SecondaryButton("Export backup", onExport, Modifier.fillMaxWidth(), icon = Icons.Filled.Upload)
                 SecondaryButton("Restore backup", onRestore, Modifier.fillMaxWidth(), icon = Icons.Filled.Download)
             }
+
+            // The guide (1.16): always here, for a replay. It writes nothing.
+            SectionHeader(GUIDE_SECTION, Modifier.padding(top = Space.m))
+            Group {
+                Row(
+                    Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpenGuide).testTag("settings-guide"),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                ) {
+                    RowLabel(GUIDE_ROW, GUIDE_ROW_SUPPORTING, Modifier.weight(1f))
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = scheme.onSurfaceVariant)
+                }
+            }
+
+            // Last of all: which version this is, and who made it. Plain text, read once without the dots.
+            Text(
+                appVersionLine(versionName),
+                style = MaterialTheme.typography.bodySmall,
+                color = PowertrackerTheme.colors.muted,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Space.xl)
+                    .testTag("app-version")
+                    .semantics { contentDescription = appVersionSpoken(versionName) },
+            )
         }
     }
 }
 
-@Composable
-private fun Group(content: @Composable ColumnScope.() -> Unit) {
-    PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp, content = content)
+/** Where the Bodybuilding mode switch and its row are, read at the tap. */
+private class SwitchPlace {
+    var switch: LayoutCoordinates? = null
+    var row: LayoutCoordinates? = null
+
+    fun centre(): Offset? = switch?.takeIf { it.isAttached }?.boundsInRoot()?.center
+
+    fun rowBounds(): Rect? = row?.takeIf { it.isAttached }?.boundsInRoot()
 }
 
 @Composable
-private fun RowDivider() = HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+private fun Group(content: @Composable ColumnScope.() -> Unit) {
+    PtCard(Modifier.modeSwitchElement(), contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp, content = content)
+}
 
 @Composable
-private fun RowLabel(label: String, supporting: String, modifier: Modifier = Modifier) {
+private fun RowDivider() = SoftDivider()
+
+@Composable
+private fun RowLabel(label: String, supporting: String, modifier: Modifier = Modifier, labelAction: (@Composable () -> Unit)? = null) {
     Column(modifier.padding(vertical = Space.m)) {
-        Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f, fill = false))
+            labelAction?.invoke()
+        }
         Text(supporting, style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
     }
 }
 
 @Composable
-private fun SwitchRow(label: String, supporting: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(
+    label: String,
+    supporting: String,
+    checked: Boolean,
+    modifier: Modifier = Modifier,
+    switchModifier: Modifier = Modifier,
+    onChange: (Boolean) -> Unit,
+) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     Row(
-        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
+        modifier.fillMaxWidth().pressToggleable(value = checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Space.m),
     ) {
@@ -287,6 +480,7 @@ private fun SwitchRow(label: String, supporting: String, checked: Boolean, onCha
         Switch(
             checked = checked,
             onCheckedChange = null,
+            modifier = switchModifier,
             colors = SwitchDefaults.colors(
                 checkedTrackColor = pt.accent,
                 checkedThumbColor = pt.onAccent,
@@ -299,9 +493,18 @@ private fun SwitchRow(label: String, supporting: String, checked: Boolean, onCha
 }
 
 @Composable
-private fun StepperRow(label: String, supporting: String, value: String, canDec: Boolean, canInc: Boolean, onDec: () -> Unit, onInc: () -> Unit) {
+private fun StepperRow(
+    label: String,
+    supporting: String,
+    value: String,
+    canDec: Boolean,
+    canInc: Boolean,
+    onDec: () -> Unit,
+    onInc: () -> Unit,
+    labelAction: (@Composable () -> Unit)? = null,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-        RowLabel(label, supporting, Modifier.weight(1f))
+        RowLabel(label, supporting, Modifier.weight(1f), labelAction)
         Stepper(label, value, canDec, canInc, onDec, onInc)
     }
 }

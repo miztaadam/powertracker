@@ -16,15 +16,15 @@ open class AdviceRepository(private val db: AppDatabase) {
 
     suspend fun all(): List<Advice> = db.advice().all().map { it.toDomain() }
 
-    suspend fun insert(advice: List<Advice>) = db.advice().insert(advice.map { it.toEntity() })
+    open suspend fun insert(advice: List<Advice>) = db.advice().insert(advice.map { it.toEntity() })
 
     open suspend fun setStatus(id: Long, status: AdviceStatus) = db.advice().setStatus(id, status)
 }
 
-private fun Advice.toEntity() = AdviceEntity(
-    id, type, lift, createdAt, reason, severity, Json.encodeToString<AdvicePayload>(payload), status,
+internal fun Advice.toEntity() = AdviceEntity(
+    id, type, lift, createdAt, reason, severity, Json.encodeToString<AdvicePayload>(payload), status, mode,
 )
 
-private fun AdviceEntity.toDomain() = Advice(
-    type, lift, createdAt, reason, severity, Json.decodeFromString<AdvicePayload>(payload), status, id,
+internal fun AdviceEntity.toDomain() = Advice(
+    type, lift, createdAt, reason, severity, Json.decodeFromString<AdvicePayload>(payload), status, id, mode,
 )

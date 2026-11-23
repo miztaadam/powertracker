@@ -22,11 +22,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.components.EmptyState
 import com.powertracker.ui.components.ScreenHeader
 import com.powertracker.ui.theme.Space
+import com.powertracker.ui.today.slidingItem
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import com.powertracker.ui.components.rememberHaptics
 
 /** The coach's open advice, most urgent first. Nothing changes until the lifter taps Apply. */
 @Composable
@@ -34,11 +37,16 @@ fun CoachScreen(
     training: TrainingRepository,
     advice: AdviceRepository,
     settings: SettingsRepository,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
+    onOpenPlan: () -> Unit = {},
+    onCheckIn: () -> Unit = {},
 ) {
     val viewModel: CoachViewModel = viewModel(factory = CoachViewModel.factory(training, advice, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
+    // Apply and Swap tick once the change is stored: one buzz per apply, none for a second tap that applied nothing.
+    val haptics = rememberHaptics()
+    LaunchedEffect(viewModel) { viewModel.applied.collect { haptics.tick() } }
     LaunchedEffect(viewModel) {
         viewModel.messages.collect { message ->
             // The newest confirmation replaces the one on screen instead of queueing behind it.
@@ -46,7 +54,15 @@ fun CoachScreen(
             launch { snackbar.showSnackbar(message) }
         }
     }
-    CoachContent(state, onApply = viewModel::apply, onDismiss = viewModel::dismiss, snackbar = snackbar)
+    CoachContent(
+        state, onApply = viewModel::apply, onDismiss = viewModel::dismiss, snackbar = snackbar,
+        onSwap = viewModel::swap, onCheckIn = onCheckIn,
+        onResumePlan = viewModel::answerWelcomeBack,
+        onGoalsChanged = {
+            viewModel.answerWelcomeBack()
+            onOpenPlan()
+        },
+    )
 }
 
 /** The Coach screen without its view model. */
@@ -56,6 +72,10 @@ fun CoachContent(
     onApply: (adviceId: Long) -> Unit,
     onDismiss: (adviceId: Long) -> Unit,
     snackbar: SnackbarHostState = remember { SnackbarHostState() },
+    onResumePlan: () -> Unit = {},
+    onGoalsChanged: () -> Unit = {},
+    onSwap: (adviceId: Long, choice: String) -> Unit = { _, _ -> },
+    onCheckIn: () -> Unit = {},
 ) {
     val count = state.cards.size
     val eyebrow = when {
@@ -66,7 +86,7 @@ fun CoachContent(
     }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ScreenHeader("Coach", eyebrow = eyebrow) },
+        topBar = { ScreenHeader("Coach", eyebrow = eyebrow, modeLabel = true) },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         LazyColumn(
@@ -74,18 +94,31 @@ fun CoachContent(
             contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
-            if (!state.loading && state.cards.isEmpty()) {
+            if (!state.loading && state.welcomeBack) {
+                item(key = "welcome-back") { WelcomeBackCard(onResumePlan, onGoalsChanged, slidingItem()) }
+            }
+            if (!state.loading && state.checkInDue) {
+                item(key = "check-in-due") { CheckInDueCard(onCheckIn, slidingItem()) }
+            }
+            // The due card is something to do, so the feed is not "empty" beside it.
+            if (!state.loading && state.cards.isEmpty() && !state.checkInDue) {
                 item(key = "empty") {
                     EmptyState(
                         Icons.Filled.Bolt,
                         "No advice right now. Keep logging.",
                         "The coach looks at your training each time you finish a session.",
-                        Modifier.animateItem(),
+                        slidingItem(),
                     )
                 }
             }
             items(state.cards, key = { it.advice.id }) { card ->
-                CoachAdviceCard(card, onApply = { onApply(card.advice.id) }, onDismiss = { onDismiss(card.advice.id) }, Modifier.animateItem())
+                val id = card.advice.id
+                when (val detail = card.detail) {
+                    is CardDetail.MoreWork -> MoreWorkCard(card.advice, detail.payload, { onApply(id) }, { onDismiss(id) }, slidingItem())
+                    is CardDetail.Swap -> SwapCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, slidingItem())
+                    is CardDetail.Skip -> SkipCard(card.advice, detail.payload, { onSwap(id, it) }, { onDismiss(id) }, slidingItem())
+                    else -> CoachAdviceCard(card, onApply = { onApply(id) }, onDismiss = { onDismiss(id) }, slidingItem())
+                }
             }
         }
     }

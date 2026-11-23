@@ -1,0 +1,192 @@
+package com.powertracker.domain.library
+
+import com.powertracker.domain.library.areas.arms
+import com.powertracker.domain.library.areas.back
+import com.powertracker.domain.library.areas.calves
+import com.powertracker.domain.library.areas.chest
+import com.powertracker.domain.library.areas.core
+import com.powertracker.domain.library.areas.hamstringsGlutes
+import com.powertracker.domain.library.areas.mainLifts
+import com.powertracker.domain.library.areas.quads
+import com.powertracker.domain.library.areas.shoulders
+import com.powertracker.domain.library.figures.ExerciseFigure
+import com.powertracker.domain.library.figures.Figures
+import com.powertracker.domain.model.Category
+import com.powertracker.domain.model.MainLift
+
+/** The exercise catalogue: static data compiled into both apps, and the search both pickers use. */
+object Library {
+    /** The fixed last line of every guide sheet. Kept out of the guide data; the UI appends it. */
+    const val SAFETY_LINE = "Stop if you feel sharp pain. For an injury or a condition, check with a doctor or physiotherapist."
+
+    /** The one line the guide shows for an exercise with nothing to stretch or squeeze ([MuscleFocus.NoFocus]). */
+    const val NO_FOCUS_LINE = "No stretch or squeeze to aim for in this one."
+
+    private val catalogue: List<LibraryExercise> by lazy {
+        mainLifts + chest + back + shoulders + arms + quads + hamstringsGlutes + calves + core
+    }
+
+    private val byKey: Map<String, LibraryExercise> by lazy {
+        buildMap {
+            for (e in catalogue) {
+                put(normalise(e.name), e)
+                for (alias in e.aliases) put(normalise(alias), e)
+            }
+        }
+    }
+
+    private val alphabetical = compareBy<LibraryExercise>({ normalise(it.name) }, { it.name })
+
+    /** The whole catalogue, area by area. */
+    fun all(): List<LibraryExercise> = catalogue
+
+    /**
+     * The names the one-time strict press upgrade matches (strict press spec §4.1), as [normalise] gives them: the
+     * "Strict press" entry's name and the aliases it had when the upgrade shipped. Frozen, so a later alias never
+     * re-categorises a row the lifter named; the upgrade on both apps (and restoring a version-1 backup) reads this.
+     */
+    val STRICT_PRESS_UPGRADE_NAMES: Set<String> = setOf(
+        "strict press", "overhead press", "ohp", "military press", "standing press", "barbell overhead press",
+        "standing barbell press", "barbell military press",
+    )
+
+    /** Whether the strict press upgrade matches a row named [name]: one of [STRICT_PRESS_UPGRADE_NAMES] once normalised. */
+    fun isStrictPressUpgradeName(name: String): Boolean = normalise(name) in STRICT_PRESS_UPGRADE_NAMES
+
+    /** The entry whose name or alias equals [name] once both are normalised; null when there is none. */
+    fun find(name: String): LibraryExercise? = byKey[normalise(name)]
+
+    /**
+     * The stretch and squeeze of the catalogue entry [name] resolves to, the same way [find] resolves names, aliases
+     * and former names, ignoring case; null only for a name outside the catalogue (the lifter's own exercise). The lines are
+     * joined on the first call, never by [all].
+     */
+    fun focus(name: String): MuscleFocus? = find(name)?.let { MuscleFocuses.all[it.name] }
+
+    /**
+     * The body area each main lift belongs to, besides Main lifts: a chosen area also lists its main lift and that lift's
+     * variations (Bench and Close-grip bench under Chest). Owner, 2026-11-16.
+     */
+    private val LIFT_AREA: Map<MainLift, BodyArea> = mapOf(
+        MainLift.BENCH to BodyArea.CHEST,
+        MainLift.SQUAT to BodyArea.QUADS,
+        MainLift.DEADLIFT to BodyArea.HAMSTRINGS_GLUTES,
+        MainLift.STRICT_PRESS to BodyArea.SHOULDERS,
+    )
+
+    /** The main lift [e] is or varies, from its category or its parent lift (never its muscles); null for the rest. */
+    private fun liftOf(e: LibraryExercise): MainLift? = when (e.category) {
+        Category.SQUAT -> MainLift.SQUAT
+        Category.BENCH -> MainLift.BENCH
+        Category.DEADLIFT -> MainLift.DEADLIFT
+        Category.STRICT_PRESS -> MainLift.STRICT_PRESS
+        Category.VARIATION -> e.parentLift
+        Category.ACCESSORY -> null
+    }
+
+    /** Whether [e] shows under the chosen [area]: its own area, or, for a main lift or variation, its lift's area. */
+    fun inArea(e: LibraryExercise, area: BodyArea): Boolean = e.area == area || liftOf(e)?.let { LIFT_AREA[it] } == area
+
+    /**
+     * Entries in [areas] (empty = any; a main lift and its variations also count in their lift's area, [inArea]) that
+     * need any of [equipment] (empty = any) and match [query]. Each entry at most once. Ranked:
+     * an exact name or alias, names starting with the query, names containing it, aliases, then muscles; alphabetical within a rank.
+     * A blank query returns every entry in the filters, alphabetically.
+     */
+    fun search(
+        query: String,
+        areas: Set<BodyArea> = emptySet(),
+        equipment: Set<Equipment> = emptySet(),
+    ): List<LibraryExercise> {
+        val q = normalise(query)
+        val filtered = catalogue.filter { e ->
+            (areas.isEmpty() || areas.any { inArea(e, it) }) && (equipment.isEmpty() || e.equipment.any { it in equipment })
+        }
+        if (q.isEmpty()) return filtered.sortedWith(alphabetical)
+        return filtered
+            .mapNotNull { e -> rank(e, q)?.let { it to e } }
+            .sortedWith(compareBy<Pair<Int, LibraryExercise>> { it.first }.thenBy(alphabetical) { it.second })
+            .map { it.second }
+    }
+
+    /** The muscle groups with at least one catalogue exercise, in the enum's order. */
+    fun muscleGroups(): List<MuscleGroup> = groups
+
+    private val groups: List<MuscleGroup> by lazy { MuscleGroups.present(catalogue) }
+
+    /** Every entry that works [group] with any of its muscles and needs any of [equipment] (empty = any), alphabetically. */
+    fun byMuscle(group: MuscleGroup, equipment: Set<Equipment> = emptySet()): List<LibraryExercise> =
+        catalogue
+            .filter { e -> MuscleGroups.works(e.muscles, group) && (equipment.isEmpty() || e.equipment.any { it in equipment }) }
+            .sortedWith(alphabetical)
+
+    /**
+     * Every entry that works any of [groups] with any of its muscles and needs any of [equipment] (empty = any),
+     * each once, alphabetically. No group matches nothing.
+     */
+    fun byMuscles(groups: Set<MuscleGroup>, equipment: Set<Equipment> = emptySet()): List<LibraryExercise> =
+        catalogue
+            .filter { e -> groups.any { MuscleGroups.works(e.muscles, it) } && (equipment.isEmpty() || e.equipment.any { it in equipment }) }
+            .sortedWith(alphabetical)
+
+    private fun rank(e: LibraryExercise, q: String): Int? {
+        val name = normalise(e.name)
+        return when {
+            // An exact name or alias first, so a former name ("Overhead press") still leads to its entry.
+            name == q || e.aliases.any { normalise(it) == q } -> -1
+            name.startsWith(q) -> 0
+            q in name -> 1
+            e.aliases.any { q in normalise(it) } -> 2
+            e.muscles.any { q in normalise(it) } -> 3
+            else -> null
+        }
+    }
+
+    /** Lowercase, diacritics stripped, `-` and `_` as spaces, runs of spaces collapsed, ends trimmed. */
+    fun normalise(text: String): String {
+        val out = StringBuilder(text.length)
+        for (c in text.lowercase()) {
+            when {
+                c in '̀'..'ͯ' -> Unit // combining marks left by decomposed input
+                c == '-' || c == '_' || c.isWhitespace() -> if (out.isNotEmpty() && out.last() != ' ') out.append(' ')
+                else -> out.append(folds[c] ?: c)
+            }
+        }
+        return out.toString().trimEnd()
+    }
+
+    private val folds: Map<Char, Char> = buildMap {
+        fun fold(chars: String, base: Char) = chars.forEach { put(it, base) }
+        fold("àáâãäåāăą", 'a')
+        fold("çćĉċč", 'c')
+        fold("ďđ", 'd')
+        fold("èéêëēĕėęě", 'e')
+        fold("ĝğġģ", 'g')
+        fold("ĥħ", 'h')
+        fold("ìíîïĩīĭįı", 'i')
+        fold("ĵ", 'j')
+        fold("ķ", 'k')
+        fold("ĺļľŀł", 'l')
+        fold("ñńņňŉ", 'n')
+        fold("òóôõöøōŏő", 'o')
+        fold("ŕŗř", 'r')
+        fold("śŝşš", 's')
+        fold("ţťŧ", 't')
+        fold("ùúûüũūŭůűų", 'u')
+        fold("ŵ", 'w')
+        fold("ýÿŷ", 'y')
+        fold("źżž", 'z')
+    }
+}
+
+/**
+ * The picture of the catalogue entry [name] resolves to, the same way [Library.find] resolves names, aliases and
+ * former names (an "Overhead press" row shows the Strict press picture); null for anything without one.
+ */
+fun Library.figure(name: String): ExerciseFigure? = find(name)?.let { Figures.byName(it.name) }
+
+/**
+ * Whether the catalogue entry [name] resolves to (as [Library.figure]) has a picture, without building it: a list can
+ * ask this of every row and build only the figures it draws.
+ */
+fun Library.hasFigure(name: String): Boolean = find(name)?.let { Figures.has(it.name) } ?: false

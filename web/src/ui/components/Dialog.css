@@ -1,0 +1,98 @@
+.gr-dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Clear of the status bar and the home bar, so a tall dialog never runs under either. */
+  padding: max(var(--space-6), env(safe-area-inset-top)) max(var(--space-6), env(safe-area-inset-right)) max(var(--space-6), env(safe-area-inset-bottom))
+    max(var(--space-6), env(safe-area-inset-left));
+  background: var(--scrim);
+  animation: gr-fade 150ms ease;
+}
+
+.gr-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  min-width: 0;
+  max-width: 400px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-6);
+  border-radius: 28px;
+  background: var(--container-high);
+}
+
+.gr-dialog:focus {
+  outline: none;
+}
+
+.gr-dialog-title {
+  color: var(--text);
+}
+
+.gr-dialog-body {
+  color: var(--text-secondary);
+}
+
+.gr-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+@keyframes gr-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* A line inside the body on what an action just did ("Backup saved."). */
+.gr-dialog-note {
+  margin: var(--space-3) 0 0;
+  color: var(--text);
+}
+
+/* A dialog that fills the phone: a task with a list of its own (the exercise picker). */
+.gr-dialog-scrim-screen {
+  padding: 0;
+  background: var(--bg);
+}
+
+.gr-dialog-screen {
+  gap: 0;
+  max-width: none;
+  height: 100%;
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-radius: 0;
+  background: var(--bg);
+}
+
+/* A sheet from the bottom edge: something to read with the page still in view above it. */
+.gr-dialog-scrim-sheet {
+  align-items: flex-end;
+  padding: calc(var(--space-7) + env(safe-area-inset-top)) 0 0;
+}
+
+.gr-dialog-sheet {
+  gap: 0;
+  max-width: 560px;
+  padding: 0 0 env(safe-area-inset-bottom);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--surface);
+  overscroll-behavior: contain;
+  animation: gr-sheet-rise 200ms ease-out;
+}
+
+@keyframes gr-sheet-rise {
+  from {
+    transform: translateY(24px);
+  }
+}

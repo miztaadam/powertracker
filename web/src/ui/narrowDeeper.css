@@ -1,0 +1,412 @@
+/*
+ * 1.17.3: the screens one step deeper (lift and exercise history, the check-in, the plan builder) and the dialogs and
+ * sheets opened from the tabs (the exercise picker, the form guide, the Muscles sheet, Create your own, Plan's add and
+ * edit forms, Set best, the builder's "Use this plan?") on a 320 px phone at 200 % text, laid out about 160 px wide.
+ * Nothing changes wider than 239 px.
+ *
+ * - A screen's rules are inside the app's screen (`.shell-main`), as 1.17.2's, so the guide's pictures, drawn outside
+ *   it, are as before; and they leave out a dialog opened inside the screen (`:not(.gr-dialog *)`).
+ * - A dialog's rules are scoped to that dialog's own class (Dialog's `className`, on its panel and, with "-scrim", on its
+ *   scrim), never to every dialog: the sheets and dialogs that already fit (the plate, skip and RPE sheets, the day
+ *   chooser, Replace all data, the typo check) are left exactly as they were. A dialog looks the same at this width
+ *   wherever it is opened, Today included: where Today's own narrow rules (today.css) reach into a dialog drawn inside
+ *   Today, the dialog's rule here says the same thing again, more specifically, so Today's rules make no difference.
+ */
+@media (max-width: 239px) {
+  /* ==== Lift history and exercise history: a logged set on two lines, as on Today ==== */
+
+  /*
+   * The load (weight × reps) on its first line, the effort (@ RPE) with the done mark on the next, in the same type; a
+   * load too long for its line ("plate 12½ × 12") breaks once, after the weight. The pills (Top set, PR) take a line
+   * of their own under the effort, and a Failed pill the line after, so a failed top set or a top set that is a record
+   * never puts one pill over another.
+   */
+  .shell-main .history-session .gr-set-visual {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: center;
+  }
+
+  .shell-main .history-session .gr-set-line {
+    display: contents;
+  }
+
+  .shell-main .history-session .gr-set-index {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .shell-main .history-session .gr-set-load {
+    grid-row: 1;
+    grid-column: 2 / 4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .shell-main .history-session .gr-set-load > *,
+  .shell-main .history-session .gr-set-effort {
+    white-space: nowrap;
+  }
+
+  .shell-main .history-session .gr-set-effort {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  /* The @ starts its line: no space before it there. */
+  .shell-main .history-session .gr-set-effort > .gr-set-at {
+    margin-left: 0;
+  }
+
+  .shell-main .history-session .gr-set-dot {
+    grid-row: 2;
+    grid-column: 3;
+  }
+
+  /* Placed in the first free lines under the effort, in their order: the pills, then Failed. */
+  .shell-main .history-session .gr-set-pills,
+  .shell-main .history-session .gr-set-visual > .gr-pill {
+    grid-column: 2 / 4;
+    justify-self: start;
+  }
+
+  .shell-main .history-session .gr-set-pills {
+    padding-block: 0;
+  }
+
+  .shell-main .history-session .gr-set-visual > .gr-pill {
+    margin-block: var(--space-1);
+  }
+
+  .shell-main .history-session .gr-set-spacer {
+    display: none;
+  }
+
+  /* ==== The muscle lists (the check-in's, the plan builder's body parts, the Muscles sheet): one to a row ==== */
+
+  /* Two to a row left each name about 24 px: one to a row, each the list's width and a full 48 px target. */
+  .shell-main .ci-groups .lib-options:not(.gr-dialog *),
+  .shell-main .pb-groups .lib-options:not(.gr-dialog *),
+  .gr-dialog.lib-muscles-sheet .lib-options {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--space-4);
+  }
+
+  .gr-dialog.lib-muscles-sheet .lib-options {
+    padding-bottom: var(--space-4);
+  }
+
+  /* ==== The check-in ==== */
+
+  .shell-main .ci-screen .ci-actions:not(.gr-dialog *) {
+    padding-inline: var(--space-3);
+  }
+
+  /* ==== The plan builder ==== */
+
+  /* Its days, three to a row (Mon Tue Wed, Thu Fri Sat, Sun), each chip a full 48 px target, as in Settings: the card
+     gives up its sides (its border is transparent) so three fit the screen's 144 px. */
+  .shell-main .pb-builder .pb-days:not(.gr-dialog *) {
+    padding-inline: 0;
+    border-inline-width: 0;
+  }
+
+  @media (forced-colors: active) {
+    .shell-main .pb-builder .pb-days:not(.gr-dialog *) {
+      outline: 1px solid transparent;
+      outline-offset: -1px;
+    }
+  }
+
+  .shell-main .pb-builder .pb-days-row:not(.gr-dialog *) {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .shell-main .pb-builder .pb-days-row .gr-chip:not(.gr-dialog *) {
+    flex: 0 0 calc(100% / 3);
+  }
+
+  /* The exercises step scrolls as a whole, the question, the search and the chips with the list, as the Exercises tab
+     does at this width: they would leave the list no room. Back and Next stay at the foot. */
+  .shell-main .pb-builder.pb-screen-fill {
+    height: auto;
+  }
+
+  .shell-main .pb-builder .lib-scroll:not(.gr-dialog *) {
+    overflow-y: visible;
+  }
+
+  .shell-main .pb-builder .pb-lead:not(.gr-dialog *) {
+    padding-inline: var(--space-3);
+  }
+
+  /* Back and Next (or Use this plan) share the bar, each half of it; a label wraps at its spaces. */
+  .shell-main .pb-builder .pb-actions:not(.gr-dialog *) {
+    padding-inline: var(--space-3);
+  }
+
+  .shell-main .pb-builder .pb-actions > .gr-btn:not(.gr-dialog *) {
+    min-width: 0;
+  }
+
+  .shell-main .pb-builder .pb-actions > .gr-btn .gr-btn-face:not(.gr-dialog *) {
+    min-width: 0;
+    padding-inline: var(--space-3);
+  }
+
+  /* A body part's weekly sets: its name on the row's width, then "Under 10" and the count under it, on the right. */
+  .shell-main .pb-builder .pb-volume-row:not(.gr-dialog *) {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    padding-block: var(--space-2);
+  }
+
+  .shell-main .pb-builder .pb-volume-row > .pb-grow:not(.gr-dialog *) {
+    flex-basis: 100%;
+  }
+
+  /* ==== The exercise browser in the picker and in the builder: the Exercises tab's rows (1.17.2) ==== */
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-search {
+    padding-inline: var(--space-3);
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) :is(.lib-chips, .lib-ticked, .lib-heading, .lib-muscle-back, .lib-create) {
+    padding-inline: var(--space-3);
+  }
+
+  /* A row: the name, its muscles and its equipment on the row's whole width (beside the tick box, in the builder);
+     its ⓘ under them, on the right. */
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-bottom: var(--space-1);
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-row::after {
+    left: var(--space-3);
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-row-main {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+    padding-inline: var(--space-3) 0;
+    padding-bottom: 0;
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-row-main > .lib-grow {
+    flex-basis: 100%;
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-row-main > .lib-tick + .lib-grow {
+    flex: 1 1 0;
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) .lib-row-main > .lib-tick ~ .lib-row-equipment {
+    flex-basis: 100%;
+    padding-left: calc(24px + var(--space-4));
+  }
+
+  :is(.gr-dialog.lib-picker, .shell-main .pb-builder) :is(.lib-row-name, .lib-row-muscles) {
+    overflow-wrap: break-word;
+  }
+
+  /* The muscles to browse, one to a row, each the list's width: three to a row left each name about 30 px. */
+  .gr-dialog.lib-picker .lib-muscles {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--space-3);
+  }
+
+  /* The picker's header: Close over the title, the title at the next size down and whole, as the tabs' (1.17.2). */
+  .gr-dialog.lib-picker > .gr-screen-header {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+    padding-inline: var(--space-3);
+  }
+
+  .gr-dialog.lib-picker > .gr-screen-header > .gr-screen-header-text {
+    order: 1;
+    flex-basis: 100%;
+    padding-left: 0;
+  }
+
+  .gr-dialog.lib-picker .gr-screen-title {
+    font: 700 26px/30px var(--font-display);
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: break-word;
+  }
+
+  /*
+   * What Today's narrow rules do inside a dialog drawn in Today (its eyebrows and button labels wrap at their spaces),
+   * said here for the picker and Create your own wherever they open, so they are the same from Today as from Plan.
+   */
+  .gr-dialog-scrim > .gr-dialog:is(.lib-picker, .lib-create-dialog) .eyebrow {
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: normal;
+  }
+
+  .gr-dialog-scrim > .gr-dialog:is(.lib-picker, .lib-create-dialog) .gr-btn-text {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  .gr-dialog-scrim > .gr-dialog:is(.lib-picker, .lib-create-dialog) .gr-btn-face {
+    text-align: center;
+  }
+
+  /* ==== The small dialogs: Create your own, Plan's add and edit forms, Set best, "Use this plan?" ==== */
+
+  /* The screen's sides (8 px) round the dialog and a card's padding (12 px) inside it, as on the screens. */
+  .lib-create-dialog-scrim,
+  .plan-item-dialog-scrim,
+  .plan-best-dialog-scrim,
+  .pb-confirm-dialog-scrim {
+    padding: max(var(--space-3), env(safe-area-inset-top)) max(var(--space-3), env(safe-area-inset-right)) max(var(--space-3), env(safe-area-inset-bottom))
+      max(var(--space-3), env(safe-area-inset-left));
+  }
+
+  .gr-dialog:is(.lib-create-dialog, .plan-item-dialog, .plan-best-dialog, .pb-confirm-dialog) {
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .gr-dialog:is(.lib-create-dialog, .plan-item-dialog, .plan-best-dialog, .pb-confirm-dialog) > .gr-dialog-title {
+    overflow-wrap: break-word;
+  }
+
+  /* Its buttons one over the other, each the dialog's width, in their order (Cancel, then the action). */
+  .gr-dialog:is(.lib-create-dialog, .plan-item-dialog, .plan-best-dialog, .pb-confirm-dialog) > .gr-dialog-actions {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 0;
+  }
+
+  /* A field's label wraps at its spaces ("Muscles (comma-separated)", "Estimated 1RM (kg)"). */
+  .gr-dialog:is(.lib-create-dialog, .plan-item-dialog, .plan-best-dialog) .gr-field-label {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  /* Plan's form: the exercise's name on the dialog's width, Change under it on the right. */
+  .gr-dialog.plan-item-dialog .plan-exercise {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: var(--space-2);
+  }
+
+  .gr-dialog.plan-item-dialog .plan-exercise > .plan-grow {
+    flex-basis: 100%;
+  }
+
+  .gr-dialog.plan-item-dialog .plan-exercise p {
+    overflow-wrap: break-word;
+  }
+
+  .gr-dialog.plan-item-dialog .plan-exercise .eyebrow {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  /* A stepper under its label, its value over its − and + (− at the left, + at the right), as in Settings (1.17.2):
+     − value + is 168 px, and the dialog has 112. */
+  .gr-dialog.plan-item-dialog .plan-stepper-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .gr-dialog.plan-item-dialog .plan-stepper-row > .plan-stepper-label {
+    flex-basis: 100%;
+  }
+
+  .gr-dialog.plan-item-dialog .plan-stepper-row > .gr-stepper {
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: var(--touch) 1fr var(--touch);
+    row-gap: var(--space-2);
+  }
+
+  .gr-dialog.plan-item-dialog .plan-stepper-row > .gr-stepper > .gr-stepper-value {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .gr-dialog.plan-item-dialog .plan-stepper-row > .gr-stepper > .gr-step-btn:last-child {
+    grid-column: 3;
+  }
+
+  /* ==== The form guide and the Muscles sheet ==== */
+
+  /*
+   * The head: Close on a line of its own at the right, the name and its "where" line under it on the sheet's width. It
+   * scrolls with the sheet here: held at the top it would take half of the sheet's 250 px. Close is at the top of the
+   * sheet, and a tap above the sheet or Escape closes it too.
+   */
+  .gr-dialog:is(.lib-guide-sheet, .lib-muscles-sheet) > .lib-guide-head {
+    position: static;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0;
+    padding: var(--space-2) var(--space-2) var(--space-3) var(--space-4);
+  }
+
+  .gr-dialog:is(.lib-guide-sheet, .lib-muscles-sheet) > .lib-guide-head > .lib-grow {
+    order: 1;
+    flex-basis: 100%;
+    padding-right: var(--space-2);
+  }
+
+  .gr-dialog:is(.lib-guide-sheet, .lib-muscles-sheet) > .lib-guide-head h2 {
+    padding-top: 0;
+    overflow-wrap: break-word;
+  }
+
+  .gr-dialog:is(.lib-guide-sheet, .lib-muscles-sheet) .lib-guide-where {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .gr-dialog.lib-guide-sheet .lib-guide {
+    padding: 0 var(--space-4) var(--space-4);
+  }
+
+  /* The safety line: its mark over its words, so they have the block's width. */
+  .gr-dialog.lib-guide-sheet .lib-guide-safety {
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .gr-dialog.lib-guide-sheet .lib-guide-lines li {
+    overflow-wrap: break-word;
+  }
+
+  .gr-dialog.lib-guide-sheet .lib-picture-caption {
+    overflow-wrap: break-word;
+  }
+
+  /* Add to today and Add to plan share the bar at the foot, each half of it; a label wraps at its spaces. */
+  .gr-dialog.lib-guide-sheet .lib-guide-actions {
+    padding-inline: var(--space-3);
+  }
+
+  .gr-dialog.lib-guide-sheet .lib-guide-actions .gr-btn-face {
+    min-width: 0;
+    padding-inline: var(--space-3);
+    text-align: center;
+  }
+
+  .gr-dialog.lib-guide-sheet .lib-guide-actions .gr-btn-text {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+}

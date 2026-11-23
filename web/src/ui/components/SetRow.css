@@ -1,0 +1,113 @@
+.gr-set {
+  appearance: none;
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  text-align: left;
+}
+
+button.gr-set {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button.gr-set:active {
+  background: var(--container);
+}
+
+.gr-set-visual {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--touch);
+}
+
+.gr-set-index {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.gr-set-line {
+  flex: none;
+  white-space: nowrap;
+}
+
+.gr-set-planned .gr-set-line {
+  color: var(--text-secondary);
+}
+
+.gr-set-line .gr-set-soft {
+  color: var(--text-muted);
+}
+
+/* The Android row spaces the signs with literal spaces: two each side of ×, three before @, one after. */
+.gr-set-times {
+  margin: 0 0.4em;
+}
+
+.gr-set-at {
+  margin: 0 0.2em 0 0.6em;
+}
+
+.gr-set-pills {
+  flex: 0 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
+  padding: var(--space-2) 0;
+}
+
+/* Takes the free space and, when there is none, no room of its own: its negative margin cancels the gap beside it. */
+.gr-set-spacer {
+  flex: 1;
+  margin-left: calc(-1 * var(--space-4));
+}
+
+/* A top set that is also a record: on a phone the row closes up so both pills stay on one line.
+   `:has()` needs iOS 15.4 or later; older Safari skips this rule and the second pill wraps under the first. */
+@media (max-width: 429px) {
+  .gr-set-visual:has(.gr-set-pills > :nth-child(2)),
+  .gr-set-visual:has(.gr-set-pills > :nth-child(2)) .gr-set-pills {
+    column-gap: var(--space-3);
+  }
+
+  .gr-set-visual:has(.gr-set-pills > :nth-child(2)) .gr-set-spacer {
+    margin-left: calc(-1 * var(--space-3));
+  }
+}
+
+.gr-set-dot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 2px;
+  border-radius: 50%;
+}
+
+.gr-set-dot-planned {
+  border: 1.5px solid var(--outline);
+}
+
+.gr-set-dot-done {
+  background: var(--success-container);
+  color: var(--success);
+}
+
+.gr-set-dot-failed {
+  background: var(--danger-container);
+  color: var(--danger);
+}

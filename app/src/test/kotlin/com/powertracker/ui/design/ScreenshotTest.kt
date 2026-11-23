@@ -9,10 +9,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import com.powertracker.domain.guide.GuideScreenId
+import com.powertracker.domain.library.Library
+import com.powertracker.domain.library.MuscleGroup
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.Tab
+import com.powertracker.ui.guide.GuideScreen
+import com.powertracker.ui.library.CatalogueThumbnails
 import com.powertracker.ui.lock.LockScreen
+import com.powertracker.ui.plan.builder.BuilderStep
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,9 +40,16 @@ import java.io.File
  * The Today and Coach mockups render the real `TodayContent` / `CoachContent` with sample state
  * (Today: mid-session, before the session, an exercise finished, after Finish; Coach: the feed, the
  * empty feed, and the rarer re-entry and miss-point cards). Progress and lift history render the
- * real `ProgressContent` / `LiftHistoryContent` from a sample training history. Today, Plan,
+ * real `ProgressContent` / `LiftHistoryContent` from a sample training history, Progress once more
+ * with the strict press switch on. Settings is captured with that switch off and on, and with bodybuilding mode on; Today, Plan, Coach (with the welcome-back card) and Progress have bodybuilding captures too, in the blue look. The exercise picker
+ * is the real `ExercisePickerContent`, on its muscle grid and inside one muscle; the form guide is the real `FormGuideContent` in a stand-in
+ * for the bottom sheet, for the squat, the bench press and the lat pulldown, each with its two-pose picture, and the squat once more with bodybuilding mode on, in the blue look with its stretch and squeeze section (the sheet itself is its own window, which this capture cannot see). The Exercises tab is
+ * the real `ExercisesContent`; its Muscles drop-down, the guide with its actions and the day chooser are their
+ * real content in the same stand-in, the first and last over the tab. Plan's add form, on both sides, is the real
+ * `PlanItemFields` in a stand-in for its AlertDialog window, over the Plan screen. Today, Plan (and its add form), the Exercises captures,
+ * the exercise picker,
  * lift history, the empty Coach feed and the two lock screens are phone size (412 × 915 dp); the
- * other Coach captures, Progress and Settings are full-page captures of a scrolling screen, so
+ * other Coach captures, Progress, Settings, the four form guides and the RPE sheet are full-page captures of a scrolling screen, so
  * their height differs. The launcher icon is rendered by [LauncherIconTest].
  */
 @RunWith(RobolectricTestRunner::class)
@@ -46,9 +62,19 @@ class ScreenshotTest {
     // Unit tests run with the module directory (app/) as the working directory.
     private val outDir = File(if (System.getProperty("screenshots.update") == "true") "../docs/design/screens" else "build/screenshots").apply { mkdirs() }
 
-    private fun render(name: String, tab: Tab?, content: @Composable () -> Unit) {
+    /**
+     * The Exercises tab works its thumbnails out in the background, so a capture could race the worker. Every one is
+     * made ready first: each capture then shows them drawn, from the first frame, as a lifter sees them once the
+     * warm-up is done.
+     */
+    @Before
+    fun thumbnailsReady() = runBlocking {
+        for (exercise in Library.all()) CatalogueThumbnails.load(exercise.name)
+    }
+
+    private fun render(name: String, tab: Tab?, mode: TrainingMode = TrainingMode.POWERLIFTING, content: @Composable () -> Unit) {
         var dark by mutableStateOf(true)
-        compose.setContent { ShowcaseFrame(dark, tab, content) }
+        compose.setContent { ShowcaseFrame(dark, tab, mode, content) }
         for (mode in listOf(true, false)) {
             dark = mode
             compose.waitForIdle()
@@ -81,19 +107,23 @@ class ScreenshotTest {
     fun todaySummary() = render("today-summary", Tab.TODAY) { TodaySummaryShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1400dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1440dp-xhdpi")
     fun coach() = render("coach", Tab.COACH) { CoachShowcase() }
 
     @Test
     fun coachEmpty() = render("coach-empty", Tab.COACH) { CoachEmptyShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h984dp-xhdpi")
+    @Config(qualifiers = "w412dp-h1000dp-xhdpi")
     fun coachMore() = render("coach-more", Tab.COACH) { CoachMoreShowcase() }
 
     @Test
     @Config(qualifiers = "w412dp-h1830dp-xhdpi")
     fun progress() = render("progress", Tab.PROGRESS) { ProgressShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h2040dp-xhdpi")
+    fun progressStrictPress() = render("progress-strict-press", Tab.PROGRESS) { ProgressShowcase(strictPress = true) }
 
     @Test
     fun liftHistory() = render("lift-history", null) { LiftHistoryShowcase() }
@@ -102,12 +132,222 @@ class ScreenshotTest {
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test
-    @Config(qualifiers = "w412dp-h1030dp-xhdpi")
+    fun planAddForm() = render("plan-add-form", Tab.PLAN) { PlanAddFormShowcase() }
+
+    // 1.16.1: Known bests with a best on three lifts and the strict press switch on; tall enough for the whole card.
+    @Test
+    @Config(qualifiers = "w412dp-h960dp-xhdpi")
+    fun planKnownBests() = render("plan-known-bests", Tab.PLAN) { PlanShowcase(knownBests = true) }
+
+    @Test
+    // Tall enough for the whole screen, the guide's row (1.16) and the version line included.
+    @Config(qualifiers = "w412dp-h1530dp-xhdpi")
     fun settings() = render("settings", null) { SettingsShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1530dp-xhdpi")
+    fun settingsStrictPress() = render("settings-strict-press", null) { SettingsShowcase(strictPress = true) }
+
+    // The bodybuilding side (bodybuilding mode spec §7): its blue look and label, its own Today, Plan, Coach and Progress.
+    @Test
+    fun todayBodybuilding() = render("today-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodayBodybuildingShowcase() }
+
+    @Test
+    fun planBodybuilding() = render("plan-bodybuilding", Tab.PLAN, TrainingMode.BODYBUILDING) { PlanBodybuildingShowcase() }
+
+    @Test
+    fun planAddFormBodybuilding() = render("plan-add-form-bodybuilding", Tab.PLAN, TrainingMode.BODYBUILDING) { PlanAddFormShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun coachBodybuilding() = render("coach-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachBodybuildingShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1456dp-xhdpi")
+    fun progressBodybuilding() = render("progress-bodybuilding", Tab.PROGRESS, TrainingMode.BODYBUILDING) { ProgressBodybuildingShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1460dp-xhdpi")
+    fun settingsBodybuilding() = render("settings-bodybuilding", null, TrainingMode.BODYBUILDING) {
+        SettingsShowcase(bodybuilding = true)
+    }
+
+    // Stage 3: the check-in's three steps, and Coach with the check-in due and the two new cards.
+    @Test
+    fun checkInLagging() = render("checkin-lagging-bodybuilding", null, TrainingMode.BODYBUILDING) { CheckInLaggingShowcase() }
+
+    @Test
+    fun checkInGrowing() = render("checkin-growing-bodybuilding", null, TrainingMode.BODYBUILDING) { CheckInGrowingShowcase() }
+
+    @Test
+    fun checkInSaved() = render("checkin-saved-bodybuilding", null, TrainingMode.BODYBUILDING) { CheckInSavedShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1150dp-xhdpi")
+    fun coachCheckIn() = render("coach-checkin-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachCheckInShowcase() }
+
+    // The bodybuilding side's plan builder (stage 2): its four steps.
+    @Test
+    fun planBuilderDays() = render("plan-builder-days-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.DAYS) }
+
+    @Test
+    fun planBuilderExercises() = render("plan-builder-exercises-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.EXERCISES) }
+
+    @Test
+    fun planBuilderBodyParts() = render("plan-builder-body-parts-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.BODY_PARTS) }
+
+    @Test
+    @Config(qualifiers = "w412dp-h3330dp-xhdpi")
+    fun planBuilderDraft() = render("plan-builder-draft-bodybuilding", null, TrainingMode.BODYBUILDING) { PlanBuilderShowcase(BuilderStep.DRAFT) }
+
+    // 1.14, plan templates: the list, a draft on each side and the confirm.
+    @Test
+    fun templatesList() = render("templates-list", null) { TemplatesListShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1720dp-xhdpi")
+    fun templateDraft() = render("template-draft", null) { TemplateDraftShowcase("pl-4") }
+
+    @Test
+    @Config(qualifiers = "w412dp-h3160dp-xhdpi")
+    fun templateDraftBodybuilding() = render("template-draft-bodybuilding", null, TrainingMode.BODYBUILDING) { TemplateDraftShowcase("bb-4") }
+
+    @Test
+    fun templateConfirm() = render("template-confirm", null) { TemplateConfirmShowcase() }
+
+    @Test
+    fun exercisePicker() = render("exercise-picker", null) { ExercisePickerShowcase() }
+
+    @Test
+    fun exercisePickerMuscle() = render("exercise-picker-muscle", null) { ExercisePickerShowcase(MuscleGroup.QUADS) }
+
+    @Test
+    fun exercises() = render("exercises", Tab.EXERCISES) { ExercisesShowcase() }
+
+    @Test
+    fun exercisesMuscles() = render("exercises-muscles", null) { ExercisesMusclesShowcase() }
+
+    @Test
+    fun exerciseGuideActions() = render("exercise-guide-actions", null) { GuideActionsShowcase() }
+
+    @Test
+    fun exerciseDayChooser() = render("exercise-day-chooser", null) { DayChooserShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1480dp-xhdpi")
+    fun formGuide() = render("form-guide", null) { FormGuideShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1370dp-xhdpi")
+    fun formGuidePicture() = render("form-guide-picture", null) { FormGuidePictureShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h1370dp-xhdpi")
+    fun formGuideLatPulldown() = render("form-guide-lat-pulldown", null) { FormGuideLatPulldownShowcase() }
+
+    // The squat's guide with bodybuilding mode on: its "Stretch and squeeze" section after Cues (stage 4).
+    @Test
+    @Config(qualifiers = "w412dp-h1640dp-xhdpi")
+    fun formGuideBodybuilding() = render("form-guide-bodybuilding", null, TrainingMode.BODYBUILDING) { FormGuideShowcase() }
+
+    @Test
+    @Config(qualifiers = "w412dp-h560dp-xhdpi")
+    fun rpeSheet() = render("rpe-sheet", null) { RpeSheetShowcase() }
+
+    // 1.13, skipping a planned exercise: the row menu, the reason sheet, the "Skipped today" line and the SKIP cards.
+    @Test
+    fun todaySkipMenu() = render("today-skip-menu", Tab.TODAY) { TodaySkipMenuShowcase() }
+
+    @Test
+    fun todaySkipMenuBodybuilding() = render("today-skip-menu-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkipMenuShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun todaySkipSheet() = render("today-skip-sheet", Tab.TODAY) { TodaySkipSheetShowcase() }
+
+    @Test
+    fun todaySkipSheetBodybuilding() = render("today-skip-sheet-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkipSheetShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun todaySkipped() = render("today-skipped", Tab.TODAY) { TodaySkippedShowcase() }
+
+    @Test
+    fun todaySkippedBodybuilding() = render("today-skipped-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodaySkippedShowcase(TrainingMode.BODYBUILDING) }
+
+    // 1.17, counting plates on a stack machine: Today with a plate-counted exercise on each side, and the plate sheet.
+    @Test
+    fun todayPlatesPowerlifting() = render("today-plates-powerlifting", Tab.TODAY) { TodayPlatesShowcase(TrainingMode.POWERLIFTING) }
+
+    @Test
+    fun todayPlatesBodybuilding() = render("today-plates-bodybuilding", Tab.TODAY, TrainingMode.BODYBUILDING) { TodayPlatesShowcase(TrainingMode.BODYBUILDING) }
+
+    @Test
+    fun todayPlatesMenu() = render("today-plates-menu", Tab.TODAY) { TodayPlatesMenuShowcase() }
+
+    @Test
+    fun plateSheet() = render("plate-sheet", Tab.TODAY) { PlateSheetShowcase() }
+
+    @Test
+    fun coachSkip() = render("coach-skip", Tab.COACH) { CoachSkipShowcase() }
+
+    @Test
+    fun coachSkipBodybuilding() = render("coach-skip-bodybuilding", Tab.COACH, TrainingMode.BODYBUILDING) { CoachSkipShowcase(TrainingMode.BODYBUILDING) }
 
     @Test
     fun lock() = render("lock", null) { LockScreen(noDeviceLock = false, onUnlock = {}, onContinue = {}) }
 
     @Test
     fun lockNoScreenLock() = render("lock-no-screen-lock", null) { LockScreen(noDeviceLock = true, onUnlock = {}, onContinue = {}) }
+
+    /** The guide's screen 4 at its last step (motion off shows it), on each side (1.16). */
+    @Test
+    fun guideTodayPowerlifting() = render("guide-today-powerlifting", null) { GuideTodayShowcase(TrainingMode.POWERLIFTING) }
+
+    @Test
+    fun guideTodayBodybuilding() = render("guide-today-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideTodayShowcase(TrainingMode.BODYBUILDING) }
+
+    /** Screen 2 on a first launch, with its two side buttons (1.16, Task 3). */
+    @Test
+    fun guideSideFirstLaunchPowerlifting() = render("guide-side-first-launch-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.SIDE, firstLaunch = true) }
+
+    @Test
+    fun guideSideFirstLaunchBodybuilding() = render("guide-side-first-launch-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.SIDE, firstLaunch = true) }
+
+    /** Screen 8 with no plan on the side (Choose a template; Build my plan on bodybuilding), and with one (Done, See my plan). */
+    @Test
+    fun guideYourTurnNoPlanPowerlifting() = render("guide-your-turn-no-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN) }
+
+    @Test
+    fun guideYourTurnNoPlanBodybuilding() = render("guide-your-turn-no-plan-bodybuilding", null, TrainingMode.BODYBUILDING) { GuideShowcase(TrainingMode.BODYBUILDING, GuideScreenId.YOUR_TURN) }
+
+    @Test
+    fun guideYourTurnWithPlan() = render("guide-your-turn-with-plan-powerlifting", null) { GuideShowcase(TrainingMode.POWERLIFTING, GuideScreenId.YOUR_TURN, hasPlan = true) }
+
+    /** The guide's other seven screens at their last step (motion off shows it), on each side (1.16, Task 4). */
+    private fun guide(id: GuideScreenId, mode: TrainingMode) =
+        render("guide-${guideShotName(id)}-${mode.name.lowercase()}", null, mode) { GuideTodayShowcase(mode, id) }
+
+    @Test fun guideWelcomePowerlifting() = guide(GuideScreenId.WELCOME, TrainingMode.POWERLIFTING)
+    @Test fun guideWelcomeBodybuilding() = guide(GuideScreenId.WELCOME, TrainingMode.BODYBUILDING)
+    @Test fun guideSidePowerlifting() = guide(GuideScreenId.SIDE, TrainingMode.POWERLIFTING)
+    @Test fun guideSideBodybuilding() = guide(GuideScreenId.SIDE, TrainingMode.BODYBUILDING)
+    @Test fun guidePlanPowerlifting() = guide(GuideScreenId.PLAN, TrainingMode.POWERLIFTING)
+    @Test fun guidePlanBodybuilding() = guide(GuideScreenId.PLAN, TrainingMode.BODYBUILDING)
+    @Test fun guideTargetsPowerlifting() = guide(GuideScreenId.TARGETS, TrainingMode.POWERLIFTING)
+    @Test fun guideTargetsBodybuilding() = guide(GuideScreenId.TARGETS, TrainingMode.BODYBUILDING)
+    @Test fun guideHoldsBackPowerlifting() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.POWERLIFTING)
+    @Test fun guideHoldsBackBodybuilding() = guide(GuideScreenId.HOLDS_BACK, TrainingMode.BODYBUILDING)
+    @Test fun guideMonthsLaterPowerlifting() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.POWERLIFTING)
+    @Test fun guideMonthsLaterBodybuilding() = guide(GuideScreenId.MONTHS_LATER, TrainingMode.BODYBUILDING)
+    @Test fun guideYourTurnPowerlifting() = guide(GuideScreenId.YOUR_TURN, TrainingMode.POWERLIFTING)
+    @Test fun guideYourTurnBodybuilding() = guide(GuideScreenId.YOUR_TURN, TrainingMode.BODYBUILDING)
 }
+
+/** A guide screen's shot name: "months-later" for MONTHS_LATER. */
+internal fun guideShotName(id: GuideScreenId): String = id.name.lowercase().replace('_', '-')
+
+@Composable
+private fun GuideShowcase(mode: TrainingMode, at: GuideScreenId, firstLaunch: Boolean = false, hasPlan: Boolean = false) =
+    GuideScreen(mode, firstLaunch = firstLaunch, hasPlan = hasPlan, motionOn = false, onPickSide = {}, onClose = {}, startAt = at)
+
+@Composable
+private fun GuideTodayShowcase(mode: TrainingMode, id: GuideScreenId = GuideScreenId.TODAY) =
+    GuideScreen(mode, firstLaunch = false, hasPlan = false, motionOn = false, onPickSide = {}, onClose = {}, startAt = id)

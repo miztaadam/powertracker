@@ -15,8 +15,9 @@ android {
         applicationId = "com.powertracker"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        // Bump together with "version" in web/package.json for each update; a web test catches a mismatch.
+        versionCode = 32
+        versionName = "1.17.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,6 +35,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // BuildConfig.VERSION_NAME: the version line at the bottom of Settings.
+        buildConfig = true
     }
     testOptions {
         unitTests {
@@ -43,6 +46,8 @@ android {
             all {
                 // Mockup PNGs in docs/design/screens are only rewritten with -Pscreenshots.update=true.
                 it.systemProperty("screenshots.update", (project.findProperty("screenshots.update") ?: "false").toString())
+                // web/src/backup/__fixtures__/android-v2.json is only rewritten with -Pfixtures.update=true (the v1 fixtures are frozen).
+                it.systemProperty("fixtures.update", (project.findProperty("fixtures.update") ?: "false").toString())
                 it.jvmArgs(
                     "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
                     "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",

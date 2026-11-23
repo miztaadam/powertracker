@@ -1,0 +1,121 @@
+/* The button element is the touch target; the face inside it is what you see. A compact
+   button looks 40 px tall but is still 48 px to touch. */
+.gr-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  min-width: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gr-btn-compact {
+  min-height: var(--touch);
+}
+
+.gr-btn-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  transition: filter 120ms ease, background-color 120ms ease;
+}
+
+.gr-btn-compact .gr-btn-face {
+  min-height: 40px;
+  padding: var(--space-3) var(--space-5);
+}
+
+.gr-btn-icon {
+  display: flex;
+}
+
+.gr-btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.gr-btn-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gr-btn-primary .gr-btn-face {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.gr-btn-secondary .gr-btn-face {
+  background: var(--container-highest);
+  color: var(--text);
+}
+
+.gr-btn-quiet .gr-btn-face {
+  color: var(--text-secondary);
+}
+
+.gr-btn:active:not(:disabled) .gr-btn-face {
+  filter: brightness(0.9);
+}
+
+.gr-btn-quiet:active:not(:disabled) .gr-btn-face {
+  background: var(--container-high);
+  filter: none;
+}
+
+/* Material's disabled look: 12% container, 38% content. */
+.gr-btn:disabled {
+  cursor: default;
+}
+
+.gr-btn-primary:disabled .gr-btn-face,
+.gr-btn-secondary:disabled .gr-btn-face {
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  color: color-mix(in srgb, var(--text) 38%, transparent);
+}
+
+.gr-btn-quiet:disabled .gr-btn-face {
+  color: color-mix(in srgb, var(--text) 38%, transparent);
+}
+
+.gr-icon-btn {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch);
+  height: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.gr-icon-btn:active:not(:disabled) {
+  background: var(--container-high);
+}
+
+.gr-icon-btn:disabled {
+  color: color-mix(in srgb, var(--text) 38%, transparent);
+  cursor: default;
+}

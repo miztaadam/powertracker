@@ -1,0 +1,71 @@
+.gr-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.gr-field-box {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-sm);
+  background: var(--container);
+}
+
+.gr-field-box:focus-within {
+  border-color: var(--text);
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.gr-field-invalid .gr-field-box {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger);
+}
+
+.gr-field-input {
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--text);
+  font: 400 16px/24px var(--font-text);
+  font-feature-settings: 'tnum';
+}
+
+.gr-field-input[inputmode='decimal'] {
+  font: 600 22px/26px var(--font-display);
+  font-feature-settings: 'tnum';
+}
+
+.gr-field-input:focus {
+  outline: none;
+}
+
+.gr-field-input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.gr-field-unit {
+  color: var(--text-muted);
+}
+
+.gr-field-error {
+  margin: 0;
+  color: var(--danger);
+}
+
+/* A control at the end of the box sits in its middle and reaches the box's edge. */
+.gr-field-box-trailing {
+  align-items: center;
+  padding-right: var(--space-1);
+}

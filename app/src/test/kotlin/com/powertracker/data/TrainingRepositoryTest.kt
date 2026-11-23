@@ -4,17 +4,18 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.coach.AccessoryMap
+import com.powertracker.domain.seed.SeedLibrary
 import com.powertracker.domain.model.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class TrainingRepositoryTest {
@@ -38,7 +39,10 @@ class TrainingRepositoryTest {
     @Test
     fun seedContainsEveryAccessoryMapName() = runTest {
         val names = training.exercises().first().map { it.name }.toSet()
-        assertTrue(names.containsAll(AccessoryMap.allExerciseNames))
+        // The squat, bench and deadlift rows' names. Strict press's rows are not seeded: they come from the catalogue.
+        val seeded = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT).flatMap { lift -> AccessoryMap.allOptions(lift).map { it.exerciseName } }
+        assertTrue(names.containsAll(seeded))
+        assertTrue("Strict press" !in names)
         assertTrue(names.containsAll(listOf("Squat", "Bench", "Deadlift", "Curl", "Row", "Pull-up")))
         val all = training.exercises().first()
         assertTrue(all.all { it.isBuiltIn })
@@ -51,9 +55,17 @@ class TrainingRepositoryTest {
     }
 
     @Test
+    fun seedIds_unchanged() = runTest {
+        val all = training.exercises().first()
+        assertEquals(SeedLibrary.exercises(), all)
+        assertEquals(listOf("Squat" to 1L, "Bench" to 2L, "Deadlift" to 3L), all.take(3).map { it.name to it.id })
+        assertEquals((1L..all.size).toList(), all.map { it.id })
+    }
+
+    @Test
     fun logAndReadHistory_roundTrips() = runTest {
         val squat = byName("Squat")
-        val date = LocalDate.of(2026, 11, 2)
+        val date = LocalDate(2026, 11, 2)
         val sessionId = training.startSession(date, 82.5, null)
         training.logSet(sessionId, LoggedSet(squat.id, 140.0, 5, 8.5, false, null, true))
         training.logSet(sessionId, LoggedSet(squat.id, 150.0, 3, null, true, MissPoint.MID, false))
@@ -80,7 +92,7 @@ class TrainingRepositoryTest {
     @Test
     fun setsForSessionAndSessionOn() = runTest {
         val squat = byName("Squat")
-        val date = LocalDate.of(2026, 11, 3)
+        val date = LocalDate(2026, 11, 3)
         assertNull(training.sessionOn(date).first())
         val sid = training.startSession(date, null, 4)
         val set = LoggedSet(squat.id, 100.0, 5, 7.0, false, null, false)
@@ -96,7 +108,7 @@ class TrainingRepositoryTest {
     @Test
     fun deleteExerciseWithSets_throws_archiveWorks() = runTest {
         val bench = byName("Bench")
-        val sid = training.startSession(LocalDate.of(2026, 11, 2), null, null)
+        val sid = training.startSession(LocalDate(2026, 11, 2), null, null)
         training.logSet(sid, LoggedSet(bench.id, 100.0, 5, 8.0, false, null, true))
 
         assertThrows(ExerciseInUseException::class.java) { kotlinx.coroutines.runBlocking { training.deleteExercise(bench.id) } }
@@ -125,7 +137,7 @@ class TrainingRepositoryTest {
 
     @Test
     fun advicePayload_roundTrips() = runTest {
-        val date = LocalDate.of(2026, 11, 9)
+        val date = LocalDate(2026, 11, 9)
         val payloads = listOf(
             AdviceType.TARGET to AdvicePayload.Target(1, 142.5, 5, 8.0, 3),
             AdviceType.TARGET to AdvicePayload.Accessories(listOf(AccessoryPrescription("Pause squat", 3, 3, 5))),

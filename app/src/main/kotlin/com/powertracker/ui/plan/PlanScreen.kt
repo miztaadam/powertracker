@@ -1,12 +1,14 @@
 package com.powertracker.ui.plan
 
+import com.powertracker.ui.today.TapAnchor
+import com.powertracker.ui.today.tapAnchor
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -18,33 +20,41 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -59,14 +69,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.PlanSnapshot
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.repsText
 import com.powertracker.domain.validation.InputValidator
-import com.powertracker.ui.components.ChoiceChip
+import com.powertracker.platform.systemToday
+import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.PrimaryButton
 import com.powertracker.ui.components.PtCard
 import com.powertracker.ui.components.QuietButton
@@ -75,25 +89,121 @@ import com.powertracker.ui.components.SecondaryButton
 import com.powertracker.ui.components.SectionHeader
 import com.powertracker.ui.components.Stepper
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.library.ExercisePickerScreen
+import com.powertracker.ui.library.HandOnHeldFailures
+import com.powertracker.ui.library.HeldFailures
+import com.powertracker.ui.library.FormMessage
+import com.powertracker.ui.library.InfoButton
+import com.powertracker.ui.library.PickerEntry
+import com.powertracker.ui.library.RpeInfoButton
+import com.powertracker.ui.library.SAVE_FAILED
+import com.powertracker.ui.plan.builder.BUILD_MY_PLAN
+import com.powertracker.ui.plan.builder.PLAN_OPTIONS
+import com.powertracker.ui.plan.builder.REBUILD_MY_PLAN
+import com.powertracker.ui.plan.templates.CHOOSE_A_TEMPLATE
+import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
-import java.time.DayOfWeek
-import java.time.LocalDate
+import com.powertracker.ui.today.SlidingColumnItems
+import com.powertracker.ui.today.UNDO
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
+import com.powertracker.ui.components.rememberHaptics
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.PtDropdownMenuItem
 
-/** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8". */
-fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${item.reps} @ ${formatRpe(item.targetRpe)}"
+/** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8", or "Curl  3 × 8–12 @ 8" for a rep range. */
+fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
 
-fun dayName(day: DayOfWeek): String = day.getDisplayName(TextStyle.FULL, Locale.getDefault())
+/** The line an empty bodybuilding plan shows, over its "Build my plan" button (bodybuilding mode spec §7.3, stage 2). */
+const val EMPTY_BODYBUILDING_PLAN = "Your bodybuilding plan is empty. Add exercises to each training day."
+
+/** The line an empty powerlifting plan shows, over its "Choose a template" button (1.14). */
+const val EMPTY_POWERLIFTING_PLAN = "Your plan is empty. Start from a template or add exercises to each day."
+
+/** The most reps the top of a range can be set to. */
+private const val MAX_RANGE_REPS = 30
+
+/** The most fixed reps a plan item can be set to. */
+private const val MAX_PLAN_REPS = 20
+
+/**
+ * How long, in ms, the add form ignores taps on Add, Cancel and outside it once it opens. It opens under the finger
+ * that picked the exercise, so the second tap of a double tap on the row would otherwise land on it.
+ */
+internal const val ADD_FORM_TAP_WINDOW_MS = 300L
+
+/** A Known bests row's line (1.16.1), in Progress's own term: "Best e1RM 182.5 kg". [kg] is already to the half kilo. */
+fun knownBestText(kg: Double): String = "Best e1RM ${formatKg(kg)} kg"
+
+fun dayName(day: DayOfWeek): String = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
 
 // Dialogs holding text fields use full-width properties: with the platform-default width the field
 // never settles under Robolectric (the Compose test never goes idle).
 private val TEXT_FIELD_DIALOG = DialogProperties(usePlatformDefaultWidth = false)
 
+/** [TEXT_FIELD_DIALOG] while it ignores taps outside it ([ADD_FORM_TAP_WINDOW_MS]). */
+private val TEXT_FIELD_DIALOG_HOLDING_TAPS = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)
+
+/**
+ * Swallows touches until [live] is true, before the button under them sees them, so a tap does nothing; keyboard and
+ * accessibility clicks do not come through touches and still work.
+ */
+private fun Modifier.dropTapsUntil(live: State<Boolean>): Modifier = pointerInput(live) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            if (!live.value) event.changes.forEach { it.consume() }
+        }
+    }
+}
+
 private sealed interface PlanDialog {
-    data class Edit(val day: DayOfWeek, val item: PlanItem?) : PlanDialog
+    /** The full-screen picker, adding to [day]. */
+    data class Add(val day: DayOfWeek) : PlanDialog
+
+    /**
+     * The sets/reps form for [entry], just picked for [day]: [draft] holds the ready-made numbers, stored nowhere yet.
+     * [saving] is true from Add's tap until the write answers.
+     */
+    data class AddDetails(val day: DayOfWeek, val entry: PickerEntry, val draft: PlanItem, val saving: Boolean = false) : PlanDialog
+    data class Edit(val item: PlanItem) : PlanDialog
     data class Baseline(val lift: Exercise) : PlanDialog
+
+    companion object {
+        /**
+         * Keeps the add form across a rotation or the process being killed: the day, the picked entry and the draft.
+         * The other dialogs are not kept, as before, and neither is an add form whose Add is saving: its item may be
+         * stored by the time it is restored, and a second Add would store it again.
+         */
+        val Saver: Saver<PlanDialog?, Any> = listSaver(
+            save = { d ->
+                if (d !is PlanDialog.AddDetails || d.saving) {
+                    emptyList()
+                } else {
+                    val entry = with(PickerEntry.Saver) { save(d.entry) } as List<*>
+                    val item = d.draft
+                    listOf(d.day.name) + entry + listOf(item.exerciseId, item.sets, item.reps, item.targetRpe, item.order, item.mode.name, item.repsHigh ?: -1)
+                }
+            },
+            restore = { v ->
+                if (v.isEmpty()) return@listSaver null
+                val day = DayOfWeek.valueOf(v[0] as String)
+                val entry = PickerEntry.Saver.restore(v.subList(1, 6))!!
+                val draft = PlanItem(
+                    0, day, v[6] as Long, v[7] as Int, v[8] as Int, v[9] as Double, v[10] as Int,
+                    TrainingMode.valueOf(v[11] as String), (v[12] as Int).takeIf { it >= 0 },
+                )
+                AddDetails(day, entry, draft)
+            },
+        )
+    }
 }
 
 @Composable
@@ -101,34 +211,142 @@ fun PlanScreen(
     training: TrainingRepository,
     settings: SettingsRepository,
     onOpenSettings: () -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
     viewModel: PlanViewModel = viewModel(factory = PlanViewModel.factory(training, settings, today)),
+    /** Opens the plan builder: offered on the bodybuilding side only. */
+    onOpenBuilder: () -> Unit = {},
+    /** Opens the templates for the side shown (1.14). */
+    onOpenTemplates: (TrainingMode) -> Unit = {},
+    /** A message for the snackbar once (after a template is saved, "Plan set: …"); [onMessageShown] clears it. */
+    message: String? = null,
+    onMessageShown: () -> Unit = {},
+    /**
+     * With [message], what its Undo puts back after a template or builder save replaced a plan (1.14.1); null shows the
+     * message alone. Undo is offered for the snackbar's usual time and applies to the snapshot's own side.
+     */
+    undo: PlanSnapshot? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    var dialog by remember { mutableStateOf<PlanDialog?>(null) }
+    var dialog by rememberSaveable(stateSaver = PlanDialog.Saver) { mutableStateOf(null) }
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(viewModel) {
+        viewModel.messages.collect { message ->
+            // A failed save is said, as the Exercises tab says one: the newest message replaces the one on screen.
+            snackbar.currentSnackbarData?.dismiss()
+            launch { snackbar.showSnackbar(message) }
+        }
+    }
+    // Shown in this screen's scope, not the effect's: clearing the message must not take the snackbar down with it.
+    val scope = rememberCoroutineScope()
+    val latestUndo by rememberUpdatedState(undo)
+    LaunchedEffect(message) {
+        if (message != null) {
+            snackbar.currentSnackbarData?.dismiss()
+            val snapshot = latestUndo
+            scope.launch {
+                if (snapshot == null) snackbar.showSnackbar(message)
+                else if (snackbar.showSnackbar(message, actionLabel = UNDO, duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) {
+                    viewModel.undo(snapshot)
+                }
+            }
+            onMessageShown()
+        }
+    }
 
     PlanContent(
         state = state,
         onOpenSettings = onOpenSettings,
-        onAdd = { day -> dialog = PlanDialog.Edit(day, null) },
-        onEdit = { item -> dialog = PlanDialog.Edit(item.weekday, item) },
+        onAdd = { day -> dialog = PlanDialog.Add(day) },
+        onEdit = { item -> dialog = PlanDialog.Edit(item) },
         onMove = viewModel::move,
         onDelete = viewModel::delete,
         onSetBaseline = { lift -> dialog = PlanDialog.Baseline(lift) },
+        onBuild = onOpenBuilder,
+        onTemplates = { onOpenTemplates(state.mode) },
+        snackbar = snackbar,
     )
 
+    // Adding an exercise to a day ticks once it is stored; changing one in the edit dialog does not.
+    val haptics = rememberHaptics()
     when (val d = dialog) {
+        // Picking opens the sets/reps form with the ready-made numbers; nothing is stored until its Add. An exercise
+        // the lifter creates here is saved at once, as before, and then opens the same form. The form opens under the
+        // finger, so for a moment it ignores taps on Add, Cancel and outside it (ADD_FORM_TAP_WINDOW_MS).
+        is PlanDialog.Add -> {
+            // One per opening. Once this picker has closed, Plan's own snackbar says a failure the picker never put on
+            // screen, and one that comes after; Plan is not told of the rest.
+            val createFailures = remember(d) { HeldFailures() }
+            HandOnHeldFailures(createFailures, closed = { dialog != d }, onGone = viewModel::saySaveFailed)
+            ExercisePickerScreen(
+                title = "Add to ${dayName(d.day)}",
+                exercises = state.exercises,
+                recentIds = state.recentIds,
+                onPick = { entry -> dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry)) },
+                // The picker and its create form stay until the exercise is made, and the add form then takes their
+                // place. If making it fails, the create form is still there with what was typed, and says so.
+                onCreateCustom = { name, category, parent, muscles ->
+                    viewModel.addCustomExercise(name, category, parent, muscles, onFailed = createFailures::add) { entry ->
+                        createFailures.clear()
+                        dialog = PlanDialog.AddDetails(d.day, entry, viewModel.draft(d.day, entry))
+                    }
+                },
+                onDismiss = { dialog = null },
+                createFailures = createFailures,
+            )
+        }
+        is PlanDialog.AddDetails -> {
+            // Failed Adds: the form says each one over itself, since Plan's snackbar is under its scrim, and Plan does not
+            // say it too. Held here, above the form, so a failure is held the moment it comes, even if Cancel lands in the
+            // same frame: one the form never put on screen, or one that comes once it has gone, is Plan's to say.
+            val addFailures = rememberSaveable(saver = HeldFailures.Saver) { HeldFailures() }
+            PlanItemDialog(
+                title = "Add to ${dayName(d.day)}",
+                state = state,
+                item = d.draft,
+                exerciseName = d.entry.name,
+                confirmText = "Add",
+                ignoreTapsForMillis = ADD_FORM_TAP_WINDOW_MS,
+                onCreateCustom = viewModel::addCustomExercise,
+                onSave = { exercise, sets, reps, rpe, repsHigh ->
+                    // The form stays open until the item is stored, then closes and ticks. If the write fails, the
+                    // form stays as it is, with its numbers, the message is said, and Add works again. Read at the
+                    // tap: a second tap meanwhile (in the same frame too) stores nothing more.
+                    val open = dialog
+                    if (open is PlanDialog.AddDetails && !open.saving) {
+                        val saving = open.copy(saving = true)
+                        dialog = saving
+                        viewModel.add(
+                            open.day, exercise ?: open.entry, sets, reps, rpe, repsHigh,
+                            onAdded = {
+                                if (dialog == saving) dialog = null
+                                haptics.tick()
+                            },
+                            onFailed = {
+                                if (dialog == saving) dialog = open
+                                addFailures.add()
+                            },
+                        )
+                    }
+                },
+                onDismiss = { dialog = null },
+                heldFailures = addFailures,
+                closed = { dialog !is PlanDialog.AddDetails },
+                onFailure = viewModel::saySaveFailed,
+            )
+        }
         is PlanDialog.Edit -> PlanItemDialog(
-            title = "${if (d.item == null) "Add to" else "Edit"} ${dayName(d.day)}",
-            exercises = state.exercises,
-            initial = d.item,
-            defaultRpe = state.defaultRpe,
+            title = "Edit ${dayName(d.item.weekday)}",
+            state = state,
+            item = d.item,
+            confirmText = "Save",
             onCreateCustom = viewModel::addCustomExercise,
-            onSave = { exerciseId, sets, reps, rpe ->
-                viewModel.save(d.day, d.item, exerciseId, sets, reps, rpe)
+            onSave = { exercise, sets, reps, rpe, repsHigh ->
+                viewModel.save(d.item, exercise, sets, reps, rpe, repsHigh)
                 dialog = null
             },
             onDismiss = { dialog = null },
+            closed = { dialog != d },
+            onFailure = viewModel::saySaveFailed,
         )
         is PlanDialog.Baseline -> BaselineDialog(
             lift = d.lift,
@@ -152,27 +370,75 @@ fun PlanContent(
     onMove: (PlanItem, Int) -> Unit,
     onDelete: (PlanItem) -> Unit,
     onSetBaseline: (Exercise) -> Unit,
+    /** The bodybuilding side's plan builder: the empty plan's button and the menu's "Rebuild my plan". */
+    onBuild: () -> Unit = {},
+    /** The side's templates: the empty plan's button and the menu's "Choose a template", on both sides. */
+    onTemplates: () -> Unit = {},
+    snackbar: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val scheme = MaterialTheme.colorScheme
+    var menuOpen by remember { mutableStateOf(false) }
     Scaffold(
         containerColor = scheme.background,
         topBar = {
-            ScreenHeader("Plan", eyebrow = "Weekly template") {
-                IconButton(onClick = onOpenSettings) {
+            ScreenHeader("Plan", eyebrow = "Weekly template", modeLabel = true) {
+                PtIconButton(onClick = onOpenSettings) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = scheme.onSurfaceVariant)
+                }
+                // Each side's menu, once the stored plan is read; an empty plan has its own buttons instead.
+                if (state.loaded && !state.emptyPlan) {
+                    Box {
+                        PtIconButton(onClick = { menuOpen = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = PLAN_OPTIONS, tint = scheme.onSurfaceVariant)
+                        }
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            if (state.mode == TrainingMode.BODYBUILDING) {
+                                PtDropdownMenuItem(
+                                    text = { Text(REBUILD_MY_PLAN) },
+                                    leadingIcon = { Icon(Icons.Filled.Refresh, null) },
+                                    onClick = {
+                                        menuOpen = false
+                                        onBuild()
+                                    },
+                                )
+                            }
+                            PtDropdownMenuItem(
+                                text = { Text(CHOOSE_A_TEMPLATE) },
+                                leadingIcon = { Icon(Icons.Filled.ViewAgenda, null) },
+                                onClick = {
+                                    menuOpen = false
+                                    onTemplates()
+                                },
+                            )
+                        }
+                    }
                 }
             }
         },
+        snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         LazyColumn(
             Modifier.padding(padding).fillMaxWidth(),
             contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, top = Space.s, bottom = Space.xl),
             verticalArrangement = Arrangement.spacedBy(Space.m),
         ) {
+            if (state.emptyPlan) {
+                item(key = "empty-side") {
+                    // A template is the first choice on both sides; the bodybuilding builder is under it.
+                    Column(Modifier.padding(horizontal = Space.xs), verticalArrangement = Arrangement.spacedBy(Space.m)) {
+                        val bodybuilding = state.mode == TrainingMode.BODYBUILDING
+                        Text(if (bodybuilding) EMPTY_BODYBUILDING_PLAN else EMPTY_POWERLIFTING_PLAN, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                        // The guide finds it for its tap ring (draws nothing in the app).
+                        PrimaryButton(CHOOSE_A_TEMPLATE, onTemplates, Modifier.fillMaxWidth().testTag("choose-template").tapAnchor(TapAnchor.CHOOSE_TEMPLATE))
+                        if (bodybuilding) SecondaryButton(BUILD_MY_PLAN, onBuild, Modifier.fillMaxWidth().testTag("build-my-plan"))
+                    }
+                }
+            }
             items(state.sections, key = { it.day }) { section ->
                 DayCard(section, onAdd = { onAdd(section.day) }, onEdit = onEdit, onMove = onMove, onDelete = onDelete)
             }
-            item(key = "bests") {
+            // Known bests are the powerlifting side's baselines for squat, bench and deadlift.
+            if (state.mode == TrainingMode.POWERLIFTING) item(key = "bests") {
                 Column(Modifier.padding(top = Space.s)) {
                     SectionHeader("Known bests")
                     PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.s), spacing = 0.dp) {
@@ -183,9 +449,15 @@ fun PlanContent(
                             modifier = Modifier.padding(vertical = Space.s),
                         )
                         for (lift in state.mainExercises) {
-                            HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+                            SoftDivider()
                             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(lift.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                                // The name, and under it the lift's best once it has one; with none, the row is as before.
+                                Column(Modifier.weight(1f)) {
+                                    Text(lift.name, style = MaterialTheme.typography.titleMedium)
+                                    state.bests[lift.id]?.let { kg ->
+                                        Text(knownBestText(kg), style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
+                                    }
+                                }
                                 SecondaryButton("Set best", { onSetBaseline(lift) }, compact = true, modifier = Modifier.testTag("baseline-${lift.name}"))
                             }
                         }
@@ -222,8 +494,10 @@ private fun DayCard(
                 modifier = Modifier.testTag("add-${section.day}").semantics { contentDescription = "Add exercise to ${dayName(section.day)}" },
             )
         }
-        rows.forEachIndexed { i, row ->
-            HorizontalDivider(Modifier.padding(end = Space.s), color = PowertrackerTheme.colors.hairline)
+        // With motion on, a new row slides in, a deleted one slides out, and Move up and Move down slide two rows past
+        // each other.
+        SlidingColumnItems(rows, key = { it.item.id }, reorder = true) { i, row ->
+            SoftDivider(Modifier.padding(end = Space.s))
             PlanItemRow(
                 position = i + 1,
                 name = row.exerciseName,
@@ -253,7 +527,7 @@ private fun PlanItemRow(
     val muted = PowertrackerTheme.colors.muted
     var menuOpen by remember { mutableStateOf(false) }
     val prescription = buildAnnotatedString {
-        append("${item.sets} × ${item.reps}")
+        append("${item.sets} × ${repsText(item.reps, item.repsHigh)}")
         withStyle(SpanStyle(color = muted)) { append("  @ ") }
         append(formatRpe(item.targetRpe))
     }
@@ -264,12 +538,13 @@ private fun PlanItemRow(
             Text(name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface)
         }
-        IconButton(onClick = { onMove(-1) }, enabled = canMoveUp) { Icon(Icons.Filled.KeyboardArrowUp, "Move up") }
-        IconButton(onClick = { onMove(1) }, enabled = canMoveDown) { Icon(Icons.Filled.KeyboardArrowDown, "Move down") }
+        InfoButton(name)
+        PtIconButton(onClick = { onMove(-1) }, enabled = canMoveUp) { Icon(Icons.Filled.KeyboardArrowUp, "Move up") }
+        PtIconButton(onClick = { onMove(1) }, enabled = canMoveDown) { Icon(Icons.Filled.KeyboardArrowDown, "Move down") }
         Box {
-            IconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, "More") }
+            PtIconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, "More") }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(
+                PtDropdownMenuItem(
                     text = { Text("Edit") },
                     leadingIcon = { Icon(Icons.Filled.Edit, null) },
                     onClick = {
@@ -277,7 +552,7 @@ private fun PlanItemRow(
                         onEdit()
                     },
                 )
-                DropdownMenuItem(
+                PtDropdownMenuItem(
                     text = { Text("Delete", color = scheme.error) },
                     leadingIcon = { Icon(Icons.Filled.Delete, null, tint = scheme.error) },
                     onClick = {
@@ -290,142 +565,163 @@ private fun PlanItemRow(
     }
 }
 
+/**
+ * Sets, reps and RPE of a plan item, and its exercise, which "Change" swaps through the picker. Edit opens it on a
+ * stored row ("Save"); Add opens it on a draft that is stored only by [confirmText] ("Add").
+ */
 @Composable
 private fun PlanItemDialog(
     title: String,
-    exercises: List<Exercise>,
-    initial: PlanItem?,
-    defaultRpe: Double,
-    onCreateCustom: (String, Category, MainLift?, List<String>, (Long) -> Unit) -> Unit,
-    onSave: (exerciseId: Long, sets: Int, reps: Int, rpe: Double) -> Unit,
+    state: PlanUiState,
+    item: PlanItem,
+    confirmText: String,
+    onCreateCustom: (String, Category, MainLift?, List<String>, onFailed: () -> Unit, (PickerEntry) -> Unit) -> Unit,
+    onSave: (exercise: PickerEntry?, sets: Int, reps: Int, rpe: Double, repsHigh: Int?) -> Unit,
     onDismiss: () -> Unit,
+    /** The exercise's name when it may have no stored row yet: the entry picked for the add form. */
+    exerciseName: String? = null,
+    /**
+     * For this long after it opens, taps on the confirm button, on Cancel and outside the dialog do nothing: the add
+     * form opens under the finger that picked, where a double tap's second tap lands. Keyboard, back and accessibility
+     * actions are not held; neither are the steppers and Change. 0 (Edit) holds nothing.
+     */
+    ignoreTapsForMillis: Long = 0L,
+    /**
+     * Where failures are held (Add passes its own, which its failed writes go into): failed creates from Change's picker,
+     * and failed Adds. Its own otherwise.
+     */
+    heldFailures: HeldFailures? = null,
+    /** Whether the form has been closed, read when it leaves the screen: false while it is only being restored. */
+    closed: () -> Boolean = { true },
+    /**
+     * A failed own exercise from Change that none of the form's windows put on screen before the form closed, or one that
+     * fails after: Plan's snackbar says it. While the form is open it says it, or the picker or its create form does.
+     */
+    onFailure: () -> Unit = {},
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
-    var selectedId by rememberSaveable { mutableStateOf(initial?.exerciseId) }
-    var sets by rememberSaveable { mutableStateOf(initial?.sets ?: 3) }
-    var reps by rememberSaveable { mutableStateOf(initial?.reps ?: 5) }
-    var rpe by rememberSaveable { mutableStateOf(initial?.targetRpe ?: defaultRpe.coerceIn(6.0, 10.0)) }
-    var showCustom by rememberSaveable { mutableStateOf(false) }
-
-    val q = query.trim().lowercase()
-    val matches = exercises.filter { q.isEmpty() || it.name.lowercase().contains(q) }
-        .sortedWith(compareByDescending<Exercise> { it.name.lowercase().startsWith(q) }.thenBy { it.name.lowercase() })
-    val selected = exercises.firstOrNull { it.id == selectedId }
+    // Null until the exercise is changed; saved with the item, not before.
+    var changed by rememberSaveable(stateSaver = PickerEntry.Saver) { mutableStateOf(null) }
+    var sets by rememberSaveable { mutableStateOf(item.sets) }
+    var reps by rememberSaveable { mutableStateOf(item.reps) }
+    // A range on the bodybuilding side; null for fixed reps.
+    var repsHigh by rememberSaveable { mutableStateOf(item.repsHigh ?: if (item.mode == TrainingMode.BODYBUILDING) item.reps else null) }
+    var rpe by rememberSaveable { mutableStateOf(item.targetRpe) }
+    var picking by rememberSaveable { mutableStateOf(false) }
+    // Failed creates from Change's picker, and failed Adds, held here until a window has said them through: Change's
+    // create form or its picker while either is on top, else this form, whose scrim hides Plan's own snackbar. A picker
+    // closed before its message has run its course (Close in the frame the failure lands, or a few frames on) leaves the
+    // failure held, and this form says it. Kept across a rotation, as `picking` is. A later pick or create that works
+    // clears it.
+    val own = rememberSaveable(saver = HeldFailures.Saver) { HeldFailures() }
+    val failures = heldFailures ?: own
+    HandOnHeldFailures(failures, closed, onFailure)
+    val name = changed?.name ?: exerciseName ?: state.exercises.firstOrNull { it.id == item.exerciseId }?.name ?: "Unknown exercise"
+    // Not kept across recreation: a restored form holds taps for a moment again, which does no harm.
+    val tapsLive = remember { mutableStateOf(ignoreTapsForMillis <= 0L) }
+    if (!tapsLive.value) {
+        LaunchedEffect(Unit) {
+            delay(ignoreTapsForMillis)
+            tapsLive.value = true
+        }
+    }
+    val heldTaps = if (ignoreTapsForMillis > 0L) Modifier.dropTapsUntil(tapsLive) else Modifier
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        properties = TEXT_FIELD_DIALOG,
+        // A tap outside is the only way here that can't be told apart from back by its callback, so it is held by the
+        // window itself: back still closes the form at once.
+        properties = if (tapsLive.value) TEXT_FIELD_DIALOG else TEXT_FIELD_DIALOG_HOLDING_TAPS,
         modifier = Modifier.padding(horizontal = 16.dp),
         title = { Text(title) },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                OutlinedTextField(
-                    value = query, onValueChange = { query = it }, label = { Text("Search exercises") },
-                    singleLine = true, modifier = Modifier.fillMaxWidth().testTag("exercise-search"),
-                )
-                Column(Modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState())) {
-                    for (ex in matches) {
-                        val isSelected = ex.id == selectedId
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = Space.touch)
-                                .clip(MaterialTheme.shapes.small)
-                                .background(if (isSelected) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent)
-                                .clickable { selectedId = ex.id }
-                                .padding(horizontal = Space.m)
-                                .testTag("exercise-${ex.name}"),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(ex.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                            if (isSelected) Icon(Icons.Filled.Check, contentDescription = "Selected", tint = PowertrackerTheme.colors.accentText)
-                        }
-                    }
-                }
-                QuietButton("Add custom exercise", { showCustom = true })
-                Text(
-                    "Selected: ${selected?.name ?: "none"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = Space.s),
-                )
-                LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { sets-- }, { sets++ })
-                LabeledStepper("Reps", reps.toString(), reps > 1, reps < 20, { reps-- }, { reps++ })
-                LabeledStepper("RPE", formatRpe(rpe), rpe > 6.0, rpe < 10.0, { rpe -= 0.5 }, { rpe += 0.5 })
-            }
+            FormMessage(SAVE_FAILED, failures, here = !picking)
+            PlanItemFields(
+                name, sets, reps, repsHigh, rpe,
+                onSets = { sets = it }, onReps = { reps = it }, onRepsHigh = { repsHigh = it }, onRpe = { rpe = it },
+                onChange = { picking = true },
+            )
         },
-        confirmButton = { PrimaryButton("Save", { onSave(selectedId!!, sets, reps, rpe) }, enabled = selected != null, compact = true) },
-        dismissButton = { QuietButton("Cancel", onDismiss) },
+        confirmButton = { PrimaryButton(confirmText, { onSave(changed, sets, reps, rpe, repsHigh) }, heldTaps, compact = true) },
+        dismissButton = { QuietButton("Cancel", onDismiss, heldTaps) },
     )
 
-    if (showCustom) {
-        CustomExerciseDialog(
-            onCreate = { name, category, parent, muscles ->
-                onCreateCustom(name, category, parent, muscles) { id -> selectedId = id }
-                showCustom = false
+    if (picking) {
+        ExercisePickerScreen(
+            title = "Change exercise",
+            exercises = state.exercises,
+            recentIds = state.recentIds,
+            onPick = { entry ->
+                failures.clear()
+                changed = entry
+                picking = false
             },
-            onDismiss = { showCustom = false },
+            // The picker stays until the exercise is made; if making it fails, its create form is still there.
+            onCreateCustom = { customName, category, parent, muscles ->
+                onCreateCustom(customName, category, parent, muscles, failures::add) { entry ->
+                    failures.clear()
+                    changed = entry
+                    picking = false
+                }
+            },
+            onDismiss = { picking = false },
+            createFailures = failures,
         )
     }
 }
 
+/**
+ * The body of [PlanItemDialog]: the exercise with its "Change" button, then Sets, Reps (or Reps from and Reps to for a
+ * range, when [repsHigh] is set) and RPE, within Edit's limits. Internal so the mockups can draw it outside its window.
+ */
 @Composable
-private fun LabeledStepper(label: String, value: String, canDec: Boolean, canInc: Boolean, onDec: () -> Unit, onInc: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(vertical = Space.xs), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, style = MaterialTheme.typography.titleMedium)
-        Stepper(label, value, canDec, canInc, onDec, onInc)
+internal fun PlanItemFields(
+    name: String,
+    sets: Int,
+    reps: Int,
+    repsHigh: Int?,
+    rpe: Double,
+    onSets: (Int) -> Unit,
+    onReps: (Int) -> Unit,
+    onRepsHigh: (Int) -> Unit,
+    onRpe: (Double) -> Unit,
+    onChange: () -> Unit,
+) {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Row(Modifier.fillMaxWidth().padding(bottom = Space.s), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Eyebrow("Exercise")
+                Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            }
+            SecondaryButton("Change", onChange, compact = true, modifier = Modifier.semantics { contentDescription = "Change exercise" })
+        }
+        LabeledStepper("Sets", sets.toString(), sets > 1, sets < 10, { onSets(sets - 1) }, { onSets(sets + 1) })
+        if (repsHigh == null) {
+            LabeledStepper("Reps", reps.toString(), reps > 1, reps < MAX_PLAN_REPS, { onReps(reps - 1) }, { onReps(reps + 1) })
+        } else {
+            // Two ends of the range; the top never goes below the bottom.
+            LabeledStepper("Reps from", reps.toString(), reps > 1, reps < repsHigh, { onReps(reps - 1) }, { onReps(reps + 1) })
+            LabeledStepper("Reps to", repsHigh.toString(), repsHigh > reps, repsHigh < MAX_RANGE_REPS, { onRepsHigh(repsHigh - 1) }, { onRepsHigh(repsHigh + 1) })
+        }
+        LabeledStepper("RPE", formatRpe(rpe), rpe > PlanViewModel.MIN_RPE, rpe < PlanViewModel.MAX_RPE, { onRpe(rpe - 0.5) }, { onRpe(rpe + 0.5) }) { RpeInfoButton() }
     }
 }
 
 @Composable
-private fun CustomExerciseDialog(
-    onCreate: (String, Category, MainLift?, List<String>) -> Unit,
-    onDismiss: () -> Unit,
+private fun LabeledStepper(
+    label: String,
+    value: String,
+    canDec: Boolean,
+    canInc: Boolean,
+    onDec: () -> Unit,
+    onInc: () -> Unit,
+    labelAction: (@Composable () -> Unit)? = null,
 ) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var category by rememberSaveable { mutableStateOf(Category.ACCESSORY) }
-    var parent by rememberSaveable { mutableStateOf<MainLift?>(null) }
-    var muscles by rememberSaveable { mutableStateOf("") }
-    val valid = name.isNotBlank() && (category != Category.VARIATION || parent != null)
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        properties = TEXT_FIELD_DIALOG,
-        modifier = Modifier.padding(horizontal = 16.dp),
-        title = { Text("Add custom exercise") },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(name, { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ChoiceChip("Variation", category == Category.VARIATION, { category = Category.VARIATION })
-                    ChoiceChip("Accessory", category == Category.ACCESSORY, { category = Category.ACCESSORY })
-                }
-                if (category == Category.VARIATION) {
-                    Text("Parent lift", style = MaterialTheme.typography.titleSmall)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        for (lift in MainLift.entries) {
-                            ChoiceChip(lift.name.lowercase().replaceFirstChar { it.uppercase() }, parent == lift, { parent = lift })
-                        }
-                    }
-                }
-                OutlinedTextField(
-                    muscles, { muscles = it }, label = { Text("Muscles (comma-separated)") }, modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        },
-        confirmButton = {
-            PrimaryButton(
-                "Create",
-                onClick = {
-                    val list = muscles.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                    onCreate(name, category, if (category == Category.VARIATION) parent else null, list)
-                },
-                enabled = valid,
-                compact = true,
-            )
-        },
-        dismissButton = { QuietButton("Cancel", onDismiss) },
-    )
+    Row(Modifier.fillMaxWidth().padding(vertical = Space.xs).testTag("plan-field-$label"), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.titleMedium)
+        labelAction?.invoke()
+        Spacer(Modifier.weight(1f))
+        Stepper(label, value, canDec, canInc, onDec, onInc)
+    }
 }
 
 @Composable

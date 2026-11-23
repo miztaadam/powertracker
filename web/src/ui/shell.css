@@ -1,0 +1,87 @@
+.shell {
+  /* Pinned to the screen's edges, not sized from html, body and #root: in the iOS Home Screen app their 100%
+     stops short of the bottom of the screen, which left a strip of page under the tab bar. Fixed, it also never
+     scrolls the page: only .shell-main scrolls. */
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* The scrolling region. Screens start with a ScreenHeader (which has its own gutter) and put
+   the rest in a .screen-body. */
+.shell-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+
+/* The iOS Home Screen app (the head script sets the class): iOS 26 blurs a band a little below the status
+   bar, so the screen starts clear of it. */
+.ios-standalone .shell-main {
+  padding-top: calc(env(safe-area-inset-top) + 1.5rem);
+}
+
+/* The iOS Home Screen app again: with viewport-fit=cover and a black-translucent status bar, iOS 26 makes the
+   viewport short by the status bar's height (WebKit bug 301108), so a shell pinned to the viewport stops that much
+   above the bottom of the screen. It reaches down by the top inset instead (100% of a fixed element is the
+   viewport), capped at the large viewport so it can never run past the screen once WebKit is fixed. html gets the
+   same minimum, so the page behind it never shows a strip either. */
+.ios-standalone {
+  min-height: min(100lvh, calc(100% + env(safe-area-inset-top)));
+}
+
+.ios-standalone .shell {
+  top: 0;
+  bottom: auto;
+  height: min(100lvh, calc(100% + env(safe-area-inset-top)));
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.screen-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5) var(--space-5);
+}
+
+/* The rest bar, docked between the screen and the tab bar. */
+.shell-rest {
+  flex: none;
+  padding: var(--space-2) calc(var(--space-4) + env(safe-area-inset-right)) var(--space-2) calc(var(--space-4) + env(safe-area-inset-left));
+}
+
+/* Messages sit above the tab bar and above the rest bar while it shows. App sets
+   --rest-dock-height to the measured height of .shell-rest, 0 when there is none. */
+.shell {
+  --snackbar-bottom: calc(var(--tabbar-height) + var(--rest-dock-height, 0px) + var(--space-4) + var(--tab-inset));
+}
+
+/* "Update ready — tap to refresh", docked with the rest bar: the whole strip is the button. */
+.shell-update {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: var(--touch);
+  margin: 0;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--container-high);
+  color: var(--accent-text);
+  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.shell-update + * {
+  margin-top: var(--space-3);
+}

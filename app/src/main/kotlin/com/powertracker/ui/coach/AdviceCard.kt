@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +25,9 @@ import androidx.compose.ui.unit.dp
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.liftLabel
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.ui.components.AdviceCard
 import com.powertracker.ui.components.Eyebrow
 import com.powertracker.ui.components.NumberDisplay
@@ -35,6 +36,9 @@ import com.powertracker.ui.components.RatioBar
 import com.powertracker.ui.components.Sparkline
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.library.InfoButton
+import com.powertracker.ui.theme.LocalTrainingMode
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -46,6 +50,9 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
     val advice = card.advice
     val detail = card.detail
     val lift = advice.lift?.label()
+    // A deload or easing back in on the bodybuilding side speaks of exercises and weights, not lifts and top sets.
+    val bodybuilding = LocalTrainingMode.current == TrainingMode.BODYBUILDING
+    val allExercises = bodybuilding && (advice.type == AdviceType.DELOAD || advice.type == AdviceType.RE_ENTRY)
     val look = when (advice.type) {
         AdviceType.STALL -> Look(Tone.WARNING, Icons.AutoMirrored.Filled.TrendingFlat, "Stall", "${lift ?: "Progress"} has stalled", "Add to plan")
         AdviceType.DELOAD -> Look(Tone.DANGER, Icons.Filled.BatteryAlert, "Deload", "Take a deload week", "Apply deload")
@@ -57,7 +64,7 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
         }
     }
     AdviceCard(
-        tone = look.tone, icon = look.icon, tag = "${look.kind} · ${lift ?: "All lifts"}",
+        tone = look.tone, icon = look.icon, tag = "${look.kind} · ${lift ?: if (allExercises) "All exercises" else "All lifts"}",
         title = look.title, body = advice.reason,
         modifier = modifier,
         primaryAction = look.action, onPrimary = onApply,
@@ -78,10 +85,10 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
             }
             is CardDetail.Deload -> Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
                 StatTile("Volume", detail.volumePct.toString(), Modifier.weight(1f), unit = "%", note = "of your usual sets")
-                StatTile("Load", detail.loadPct.toString(), Modifier.weight(1f), unit = "%", note = "of your last top sets")
+                StatTile("Load", detail.loadPct.toString(), Modifier.weight(1f), unit = "%", note = if (bodybuilding) "of your last weights" else "of your last top sets")
             }
             is CardDetail.ReEntry ->
-                StatTile("Load", detail.loadPct.toString(), Modifier.fillMaxWidth(), unit = "%", note = "of your last top sets, for 7 days")
+                StatTile("Load", detail.loadPct.toString(), Modifier.fillMaxWidth(), unit = "%", note = if (bodybuilding) "of your last weights, for 7 days" else "of your last top sets, for 7 days")
             is CardDetail.WeakPoint -> {
                 val ratio = detail.ratio
                 val miss = detail.missPoint
@@ -104,6 +111,8 @@ fun CoachAdviceCard(card: CoachCard, onApply: () -> Unit, onDismiss: () -> Unit,
                     }
                 }
             }
+            // Drawn by their own cards (PhysiqueCards.kt).
+            is CardDetail.MoreWork, is CardDetail.Swap, is CardDetail.Skip -> Unit
         }
     }
 }
@@ -118,7 +127,7 @@ private fun PrescriptionList(items: List<AccessoryPrescription>) {
     if (items.isEmpty()) return
     Column(Modifier.background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.medium).padding(horizontal = Space.m, vertical = Space.xs)) {
         items.forEachIndexed { i, item ->
-            if (i > 0) HorizontalDivider(color = PowertrackerTheme.colors.hairline)
+            if (i > 0) SoftDivider()
             Row(
                 Modifier.fillMaxWidth().heightIn(min = 40.dp).semantics(mergeDescendants = true) {},
                 verticalAlignment = Alignment.CenterVertically,
@@ -126,6 +135,7 @@ private fun PrescriptionList(items: List<AccessoryPrescription>) {
             ) {
                 Text(item.exerciseName, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
                 Text(item.dose(), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                InfoButton(item.exerciseName)
             }
         }
     }
@@ -133,7 +143,7 @@ private fun PrescriptionList(items: List<AccessoryPrescription>) {
 
 private fun AccessoryPrescription.dose(): String = if (repsLow == repsHigh) "$sets × $repsHigh" else "$sets × $repsLow–$repsHigh"
 
-private fun MainLift.label(): String = name.lowercase().replaceFirstChar { it.uppercase() }
+private fun MainLift.label(): String = liftLabel(this)
 
 private fun MissPoint.label(lift: MainLift): String = when (this) {
     MissPoint.LOCKOUT -> "Lockout"
@@ -142,6 +152,7 @@ private fun MissPoint.label(lift: MainLift): String = when (this) {
         MainLift.SQUAT -> "Out of the hole"
         MainLift.BENCH -> "Off the chest"
         MainLift.DEADLIFT -> "Off the floor"
+        MainLift.STRICT_PRESS -> "Off the shoulders"
     }
 }
 
@@ -155,6 +166,7 @@ private fun MainLift?.chartColor(): Color {
         MainLift.SQUAT -> pt.squat
         MainLift.BENCH -> pt.bench
         MainLift.DEADLIFT -> pt.deadlift
+        MainLift.STRICT_PRESS -> pt.press
         null -> pt.muted
     }
 }

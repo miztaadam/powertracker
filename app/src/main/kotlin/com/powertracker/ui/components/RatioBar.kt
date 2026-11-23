@@ -27,9 +27,11 @@ import com.powertracker.ui.theme.color
 /**
  * A lift ratio against its typical range: the band marks the range (with its bounds in figures),
  * the marker is the lifter. In range reads green, outside reads amber, and a pill says which.
+ * [slid] is how far the marker has come from the start of the bar to its value ([rememberDrawIn]); the figures and
+ * the pill are always complete.
  */
 @Composable
-fun RatioBar(label: String, valuePct: Int, lowPct: Int, highPct: Int, modifier: Modifier = Modifier) {
+fun RatioBar(label: String, valuePct: Int, lowPct: Int, highPct: Int, modifier: Modifier = Modifier, slid: () -> Float = DrawnComplete) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     val tone = if (valuePct in lowPct..highPct) Tone.SUCCESS else Tone.WARNING
@@ -61,7 +63,10 @@ fun RatioBar(label: String, valuePct: Int, lowPct: Int, highPct: Int, modifier: 
             drawRoundRect(scheme.onSurface.copy(alpha = 0.32f), Offset(x(lowPct), trackY), Size(x(highPct) - x(lowPct), trackH), r)
             val markerW = 6.dp.toPx()
             val markerH = 16.dp.toPx()
-            val mx = x(valuePct).coerceIn(markerW / 2, size.width - markerW / 2)
+            val start = markerW / 2
+            val end = x(valuePct).coerceIn(start, size.width - markerW / 2)
+            val progress = slid()
+            val mx = if (progress >= 1f) end else start + (end - start) * progress
             drawRoundRect(scheme.surface, Offset(mx - markerW / 2 - 2.dp.toPx(), 0f), Size(markerW + 4.dp.toPx(), markerH), CornerRadius(markerW))
             drawRoundRect(markerColor, Offset(mx - markerW / 2, 0f), Size(markerW, markerH), CornerRadius(markerW / 2))
             for (bound in listOf(lowPct, highPct)) {

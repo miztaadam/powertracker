@@ -2,12 +2,13 @@ package com.powertracker.ui
 
 import android.content.Context
 import android.os.Looper
+import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -17,7 +18,10 @@ import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
+import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.coach.CardDetail
 import com.powertracker.ui.coach.CoachState
 import com.powertracker.ui.coach.CoachViewModel
@@ -28,33 +32,41 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class CoachViewModelTest {
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    /** Closes the database after `@After` has stopped the view models, once no query is running. */
+    @get:Rule
+    val database = TestDatabase()
+
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
     private lateinit var exercises: List<Exercise>
     private val collectors = CoroutineScope(Dispatchers.Main)
+    private val viewModels = mutableListOf<androidx.lifecycle.ViewModel>()
     private val messages = mutableListOf<String>()
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -67,12 +79,14 @@ class CoachViewModelTest {
     @After
     fun tearDown() {
         collectors.cancel()
-        db.close()
+        // Nothing of this test may keep reading the database once it is closed.
+        for (vm in viewModels) vm.viewModelScope.cancel()
     }
 
     private fun id(name: String) = exercises.first { it.name == name }.id
 
     private fun viewModel(repository: AdviceRepository = advice) = CoachViewModel(training, repository, settings) { today }.also { vm ->
+        viewModels += vm
         collectors.launch { vm.state.collect {} }
         collectors.launch { vm.messages.collect { messages += it } }
     }
@@ -104,14 +118,24 @@ class CoachViewModelTest {
 
     private fun insert(vararg items: Advice) = runBlocking { advice.insert(items.toList()) }
 
+    /** A squat session [daysAgo] days before today on [mode]'s side. */
+    private fun sessionAgo(daysAgo: Int, mode: TrainingMode = TrainingMode.POWERLIFTING) = runBlocking {
+        val id = training.startSession(today.minus(daysAgo, DateTimeUnit.DAY), null, null, mode)
+        training.logSet(id, LoggedSet(id("Squat"), 100.0, 5, 8.0, failed = false, missPoint = null, isTopSet = true))
+    }
+
+    /** The powerlifting side trained well before today: an easing back in counts on it (spec point 10). */
+    private fun trainedBefore() = sessionAgo(40)
+
     private fun weakPoint(lift: MainLift, miss: MissPoint?, reason: String = "Prioritise it.") =
         Advice(AdviceType.WEAK_POINT, lift, today, reason, 4, AdvicePayload.WeakPoint(lift, miss))
 
     @Test
     fun cards_leaveOutTargets_andOrderByTypeThenNewest() {
+        trainedBefore()
         insert(
             weakPoint(MainLift.SQUAT, MissPoint.FLOOR),
-            Advice(AdviceType.STALL, MainLift.BENCH, today.minusDays(3), "older", 3, AdvicePayload.Accessories(emptyList())),
+            Advice(AdviceType.STALL, MainLift.BENCH, today.minus(3, DateTimeUnit.DAY), "older", 3, AdvicePayload.Accessories(emptyList())),
             Advice(AdviceType.STALL, MainLift.SQUAT, today, "newer", 3, AdvicePayload.Accessories(emptyList())),
             Advice(AdviceType.TARGET, MainLift.SQUAT, today, "target", 0, AdvicePayload.Target(id("Squat"), 155.0, 5, 8.0)),
             Advice(AdviceType.RE_ENTRY, null, today, "back", 20, AdvicePayload.ReEntry()),
@@ -198,6 +222,7 @@ class CoachViewModelTest {
     @Test
     fun deloadApply_onlyMarksApplied() {
         runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, id("Squat"), sets = 5, reps = 5, targetRpe = 8.0, order = 0)) }
+        trainedBefore()
         insert(
             Advice(AdviceType.DELOAD, null, today, "Signs of fatigue.", 2, AdvicePayload.Deload()),
             Advice(AdviceType.RE_ENTRY, null, today, "Welcome back.", 20, AdvicePayload.ReEntry()),
@@ -258,14 +283,86 @@ class CoachViewModelTest {
     }
 
     @Test
+    fun feed_showsEasingBackInOnlyOnASideTrainedBeforeTheBreak() {
+        // Powerlifting until 19 days ago; the bodybuilding side's first session ended the break 3 days ago; powerlifting
+        // yesterday made the card. It shows on powerlifting, not on bodybuilding (spec point 10).
+        for (d in listOf(33, 26, 19, 1)) sessionAgo(d)
+        sessionAgo(3, TrainingMode.BODYBUILDING)
+        insert(
+            Advice(AdviceType.RE_ENTRY, null, today.minus(1, DateTimeUnit.DAY), "back", 16, AdvicePayload.ReEntry()),
+            Advice(AdviceType.DELOAD, null, today, "tired", 2, AdvicePayload.Deload()),
+        )
+        val vm = viewModel()
+        assertEquals(listOf("tired", "back"), vm.await { it.cards.size == 2 }.cards.map { it.advice.reason })
+        runBlocking { settings.update { it.copy(trainingMode = TrainingMode.BODYBUILDING) } }
+        assertEquals(listOf("tired"), vm.await { it.cards.size == 1 }.cards.map { it.advice.reason })
+    }
+
+    @Test
     fun feed_hidesOpenDeloadAndReEntryOlderThanFourteenDays() {
         insert(
-            Advice(AdviceType.DELOAD, null, today.minusDays(15), "stale deload", 2, AdvicePayload.Deload()),
-            Advice(AdviceType.RE_ENTRY, null, today.minusDays(14), "stale re-entry", 20, AdvicePayload.ReEntry()),
-            Advice(AdviceType.DELOAD, null, today.minusDays(13), "fresh deload", 2, AdvicePayload.Deload()),
-            Advice(AdviceType.STALL, MainLift.BENCH, today.minusDays(40), "old stall", 3, AdvicePayload.Accessories(emptyList())),
+            Advice(AdviceType.DELOAD, null, today.minus(15, DateTimeUnit.DAY), "stale deload", 2, AdvicePayload.Deload()),
+            Advice(AdviceType.RE_ENTRY, null, today.minus(14, DateTimeUnit.DAY), "stale re-entry", 20, AdvicePayload.ReEntry()),
+            Advice(AdviceType.DELOAD, null, today.minus(13, DateTimeUnit.DAY), "fresh deload", 2, AdvicePayload.Deload()),
+            Advice(AdviceType.STALL, MainLift.BENCH, today.minus(40, DateTimeUnit.DAY), "old stall", 3, AdvicePayload.Accessories(emptyList())),
         )
         val state = viewModel().await { it.cards.isNotEmpty() }
         assertEquals(listOf("fresh deload", "old stall"), state.cards.map { it.advice.reason })
+    }
+
+    /**
+     * Strict press accessories have no seeded rows. Apply finds or adds their catalogue rows in the same transaction
+     * as the plan items, instead of silently skipping them.
+     */
+    @Test
+    fun applyStall_pressAccessories_resolvesCatalogueRows() {
+        val names = listOf("Seated barbell press", "Incline bench press", "Landmine press")
+        runBlocking { for (row in db.exercises().all().filter { r -> names.any { it.equals(r.name, ignoreCase = true) } }) db.exercises().delete(row.id) }
+        val payload = AdvicePayload.Accessories(
+            listOf(
+                AccessoryPrescription("Seated barbell press", 3, 8, 10),
+                // An alias or another case still lands on the catalogue name.
+                AccessoryPrescription("incline BENCH press", 3, 8, 10),
+                AccessoryPrescription("Landmine press", 3, 8, 10),
+                AccessoryPrescription("No such lift", 3, 8, 10),
+            ),
+        )
+        insert(Advice(AdviceType.STALL, MainLift.STRICT_PRESS, today, "Strict press e1RM hasn't improved for 3 weeks.", 3, payload))
+        val vm = viewModel()
+
+        vm.apply(vm.await { it.cards.size == 1 }.cards.single().advice.id)
+        vm.await { it.cards.isEmpty() }
+        awaitStatuses(AdviceStatus.APPLIED)
+
+        assertEquals(listOf("Added 3 exercises to Monday"), messages)
+        val rows = runBlocking { db.exercises().all() }.associateBy { it.id }
+        val added = plan().sortedBy { it.order }
+        assertEquals(names, added.map { rows.getValue(it.exerciseId).name })
+        for (item in added) {
+            val row = rows.getValue(item.exerciseId)
+            assertTrue(row.isBuiltIn)
+            assertEquals(Library.find(row.name)!!.muscles, row.muscles)
+            assertEquals(PlanItem(item.id, DayOfWeek.MONDAY, row.id, 3, 10, 8.0, added.indexOf(item)), item)
+        }
+    }
+
+    /** A strict press miss off the shoulders offers catalogue accessories that have no row yet, and Apply adds them. */
+    @Test
+    fun weakPointApply_pressMissOffTheShoulders_resolvesCatalogueRows() {
+        insert(weakPoint(MainLift.STRICT_PRESS, MissPoint.FLOOR))
+        val vm = viewModel()
+        val card = vm.await { it.cards.size == 1 }.cards.single()
+        assertEquals(
+            listOf(AccessoryPrescription("Seated barbell press", 3, 8, 10), AccessoryPrescription("Incline bench press", 3, 8, 10)),
+            (card.detail as CardDetail.WeakPoint).additions,
+        )
+
+        vm.apply(card.advice.id)
+        vm.await { it.cards.isEmpty() }
+        awaitStatuses(AdviceStatus.APPLIED)
+
+        assertEquals(listOf("Added 2 exercises to Monday"), messages)
+        val rows = runBlocking { db.exercises().all() }.associateBy { it.id }
+        assertEquals(listOf("Seated barbell press", "Incline bench press"), plan().sortedBy { it.order }.map { rows.getValue(it.exerciseId).name })
     }
 }

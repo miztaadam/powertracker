@@ -5,3 +5,10 @@ build/
 .idea/
 *.iml
 .kotlin/
+web/node_modules/
+web/dist/
+web/dist-update/
+web/test-results/
+web/playwright-report/
+web/.figure-sheets/
+*.tsbuildinfo

@@ -1,0 +1,184 @@
+/* Layout for the Plan screen. Colours, type and controls come from the components and tokens. */
+
+.plan-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-grow p,
+.plan-muted {
+  margin: 0;
+}
+
+.plan-muted {
+  color: var(--text-muted);
+}
+
+/* One training day: the day and its Add button, then the exercises in order. */
+
+.plan-day-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-3);
+}
+
+/* The day's name is never narrower than its longest word: where the name and Add do not fit on one line (a 320 px phone
+   at 130% zoom), Add goes under it on the right, as a plan row's controls do. Wider, the head is one line as before. */
+.plan-day-head > .plan-grow {
+  min-width: min-content;
+}
+
+.plan-rows {
+  margin: 0;
+  padding: 0 var(--space-3) var(--space-3) var(--space-5);
+  list-style: none;
+}
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+.plan-row-position {
+  flex: none;
+  width: 24px;
+  color: var(--text-muted);
+}
+
+.plan-row-text {
+  padding: var(--space-3) 0;
+}
+
+/* Four 48 px controls leave the text a narrow column on a small phone: the name wraps, the numbers never do. */
+.plan-row-name {
+  overflow-wrap: anywhere;
+}
+
+.plan-row-dose {
+  white-space: nowrap;
+}
+
+/* Under 360 px (the narrowest Android phones, and 130% zoom on an iPhone) the four controls would leave the text about
+   30 px: the row wraps, the name and numbers get the whole line and the controls sit under them on the right. */
+@media (max-width: 359px) {
+  /* The first line is full (number and text), so this only moves the controls' line: to the right. */
+  .plan-row {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-bottom: var(--space-2);
+  }
+
+  .plan-row-text {
+    flex-basis: calc(100% - 24px);
+    padding-bottom: 0;
+  }
+}
+
+/* Known bests: a line of explanation, then one row per main lift. */
+
+.plan-bests {
+  padding-top: var(--space-3);
+}
+
+.plan-bests-card > .plan-muted {
+  padding-bottom: var(--space-4);
+}
+
+.plan-best {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+/* A lift with a best (1.16.1): its name, then "Best e1RM …" under it. A row without one keeps its single name. */
+.plan-best-text {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+/* The dialogs. */
+
+.plan-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--text);
+}
+
+/* The item's exercise, with the button that changes it. */
+.plan-exercise {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+
+.plan-exercise p {
+  overflow-wrap: anywhere;
+}
+
+.plan-stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* A stepper's label with a small action right after it (the RPE info button). */
+.plan-stepper-label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* An empty bodybuilding plan says so, above the day cards (until the plan builder). */
+.plan-empty-side {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* The empty bodybuilding plan: its line, then the plan builder. */
+.plan-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+/* With templates (1.14) the empty plan's buttons are the screen's width, one over the other. */
+.plan-empty-wide {
+  align-self: stretch;
+}
+
+.plan-header-actions {
+  display: flex;
+  align-items: center;
+}
+
+/*
+ * Plan's menu opens leftwards from beside Settings. On the narrowest screens (a 320 px phone at 130% zoom) it keeps to
+ * the screen, its items wrapping onto a second line; on wider ones it is as wide as its longest item, as before.
+ */
+.plan-header-actions .gr-menu-list {
+  width: max-content;
+  max-width: calc(100vw - var(--touch) - 2 * var(--space-3));
+}
+
+.plan-header-actions .gr-menu-item {
+  white-space: normal;
+}
+
+/* Plan's add form: the wrappers that hold its first taps (PlanItemDialog's ignoreTapsFor) are not drawn as boxes. */
+.plan-form-taps,
+.plan-form-actions {
+  display: contents;
+}

@@ -1,0 +1,2750 @@
+== 2026-01-05
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT - 0
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-01-06
+T MONDAY TARGET|null|2026-01-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT - 0
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-01-07
+T MONDAY TARGET|null|2026-01-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT - 0
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-01-08
+T MONDAY TARGET|null|2026-01-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 487053
+== 2026-01-09
+T MONDAY TARGET|null|2026-01-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 487053
+== 2026-01-10
+T MONDAY TARGET|null|2026-01-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 487053
+== 2026-01-11
+T MONDAY TARGET|null|2026-01-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 172626 1
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 110974 1
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 487053
+== 2026-01-12
+T MONDAY TARGET|null|2026-01-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 493218
+== 2026-01-13
+T MONDAY TARGET|null|2026-01-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 493218
+== 2026-01-14
+T MONDAY TARGET|null|2026-01-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 203453 1
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 493218
+== 2026-01-15
+T MONDAY TARGET|null|2026-01-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 496301
+== 2026-01-16
+T MONDAY TARGET|null|2026-01-16|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-16|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 496301
+== 2026-01-17
+T MONDAY TARGET|null|2026-01-17|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-17|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 496301
+== 2026-01-18
+T MONDAY TARGET|null|2026-01-18|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|null|2026-01-18|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+C SQUAT 175709 2
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 114057 2
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 0
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 496301
+== 2026-01-19
+T MONDAY TARGET|SQUAT|2026-01-19|0|OPEN|Last time: 142.5 × 5 @ 8. Coach suggests 145 × 5 @ 8.|target(1,145000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-19|0|OPEN|Last time: 92.5 × 5 @ 8. Coach suggests 95 × 5 @ 8.|target(2,95000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-19|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-19|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-19|0|OPEN|Last time: 142.5 × 5 @ 8. Coach suggests 145 × 5 @ 8.|target(1,145000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-19|0|OPEN|Last time: 92.5 × 5 @ 8. Coach suggests 95 × 5 @ 8.|target(2,95000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-19|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-19|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 502466
+== 2026-01-20
+T MONDAY TARGET|SQUAT|2026-01-20|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-20|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-20|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-20|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-20|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-20|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-20|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-20|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 502466
+== 2026-01-21
+T MONDAY TARGET|SQUAT|2026-01-21|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-21|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-21|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-21|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-21|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-21|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-21|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-21|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 206535 2
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 502466
+== 2026-01-22
+T MONDAY TARGET|SQUAT|2026-01-22|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-22|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-22|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-22|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-22|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-22|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-22|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-22|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-22|0|OPEN|Last time: 167.5 × 5 @ 8. Coach suggests 170 × 5 @ 8.|target(3,170000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-22|0|OPEN|Last time: 167.5 × 5 @ 8. Coach suggests 170 × 5 @ 8.|target(3,170000,5,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 505549
+== 2026-01-23
+T MONDAY TARGET|SQUAT|2026-01-23|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-23|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-23|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-23|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-23|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-23|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-23|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-23|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-23|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-23|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 505549
+== 2026-01-24
+T MONDAY TARGET|SQUAT|2026-01-24|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-24|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-24|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-24|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-24|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-24|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-24|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-24|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-24|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-24|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 505549
+== 2026-01-25
+T MONDAY TARGET|SQUAT|2026-01-25|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-25|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-25|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-25|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-25|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-25|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-25|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-25|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-25|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-25|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 2 failed reps
+C SQUAT 178792 3
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 3
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 2
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 505549
+== 2026-01-26
+E WEAK_POINT|BENCH|2026-01-26|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-01-26|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-01-26|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-26|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-26|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-26|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-26|0|OPEN|Last time: 145 × 5 @ 8. Coach suggests 147.5 × 5 @ 8.|target(1,147500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-26|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-26|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-26|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-26|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-26|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-01-26|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 508631
+== 2026-01-27
+E WEAK_POINT|BENCH|2026-01-27|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-01-27|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-01-27|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-27|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-27|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-27|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-27|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-27|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-27|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-27|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-27|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-27|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-01-27|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 508631
+== 2026-01-28
+E WEAK_POINT|BENCH|2026-01-28|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-01-28|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-01-28|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-28|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-28|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-28|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-28|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-28|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-28|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-28|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-28|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-28|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-01-28|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 209618 3
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 508631
+== 2026-01-29
+E WEAK_POINT|BENCH|2026-01-29|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-01-29|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-01-29|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-29|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-29|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-29|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-29|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-29|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-29|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-29|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-29|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-29|0|OPEN|Last time: 170 × 5 @ 8. Coach suggests 172.5 × 5 @ 8.|target(3,172500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-01-29|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 511714
+== 2026-01-30
+E WEAK_POINT|BENCH|2026-01-30|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-01-30|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-01-30|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-30|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-30|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-30|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-30|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-30|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-30|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-30|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-30|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-30|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-01-30|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 511714
+== 2026-01-31
+E WEAK_POINT|BENCH|2026-01-31|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-01-31|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-01-31|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-31|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-01-31|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-01-31|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-01-31|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-31|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-01-31|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-01-31|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-01-31|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-01-31|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-01-31|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 511714
+== 2026-02-01
+E WEAK_POINT|BENCH|2026-02-01|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-01|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-01|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-01|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-01|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-01|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-01|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-01|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-01|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-01|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-01|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-01|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-01|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 181874 4
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 4
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 4
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 511714
+== 2026-02-02
+E WEAK_POINT|BENCH|2026-02-02|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-02|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-02|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-02|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-02|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-02|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-02|0|OPEN|Last time: 147.5 × 5 @ 8. Coach suggests 150 × 5 @ 8.|target(1,150000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-02|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-02|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-02|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-02|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-02|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-02|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 514797
+== 2026-02-03
+E WEAK_POINT|BENCH|2026-02-03|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-03|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-03|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-03|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-03|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-03|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-03|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-03|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-03|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-03|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-03|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-03|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-03|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 514797
+== 2026-02-04
+E WEAK_POINT|BENCH|2026-02-04|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-04|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-04|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-04|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-04|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-04|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-04|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-04|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-04|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-04|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-04|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-04|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-04|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 212700 4
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 514797
+== 2026-02-05
+E WEAK_POINT|BENCH|2026-02-05|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-05|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-05|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-05|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-05|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-05|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-05|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-05|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-05|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-05|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-05|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-05|0|OPEN|Last time: 172.5 × 5 @ 8. Coach suggests 175 × 5 @ 8.|target(3,175000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-05|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 517879
+== 2026-02-06
+E WEAK_POINT|BENCH|2026-02-06|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-06|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-06|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-06|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-06|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-06|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-06|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-06|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-06|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-06|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-06|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 517879
+== 2026-02-07
+E WEAK_POINT|BENCH|2026-02-07|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-07|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-07|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-07|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-07|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-07|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-07|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-07|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-07|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-07|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-07|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 517879
+== 2026-02-08
+E WEAK_POINT|BENCH|2026-02-08|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-02-08|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-02-08|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-08|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-08|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-08|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-08|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-08|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-08|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-08|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-08|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 184957 5
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 5
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 6
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 517879
+== 2026-02-09
+E STALL|BENCH|2026-02-09|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-09|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-09|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-09|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-09|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-09|0|OPEN|Last time: 150 × 5 @ 8. Coach suggests 152.5 × 5 @ 8.|target(1,152500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-09|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-09|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-09|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-09|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-09|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-09|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-09|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 520962
+== 2026-02-10
+E STALL|BENCH|2026-02-10|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-10|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-10|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-10|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-10|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-10|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-10|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-10|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-10|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-10|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-10|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-10|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-10|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 520962
+== 2026-02-11
+E STALL|BENCH|2026-02-11|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-11|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-11|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-11|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-11|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-11|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-11|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-11|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-11|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-11|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-11|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-11|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-11|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 215783 5
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 520962
+== 2026-02-12
+E STALL|BENCH|2026-02-12|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-12|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-12|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-12|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-12|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-12|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-12|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-12|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-12|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-12|0|OPEN|Last time: 175 × 5 @ 8. Coach suggests 177.5 × 5 @ 8.|target(3,177500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-12|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-12|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-12|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 524044
+== 2026-02-13
+E STALL|BENCH|2026-02-13|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-13|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-13|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-13|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-13|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-13|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-13|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-13|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-13|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-13|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-13|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-13|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-13|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 524044
+== 2026-02-14
+E STALL|BENCH|2026-02-14|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-14|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-14|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-14|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-14|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-14|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-14|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-14|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-14|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-14|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-14|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-14|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-14|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 524044
+== 2026-02-15
+E STALL|BENCH|2026-02-15|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-15|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-15|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-15|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-15|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-15|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-15|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-15|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-15|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-15|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-15|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 188039 6
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-15|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-15|3|OPEN|Bench e1RM hasn't improved for 3 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 6
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 8
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 524044
+== 2026-02-16
+E STALL|BENCH|2026-02-16|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-16|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-16|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-16|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-16|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-16|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-16|0|OPEN|Last time: 152.5 × 5 @ 8. Coach suggests 155 × 5 @ 8.|target(1,155000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-16|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-16|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-16|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-16|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-16|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-16|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-16|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-16|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 527127
+== 2026-02-17
+E STALL|BENCH|2026-02-17|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-17|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-17|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-17|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-17|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-17|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-17|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-17|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-17|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-17|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-17|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-17|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-17|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-17|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-17|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 527127
+== 2026-02-18
+E STALL|BENCH|2026-02-18|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-18|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-18|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-18|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-18|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-18|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-18|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-18|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-18|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-18|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-18|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-18|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-18|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-18|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-18|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 218866 6
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 527127
+== 2026-02-19
+E STALL|BENCH|2026-02-19|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-19|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-19|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-19|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-19|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-19|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-19|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-19|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-19|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-19|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-19|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-19|0|OPEN|Last time: 177.5 × 5 @ 8. Coach suggests 180 × 5 @ 8.|target(3,180000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-19|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-19|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-19|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 530210
+== 2026-02-20
+E STALL|BENCH|2026-02-20|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-20|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-20|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-20|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-20|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-20|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-20|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-20|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-20|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-20|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-20|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-20|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-20|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-20|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-20|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 530210
+== 2026-02-21
+E STALL|BENCH|2026-02-21|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-21|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-21|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-21|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-21|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-21|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-21|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-21|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-21|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-21|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-21|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-21|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-21|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-21|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-21|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 530210
+== 2026-02-22
+E STALL|BENCH|2026-02-22|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-22|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-22|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-22|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-22|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-22|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-22|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-22|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-22|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-22|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-22|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-22|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-22|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 191122 7
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-22|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-22|4|OPEN|Bench e1RM hasn't improved for 4 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 7
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 10
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 530210
+== 2026-02-23
+E STALL|BENCH|2026-02-23|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-23|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-23|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-23|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-23|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-23|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-23|0|OPEN|Last time: 155 × 5 @ 8. Coach suggests 157.5 × 5 @ 8.|target(1,157500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-23|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-23|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-23|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-23|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-23|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-23|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-23|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-23|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 533292
+== 2026-02-24
+E STALL|BENCH|2026-02-24|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-24|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-24|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-24|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-24|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-24|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-24|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-24|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-24|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-24|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-24|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-24|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-24|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-24|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-24|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 533292
+== 2026-02-25
+E STALL|BENCH|2026-02-25|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-25|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-25|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-25|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-25|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-25|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-25|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-25|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-25|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-25|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-25|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-25|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-25|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-25|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-25|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 221948 7
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 533292
+== 2026-02-26
+E STALL|BENCH|2026-02-26|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-26|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-26|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-26|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-26|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-26|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-26|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-26|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-26|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-26|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-26|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-26|0|OPEN|Last time: 180 × 5 @ 8. Coach suggests 182.5 × 5 @ 8.|target(3,182500,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-26|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-26|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-26|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 536375
+== 2026-02-27
+E STALL|BENCH|2026-02-27|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-27|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-27|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-27|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-27|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-27|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-27|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-27|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-27|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-27|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-27|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-27|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-27|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-27|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-27|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 536375
+== 2026-02-28
+E STALL|BENCH|2026-02-28|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-02-28|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-02-28|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-28|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-02-28|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-02-28|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-02-28|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-28|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-02-28|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-02-28|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-02-28|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-02-28|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-02-28|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-02-28|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-02-28|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 536375
+== 2026-03-01
+E STALL|BENCH|2026-03-01|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-03-01|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-01|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-01|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-01|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-01|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-01|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-01|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-01|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-01|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-01|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-01|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+W WEAK_POINT|BENCH|2026-03-01|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 194205 8
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-01|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-01|5|OPEN|Bench e1RM hasn't improved for 5 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 8
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 12
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 536375
+== 2026-03-02
+E DELOAD|null|2026-03-02|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-02|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-02|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-02|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-02|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-02|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-02|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-02|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-02|0|OPEN|Last time: 157.5 × 5 @ 8. Coach suggests 160 × 5 @ 8.|target(1,160000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-02|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-02|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-02|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-02|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-02|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-02|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-02|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-02|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-02|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 539457
+== 2026-03-03
+E DELOAD|null|2026-03-03|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-03|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-03|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-03|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-03|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-03|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-03|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-03|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-03|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-03|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-03|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-03|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-03|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-03|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-03|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-03|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-03|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-03|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 539457
+== 2026-03-04
+E DELOAD|null|2026-03-04|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-04|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-04|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-04|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-04|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-04|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-04|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-04|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-04|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-04|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-04|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-04|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-04|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-04|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-04|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-04|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-04|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-04|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 225031 8
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 539457
+== 2026-03-05
+E DELOAD|null|2026-03-05|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-05|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-05|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-05|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-05|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-05|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-05|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-05|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-05|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-05|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-05|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-05|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-05|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-05|0|OPEN|Last time: 182.5 × 5 @ 8. Coach suggests 185 × 5 @ 8.|target(3,185000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-05|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-05|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-05|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-05|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 542540
+== 2026-03-06
+E DELOAD|null|2026-03-06|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-06|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-06|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-06|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-06|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-06|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-06|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-06|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-06|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-06|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-06|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-06|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-06|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-06|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-06|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-06|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 542540
+== 2026-03-07
+E DELOAD|null|2026-03-07|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-07|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-07|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-07|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-07|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-07|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-07|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-07|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-07|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-07|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-07|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-07|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-07|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-07|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-07|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-07|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 542540
+== 2026-03-08
+E DELOAD|null|2026-03-08|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-08|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-08|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-08|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-08|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-08|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-08|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-08|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-08|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-08|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-08|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-08|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-08|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-08|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 197287 9
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-08|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-08|6|OPEN|Bench e1RM hasn't improved for 6 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 9
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 14
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 542540
+== 2026-03-09
+E DELOAD|null|2026-03-09|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-09|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-09|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-09|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-09|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-09|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-09|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-09|0|OPEN|Last time: 160 × 5 @ 8. Coach suggests 162.5 × 5 @ 8.|target(1,162500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-09|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-09|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-09|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-09|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-09|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-09|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-09|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-09|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 545623
+== 2026-03-10
+E DELOAD|null|2026-03-10|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-10|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-10|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-10|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-10|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-10|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-10|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-10|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-10|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-10|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-10|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-10|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-10|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-10|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-10|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-10|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 545623
+== 2026-03-11
+E DELOAD|null|2026-03-11|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-11|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-11|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-11|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-11|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-11|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-11|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-11|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-11|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-11|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-11|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-11|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-11|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-11|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-11|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-11|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 228113 9
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 545623
+== 2026-03-12
+E DELOAD|null|2026-03-12|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-12|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-12|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-12|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-12|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-12|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-12|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-12|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-12|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-12|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-12|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-12|0|OPEN|Last time: 185 × 5 @ 8. Coach suggests 187.5 × 5 @ 8.|target(3,187500,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-12|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-12|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-12|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-12|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-13
+E DELOAD|null|2026-03-13|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-13|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-13|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-13|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-13|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-13|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-13|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-13|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-13|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-13|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-13|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-13|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-13|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-13|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-13|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-13|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-14
+E DELOAD|null|2026-03-14|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-14|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-14|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-14|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-14|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-14|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-14|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-14|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-14|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-14|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-14|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-14|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-14|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-14|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-14|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-14|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-15
+E DELOAD|null|2026-03-15|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-15|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-15|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-15|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-15|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-15|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-15|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-15|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-15|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-15|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-15|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-15|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 4 failed reps
+F low readiness
+FE DELOAD|null|2026-03-15|2|OPEN|Signs of fatigue: 4 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-15|8|OPEN|You've missed bench at lockout 8 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-15|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-15|7|OPEN|Bench e1RM hasn't improved for 7 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-16
+E DELOAD|null|2026-03-16|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-16|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES STALL|BENCH|2026-03-16|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-16|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-16|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-16|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-16|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-16|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 145 × 5 @ 8. Deload week: lighter load and fewer sets.|target(1,145000,5,8000,3)
+TS MONDAY TARGET|BENCH|2026-03-16|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 85 × 5 @ 8. Deload week: lighter load and fewer sets.|target(2,85000,5,8000,3)
+TS MONDAY TARGET|BENCH|2026-03-16|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 70 × 5 @ 8. Deload week: lighter load and fewer sets.|target(10,70000,5,8000,2)
+TS MONDAY TARGET|null|2026-03-16|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 17.5 × 10 @ 8. Deload week: lighter load and fewer sets.|target(50,17500,10,8000,2)
+T THURSDAY TARGET|DEADLIFT|2026-03-16|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-16|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 167.5 × 5 @ 8. Deload week: lighter load and fewer sets.|target(3,167500,5,8000,2)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-16|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-16|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-16|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-16|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-17
+E DELOAD|null|2026-03-17|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-17|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-17|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-17|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-17|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-17|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-17|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-17|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-17|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-17|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-17|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-17|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-17|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-17|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-17|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-17|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-17|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-17|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-18
+E DELOAD|null|2026-03-18|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-18|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-18|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-18|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-18|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-18|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-18|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-18|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-18|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-18|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-18|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-18|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-18|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-18|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-18|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-18|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-18|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-18|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-19
+E DELOAD|null|2026-03-19|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-19|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-19|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-19|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-19|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-19|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-19|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-19|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-19|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-19|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-19|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-19|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-19|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-19|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-19|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-19|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-19|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-19|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-20
+E DELOAD|null|2026-03-20|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-20|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-20|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-20|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-20|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-20|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-20|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-20|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-20|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-20|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-20|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-20|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-20|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-20|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-20|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-20|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-20|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-20|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-21
+E DELOAD|null|2026-03-21|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-21|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-21|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-21|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-21|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-21|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-21|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-21|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-21|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-21|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-21|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-21|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-21|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-21|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-21|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-21|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-21|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-21|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-22
+E DELOAD|null|2026-03-22|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+E STALL|BENCH|2026-03-22|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+ES DELOAD|null|2026-03-22|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+ES STALL|BENCH|2026-03-22|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+T MONDAY TARGET|SQUAT|2026-03-22|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-22|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-22|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-22|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-22|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-22|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-22|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-22|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-22|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-22|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F 2 failed reps
+F low readiness
+FE DELOAD|null|2026-03-22|2|OPEN|Signs of fatigue: 2 failed reps; low readiness. Take a deload week: about 60% of the volume at about 90% of the load.|deload(600,900)
+W WEAK_POINT|BENCH|2026-03-22|6|OPEN|You've missed bench at lockout 6 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+S STALL|BENCH|2026-03-22|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+S0 STALL|BENCH|2026-03-22|8|OPEN|Bench e1RM hasn't improved for 8 weeks. You've mostly missed at lockout — this works the triceps.|acc(Close-grip bench,3,3,5;JM press,3,8,10;Board press,3,3,5)
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-23
+E WEAK_POINT|BENCH|2026-03-23|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-23|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-23|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-23|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-23|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-23|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-23|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-23|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-23|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-23|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-23|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-23|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F low readiness
+W WEAK_POINT|BENCH|2026-03-23|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-24
+E WEAK_POINT|BENCH|2026-03-24|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-24|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-24|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-24|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-24|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-24|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-24|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-24|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-24|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-24|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-24|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-24|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F low readiness
+W WEAK_POINT|BENCH|2026-03-24|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-25
+E WEAK_POINT|BENCH|2026-03-25|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-25|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-25|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-25|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-25|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-03-25|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-25|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-25|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-25|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-25|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-25|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-25|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 190 × 5 @ 8.|target(3,190000,5,8000,null)
+F low readiness
+W WEAK_POINT|BENCH|2026-03-25|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-26
+E WEAK_POINT|BENCH|2026-03-26|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-26|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-26|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-26|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-26|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-03-26|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-26|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-26|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-26|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-26|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-26|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-26|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+W WEAK_POINT|BENCH|2026-03-26|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-27
+E WEAK_POINT|BENCH|2026-03-27|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-27|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-27|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-27|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-27|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-03-27|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-27|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-27|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-27|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-27|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-27|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-27|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+W WEAK_POINT|BENCH|2026-03-27|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-28
+E WEAK_POINT|BENCH|2026-03-28|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-28|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-28|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-28|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-28|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-03-28|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-28|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-28|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-28|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-28|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-28|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-28|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+W WEAK_POINT|BENCH|2026-03-28|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-29
+E WEAK_POINT|BENCH|2026-03-29|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+ES WEAK_POINT|BENCH|2026-03-29|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+T MONDAY TARGET|SQUAT|2026-03-29|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-29|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-29|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-03-29|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-29|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-29|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-29|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-29|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-29|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-29|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+W WEAK_POINT|BENCH|2026-03-29|4|OPEN|You've missed bench at lockout 4 times in the last 4 weeks.|weak(BENCH,LOCKOUT)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-30
+T MONDAY TARGET|SQUAT|2026-03-30|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-30|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-30|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-03-30|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-30|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-30|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-30|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-30|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-30|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-30|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-03-31
+T MONDAY TARGET|SQUAT|2026-03-31|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-31|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-03-31|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-03-31|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-03-31|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-31|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-03-31|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-03-31|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-03-31|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-03-31|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-04-01
+T MONDAY TARGET|SQUAT|2026-04-01|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-01|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-01|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-04-01|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-01|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-01|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-01|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-01|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-01|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-01|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 10
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-04-02
+E RE_ENTRY|null|2026-04-02|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-02|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-02|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-02|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-02|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+T MONDAY TARGET|null|2026-04-02|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-02|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-02|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-02|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-02|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-02|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-02|0|OPEN|Last time: 187.5 × 5 @ 8. Coach suggests 157.5 × 5 @ 8. Easing back in: lighter load.|target(3,157500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-04-03
+E RE_ENTRY|null|2026-04-03|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-03|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-03|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-03|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-03|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-03|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-03|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-03|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-03|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-03|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-03|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-03|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-04-04
+E RE_ENTRY|null|2026-04-04|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-04|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-04|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-04|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-04|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-04|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-04|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-04|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-04|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-04|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-04|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-04|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-04-05
+E RE_ENTRY|null|2026-04-05|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-05|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-05|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-05|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-05|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-05|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-05|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-05|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-05|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-05|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-05|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-05|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT 200370 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH 117139 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL 548705
+== 2026-04-06
+E RE_ENTRY|null|2026-04-06|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-06|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-06|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-06|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-06|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 137.5 × 5 @ 8. Easing back in: lighter load.|target(1,137500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-06|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 80 × 5 @ 8. Easing back in: lighter load.|target(2,80000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-06|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 67.5 × 5 @ 8. Easing back in: lighter load.|target(10,67500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-06|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 15 × 10 @ 8. Easing back in: lighter load.|target(50,15000,10,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-06|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-06|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8. Easing back in: lighter load.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-07
+E RE_ENTRY|null|2026-04-07|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-07|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-07|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-07|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-07|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-07|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-07|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-07|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-07|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-07|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-07|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-08
+E RE_ENTRY|null|2026-04-08|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-08|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-08|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-08|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-08|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-08|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-08|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-08|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-08|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-08|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-08|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 231196 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-09
+E RE_ENTRY|null|2026-04-09|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+ES RE_ENTRY|null|2026-04-09|21|OPEN|Welcome back — it's been 21 days since your previous session. Take a lighter week: about 85% of your usual loads.|reentry(850)
+T MONDAY TARGET|SQUAT|2026-04-09|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-09|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-09|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-09|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-09|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-09|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-09|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-09|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-09|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-10
+T MONDAY TARGET|SQUAT|2026-04-10|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-10|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-10|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-10|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-10|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-10|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-10|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-10|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-10|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-11
+T MONDAY TARGET|SQUAT|2026-04-11|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-11|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-11|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-11|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-11|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-11|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-11|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-11|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-11|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-12
+T MONDAY TARGET|SQUAT|2026-04-12|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-12|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-12|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-12|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-12|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-12|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-12|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-12|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-12|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-13
+T MONDAY TARGET|SQUAT|2026-04-13|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-13|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-13|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-13|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-13|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-13|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-13|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-13|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-13|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-14
+T MONDAY TARGET|SQUAT|2026-04-14|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-14|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-14|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-14|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-14|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-14|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-14|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-14|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-14|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+== 2026-04-15
+T MONDAY TARGET|SQUAT|2026-04-15|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-15|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+T MONDAY TARGET|BENCH|2026-04-15|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+T MONDAY TARGET|null|2026-04-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+TS MONDAY TARGET|SQUAT|2026-04-15|0|OPEN|Last time: 162.5 × 5 @ 8. Coach suggests 165 × 5 @ 8.|target(1,165000,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-15|0|OPEN|Last time: 95 × 5 @ 8. Coach suggests 97.5 × 5 @ 8.|target(2,97500,5,8000,null)
+TS MONDAY TARGET|BENCH|2026-04-15|0|OPEN|Last time: 80 × 5 @ 8. Coach suggests 82.5 × 5 @ 8.|target(10,82500,5,8000,null)
+TS MONDAY TARGET|null|2026-04-15|0|OPEN|Last time: 20 × 10 @ 8. Coach suggests 20 × 11 @ 8.|target(50,20000,11,8000,null)
+T THURSDAY TARGET|DEADLIFT|2026-04-15|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+TS THURSDAY TARGET|DEADLIFT|2026-04-15|0|OPEN|Last time: 120 × 5 @ 8. Coach suggests 122.5 × 5 @ 8.|target(3,122500,5,8000,null)
+C SQUAT - 10
+M SQUAT FLOOR 0
+M SQUAT MID 0
+M SQUAT LOCKOUT 0
+C BENCH - 10
+M BENCH FLOOR 0
+M BENCH MID 0
+M BENCH LOCKOUT 16
+C DEADLIFT 147965 11
+M DEADLIFT FLOOR 0
+M DEADLIFT MID 0
+M DEADLIFT LOCKOUT 0
+TOTAL -
+TREND SQUAT 2026-01-05:172626 2026-01-12:175709 2026-01-19:178792 2026-01-26:181874 2026-02-02:184957 2026-02-09:188039 2026-02-16:191122 2026-02-23:194205 2026-03-02:197287 2026-03-09:200370
+PR SQUAT 2026-01-05:172626:140000x5@8000 2026-01-12:175709:142500x5@8000 2026-01-19:178792:145000x5@8000 2026-01-26:181874:147500x5@8000 2026-02-02:184957:150000x5@8000 2026-02-09:188039:152500x5@8000 2026-02-16:191122:155000x5@8000 2026-02-23:194205:157500x5@8000 2026-03-02:197287:160000x5@8000 2026-03-09:200370:162500x5@8000
+VOL SQUAT 2026-01-05:700000 2026-01-12:712500 2026-01-19:725000 2026-01-26:737500 2026-02-02:750000 2026-02-09:762500 2026-02-16:775000 2026-02-23:787500 2026-03-02:800000 2026-03-09:812500
+TREND BENCH 2026-01-05:110974 2026-01-12:114057 2026-01-19:117139 2026-01-26:117139 2026-02-02:117139 2026-02-09:117139 2026-02-16:117139 2026-02-23:117139 2026-03-02:117139 2026-03-09:117139
+PR BENCH 2026-01-05:110974:90000x5@8000 2026-01-12:114057:92500x5@8000 2026-01-19:117139:95000x5@8000
+VOL BENCH 2026-01-05:450000 2026-01-12:462500 2026-01-19:475000 2026-01-26:475000 2026-02-02:475000 2026-02-09:475000 2026-02-16:475000 2026-02-23:475000 2026-03-02:475000 2026-03-09:475000
+TREND DEADLIFT 2026-01-05:203453 2026-01-12:206535 2026-01-19:209618 2026-01-26:212700 2026-02-02:215783 2026-02-09:218866 2026-02-16:221948 2026-02-23:225031 2026-03-02:228113 2026-03-09:231196 2026-03-30:147965
+PR DEADLIFT 2026-01-08:203453:165000x5@8000 2026-01-15:206535:167500x5@8000 2026-01-22:209618:170000x5@8000 2026-01-29:212700:172500x5@8000 2026-02-05:215783:175000x5@8000 2026-02-12:218866:177500x5@8000 2026-02-19:221948:180000x5@8000 2026-02-26:225031:182500x5@8000 2026-03-05:228113:185000x5@8000 2026-03-12:231196:187500x5@8000
+VOL DEADLIFT 2026-01-05:825000 2026-01-12:837500 2026-01-19:850000 2026-01-26:862500 2026-02-02:875000 2026-02-09:887500 2026-02-16:900000 2026-02-23:912500 2026-03-02:925000 2026-03-09:937500 2026-03-30:600000

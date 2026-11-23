@@ -1,0 +1,20 @@
+.gr-pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 10px;
+  border-radius: 999px;
+  background: var(--tone-container);
+  color: var(--tone);
+  white-space: nowrap;
+}
+
+.gr-pill-icon {
+  display: flex;
+}
+
+.gr-pill-icon svg {
+  width: 14px;
+  height: 14px;
+}

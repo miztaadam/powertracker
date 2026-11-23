@@ -20,12 +20,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Insights
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -43,8 +43,18 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.progress.ExerciseTrend
+import com.powertracker.domain.stack.PlateStack
+import com.powertracker.domain.progress.MuscleRow
+import com.powertracker.domain.model.MuscleRating
+import com.powertracker.ui.components.SecondaryButton
+import androidx.compose.ui.platform.testTag
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
 import com.powertracker.ui.components.BarStrip
 import com.powertracker.ui.components.ChartSeries
@@ -62,34 +72,53 @@ import com.powertracker.ui.components.Sparkline
 import com.powertracker.ui.components.StatTile
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
+import com.powertracker.ui.components.LINE_DRAW_MS
+import com.powertracker.ui.components.MARKER_SLIDE_MS
+import com.powertracker.ui.components.rememberBarsGrowIn
+import com.powertracker.ui.components.rememberDrawIn
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import com.powertracker.ui.components.LineChart as SeriesChart
+import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.components.pressClickable
 
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
 @Composable
 fun ProgressScreen(
     training: TrainingRepository,
+    settings: SettingsRepository,
     onOpenLift: (MainLift) -> Unit,
-    today: () -> LocalDate = LocalDate::now,
+    today: () -> LocalDate = ::systemToday,
+    onOpenExercise: (exerciseId: Long) -> Unit = {},
+    onCheckIn: () -> Unit = {},
 ) {
-    val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, today))
+    val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift)
+    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift, onOpenExercise = onOpenExercise, onCheckIn = onCheckIn)
 }
 
 /** The Progress screen without its view model. */
 @Composable
-fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenLift: (MainLift) -> Unit) {
+fun ProgressContent(
+    state: ProgressState,
+    onRange: (ChartRange) -> Unit,
+    onOpenLift: (MainLift) -> Unit,
+    onOpenExercise: (exerciseId: Long) -> Unit = {},
+    onCheckIn: () -> Unit = {},
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { ScreenHeader("Progress", eyebrow = "Estimated 1RM") },
+        topBar = {
+            val eyebrow = if (state.mode == TrainingMode.BODYBUILDING) "Best set per session" else "Estimated 1RM"
+            ScreenHeader("Progress", eyebrow = eyebrow, modeLabel = true)
+        },
     ) { padding ->
         Column(
             Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState())
@@ -98,10 +127,33 @@ fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenL
         ) {
             when {
                 state.loading -> Unit
+                // The powerlifting charts, records and total belong to that side (bodybuilding mode spec §7.6).
+                state.mode == TrainingMode.BODYBUILDING -> {
+                    // Stage 3: a check-in any time, then the body parts above the stage 1 exercise rows. With no plan
+                    // (no exercise rows) there is nothing a check-in could add to, so it is not offered.
+                    if (state.trends.isNotEmpty()) CheckInStart(state.checkedIn, onCheckIn)
+                    if (state.muscles.isNotEmpty()) BodyPartsSection(state.muscles)
+                    if (state.trends.isEmpty()) {
+                        EmptyState(
+                            Icons.Filled.Insights,
+                            "No exercises in your plan yet",
+                            "Add exercises on the Plan tab and log them on Today. Each one's best sets will show here.",
+                        )
+                    } else {
+                        Column {
+                            SectionHeader("Exercises")
+                            BodybuildingSection(state, onOpenExercise)
+                        }
+                    }
+                }
                 !state.hasData -> EmptyState(
                     Icons.Filled.Insights,
                     "No lifts logged yet",
-                    "Log a squat, bench or deadlift session on Today and your charts will appear here.",
+                    if (state.showStrictPress) {
+                        "Log a squat, bench, deadlift or strict press session on Today and your charts will appear here."
+                    } else {
+                        "Log a squat, bench or deadlift session on Today and your charts will appear here."
+                    },
                 )
                 else -> {
                     SummaryCard(state, onOpenLift)
@@ -109,7 +161,7 @@ fun ProgressContent(state: ProgressState, onRange: (ChartRange) -> Unit, onOpenL
                     if (state.prs.isNotEmpty()) PrSection(state.prs)
                     VolumeSection(state)
                     if (state.ratios.isNotEmpty()) RatioSection(state.ratios)
-                    if (state.bodyweight.isNotEmpty()) BodyweightSection(state.bodyweight)
+                    if (state.bodyweight.isNotEmpty()) BodyweightSection(state.bodyweight, state.range)
                 }
             }
         }
@@ -121,6 +173,7 @@ internal val MainLift.label: String
         MainLift.SQUAT -> "Squat"
         MainLift.BENCH -> "Bench"
         MainLift.DEADLIFT -> "Deadlift"
+        MainLift.STRICT_PRESS -> "Strict press"
     }
 
 @Composable
@@ -130,6 +183,7 @@ private fun MainLift.chartColor(): Color {
         MainLift.SQUAT -> pt.squat
         MainLift.BENCH -> pt.bench
         MainLift.DEADLIFT -> pt.deadlift
+        MainLift.STRICT_PRESS -> pt.press
     }
 }
 
@@ -157,53 +211,62 @@ private class Change(kg: Double) {
     }
 }
 
+/** Four tiles do not fit side by side on a small phone: from the fourth lift on they go two to a row. */
+private const val TILES_IN_ONE_ROW = 3
+
 /** The total as the hero figure with its trend, then each lift as a tile that opens its history. */
 @Composable
 private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
     val pt = PowertrackerTheme.colors
     val scheme = MaterialTheme.colorScheme
+    // The total always says what it adds up.
+    val totalLabel = if (state.showStrictPress) "Total (S+B+D+P)" else "Total (S+B+D)"
     PtCard(spacing = Space.l) {
         if (state.totalKg != null) {
             Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
                 Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-                    NumberDisplay(formatKg(state.totalKg), unit = "kg", label = "Total", size = NumberSize.HERO)
+                    NumberDisplay(formatKg(state.totalKg), unit = "kg", label = totalLabel, size = NumberSize.HERO)
                     val change = state.totalChangeKg?.let(::Change)
                     if (change != null) Pill("${change.text} in 4 weeks", tone = change.tone, icon = change.icon)
                 }
                 if (state.totalTrend.size >= 2) {
-                    Sparkline(state.totalTrend.map { it.second.toFloat() }, pt.accentText, Modifier.weight(1f).height(88.dp))
+                    // The trend covers the chosen range, so it draws in again when the range changes.
+                    val drawn = rememberDrawIn(state.range, LINE_DRAW_MS)
+                    Sparkline(state.totalTrend.map { it.second.toFloat() }, pt.accentText, Modifier.weight(1f).height(88.dp), drawn = drawn::value)
                 }
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
-                Eyebrow("Total")
+                Eyebrow(totalLabel)
                 Text(
-                    "Log all three lifts to see your total.",
+                    if (state.showStrictPress) "Log all four lifts, strict press included, to see your total." else "Log all three lifts to see your total.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = scheme.onSurfaceVariant,
                 )
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
-            Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                for (summary in state.lifts) {
-                    val change = summary.changeKg?.let(::Change)
-                    val name = summary.lift.label
-                    val spoken = buildString {
-                        append("$name history. ")
-                        append(if (summary.e1rmKg != null) "Estimated 1RM ${formatKg(summary.e1rmKg)} kg" else "No estimate yet")
-                        if (change != null) append(", ${change.spoken} in 4 weeks")
+            for (row in state.lifts.chunked(if (state.lifts.size > TILES_IN_ONE_ROW) 2 else TILES_IN_ONE_ROW)) {
+                Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                    for (summary in row) {
+                        val change = summary.changeKg?.let(::Change)
+                        val name = summary.lift.label
+                        val spoken = buildString {
+                            append("$name history. ")
+                            append(if (summary.e1rmKg != null) "Estimated 1RM ${formatKg(summary.e1rmKg)} kg" else "No estimate yet")
+                            if (change != null) append(", ${change.spoken} in 4 weeks")
+                        }
+                        StatTile(
+                            label = name,
+                            value = summary.e1rmKg?.let(::formatKg) ?: "–",
+                            unit = if (summary.e1rmKg != null) "kg" else null,
+                            note = change?.text,
+                            noteTone = change?.tone ?: Tone.NEUTRAL,
+                            onClick = { onOpenLift(summary.lift) },
+                            onClickLabel = "Open history",
+                            modifier = Modifier.weight(1f).fillMaxHeight().semantics { contentDescription = spoken },
+                        )
                     }
-                    StatTile(
-                        label = name,
-                        value = summary.e1rmKg?.let(::formatKg) ?: "–",
-                        unit = if (summary.e1rmKg != null) "kg" else null,
-                        note = change?.text,
-                        noteTone = change?.tone ?: Tone.NEUTRAL,
-                        onClick = { onOpenLift(summary.lift) },
-                        onClickLabel = "Open history",
-                        modifier = Modifier.weight(1f).fillMaxHeight().semantics { contentDescription = spoken },
-                    )
                 }
             }
             Text(
@@ -215,7 +278,7 @@ private fun SummaryCard(state: ProgressState, onOpenLift: (MainLift) -> Unit) {
     }
 }
 
-/** The three lifts on one axis over the chosen range. */
+/** The shown lifts on one axis over the chosen range. */
 @Composable
 private fun TrendCard(state: ProgressState, onRange: (ChartRange) -> Unit) {
     PtCard {
@@ -225,7 +288,8 @@ private fun TrendCard(state: ProgressState, onRange: (ChartRange) -> Unit) {
         SegmentedChoice(ChartRange.entries.map { it.label }, state.range.ordinal, { onRange(ChartRange.entries[it]) })
         Eyebrow("Weekly best e1RM")
         if (series.isNotEmpty()) {
-            SeriesChart(series, axisLabels(state.weeks))
+            val drawn = rememberDrawIn(state.range, LINE_DRAW_MS)
+            SeriesChart(series, axisLabels(state.weeks), drawn = drawn::value)
         } else {
             // The range selector stays, so a longer range is one tap away.
             Text(
@@ -248,8 +312,8 @@ private fun PrSection(prs: List<PrUi>) {
         SectionHeader("Records")
         PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
             prs.forEachIndexed { i, (lift, pr) ->
-                if (i > 0) HorizontalDivider(color = pt.hairline)
-                val date = (if (pr.date.year == thisYear) PR_DATE else PR_DATE_WITH_YEAR).format(pr.date)
+                if (i > 0) SoftDivider()
+                val date = (if (pr.date.year == thisYear) PR_DATE else PR_DATE_WITH_YEAR).format(pr.date.toJavaLocalDate())
                 val set = "${formatKg(pr.weightKg)} × ${pr.reps}" + (pr.rpe?.let { " @ ${formatRpe(it)}" } ?: "")
                 val e1rm = formatKg(pr.e1rmKg.toHalfKg())
                 Row(
@@ -274,6 +338,9 @@ private fun PrSection(prs: List<PrUi>) {
 
 private val VOLUME_LABEL_WIDTH = 128.dp
 
+/** Wide enough for "Strict press · this week" on one line, and no wider: the bars keep room for the two captions under them. */
+private val VOLUME_LABEL_WIDTH_WITH_PRESS = 136.dp
+
 /** "12,450": tonnage has no use for decimals. */
 private fun formatVolume(kg: Double): String = String.format(Locale.US, "%,d", kg.roundToLong())
 
@@ -282,6 +349,7 @@ private fun formatVolume(kg: Double): String = String.format(Locale.US, "%,d", k
 private fun VolumeSection(state: ProgressState) {
     val pt = PowertrackerTheme.colors
     val scheme = MaterialTheme.colorScheme
+    val labelWidth = if (state.showStrictPress) VOLUME_LABEL_WIDTH_WITH_PRESS else VOLUME_LABEL_WIDTH
     Column {
         SectionHeader("Weekly volume")
         PtCard(spacing = Space.l) {
@@ -292,21 +360,23 @@ private fun VolumeSection(state: ProgressState) {
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(Space.m),
                 ) {
-                    Column(Modifier.width(VOLUME_LABEL_WIDTH)) {
+                    Column(Modifier.width(labelWidth)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             Box(Modifier.size(8.dp).background(volume.lift.chartColor(), CircleShape))
                             Text("$name · this week", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant, maxLines = 1)
                         }
                         NumberDisplay(formatVolume(volume.thisWeekKg), unit = "kg", size = NumberSize.MEDIUM)
                     }
-                    BarStrip(volume.weeks, volume.lift.chartColor(), Modifier.weight(1f).height(48.dp))
+                    // The last 8 weeks whatever the range: they grow in once, when Progress opens.
+                    val grown = rememberBarsGrowIn(Unit)
+                    BarStrip(volume.weeks, volume.lift.chartColor(), Modifier.weight(1f).height(48.dp), grown = grown::value)
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-                    Spacer(Modifier.width(VOLUME_LABEL_WIDTH))
+                    Spacer(Modifier.width(labelWidth))
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(state.volumeFrom?.let { "Week of ${PR_DATE.format(it)}" }.orEmpty(), style = MaterialTheme.typography.bodySmall, color = pt.muted)
+                        Text(state.volumeFrom?.let { "Week of ${PR_DATE.format(it.toJavaLocalDate())}" }.orEmpty(), style = MaterialTheme.typography.bodySmall, color = pt.muted)
                         Text("This week", style = MaterialTheme.typography.bodySmall, color = pt.muted)
                     }
                 }
@@ -316,22 +386,145 @@ private fun VolumeSection(state: ProgressState) {
     }
 }
 
+/**
+ * "26 × 11 · 26 × 10": the best sets as the list shows them, or, with [spoken], as a screen reader says them ("26 × 11,
+ * 26 × 10"). A plate-counted machine's read "plate 7½ × 10", spoken "plate 7 and a half × 10" (1.17).
+ */
+private fun bestSetText(trend: ExerciseTrend, spoken: Boolean = false): String =
+    trend.bestSets.joinToString(if (spoken) ", " else " · ") { (_, set) ->
+        val weight = when {
+            set.unit != LoadUnit.PLATES -> formatKg(set.weightKg)
+            spoken -> PlateStack.spoken(set.weightKg)
+            else -> PlateStack.text(set.weightKg)
+        }
+        "$weight × ${set.reps}"
+    }
+
+/**
+ * The bodybuilding side's Progress: each exercise in its plan with the best set of each of its last four sessions
+ * (oldest first) and whether it is going up. Every row opens that exercise's history, which has its sets from both
+ * sides; a main lift's own history holds only powerlifting sessions, so it is never opened from here.
+ */
+@Composable
+private fun BodybuildingSection(state: ProgressState, onOpenExercise: (Long) -> Unit) {
+    val pt = PowertrackerTheme.colors
+    PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
+            state.trends.forEachIndexed { i, trend ->
+                if (i > 0) SoftDivider()
+                val sets = if (trend.bestSets.isEmpty()) "Not logged yet" else bestSetText(trend)
+                // Read as the web reads it, "DB press. 26 × 10, 26 × 11. Going up" (a list, not "dot"), then the click
+                // label "Open history". The trend icons are left silent, since their words are already in it.
+                val trendWords = when (trend.goingUp) { true -> "Going up"; false -> "Not going up"; null -> null }
+                val spoken = listOfNotNull(trend.name, if (trend.bestSets.isEmpty()) sets else bestSetText(trend, spoken = true), trendWords).joinToString(". ")
+                Row(
+                    Modifier.fillMaxWidth()
+                        .pressClickable(onClickLabel = "Open history") { onOpenExercise(trend.exerciseId) }
+                        .semantics { contentDescription = spoken }
+                        .heightIn(min = 56.dp).padding(vertical = Space.s),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(trend.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text(sets, style = MaterialTheme.typography.bodyMedium, color = pt.muted)
+                    }
+                    when (trend.goingUp) {
+                        true -> Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null, tint = pt.success, modifier = Modifier.size(24.dp))
+                        false -> Icon(Icons.AutoMirrored.Filled.TrendingFlat, contentDescription = null, tint = pt.muted, modifier = Modifier.size(24.dp))
+                        null -> Unit
+                    }
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = pt.muted, modifier = Modifier.size(20.dp))
+                }
+            }
+    }
+}
+
+// Stage 3's words on Progress. The web app's Progress uses the same.
+const val FIRST_CHECK_IN_LINE = "Your first check-in is four weeks after your first bodybuilding session. You can check in any time."
+
+fun ratingText(rating: MuscleRating): String = when (rating) {
+    MuscleRating.LAGGING -> "Lagging"
+    MuscleRating.GROWING_WELL -> "Growing well"
+    MuscleRating.ON_TRACK -> "On track"
+}
+
+/** "11 of 14 planned sets in the last 7 days"; with none planned, "3 sets in the last 7 days". */
+fun setsText(row: MuscleRow): String =
+    if (row.setsPlanned == 0) "${row.setsDone} ${if (row.setsDone == 1) "set" else "sets"} in the last 7 days"
+    else "${row.setsDone} of ${row.setsPlanned} planned sets in the last 7 days"
+
+/** "2 of 3 exercises going up"; null when none of the body part's exercises has enough sessions to tell. */
+fun goingUpText(row: MuscleRow): String? =
+    if (row.exercisesTracked == 0) null
+    else "${row.exercisesUp} of ${row.exercisesTracked} ${if (row.exercisesTracked == 1) "exercise" else "exercises"} going up"
+
+/** The Check in button, with a line before the first check-in saying when one falls due. */
+@Composable
+private fun CheckInStart(checkedIn: Boolean, onCheckIn: () -> Unit) {
+    // Clear of the title, as the first card on the other screens sits below their headers.
+    Column(Modifier.padding(top = Space.m), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+        SecondaryButton("Check in", onCheckIn, Modifier.fillMaxWidth().testTag("progress-check-in"))
+        if (!checkedIn) {
+            Text(FIRST_CHECK_IN_LINE, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = Space.xs))
+        }
+    }
+}
+
+/** One row per body part: its latest rating, the sets done against the plan, how its exercises move, earlier ratings. */
+@Composable
+private fun BodyPartsSection(rows: List<MuscleRow>) {
+    val pt = PowertrackerTheme.colors
+    Column {
+        SectionHeader("Body parts")
+        PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
+            rows.forEachIndexed { i, row ->
+                if (i > 0) SoftDivider()
+                val latest = row.ratings.lastOrNull()?.second
+                val earlier = row.ratings.dropLast(1).map { ratingText(it.second) }
+                Row(
+                    Modifier.fillMaxWidth().padding(vertical = Space.m).semantics(mergeDescendants = true) {}.testTag("body-part-${row.group.name}"),
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                ) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                        Text(row.group.label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text(setsText(row), style = MaterialTheme.typography.bodyMedium, color = pt.muted)
+                        goingUpText(row)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = pt.muted) }
+                        if (earlier.isNotEmpty()) {
+                            Text("Earlier: " + earlier.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = pt.muted)
+                        }
+                    }
+                    if (latest != null) Pill(ratingText(latest), tone = latest.tone())
+                }
+            }
+        }
+    }
+}
+
+private fun MuscleRating.tone(): Tone = when (this) {
+    MuscleRating.LAGGING -> Tone.WARNING
+    MuscleRating.GROWING_WELL -> Tone.SUCCESS
+    MuscleRating.ON_TRACK -> Tone.NEUTRAL
+}
+
 @Composable
 private fun RatioSection(ratios: List<RatioUi>) {
     Column {
         SectionHeader("Lift ratios")
         PtCard(spacing = Space.l) {
             for (ratio in ratios) {
-                RatioBar("${ratio.numerator.label} ÷ ${ratio.denominator.label}", ratio.valuePct, ratio.lowPct, ratio.highPct)
+                val slid = rememberDrawIn(Unit, MARKER_SLIDE_MS)
+                RatioBar("${ratio.numerator.label} ÷ ${ratio.denominator.label}", ratio.valuePct, ratio.lowPct, ratio.highPct, slid = slid::value)
             }
         }
     }
 }
 
 @Composable
-private fun BodyweightSection(points: List<Pair<LocalDate, Double>>) {
+private fun BodyweightSection(points: List<Pair<LocalDate, Double>>, range: ChartRange) {
     Column {
         SectionHeader("Bodyweight")
-        PtCard { LineChart(points, name = "Latest") }
+        // Its points are those in the chosen range, so it draws in again when the range changes.
+        val drawn = rememberDrawIn(range, LINE_DRAW_MS)
+        PtCard { LineChart(points, name = "Latest", drawn = drawn::value) }
     }
 }

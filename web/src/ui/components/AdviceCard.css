@@ -1,0 +1,48 @@
+.gr-advice-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.gr-advice-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--tone-container);
+  color: var(--tone);
+}
+
+.gr-advice-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Two classes, so the tone wins over the eyebrow's muted colour whatever order the stylesheets load in. */
+.gr-advice .gr-advice-tag {
+  color: var(--tone);
+}
+
+.gr-advice-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.gr-advice-title {
+  color: var(--text);
+}
+
+.gr-advice-body {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.gr-advice-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}

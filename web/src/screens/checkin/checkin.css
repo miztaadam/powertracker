@@ -1,0 +1,70 @@
+/* Layout for the check-in. Colours, type and controls come from the components and tokens; it follows the plan builder's. */
+
+.ci-screen {
+  position: relative;
+}
+
+.ci-body {
+  flex: 1;
+}
+
+.ci-question,
+.ci-hint,
+.ci-failed {
+  margin: 0;
+}
+
+.ci-hint {
+  color: var(--text-secondary);
+}
+
+.ci-failed {
+  color: var(--danger);
+}
+
+.ci-groups .lib-options {
+  padding: var(--space-3) var(--space-4);
+}
+
+/* What saving gave: one lagging body part per line, its name over what the coach did. */
+.ci-lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ci-line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+}
+
+.ci-line + .ci-line {
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+.ci-line-group {
+  color: var(--text);
+}
+
+.ci-line-text {
+  color: var(--text-secondary);
+}
+
+/* Back and Next, Save, or See Coach and Done, at the foot of the page. */
+.ci-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+  background: var(--bg);
+}
+
+.ci-actions > .gr-btn {
+  flex: 1;
+}

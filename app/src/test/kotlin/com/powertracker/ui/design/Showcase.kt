@@ -12,6 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Surface
+import com.powertracker.ui.components.PrimaryButton
+import com.powertracker.ui.components.QuietButton
+import com.powertracker.ui.plan.PlanItemFields
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -21,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -36,6 +45,7 @@ import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.PtBottomBar
 import com.powertracker.ui.Tab
@@ -60,6 +70,7 @@ import com.powertracker.ui.plan.PlanContent
 import com.powertracker.ui.plan.PlanRow
 import com.powertracker.ui.plan.PlanUiState
 import com.powertracker.ui.plan.SettingsContent
+import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -70,8 +81,9 @@ import com.powertracker.ui.today.TodayActions
 import com.powertracker.ui.today.TodayContent
 import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayState
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.isoDayNumber
 
 // Mockups for owner approval: real components, hard-coded sample data. One lifter, one story:
 // squat e1RM 190, bench 122.5 (stalled), deadlift 250, on Wednesday 11 November.
@@ -82,19 +94,22 @@ internal val DEADLIFT = listOf(232.5f, 235f, 237.5f, 237.5f, 240f, 242.5f, 242.5
 
 /** Theme, background, a stand-in status bar, and the real bottom bar when [tab] is given. */
 @Composable
-fun ShowcaseFrame(dark: Boolean, tab: Tab?, content: @Composable () -> Unit) {
-    PowertrackerTheme(darkTheme = dark) {
-        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            Row(Modifier.fillMaxWidth().height(28.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("9:41", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground)
+fun ShowcaseFrame(dark: Boolean, tab: Tab?, mode: TrainingMode = TrainingMode.POWERLIFTING, content: @Composable () -> Unit) {
+    // Screenshots are taken with motion off (stage 2), whatever LocalMotion's default.
+    CompositionLocalProvider(LocalMotion provides false) {
+        PowertrackerTheme(mode = mode, darkTheme = dark) {
+            Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                Row(Modifier.fillMaxWidth().height(28.dp).padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("9:41", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground)
+                }
+                Box(Modifier.weight(1f)) { content() }
+                if (tab != null) PtBottomBar(tab.route) {}
             }
-            Box(Modifier.weight(1f)) { content() }
-            if (tab != null) PtBottomBar(tab.route) {}
         }
     }
 }
 
-internal val SHOWCASE_DATE: LocalDate = LocalDate.of(2026, 11, 11)
+internal val SHOWCASE_DATE: LocalDate = LocalDate(2026, 11, 11)
 
 private fun logged(id: Long, kg: Double, reps: Int, rpe: Double, failed: Boolean = false, miss: MissPoint? = null) =
     StoredSet(id, 1, LoggedSet(1, kg, reps, rpe, failed, miss, isTopSet = false))
@@ -151,7 +166,7 @@ fun TodayStartShowcase() {
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, items = todayItems(emptyList(), suggest = true)), TodayActions())
 }
 
-/** The planned sets are done: the volt button moves on to the next exercise. */
+/** The planned sets are done: the primary button moves on to the next exercise. */
 @Composable
 fun TodayNextShowcase() {
     val squatSets = listOf(logged(1, 150.0, 5, 7.5), logged(2, 155.0, 5, 8.0), logged(3, 155.0, 5, 8.5), logged(4, 155.0, 5, 9.0), logged(5, 155.0, 5, 9.5))
@@ -247,23 +262,92 @@ private fun exercise(id: Long, name: String, category: Category = Category.ACCES
 
 private fun day(day: DayOfWeek, vararg rows: Triple<String, Pair<Int, Int>, Double>) = DaySection(
     day,
-    rows.mapIndexed { i, (name, dose, rpe) -> PlanRow(PlanItem(day.value * 10L + i, day, i.toLong(), dose.first, dose.second, rpe, i), name) },
+    rows.mapIndexed { i, (name, dose, rpe) -> PlanRow(PlanItem(day.isoDayNumber * 10L + i, day, i.toLong(), dose.first, dose.second, rpe, i), name) },
 )
 
 @Composable
-fun PlanShowcase() {
-    val state = PlanUiState(
-        sections = listOf(
-            day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Bench", 4 to 6, 7.5), Triple("Barbell row", 3 to 8, 8.0)),
-            day(DayOfWeek.WEDNESDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Close-grip bench", 3 to 5, 8.0)),
-            day(DayOfWeek.FRIDAY, Triple("Bench", 3 to 5, 8.0), Triple("Pause squat", 3 to 4, 7.5)),
-        ),
-        mainExercises = listOf(exercise(1, "Squat", Category.SQUAT), exercise(2, "Bench", Category.BENCH), exercise(3, "Deadlift", Category.DEADLIFT)),
-    )
+fun PlanShowcase(knownBests: Boolean = false) {
+    val main = listOf(exercise(1, "Squat", Category.SQUAT), exercise(2, "Bench", Category.BENCH), exercise(3, "Deadlift", Category.DEADLIFT))
+    val state = if (knownBests) {
+        // 1.16.1: the strict press switch on, a best for each lift (typed or lifted), and one lift without one yet.
+        PlanUiState(
+            sections = listOf(
+                day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Strict press", 3 to 5, 8.0)),
+                day(DayOfWeek.THURSDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Bench", 4 to 6, 7.5)),
+            ),
+            mainExercises = main + exercise(4, "Strict press", Category.STRICT_PRESS),
+            bests = mapOf(1L to 182.5, 2L to 120.0, 4L to 72.5),
+        )
+    } else {
+        PlanUiState(
+            sections = listOf(
+                day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Bench", 4 to 6, 7.5), Triple("Barbell row", 3 to 8, 8.0)),
+                day(DayOfWeek.WEDNESDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Close-grip bench", 3 to 5, 8.0)),
+                day(DayOfWeek.FRIDAY, Triple("Bench", 3 to 5, 8.0), Triple("Pause squat", 3 to 4, 7.5)),
+            ),
+            mainExercises = main,
+        )
+    }
     PlanContent(state, onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {})
 }
 
+/**
+ * Plan's add form (1.12): picking an exercise on a day opens the sets/reps form with the ready-made numbers. The real
+ * [PlanItemFields] in a stand-in for the AlertDialog window (which this capture cannot see), drawn from
+ * [AlertDialogDefaults] over the Plan screen.
+ */
 @Composable
-fun SettingsShowcase() {
-    SettingsContent(AppSettings(changePlates = true), onUpdate = {}, onExport = {}, onRestore = {}, onBack = {})
+fun PlanAddFormShowcase(mode: TrainingMode = TrainingMode.POWERLIFTING) {
+    val bodybuilding = mode == TrainingMode.BODYBUILDING
+    DialogShowcase(
+        behind = { if (bodybuilding) PlanBodybuildingShowcase() else PlanShowcase() },
+        title = "Add to Monday",
+        confirmText = "Add",
+    ) {
+        if (bodybuilding) {
+            PlanItemFields("Incline DB press", 3, 8, 12, 8.0, {}, {}, {}, {}, {})
+        } else {
+            PlanItemFields("Squat", 3, 5, null, 8.0, {}, {}, {}, {}, {})
+        }
+    }
+}
+
+/** A stand-in for an AlertDialog window: its shape, colours, padding and type, centred over [behind] under a scrim. */
+@Composable
+internal fun DialogShowcase(behind: @Composable () -> Unit, title: String, confirmText: String, text: @Composable () -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+        behind()
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f)))
+        Surface(
+            Modifier.align(Alignment.Center).padding(horizontal = 16.dp).widthIn(min = 280.dp, max = 560.dp),
+            shape = AlertDialogDefaults.shape,
+            color = AlertDialogDefaults.containerColor,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+        ) {
+            Column(Modifier.padding(24.dp)) {
+                CompositionLocalProvider(LocalContentColor provides AlertDialogDefaults.titleContentColor) {
+                    ProvideTextStyle(MaterialTheme.typography.headlineSmall) { Text(title, Modifier.padding(bottom = 16.dp)) }
+                }
+                CompositionLocalProvider(LocalContentColor provides AlertDialogDefaults.textContentColor) {
+                    ProvideTextStyle(MaterialTheme.typography.bodyMedium) { Box(Modifier.padding(bottom = 24.dp)) { text() } }
+                }
+                Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    QuietButton("Cancel", {})
+                    PrimaryButton(confirmText, {}, compact = true)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsShowcase(strictPress: Boolean = false, bodybuilding: Boolean = false) {
+    SettingsContent(
+        AppSettings(
+            changePlates = true,
+            showStrictPress = strictPress,
+            trainingMode = if (bodybuilding) TrainingMode.BODYBUILDING else TrainingMode.POWERLIFTING,
+        ),
+        onUpdate = {}, onExport = {}, onRestore = {}, onBack = {},
+    )
 }

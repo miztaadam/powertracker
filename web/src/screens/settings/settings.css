@@ -1,0 +1,135 @@
+/* Layout for the Settings screen. Colours, type and controls come from the components and tokens. */
+
+.settings-body {
+  gap: var(--space-3);
+}
+
+/* A section's name sits closer to its own card than to the card above. */
+.settings-body > .gr-section-header:not(:first-child) {
+  margin-top: var(--space-4);
+}
+
+.settings-group {
+  padding: var(--space-2) var(--space-5);
+}
+
+/* Rows of a group, with a hairline between them. */
+.settings-group > * + * {
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 64px;
+}
+
+label.settings-row {
+  cursor: pointer;
+}
+
+/* A row that opens another screen (the guide): the whole row is the button, a chevron at its end. */
+.settings-link {
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.settings-chevron {
+  display: flex;
+  color: var(--text-muted);
+}
+
+.settings-label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4) 0;
+  color: var(--text);
+}
+
+/* A label with a small action after it; the label stays on one line. */
+.settings-title {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.settings-supporting {
+  color: var(--text-muted);
+}
+
+/* A label with its control underneath (the rest alert). */
+.settings-block {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--space-4);
+}
+
+/* Four rest alerts (Android, with Sound + vibrate), each segment sized to its label: on one line on a phone at
+   normal text size. Only where even that has no room (130% text on a 320 px phone) does a long one wrap, at its
+   space, inside its segment instead of running out of it. Like Android's, the label gives up its side padding
+   first (1 px a side); with room to spare every segment grows by the same amount, so it looks the same there. */
+.settings-rest-alert .gr-segment-face {
+  padding: 0 1px;
+  white-space: normal;
+  text-align: center;
+}
+
+/* Where the row has room for it (from 340 px wide: 266 px of row), every rest alert is at least a 48 px target,
+   "Off" too. Narrower, "Sound + vibrate" needs that room to stay on one line, so the short ones keep their own width. */
+@media (min-width: 340px) {
+  .settings-rest-alert.gr-segmented-fit .gr-segment {
+    min-width: var(--touch);
+  }
+}
+
+/* A plain line under the rest alert's choices (iPhone: no vibration). */
+.settings-note {
+  margin: var(--space-2) 0 0;
+}
+
+/* Seven days share the card's width: each chip keeps its 48 px, so the faces give up their side padding. */
+.settings-days {
+  padding: var(--space-3) var(--space-2);
+}
+
+.settings-days-row {
+  display: flex;
+}
+
+.settings-days-row .gr-chip {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-days-row .gr-chip-face {
+  margin: 0 var(--space-1);
+  padding: 0;
+}
+
+.settings-text,
+.settings-status p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.settings-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* The version line, last on the screen: quiet, centred, clear of the Backup card above. */
+.settings-version {
+  margin: var(--space-6) 0 0;
+  text-align: center;
+  color: var(--text-muted);
+}

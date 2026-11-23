@@ -1,0 +1,551 @@
+/* Layout for the exercise browser (the picker and the Exercises tab) and the form guide sheet. Colours, type and controls come from the components and tokens. */
+
+.lib-grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.lib-contents {
+  display: contents;
+}
+
+/* The picker: header and search stay put; chips and rows scroll under them. */
+
+.lib-search {
+  flex: none;
+  padding: var(--space-3) var(--space-5);
+}
+
+.lib-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: var(--space-6);
+}
+
+/* One line of chips that scrolls sideways instead of wrapping into a wall. */
+.lib-chips {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding: 0 var(--space-5);
+  scrollbar-width: none;
+}
+
+.lib-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.lib-chips .gr-chip {
+  flex: none;
+}
+
+.lib-chips .gr-chip-face {
+  padding: 0 var(--space-4);
+}
+
+/* The Exercises tab: the browser as a screen of its own. The header and search stay put; the list scrolls. */
+.lib-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* The "Muscles" drop-down: a chip that opens the sheet of muscle groups. Tonal once any is ticked. */
+.lib-dropdown,
+.lib-ticked-chip {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  margin: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.lib-dropdown-face,
+.lib-ticked-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--container-high);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.lib-dropdown[aria-pressed='true'] .lib-dropdown-face,
+.lib-ticked-face {
+  border-color: var(--outline);
+  background: var(--container-highest);
+  color: var(--text);
+}
+
+.lib-dropdown:focus-visible,
+.lib-ticked-chip:focus-visible {
+  outline: none;
+}
+
+.lib-dropdown:focus-visible .lib-dropdown-face,
+.lib-ticked-chip:focus-visible .lib-ticked-face {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* The ticked muscles, each a chip that takes itself away, then "Clear". They wrap, so none is hidden. */
+.lib-ticked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+  padding: 0 var(--space-5);
+}
+
+.lib-ticked-face svg {
+  color: var(--text-secondary);
+}
+
+/* The muscle groups to tick, two to a row; each row of the grid is a full-size target. */
+.lib-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+  color: var(--text);
+}
+
+.lib-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: var(--touch);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.lib-option input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0 var(--space-1);
+  accent-color: var(--accent);
+}
+
+.lib-heading {
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+/* The muscle grid: tonal tiles, three to a row on the narrowest phone. */
+.lib-muscles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) 0;
+}
+
+.lib-muscle {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 56px;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--elevation-card);
+  color: var(--text);
+  text-align: center;
+  /* Labels wrap only at spaces, never mid-word, also at 130% zoom. */
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.lib-muscle:active {
+  background: var(--container);
+}
+
+.lib-muscle-back {
+  display: flex;
+  padding: var(--space-4) var(--space-5) 0;
+}
+
+.lib-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Rows off screen are not laid out or painted until they are scrolled to, so the picker opens as
+ * fast with a few hundred rows as with a few dozen. A row therefore paints nothing outside its
+ * own box: it is the full width, and draws its hairline and focus ring inside itself.
+ */
+.lib-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-2) 1px 0;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 65px;
+}
+
+.lib-row::after {
+  content: '';
+  position: absolute;
+  left: var(--space-5);
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+/* Forced colours drop backgrounds: draw the hairline in the system text colour so it stays visible. */
+@media (forced-colors: active) {
+  .lib-row::after {
+    background: CanvasText;
+  }
+}
+
+.lib-row-main {
+  appearance: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 64px;
+  margin: 0;
+  padding: var(--space-3) 0 var(--space-3) var(--space-5);
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.lib-row-main:focus-visible {
+  outline-offset: -2px;
+}
+
+.lib-row-main:active {
+  background: var(--container);
+}
+
+.lib-row-name,
+.lib-row-muscles {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.lib-row-muscles {
+  color: var(--text-secondary);
+}
+
+/*
+ * A row's small picture on the Exercises tab: a muted 56 × 40 tile, the figure drawn on it 4:3 and centred. The tile
+ * is the figure's surface, so its gaps are the tile's colour. An exercise without a figure keeps the empty tile.
+ */
+.lib-thumb {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  width: 56px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--container-high);
+  --fig-surface: var(--container-high);
+}
+
+.lib-thumb .fig {
+  display: block;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+/* Under 320 px of room (a 375 px phone at 130% zoom is 288) the tile would leave too little for the name, and long
+   words such as "Concentration" break inside: there is no tile at all, as in the picker on Android. */
+@media (max-width: 319.98px) {
+  .lib-thumb {
+    display: none;
+  }
+}
+
+.lib-row-equipment {
+  flex: none;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.lib-create {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+/* The custom-exercise dialog. */
+
+.lib-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--text);
+}
+
+.lib-form-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.lib-form-label {
+  margin: 0;
+}
+
+/* The form guide sheet: read one-handed between sets. The name and Close stay in reach while it scrolls. */
+
+.lib-guide-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-3) var(--space-3) var(--space-6);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.lib-guide-head h2 {
+  padding-top: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.lib-guide-where {
+  margin-top: var(--space-2);
+  white-space: normal;
+}
+
+.lib-guide {
+  /* A comfortable line: never wider than about 60 characters. */
+  max-width: 34rem;
+  padding: 0 var(--space-6) var(--space-6);
+  color: var(--text);
+}
+
+.lib-guide p {
+  margin: 0;
+}
+
+/*
+ * The exercise's picture, above the purpose: its two poses side by side, sharing the width equally, drawn straight
+ * on the sheet with no frame. Each column may shrink below its caption, which then wraps.
+ */
+.lib-picture {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 var(--space-5);
+}
+
+.lib-picture-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.lib-picture .fig {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+/* Under its panel, centred, on as many lines as it needs: a caption is never cut short. */
+.lib-picture-caption {
+  color: var(--text-secondary);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.lib-guide-purpose {
+  color: var(--text-secondary);
+}
+
+.lib-guide-title {
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+.lib-guide-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.lib-guide-lines li {
+  position: relative;
+  padding-left: 28px;
+  overflow-wrap: anywhere;
+}
+
+/* A drawn dot, centred on the first line of text. */
+.lib-guide-lines li::before {
+  content: '';
+  position: absolute;
+  left: var(--space-2);
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.lib-guide-steps li {
+  counter-increment: step;
+}
+
+.lib-guide-steps li::before {
+  content: counter(step);
+  left: 0;
+  top: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--text-muted);
+  font: 600 16px/24px var(--font-text);
+}
+
+/* The fixed last line, set apart from the guide in its own block. */
+.lib-guide-safety {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--container-high);
+}
+
+.lib-guide-safety svg {
+  flex: none;
+  color: var(--text-secondary);
+}
+
+/* What can be done with the exercise, under the guide: in reach however long the guide is. */
+.lib-guide-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: calc(-1 * env(safe-area-inset-bottom));
+  padding: var(--space-4) var(--space-6) calc(var(--space-4) + env(safe-area-inset-bottom));
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+  background: var(--surface);
+}
+
+.lib-guide-actions .gr-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The second step of "Add to plan": which day. */
+.lib-days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.lib-days p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* The RPE sheet: the same sheet without sections, so its blocks keep their own distance. */
+.lib-rpe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/*
+ * The RPE info button in a caption or a row title: the room of its icon and no height. The 48 px
+ * button is centred on that spot, so its target reaches past it on every side.
+ */
+.lib-rpe-inline {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 24px;
+  height: 0;
+  vertical-align: middle;
+}
+
+.lib-rpe-inline .gr-icon-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Multi-select (the plan builder): a row leads with its tick box, accent-filled once ticked. */
+.lib-tick {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--text-muted);
+  border-radius: var(--radius-xs);
+  color: var(--accent-ink);
+}
+
+.lib-tick-on {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+/*
+ * A group shown but not tickable (the check-in's second step: those already marked lagging). Name and an empty box in
+ * --text-muted, which the contrast tests hold to 4.5:1 on the card in every palette (tokens.test.ts).
+ */
+.lib-option-disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.lib-option-disabled input {
+  appearance: none;
+  box-sizing: border-box;
+  border: 2px solid var(--text-muted);
+  border-radius: 2px;
+  background: transparent;
+}

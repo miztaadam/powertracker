@@ -5,18 +5,36 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
 import com.powertracker.domain.model.MainLift
+import com.powertracker.domain.progress.Pr
+import com.powertracker.domain.progress.ProgressMath
+import com.powertracker.domain.progress.weekStart
 import com.powertracker.domain.model.TrainingHistory
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
+import com.powertracker.domain.progress.BodybuildingProgress
+import com.powertracker.domain.progress.ExerciseTrend
+import com.powertracker.domain.progress.MuscleProgress
+import com.powertracker.domain.progress.MuscleRow
+import com.powertracker.domain.model.CheckIn
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.coach.RatioUi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -43,6 +61,9 @@ data class ProgressState(
     /** False until a main-lift set has been completed: the screen then shows only a hint. */
     val hasData: Boolean = false,
     val range: ChartRange = ChartRange.MONTHS_6,
+    /** The strict press setting: it is a fourth lift on the screen and in the total. */
+    val showStrictPress: Boolean = false,
+    /** The shown lifts' current e1RMs added up; null until every one of them has one. */
     val totalKg: Double? = null,
     val totalChangeKg: Double? = null,
     val lifts: List<LiftSummary> = emptyList(),
@@ -50,7 +71,7 @@ data class ProgressState(
     val weeks: List<LocalDate> = emptyList(),
     /** Weekly best e1RM per lift to the half kilo, one entry per week in [weeks]; null for a week without that lift. */
     val e1rm: Map<MainLift, List<Float?>> = emptyMap(),
-    /** Squat + bench + deadlift weekly best for the weeks in range that have all three. */
+    /** The shown lifts' weekly bests added up, for the weeks in range that have every one of them. */
     val totalTrend: List<Pair<LocalDate, Double>> = emptyList(),
     val bodyweight: List<Pair<LocalDate, Double>> = emptyList(),
     /** Each lift's standing record, newest first. */
@@ -58,6 +79,14 @@ data class ProgressState(
     val volumeFrom: LocalDate? = null,
     val volume: List<VolumeUi> = emptyList(),
     val ratios: List<RatioUi> = emptyList(),
+    /** The side the app is on. The charts, records and total above belong to the powerlifting side. */
+    val mode: TrainingMode = TrainingMode.POWERLIFTING,
+    /** The bodybuilding side: the plan's exercises with their last four sessions' best sets (spec §7.6). */
+    val trends: List<ExerciseTrend> = emptyList(),
+    /** The bodybuilding side (stage 3): one row per body part, with its check-in ratings and sets. */
+    val muscles: List<MuscleRow> = emptyList(),
+    /** The bodybuilding side: at least one check-in has been saved. */
+    val checkedIn: Boolean = false,
 )
 
 /** An estimate is not worth more than half a kilo of precision. */
@@ -65,14 +94,23 @@ internal fun Double.toHalfKg(): Double = (this * 2).roundToLong() / 2.0
 
 class ProgressViewModel(
     training: TrainingRepository,
-    private val today: () -> LocalDate = LocalDate::now,
+    showStrictPress: Flow<Boolean>,
+    mode: Flow<TrainingMode> = flowOf(TrainingMode.POWERLIFTING),
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val range = MutableStateFlow(ChartRange.MONTHS_6)
 
     val state: StateFlow<ProgressState> =
-        combine(training.history(), range) { history, range -> build(history, range, today()) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressState())
+        combine(
+            training.history(), range, showStrictPress, mode,
+            combine(training.plan(TrainingMode.BODYBUILDING), training.checkIns(), ::Pair),
+        ) { history, range, press, side, (plan, checkIns) ->
+            when (side) {
+                TrainingMode.POWERLIFTING -> build(history, range, today(), press)
+                TrainingMode.BODYBUILDING -> buildBodybuilding(history, plan, today(), checkIns)
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressState())
 
     fun setRange(value: ChartRange) {
         range.value = value
@@ -82,6 +120,8 @@ class ProgressViewModel(
         private const val CHANGE_DAYS = 28L
         private const val VOLUME_WEEKS = 8
 
+        private val SBD = listOf(MainLift.SQUAT, MainLift.BENCH, MainLift.DEADLIFT)
+
         private val RATIOS = listOf(
             Triple(MainLift.SQUAT, MainLift.DEADLIFT, WeakPointRule.SQUAT_TO_DEADLIFT),
             Triple(MainLift.BENCH, MainLift.SQUAT, WeakPointRule.BENCH_TO_SQUAT),
@@ -89,40 +129,65 @@ class ProgressViewModel(
 
         private fun percent(factor: Double) = (factor * 100).roundToInt()
 
-        /** Everything the screen shows, from one snapshot of history. */
-        internal fun build(history: TrainingHistory, range: ChartRange, today: LocalDate): ProgressState {
+        /** The bodybuilding side: one row per body part (stage 3), then one per exercise in its plan, in plan order. */
+        internal fun buildBodybuilding(
+            history: TrainingHistory,
+            plan: List<com.powertracker.domain.model.PlanItem>,
+            today: LocalDate,
+            checkIns: List<CheckIn> = emptyList(),
+        ): ProgressState {
+            val trends = BodybuildingProgress.rows(history, plan, today)
+            return ProgressState(
+                loading = false,
+                hasData = trends.isNotEmpty(),
+                mode = TrainingMode.BODYBUILDING,
+                trends = trends,
+                muscles = MuscleProgress.rows(history, plan, checkIns, today),
+                checkedIn = checkIns.any { it.date <= today },
+            )
+        }
+
+        /**
+         * Everything the screen shows, from one snapshot of history. Strict press is a fourth lift
+         * throughout when [showStrictPress] is on; when it is off its sets change nothing here.
+         * The charts, records and total belong to the powerlifting side: bodybuilding sessions do not touch them
+         * (bodybuilding mode spec §5.3), so they read only powerlifting sessions.
+         */
+        internal fun build(all: TrainingHistory, range: ChartRange, today: LocalDate, showStrictPress: Boolean): ProgressState {
+            val history = all.on(TrainingMode.POWERLIFTING)
+            val shown = if (showStrictPress) SBD + MainLift.STRICT_PRESS else SBD
             val hasData = history.sessions.any { s ->
-                s.sets.any { set -> !set.failed && history.exercises[set.exerciseId]?.isMainLift == true }
+                s.sets.any { set -> !set.failed && history.exercises[set.exerciseId]?.let { it.isMainLift && it.mainLift in shown } == true }
             }
-            if (!hasData) return ProgressState(loading = false, hasData = false, range = range)
+            if (!hasData) return ProgressState(loading = false, hasData = false, range = range, showStrictPress = showStrictPress)
 
             val stats = HistoryStats(history)
-            val before = today.minusDays(CHANGE_DAYS)
-            val current = MainLift.entries.associateWith { stats.currentE1rm(it, today) }
-            val lifts = MainLift.entries.map { lift ->
+            val before = today.minus(CHANGE_DAYS, DateTimeUnit.DAY)
+            val current = shown.associateWith { stats.currentE1rm(it, today) }
+            val lifts = shown.map { lift ->
                 val now = current[lift]?.toHalfKg()
                 val then = stats.currentE1rm(lift, before)?.toHalfKg()
                 LiftSummary(lift, now, if (now != null && then != null) now - then else null)
             }
-            val total = ProgressMath.total(stats, today)?.toHalfKg()
-            val totalBefore = ProgressMath.total(stats, before)?.toHalfKg()
+            val total = ProgressMath.total(stats, today, includeStrictPress = showStrictPress)?.toHalfKg()
+            val totalBefore = ProgressMath.total(stats, before, includeStrictPress = showStrictPress)?.toHalfKg()
 
             // One continuous run of weeks, so time is to scale even when a week was missed.
-            val trends = MainLift.entries.associateWith { lift -> stats.weeklyTrend(lift, today).associate { it.weekStart to it.e1rmKg } }
+            val trends = shown.associateWith { lift -> stats.weeklyTrend(lift, today).associate { it.weekStart to it.e1rmKg } }
             val thisWeek = weekStart(today)
             val firstWeek = trends.values.flatMap { it.keys }.minOrNull() ?: thisWeek
-            val rangeStart = range.weeks?.let { thisWeek.minusWeeks(it - 1L) }
-            val from = if (rangeStart != null && rangeStart.isAfter(firstWeek)) rangeStart else firstWeek
-            val weeks = generateSequence(from) { it.plusWeeks(1) }.takeWhile { !it.isAfter(thisWeek) }.toList()
+            val rangeStart = range.weeks?.let { thisWeek.minus(it - 1, DateTimeUnit.WEEK) }
+            val from = if (rangeStart != null && rangeStart > firstWeek) rangeStart else firstWeek
+            val weeks = generateSequence(from) { it.plus(1, DateTimeUnit.WEEK) }.takeWhile { it <= thisWeek }.toList()
 
             val bodyweight = history.sessions
-                .filter { it.bodyweightKg != null && !it.date.isBefore(rangeStart ?: LocalDate.MIN) && !it.date.isAfter(today) }
+                .filter { it.bodyweightKg != null && (rangeStart == null || it.date >= rangeStart) && it.date <= today }
                 .sortedBy { it.date }
                 .associate { it.date to it.bodyweightKg!! } // the last session of a day wins
                 .toList()
 
-            val volumeWeeks = List(VOLUME_WEEKS) { thisWeek.minusWeeks((VOLUME_WEEKS - 1 - it).toLong()) }
-            val volume = MainLift.entries.map { lift ->
+            val volumeWeeks = List(VOLUME_WEEKS) { thisWeek.minus(VOLUME_WEEKS - 1 - it, DateTimeUnit.WEEK) }
+            val volume = shown.map { lift ->
                 val byWeek = ProgressMath.weeklyVolume(history, lift).toMap()
                 VolumeUi(lift, volumeWeeks.map { (byWeek[it] ?: 0.0).toFloat() })
             }
@@ -137,6 +202,7 @@ class ProgressViewModel(
                 loading = false,
                 hasData = true,
                 range = range,
+                showStrictPress = showStrictPress,
                 totalKg = total,
                 totalChangeKg = if (total != null && totalBefore != null) total - totalBefore else null,
                 lifts = lifts,
@@ -147,7 +213,7 @@ class ProgressViewModel(
                     week to points.sum()
                 },
                 bodyweight = bodyweight,
-                prs = MainLift.entries
+                prs = shown
                     .mapNotNull { lift -> ProgressMath.prs(history, lift).lastOrNull()?.let { PrUi(lift, it) } }
                     .sortedByDescending { it.pr.date },
                 volumeFrom = volumeWeeks.first(),
@@ -156,7 +222,7 @@ class ProgressViewModel(
             )
         }
 
-        fun factory(training: TrainingRepository, today: () -> LocalDate = LocalDate::now): ViewModelProvider.Factory =
-            viewModelFactory { initializer { ProgressViewModel(training, today) } }
+        fun factory(training: TrainingRepository, settings: SettingsRepository, today: () -> LocalDate = ::systemToday): ViewModelProvider.Factory =
+            viewModelFactory { initializer { ProgressViewModel(training, settings.showStrictPress, settings.settings.map { it.trainingMode }, today) } }
     }
 }

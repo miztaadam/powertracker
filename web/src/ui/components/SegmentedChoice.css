@@ -1,0 +1,81 @@
+/* The track is 48 px tall (4 + 40 + 4); each label fills it, so the touch target is 48 px. */
+.gr-segmented {
+  display: flex;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: var(--container-high);
+  padding: 0 var(--space-2);
+}
+
+.gr-segment {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  padding: var(--space-2) 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Opt-in (sizeToLabels): each segment starts at its label's width and takes an equal share of what is left. When
+   the row is too narrow even for that, a label that can wrap shrinks no further than its longest word. */
+.gr-segmented-fit .gr-segment {
+  flex: 1 1 auto;
+  min-width: auto;
+}
+
+.gr-segment-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+/* Selected is tonal, not inverse: the primary button stays the brightest filled element on a screen. */
+.gr-segment input:checked + .gr-segment-face,
+.gr-chip input:checked + .gr-chip-face {
+  border-color: var(--outline);
+  background: var(--container-highest);
+  color: var(--text);
+}
+
+.gr-segment input:focus-visible + .gr-segment-face,
+.gr-chip input:focus-visible + .gr-chip-face {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.gr-chip {
+  position: relative;
+  display: inline-flex;
+  min-width: var(--touch);
+  min-height: var(--touch);
+  padding: var(--space-2) 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.gr-chip-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--container-high);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}

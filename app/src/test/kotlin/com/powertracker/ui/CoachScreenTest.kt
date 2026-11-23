@@ -10,7 +10,6 @@ import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -20,11 +19,16 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.coach.CoachScreen
+import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.theme.PowertrackerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.After
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -32,18 +36,24 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.DayOfWeek
-import java.time.LocalDate
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.semantics.SemanticsActions
+import com.powertracker.ui.components.FakeHapticFeedback
+import com.powertracker.ui.components.WithHaptics
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w411dp-h2400dp-xxhdpi")
 class CoachScreenTest {
-    @get:Rule
+    /** Outermost: the database closes after the compose rule has torn the screen down, and once no query is running. */
+    @get:Rule(order = 0)
+    val database = TestDatabase()
+
+    @get:Rule(order = 1)
     val compose = createComposeRule()
 
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
@@ -54,7 +64,6 @@ class CoachScreenTest {
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -64,9 +73,6 @@ class CoachScreenTest {
         }
     }
 
-    @After
-    fun tearDown() = db.close()
-
     private fun id(name: String) = exercises.first { it.name == name }.id
 
     private fun insertStall() = runBlocking {
@@ -74,7 +80,7 @@ class CoachScreenTest {
         training.savePlanItem(PlanItem(0, DayOfWeek.FRIDAY, id("Bench"), sets = 3, reps = 5, targetRpe = 8.0, order = 0))
         training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, id("Bench"), sets = 4, reps = 6, targetRpe = 8.0, order = 0))
         training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, id("Squat"), sets = 5, reps = 5, targetRpe = 8.0, order = 1))
-        val session = training.startSession(today.minusDays(2), null, null)
+        val session = training.startSession(today.minus(2, DateTimeUnit.DAY), null, null)
         training.logSet(session, LoggedSet(id("Bench"), 105.0, 5, 9.0, failed = false, missPoint = null, isTopSet = false))
         val payload = AdvicePayload.Accessories(
             listOf(AccessoryPrescription("Close-grip bench", 3, 3, 5), AccessoryPrescription("JM press", 3, 8, 10)),
@@ -120,6 +126,21 @@ class CoachScreenTest {
     }
 
     @Test
+    fun infoButton_opensGuide_fromEveryPlace() {
+        insertStall()
+        show()
+        waitFor { shows("Bench has stalled") }
+
+        // Every accessory the coach offers has its guide beside it.
+        compose.checkInfoButtonOpensGuide("Close-grip bench")
+        compose.checkInfoButtonOpensGuide("JM press")
+
+        // Reading one applies nothing.
+        assertEquals(AdviceStatus.OPEN, runBlocking { advice.all() }.single().status)
+        assertEquals(3, runBlocking { training.plan().first() }.size)
+    }
+
+    @Test
     fun dismiss_removesCard() {
         insertStall()
         show()
@@ -142,5 +163,39 @@ class CoachScreenTest {
         show()
         waitFor { shows("No advice right now. Keep logging.") }
         compose.onNodeWithText("Coach suggests", substring = true).assertDoesNotExist()
+    }
+
+    // ---- The buzz (stage 2): one tick per apply, once it is stored ----
+
+    @Test
+    fun apply_ticksOnce_evenOnADoubleTap() {
+        val haptics = FakeHapticFeedback()
+        insertStall()
+        compose.setContent { PowertrackerTheme { WithHaptics(haptics) { CoachScreen(training, advice, settings, today = { today }) } } }
+        waitFor { shows("Bench has stalled") }
+
+        // Two taps inside one frame: one apply, one buzz.
+        val click = compose.onNodeWithText("Add to plan").fetchSemanticsNode().config[SemanticsActions.OnClick].action!!
+        compose.runOnUiThread {
+            click()
+            click()
+        }
+        waitFor { runBlocking { advice.all() }.single().status == AdviceStatus.APPLIED }
+        waitFor { haptics.calls.isNotEmpty() }
+        waitFor { shows("Added 2 exercises to Wednesday") }
+        compose.waitForIdle()
+        assertEquals(listOf(HapticFeedbackType.ContextClick), haptics.calls.toList())
+    }
+
+    @Test
+    fun dismiss_doesNotBuzz() {
+        val haptics = FakeHapticFeedback()
+        insertStall()
+        compose.setContent { PowertrackerTheme { WithHaptics(haptics) { CoachScreen(training, advice, settings, today = { today }) } } }
+        waitFor { shows("Bench has stalled") }
+        compose.onNodeWithText("Dismiss").performClick()
+        waitFor { runBlocking { advice.all() }.single().status == AdviceStatus.DISMISSED }
+        compose.waitForIdle()
+        assertEquals(0, haptics.calls.size)
     }
 }

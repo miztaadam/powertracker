@@ -2,12 +2,12 @@ package com.powertracker.ui
 
 import android.content.Context
 import android.os.Looper
+import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
-import com.powertracker.data.db.AppDatabase
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
@@ -16,6 +16,8 @@ import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.testing.TestDatabase
+import com.powertracker.ui.today.TodayAdd
 import com.powertracker.ui.today.TodayViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,32 +25,42 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 class TodayViewModelTest {
-    private val today: LocalDate = LocalDate.of(2026, 11, 11) // a Wednesday
+    private val today: LocalDate = LocalDate(2026, 11, 11) // a Wednesday
 
-    private lateinit var db: AppDatabase
+    /** Closes the database after `@After` has stopped the view models, once no query is running. */
+    @get:Rule
+    val database = TestDatabase()
+
+    private val db get() = database.db
     private lateinit var training: TrainingRepository
     private lateinit var advice: AdviceRepository
     private lateinit var settings: SettingsRepository
     private lateinit var squat: Exercise
     private lateinit var curl: Exercise
     private val collectors = CoroutineScope(Dispatchers.Main)
+    private val viewModels = mutableListOf<androidx.lifecycle.ViewModel>()
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = AppDatabase.inMemory(context)
         training = TrainingRepository(db)
         advice = AdviceRepository(db)
         settings = SettingsRepository(context)
@@ -63,10 +75,12 @@ class TodayViewModelTest {
     @After
     fun tearDown() {
         collectors.cancel()
-        db.close()
+        // Nothing of this test may keep reading the database once it is closed.
+        for (vm in viewModels) vm.viewModelScope.cancel()
     }
 
     private fun viewModel() = TodayViewModel(training, advice, settings) { today }.also { vm ->
+        viewModels += vm
         collectors.launch { vm.state.collect {} }
     }
 
@@ -86,7 +100,7 @@ class TodayViewModelTest {
     fun finishSession_insertsCoachAdvice() {
         // Back after a 30-day gap: finishing today's session should store a re-entry note.
         runBlocking {
-            training.logSet(training.startSession(today.minusDays(30), null, null), set(squat, 150.0))
+            training.logSet(training.startSession(today.minus(30, DateTimeUnit.DAY), null, null), set(squat, 150.0))
             training.logSet(training.startSession(today, null, null), set(squat, 140.0))
         }
         val vm = viewModel()
@@ -105,8 +119,8 @@ class TodayViewModelTest {
     fun targets_areStoredOncePerDay() {
         runBlocking {
             training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
-            training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
-            training.logSet(training.startSession(today.minusDays(7), null, null), set(squat, 150.0).copy(rpe = 7.0))
+            training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
+            training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))
         }
         val first = viewModel()
         await("suggestion") { first.state.value.items.firstOrNull()?.suggestion != null }
@@ -122,6 +136,13 @@ class TodayViewModelTest {
 
         assertEquals(1, runBlocking { advice.all() }.count { it.type == AdviceType.TARGET })
         assertEquals(null, second.state.value.items.first().suggestion)
+    }
+
+    @Test
+    fun addFromCatalogue_unknownName_isNull() {
+        val vm = viewModel()
+        assertNull(vm.addFromCatalogue("Not an exercise"))
+        assertNotNull(vm.addFromCatalogue("Goblet squat"))
     }
 
     @Test
@@ -148,8 +169,8 @@ class TodayViewModelTest {
     }
 
     private fun planSquatWithHistory() = runBlocking {
-        training.setBaseline(Baseline(squat.id, 190.0, today.minusDays(30)))
-        training.logSet(training.startSession(today.minusDays(7), null, null), set(squat, 150.0).copy(rpe = 7.0))
+        training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
+        training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))
         training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
     }
 
@@ -239,16 +260,16 @@ class TodayViewModelTest {
         val bench = runBlocking { training.exercises().first().first { it.name == "Bench" } }
         planSquatWithHistory()
         runBlocking {
-            training.setBaseline(Baseline(bench.id, 120.0, today.minusDays(30)))
-            training.logSet(training.startSession(today.minusDays(6), null, null), set(bench, 100.0).copy(rpe = 7.0))
+            training.setBaseline(Baseline(bench.id, 120.0, today.minus(30, DateTimeUnit.DAY)))
+            training.logSet(training.startSession(today.minus(6, DateTimeUnit.DAY), null, null), set(bench, 100.0).copy(rpe = 7.0))
         }
         var clock = today
-        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> collectors.launch { v.state.collect {} } }
+        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> viewModels += v; collectors.launch { v.state.collect {} } }
         await("first coach pass") { vm.coachPasses.value >= 1 }
         assertEquals(listOf(squat.id), runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET }.map { targetExercise(it) })
 
         // Midnight passes with yesterday's view model still alive; then the plan for its weekday changes.
-        clock = today.plusDays(1)
+        clock = today.plus(1, DateTimeUnit.DAY)
         val passes = vm.coachPasses.value
         runBlocking { training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, bench.id, sets = 3, reps = 5, targetRpe = 8.0, order = 1)) }
         // Give the old view model every chance to react to the plan change.
@@ -260,6 +281,23 @@ class TodayViewModelTest {
         assertEquals(passes, vm.coachPasses.value)
         val yesterdays = runBlocking { advice.all() }.filter { it.type == AdviceType.TARGET && it.createdAt == today }
         assertEquals(listOf(squat.id), yesterdays.map { targetExercise(it) })
+    }
+
+    @Test
+    fun addToOpenSession_pastMidnight_stillAdds() {
+        // A session started before midnight and still on screen after it: "Add to today" follows what Today shows.
+        runBlocking { training.startSession(today, null, null) }
+        var clock = today
+        val vm = TodayViewModel(training, advice, settings) { clock }.also { v -> viewModels += v; collectors.launch { v.state.collect {} } }
+        await("state") { !vm.state.value.loading }
+
+        clock = today.plus(1, DateTimeUnit.DAY)
+        val results = mutableListOf<TodayAdd>()
+        vm.addToOpenSession("Hammer curl", null) { results += it }
+        await("result") { results.isNotEmpty() }
+
+        assertEquals(listOf(TodayAdd.ADDED), results)
+        assertEquals(listOf("Hammer curl"), vm.state.value.items.map { it.exercise.name })
     }
 
     private fun targetExercise(a: Advice) = (a.payload as AdvicePayload.Target).exerciseId

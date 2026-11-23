@@ -25,7 +25,7 @@ import com.powertracker.ui.theme.Space
 fun formatClock(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toString().padStart(2, '0')}"
 
 /**
- * The rest countdown docked above the bottom bar: time left in big figures, a volt line along the
+ * The rest countdown docked above the bottom bar: time left in big figures, an accent line along the
  * top edge that empties as the rest runs out, and −30 s / +30 s / Skip.
  */
 @Composable
@@ -41,9 +41,12 @@ fun RestTimerBar(
     val accent = PowertrackerTheme.colors.accentText
     val track = scheme.surfaceContainerHighest
     val fraction = if (totalSec > 0) (remainingSec.toFloat() / totalSec).coerceIn(0f, 1f) else 0f
-    Surface(modifier.fillMaxWidth(), color = scheme.surfaceContainerHigh, shape = MaterialTheme.shapes.large) {
+    val shape = MaterialTheme.shapes.large
+    // Its own layer over the card it docks on: the card shadow and highlight, no border.
+    Surface(modifier.fillMaxWidth().cardShadow(shape), color = scheme.surfaceContainerHigh, shape = shape) {
         Row(
             Modifier
+                .cardHighlight(shape)
                 .drawBehind {
                     val h = 4.dp.toPx()
                     drawRect(track, Offset.Zero, Size(size.width, h))

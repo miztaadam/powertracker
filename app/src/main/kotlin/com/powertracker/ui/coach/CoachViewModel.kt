@@ -11,8 +11,11 @@ import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.AccessoryMap
 import com.powertracker.domain.coach.Coach
+import com.powertracker.domain.coach.Coaching
+import com.powertracker.domain.coach.PhysiqueCoach
 import com.powertracker.domain.coach.WeakPointRule
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.library.Library
 import com.powertracker.domain.model.AccessoryPrescription
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -22,6 +25,9 @@ import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.model.on
+import com.powertracker.platform.systemToday
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -34,8 +40,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaDayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -59,17 +66,33 @@ sealed interface CardDetail {
         val muscles: List<String>,
         val additions: List<AccessoryPrescription>,
     ) : CardDetail
+
+    /** More work for a lagging body part (stage 3, bodybuilding side): what Add to plan would change. */
+    data class MoreWork(val payload: AdvicePayload.MoreWork) : CardDetail
+
+    /** A stuck exercise and the alternatives to swap it for (stage 3, bodybuilding side). */
+    data class Swap(val payload: AdvicePayload.Swap) : CardDetail
+
+    /** A skipped planned exercise (1.13): its alternatives to swap it for, or none (Dismiss only), on either side. */
+    data class Skip(val payload: AdvicePayload.Skipped) : CardDetail
 }
 
 data class CoachCard(val advice: Advice, val detail: CardDetail)
 
-data class CoachState(val loading: Boolean = true, val cards: List<CoachCard> = emptyList())
+data class CoachState(
+    val loading: Boolean = true,
+    val cards: List<CoachCard> = emptyList(),
+    /** The welcome-back card for the side the app is on, shown above the advice (bodybuilding mode spec §7.7). */
+    val welcomeBack: Boolean = false,
+    /** A bodybuilding check-in is due (stage 3): its card leads the feed. Never on the powerlifting side. */
+    val checkInDue: Boolean = false,
+)
 
 class CoachViewModel(
     private val training: TrainingRepository,
     private val advice: AdviceRepository,
     private val settings: SettingsRepository,
-    private val today: () -> LocalDate = LocalDate::now,
+    private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val _messages = Channel<String>(Channel.BUFFERED)
@@ -77,27 +100,45 @@ class CoachViewModel(
     /** One-line confirmations for a snackbar ("Added 2 exercises to Wednesday"). */
     val messages: Flow<String> = _messages.receiveAsFlow()
 
+    private val _applied = Channel<Long>(Channel.BUFFERED)
+
+    /** The id of each advice once its Apply or Swap is stored: one per apply, never for a tap that applied nothing. */
+    val applied: Flow<Long> = _applied.receiveAsFlow()
+
     /**
      * Advice being applied or dismissed. Its card leaves the feed at once, so it cannot be tapped
      * twice and does not redraw while its accessories land in the plan; it comes back if the work fails.
      */
     private val busy = MutableStateFlow(emptySet<Long>())
 
+    /**
+     * The feed is the advice of the side the app is on, with every deload, and every easing back in from a break this
+     * side was trained before ([Coaching.feedFor]).
+     */
     val state: StateFlow<CoachState> =
-        combine(advice.open(), training.history(), training.plan(), training.exercises(), busy) { open, history, plan, exercises, busy ->
-            val stats = HistoryStats(history)
+        combine(combine(advice.open(), busy, training.checkIns(), ::Triple), training.history(), training.plans(), training.exercises(), settings.settings) { (open, busy, checkIns), history, plans, exercises, s ->
+            val mode = s.trainingMode
+            val plan = plans.of(mode)
+            // The cards' trends and ratios are powerlifting figures: bodybuilding sessions do not touch them (spec §5.3).
+            val stats = HistoryStats(history.on(TrainingMode.POWERLIFTING))
             val date = today()
-            val cards = open
+            val cards = Coaching.feedFor(open, mode, history)
                 .filter { it.type in FEED_ORDER && it.id !in busy && !expired(it, date) }
                 .sortedWith(compareBy<Advice> { FEED_ORDER.indexOf(it.type) }.thenByDescending { it.createdAt }.thenByDescending { it.id })
                 .mapNotNull { a -> detail(a, stats, date, plan, exercises)?.let { CoachCard(a, it) } }
-            CoachState(loading = false, cards = cards)
+            CoachState(
+                loading = false, cards = cards, welcomeBack = Coaching.welcomeBack(s.leftOn(mode), date, plan.isNotEmpty(), Coaching.firstSessionOn(mode, history)),
+                checkInDue = mode == TrainingMode.BODYBUILDING && Coaching.checkInDue(history, plans.bodybuilding, checkIns, date),
+            )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoachState())
 
-    /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.OPEN_ACTIVE_DAYS]), so it leaves the feed too. */
-    private fun expired(advice: Advice, date: LocalDate): Boolean =
-        (advice.type == AdviceType.DELOAD || advice.type == AdviceType.RE_ENTRY) &&
-            advice.createdAt.isBefore(date.minusDays(Coach.OPEN_ACTIVE_DAYS - 1))
+    /** The welcome-back card was answered, either way: the side the app is on is marked as not left. */
+    fun answerWelcomeBack() {
+        viewModelScope.launch { settings.clearLeftOn(settings.settings.first().trainingMode) }
+    }
+
+    /** An OPEN deload or re-entry stops counting after 14 days (see [Coach.openExpired]), so it leaves the feed too. */
+    private fun expired(advice: Advice, date: LocalDate): Boolean = Coach.openExpired(advice.type, advice.createdAt, date)
 
     private fun detail(advice: Advice, stats: HistoryStats, date: LocalDate, plan: List<PlanItem>, exercises: List<Exercise>): CardDetail? =
         when (val payload = advice.payload) {
@@ -114,7 +155,12 @@ class CoachViewModel(
                 muscles = AccessoryMap.muscles(payload.lift, payload.missPoint),
                 additions = weakPointAdditions(payload, plan, exercises),
             )
+            is AdvicePayload.MoreWork -> CardDetail.MoreWork(payload)
+            // A swap for an exercise no longer in the plan has nothing left to swap.
+            is AdvicePayload.Swap -> if (plan.any { it.exerciseId == payload.exerciseId }) CardDetail.Swap(payload) else null
             is AdvicePayload.Target -> null
+            // Likewise a skip card, swap or not, once its exercise has left this side's plan.
+            is AdvicePayload.Skipped -> if (plan.any { it.exerciseId == payload.exerciseId }) CardDetail.Skip(payload) else null
         }
 
     /**
@@ -134,13 +180,20 @@ class CoachViewModel(
         return flagged ?: known.firstOrNull().takeUnless { flaggedOnly }
     }
 
-    /** The first two options for the weak point that are in the library and not in the plan yet, dosed like a stall card's. */
+    /**
+     * The first two options for the weak point that are not in the plan yet, dosed like a stall card's. An option is the
+     * lifter's row of that name, else the catalogue entry, whose row Apply adds (strict press accessories are not seeded).
+     */
     private fun weakPointAdditions(payload: AdvicePayload.WeakPoint, plan: List<PlanItem>, exercises: List<Exercise>): List<AccessoryPrescription> {
         val planned = plan.map { it.exerciseId }.toSet()
         return AccessoryMap.options(payload.lift, payload.missPoint)
-            .mapNotNull { option -> exercises.find(option.exerciseName)?.takeIf { it.id !in planned }?.let { it to option.heavy } }
+            .mapNotNull { option ->
+                val row = exercises.find(option.exerciseName)
+                val name = row?.name ?: Library.find(option.exerciseName)?.name ?: return@mapNotNull null
+                if (row != null && row.id in planned) null else name to option.heavy
+            }
             .take(WEAK_POINT_ADDITIONS)
-            .map { (exercise, heavy) -> if (heavy) AccessoryPrescription(exercise.name, 3, 3, 5) else AccessoryPrescription(exercise.name, 3, 8, 10) }
+            .map { (name, heavy) -> if (heavy) AccessoryPrescription(name, 3, 3, 5) else AccessoryPrescription(name, 3, 8, 10) }
     }
 
     /** Carries out the advice: accessories go into the plan; a deload or re-entry only needs to be accepted. */
@@ -148,13 +201,52 @@ class CoachViewModel(
         val target = advice.open().first().firstOrNull { it.id == adviceId } ?: return@once
         val message = when (val payload = target.payload) {
             is AdvicePayload.Accessories -> addToPlan(target.lift, payload.items)
-            is AdvicePayload.WeakPoint -> addToPlan(payload.lift, weakPointAdditions(payload, training.plan().first(), training.exercises().first()))
+            is AdvicePayload.WeakPoint -> addToPlan(payload.lift, weakPointAdditions(payload, training.plan(settings.settings.first().trainingMode).first(), training.exercises().first()))
             is AdvicePayload.Deload -> "Deload week on — targets lightened for 7 days"
             is AdvicePayload.ReEntry -> "Easing back in for 7 days"
-            is AdvicePayload.Target -> return@once
+            is AdvicePayload.MoreWork -> {
+                val plan = training.plan(TrainingMode.BODYBUILDING).first()
+                val change = PhysiqueCoach.applyMoreWork(payload, plan, training.exercises().first().associateBy { it.id })
+                // Applied even when the plan changed since and nothing fitted: the message says so and the card goes.
+                training.inTransaction {
+                    training.applyPlanChange(change)
+                    advice.setStatus(adviceId, AdviceStatus.APPLIED)
+                }
+                _applied.send(adviceId)
+                _messages.send(change.message)
+                return@once
+            }
+            is AdvicePayload.Target, is AdvicePayload.Swap, is AdvicePayload.Skipped -> return@once
         }
         advice.setStatus(adviceId, AdviceStatus.APPLIED)
+        _applied.send(adviceId)
         _messages.send(message)
+    }
+
+    /**
+     * Swaps a stuck exercise for [choice], one of its alternatives, on every day it is planned. When the plan changed
+     * since so that the swap no longer fits, nothing changes, the message says why and the card stays, so another
+     * alternative can still be chosen.
+     */
+    fun swap(adviceId: Long, choice: String) = once(adviceId) {
+        val target = advice.open().first().firstOrNull { it.id == adviceId } ?: return@once
+        val exercises = training.exercises().first().associateBy { it.id }
+        val change = when (val payload = target.payload) {
+            is AdvicePayload.Swap -> PhysiqueCoach.applySwap(payload, choice, training.plan(TrainingMode.BODYBUILDING).first(), exercises)
+            // A skip card swaps on its own side: the side the exercise was skipped on.
+            is AdvicePayload.Skipped -> Coaching.applySkipSwap(payload, choice, target.mode, training.plan(target.mode).first(), exercises)
+            else -> return@once
+        }
+        if (change.changed) {
+            training.inTransaction {
+                training.applyPlanChange(change)
+                advice.setStatus(adviceId, AdviceStatus.APPLIED)
+            }
+            _applied.send(adviceId)
+        } else {
+            busy.update { it - adviceId }
+        }
+        _messages.send(change.message)
     }
 
     fun dismiss(adviceId: Long) = once(adviceId) { advice.setStatus(adviceId, AdviceStatus.DISMISSED) }
@@ -177,23 +269,33 @@ class CoachViewModel(
         }
     }
 
-    /** Adds the prescriptions to the day that trains [lift], skipping any already there. Returns what to tell the lifter. */
+    /**
+     * Adds the prescriptions to the day that trains [lift], skipping any already there and any name that is neither a
+     * row nor in the catalogue. A catalogue exercise without a row gets one, in the same transaction as the plan items.
+     * Returns what to tell the lifter.
+     */
     private suspend fun addToPlan(lift: MainLift?, prescriptions: List<AccessoryPrescription>): String {
         val exercises = training.exercises().first()
-        val plan = training.plan().first()
         val current = settings.settings.first()
+        // The side the app is on: its own plan and days.
+        val plan = training.plan(current.trainingMode).first()
         val day = dayFor(lift, plan, exercises, current)
         val onDay = plan.filter { it.weekday == day }
         val taken = onDay.map { it.exerciseId }.toMutableSet()
         var order = (onDay.maxOfOrNull { it.order } ?: -1) + 1
-        var added = 0
-        for (p in prescriptions) {
-            val exercise = exercises.find(p.exerciseName) ?: continue
-            if (!taken.add(exercise.id)) continue
-            training.savePlanItem(PlanItem(0, day, exercise.id, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++))
-            added++
+        val added = training.inTransaction {
+            var count = 0
+            for (p in prescriptions) {
+                val exerciseId = exercises.find(p.exerciseName)?.id
+                    ?: Library.find(p.exerciseName)?.let { training.resolveCatalogue(it.name) }
+                    ?: continue
+                if (!taken.add(exerciseId)) continue
+                training.savePlanItem(PlanItem(0, day, exerciseId, sets = p.sets, reps = p.repsHigh, targetRpe = current.defaultRpe, order = order++, mode = current.trainingMode))
+                count++
+            }
+            count
         }
-        val dayName = day.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        val dayName = day.toJavaDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault())
         return when (added) {
             0 -> "Already in your plan on $dayName"
             1 -> "Added 1 exercise to $dayName"
@@ -205,7 +307,7 @@ class CoachViewModel(
     private fun dayFor(lift: MainLift?, plan: List<PlanItem>, exercises: List<Exercise>, settings: AppSettings): DayOfWeek {
         val mainIds = exercises.filter { it.isMainLift && it.mainLift == lift }.map { it.id }.toSet()
         return plan.filter { it.exerciseId in mainIds }.minOfOrNull { it.weekday }
-            ?: settings.trainingDays.minOrNull()
+            ?: settings.activeTrainingDays.minOrNull()
             ?: DayOfWeek.MONDAY
     }
 
@@ -214,7 +316,10 @@ class CoachViewModel(
     private class LiftPair(val numerator: MainLift, val denominator: MainLift, val range: ClosedFloatingPointRange<Double>)
 
     companion object {
-        private val FEED_ORDER = listOf(AdviceType.DELOAD, AdviceType.RE_ENTRY, AdviceType.STALL, AdviceType.WEAK_POINT)
+        private val FEED_ORDER = listOf(
+            AdviceType.DELOAD, AdviceType.RE_ENTRY, AdviceType.STALL, AdviceType.WEAK_POINT, AdviceType.MORE_WORK, AdviceType.SWAP,
+            AdviceType.SKIP,
+        )
         private const val TREND_WEEKS = 6
         private const val WEAK_POINT_ADDITIONS = 2
         private const val UPDATE_FAILED = "Couldn't update — try again"
@@ -230,7 +335,7 @@ class CoachViewModel(
             training: TrainingRepository,
             advice: AdviceRepository,
             settings: SettingsRepository,
-            today: () -> LocalDate = LocalDate::now,
+            today: () -> LocalDate = ::systemToday,
         ): ViewModelProvider.Factory = viewModelFactory { initializer { CoachViewModel(training, advice, settings, today) } }
     }
 }

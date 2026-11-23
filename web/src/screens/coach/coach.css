@@ -1,0 +1,110 @@
+/* Layout for the Coach screen. Colours, type and controls come from the components and tokens. */
+
+.coach-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.coach-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The lift's e1RM with its trend beside it. */
+.coach-trend {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.coach-spark {
+  flex: 1;
+  height: 48px;
+}
+
+.coach-additions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.coach-muted {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* The accessories on offer, one per line: name on the left, sets × reps on the right. */
+.coach-list {
+  margin: 0;
+  padding: 0 var(--space-2) 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--container);
+  list-style: none;
+}
+
+.coach-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch);
+  color: var(--text);
+}
+
+.coach-list-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.coach-list-row + .coach-list-row {
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+.coach-dose {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* The welcome-back card (Today and Coach): its question, then the two answers, one per line. */
+.welcome-back h2,
+.welcome-back-body {
+  margin: 0;
+}
+
+.welcome-back section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.welcome-back-body {
+  color: var(--text-secondary);
+}
+
+.welcome-back-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* A stuck exercise's alternatives, one button per line. */
+.coach-swaps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* The check-in card (bodybuilding side): what is due, then its one button. */
+.checkin-due h2,
+.checkin-due p {
+  margin: 0;
+}
+
+.checkin-due section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.checkin-due p {
+  color: var(--text-secondary);
+}

@@ -1,0 +1,73 @@
+import { existsSync } from 'node:fs'
+import { defineConfig, devices } from '@playwright/test'
+import { SHARED_STATE } from './e2e/storage'
+import { ANDROID_CHROME_UA } from './e2e/userAgents'
+
+// The container only has a pre-installed Chromium (no WebKit), so e2e runs in Chromium
+// with the iPhone 13 viewport and touch emulation.
+const CHROMIUM = '/opt/pw-browsers/chromium'
+const iphone = { ...devices['iPhone 13'], browserName: 'chromium' as const }
+// The iPhone 13 descriptor brings Safari's iPhone user agent, so the app takes its iPhone paths. E2E_UA=android runs the
+// same phone with Chrome on Android's user agent instead (e2e/userAgents.ts), for the paths of every other phone.
+const ANDROID_RUN = process.env.E2E_UA === 'android'
+
+// The timing checks (tagged @speed in e2e/library.spec.ts and e2e/pictures.spec.ts) hold the picker and the
+// Exercises tab to 100 ms on the page's own clock. Beside other workers they measure the machine, not the
+// app, so they are their own project and run once everything else has finished, one after another: one
+// worker, so the two files do not run side by side either.
+const SPEED = /@speed/
+
+// The build under test gets a fixed commit id, so the version line at the bottom of Settings, and its
+// screenshots, never change with the commit (plugins/buildInfo.ts). e2e/plan.spec.ts checks the line.
+export const E2E_BUILD_ID = 'a1b2c3d'
+const env = { GRIT_BUILD_ID: E2E_BUILD_ID }
+
+// Motion off on every e2e page (stage 2), and the guide's first-launch gate shut (1.16): set through the browser storage
+// every test context starts with, so no spec has to remember a fixture. A spec that replaces it takes one of the states
+// in e2e/storage.ts (MOTION_ON for a motion-on test), so it keeps the gate shut too.
+
+export default defineConfig({
+  testDir: './e2e',
+  reporter: 'list',
+  projects: [
+    { name: 'e2e', grepInvert: SPEED },
+    { name: 'speed', grep: SPEED, dependencies: ['e2e'], workers: 1 },
+  ],
+  use: {
+    baseURL: 'http://localhost:4173',
+    ...iphone,
+    ...(ANDROID_RUN ? { userAgent: ANDROID_CHROME_UA } : {}),
+    storageState: SHARED_STATE,
+    launchOptions: existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
+  },
+  webServer: [
+    {
+      command: 'npm run build && npm run preview -- --port 4173 --strictPort',
+      env,
+      url: 'http://localhost:4173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      // A private copy of the build for e2e/update.spec.ts, which rewrites its sw.js to fake a new
+      // deploy; other spec files keep running against the untouched dist on 4173. Starts after the
+      // first server, so dist is already built. Never reused: each run removes the old copy, copies the dist
+      // this run tests and starts its own server on it (a server left running on 4175 stops the run, rather
+      // than serve an older copy). update.spec.ts also checks the copy matches dist before it starts.
+      command:
+        "node -e \"const fs=require('node:fs');fs.rmSync('dist-update',{recursive:true,force:true});fs.cpSync('dist','dist-update',{recursive:true})\" && npm run preview -- --outDir dist-update --port 4175 --strictPort",
+      env,
+      url: 'http://localhost:4175',
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      // The dev server, for the dev-only design-system showcase (e2e/showcase.spec.ts).
+      command: 'npm run dev -- --port 4174 --strictPort',
+      env,
+      url: 'http://localhost:4174',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
+})

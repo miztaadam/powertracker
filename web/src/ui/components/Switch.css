@@ -1,0 +1,53 @@
+.gr-switch {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.gr-switch-track {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border: 2px solid var(--outline);
+  border-radius: 16px;
+  background: var(--container-highest);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.gr-switch-thumb {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transform: translate(-50%, -50%);
+  transition: left 150ms ease, width 150ms ease, height 150ms ease, background-color 150ms ease;
+}
+
+.gr-switch[aria-checked='true'] .gr-switch-track {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.gr-switch[aria-checked='true'] .gr-switch-thumb {
+  left: 34px;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-ink);
+}
+
+.gr-switch:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
