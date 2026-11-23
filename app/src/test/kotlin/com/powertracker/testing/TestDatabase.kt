@@ -2,11 +2,13 @@ package com.powertracker.testing
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.db.AppDatabase
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
 
 /**
@@ -56,6 +58,9 @@ class TestDatabase : ExternalResource() {
     }
 
     override fun before() {
+        // The settings store is one per process and outlives each test's database, where session ids start again at 1:
+        // a session finished in one test must not open another test's Today on the finish summary.
+        runBlocking { SettingsRepository(ApplicationProvider.getApplicationContext<Context>()).setFinishedSession(null) }
         val threads = Executors.newCachedThreadPool { work -> Thread(work, "test-database").apply { isDaemon = true } }
         executor = threads
         val counted = java.util.concurrent.Executor { work ->

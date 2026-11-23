@@ -44,6 +44,31 @@ class SettingsRepositoryTest {
         assertEquals(all, settings.settings.first())
     }
 
+    /** 1.17.5: the session Finish was tapped for is kept beside the settings, and a change of settings leaves it. */
+    @Test
+    fun finishedSession_roundTrips_andIsNotASetting() = runTest {
+        settings.setFinishedSession(null)
+        assertNull(settings.finishedSession.first())
+
+        val note = FinishedSession(sessionId = 12, date = LocalDate(2026, 11, 11), setCount = 14, exerciseCount = 4, newNotes = 1, skipped = 2)
+        settings.setFinishedSession(note)
+        settings.update { AppSettings() }
+        assertEquals(note, settings.finishedSession.first())
+
+        settings.setFinishedSession(null)
+        assertNull(settings.finishedSession.first())
+    }
+
+    /** A damaged note finishes nothing: it reads as none. */
+    @Test
+    fun finishedSession_damaged_isNone() {
+        val whole = FinishedSession(12, LocalDate(2026, 11, 11), 14, 4, 1, 2)
+        assertEquals(whole, FinishedSession.decode(whole.encode()))
+        for (bad in listOf("", "12", "12|2026-11-11|14|4|1", "x|2026-11-11|14|4|1|2", "12|yesterday|14|4|1|2", "12|2026-11-11|14|four|1|2", "12|2026-11-11|-1|4|1|2")) {
+            assertNull(bad, FinishedSession.decode(bad))
+        }
+    }
+
     /** Strict press spec §4.2: off by default; the switch is stored and read back through its own flow. */
     @Test
     fun showStrictPress_defaultsOff_andPersists() = runTest {

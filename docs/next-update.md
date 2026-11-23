@@ -1493,12 +1493,65 @@ Spec: `docs/superpowers/specs/2026-11-20-plate-count-design.md`; plan: `docs/sup
   - Runs, from `web/`, one at a time, `--project e2e --trace off`: each of the ten changed specs passed under the default user agent (`backCloses` 10, `backClosesIphone` 24, `library` 4, `pictures` 12, `plan` 11, `plates` 12, `rpe` 6, `skip` 15, `narrow` 71, `narrowUnchanged` 20) and again with `E2E_UA=android` (the same counts; `narrow` and `pictures` run under it as well); `npx tsc -b` clean.
   - This makes the tests wait until the dialog or menu listens before they send it a close request. It does not show that a test can never fail for another reason.
 
+**Published 2026-11-23 (owner: "publish"): `CLAUDE.md`, these notes and the test follow-ups, on main as `cabcc06`.** No app change and no version change (still 1.17.4, versionCode 32); no APK was built. On merged main: `./gradlew :domain:allTests` and `:app:testDebugUnitTest` passed, `:domain:checkWebDomain` passed; `npm run typecheck` clean; web unit tests 1,684 of 1,684; build clean; the full Playwright run 519 passed, 12 skipped, first time; the speed project three times, 6 of 6 each; the `E2E_UA=android` pass 252 passed, 12 skipped. Live: `assets/index-d9NjgCQ-.js` carries build id `cabcc06` and 1.17.4; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` and is served `cache-control: no-cache`. Because every build carries its commit id, open copies of the web app reload once for this build although nothing a lifter sees changed. `CLAUDE.md` at the root is new in the repository: until now a local file of that name was kept out of git.
+
 **Version:** Android 1.17.4 (versionCode 32), web 1.17.4. Android changes nothing but the version. No database or backup change. Settings re-shot on both apps for the version line: six shots on each, and no other tracked shot changed. The web six were byte-identical across two runs; the Android six were shot once (`:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful). Part 2 changes no shot.
 
 **Follow-ups:**
 - When Safari ships `CloseWatcher`, iPhone and iPad keep the history path (owner's constraint). Moving them over would be a separate decision, and it would depend on an edge swipe counting as a close request.
 - The desktop toolbar Back still leaves the screen with a dialog open.
 - **Should an Android user-agent run join the default full run?** `E2E_UA=android` exists now. The default project has only ever run with the iPhone user agent, so the Android branches (the install card's Android text, `CloseWatcher` everywhere but `backCloses.spec.ts`) are covered only where a spec pins them.
+
+## Done: 1.17.5, a finished session stays finished when the app is closed and opened (both apps)
+Reported by the owner on 2026-11-23: "When I finish a workout on the today page I hit finish. If I close and reopen the app the session becomes active again and I have to click finish again."
+
+**Cause:** Finish was kept only in the Today screen's memory (`Local.summary`, in `TodayViewModel.kt` and in `useToday.ts`). Nothing stored it, and a session row has no "finished" mark. An app opened again found today's session and showed it as open, with its Finish button. Both apps did this, from their first version; it is not from a recent change. Reproduced in a failing test on each app before anything was changed.
+
+**What the lifter gets:**
+- **After Finish, closing and opening Grit shows "Session saved" again,** with the same numbers (sets, exercises, new coach notes, skipped), not the session with a Finish button. The same after a reload of the web app, and after Android has closed the app in the background.
+- **Keep logging opens the session again, and it then stays open** over a close and reopen, until Finish is tapped again.
+- The next day opens on the new day's start card, as before.
+- "Add to today" on the Exercises tab stays refused for a finished session after a reopen too, as it was before the app was closed.
+
+**How:**
+- Finish stores a small note on the device: the session's id, its day, and the summary's four numbers. Android: one key of its own in the settings store (`finished_session`, beside `guide_seen`, outside `AppSettings`). Web: one `meta` row (`today:finished`).
+- **Stored before the summary is shown,** so "Session saved" on screen means it is stored. If that write fails, the summary still shows and nothing crashes; only the reopen is lost.
+- **Read back before Today has its data** (`loading` stays true until then), so the session never flashes as open first, and "Add to today" cannot slip in before the read. The web already waited there for the kept numbers; Android's `build` gained the same gate (`restored`).
+- **Used only when it names the session stored for the day on screen** (same id, same day). A note from another day, a damaged one, or one about a session that is gone finishes nothing.
+- Keep logging deletes it. Restore backup deletes it on both apps: it is about the replaced log.
+- **No database, Dexie or backup change.** The note is not in a backup: it belongs to the device, like the kept numbers and the guide's "seen".
+
+**My calls:**
+1. **A reopened finished session shows the same "Session saved" card** it showed when Finish was tapped. The owner was not asked: it is the plain reading of "stays finished", and Keep logging is on that card for going back in.
+2. **A note on the device, not a column on the session.** A column would mean a new Room version, a new Dexie version and a new backup version (both apps updated together, older copies refusing the file) for a mark that matters for one day.
+3. **The numbers are stored, not counted again on reopen.** The count of new coach notes cannot be worked out afterwards, and the card should say what it said.
+4. **The Android tests forget the note before each test** (`TestDatabase.before`). The settings store is one per process and outlives each test's database, where session ids start again at 1; without this, one test's Finish could open another test's Today on the summary.
+
+**Limits:**
+- **Two copies open at once (web):** a second tab, or Safari beside the Home Screen app's own log, does not hear of a Finish in the other until it is reloaded. Android's two view models for one day (should that ever happen) likewise.
+- A set deleted from Progress after Finish leaves the card's numbers as they were at Finish.
+- A summary left on screen overnight without closing the app still holds the screen until it is dismissed, as before.
+- **Not checked on a phone.** The tests stand in for closing and opening: a new view model over the same stored data (Android, Robolectric), a remounted hook, and a real page reload in Chromium (web).
+
+**Tests:**
+- Android, `TodayViewModelTest`: `finishedSession_staysFinished_whenTheAppIsOpenedAgain` (failed before the fix; also Keep logging, then a third open) and `finishedNote_ofAnotherDayOrAnotherSession_finishesNothing`. `SettingsRepositoryTest`: the note round-trips, a change of settings leaves it, damaged text reads as none. `BackupTest.restore_forgetsTheFinishedSession`.
+- Web, `useToday.test.tsx`: `finishedSession_staysFinished_afterAReload` (failed before the fix; also Keep logging, then a third mount), `finishedYesterday_reloadedToday_opensOnTheNewDay`, `finishedNote_ofASessionThatIsGone_isIgnored`, `finishedNote_thatIsDamaged_isIgnored`. `backup.test.ts`: the restore test now also expects `today:finished` gone (failed before the fix).
+- Web e2e, `reload.spec.ts`: `reloadAfterFinish_staysFinished` reloads the page with "Session saved" showing.
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-23, one at a time:**
+- Gradle: `:domain:allTests` passed (the domain is unchanged); `:app:testDebugUnitTest` passed, 1,113 tests, 0 failed, 1 skipped; `:domain:checkWebDomain` passed. `:app:assembleDebug` built before the change, and `:app:assembleRelease` after it: versionCode 33, versionName 1.17.5 (the APK was not distributed).
+- Web: `npm run typecheck` clean; unit tests 1,688 of 1,688; build clean.
+- **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 520 passed, 12 skipped, first time** (519 before, plus the new reload test).
+- **The `E2E_UA=android` pass,** the 1.17.4 list plus `reload.spec.ts`: 254 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- **After those runs, two small changes from a review, each rerun:** the web's Finish now stores the note first and only then lets go of the day (before, a phone unlocked after midnight during that one write could have moved Today to the new day with the summary unseen); and the Android test also asserts that "Add to today" is refused on the reopened finished session, as the web test does. Rerun on that final code: `:app:testDebugUnitTest` (1,113, 0 failed, 1 skipped), the type check (clean), and `reload`, `session` and `today` specs (8 passed). The web unit tests (1,688 of 1,688) and the build (clean) too. The full Playwright run, the Android pass and the speed project were not repeated after it.
+- **Not run on merged main:** these ran on the branch. The routine's run on merged main comes with "publish".
+- **Not checked on a phone,** neither app.
+
+**Shots, before and after the change:** the full run was repeated on the code before this release (`47fc711`, in a scratch worktree, `--project e2e`: 513 passed, 12 skipped), and the 174 web shots of the two runs were compared. 163 are byte-identical, every Today shot among them. The six Settings shots differ in the version line only (about 280 pixels in a 17 by 27 pixel box). Five differ by a few pixels in pictures no part of this release touches, shots already known not to be byte-stable between runs: `form-guide-dark` (169 pixels), `guide-side-first-launch-bodybuilding-light` and `guide-side-first-launch-powerlifting-light` (221 each), `guide-targets-bodybuilding-dark` and `-light` (9 each).
+
+**Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws.
+
+**Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: six shots on each. Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, and no other tracked shot changed. Web: from the full run above; the other shots it rewrote were put back (see the shots paragraph).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

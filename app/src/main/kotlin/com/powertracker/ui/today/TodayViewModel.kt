@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
+import com.powertracker.data.FinishedSession
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.StoredSet
 import com.powertracker.data.TrainingRepository
@@ -186,6 +187,8 @@ class TodayViewModel(
         val summary: FinishSummary? = null,
         /** Plate settings being stored, not yet shown or failed. */
         val plateSaves: Int = 0,
+        /** False until it has been read whether this day's session was finished before the app was last closed. */
+        val restored: Boolean = false,
     )
 
     private data class Stored(
@@ -266,6 +269,22 @@ class TodayViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayState(date))
 
     init {
+        // A session finished before the app was closed is still finished when it opens again: the summary Finish stored
+        // comes back. The screen has no data until this is read, so the session never shows as open first.
+        viewModelScope.launch {
+            val finished = try {
+                val note = settings.finishedSession.first()
+                note?.takeIf { it.date == date && training.sessionOn(date).first()?.id == it.sessionId }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A failed read must not keep the screen empty: the session shows as open, as it did before 1.17.5.
+                null
+            }
+            local.update { l ->
+                l.copy(restored = true, summary = l.summary ?: finished?.let { FinishSummary(it.setCount, it.exerciseCount, it.newNotes, it.skipped) })
+            }
+        }
         // Ask the coach for today's targets when the screen opens and again if the plan changes, or a skip is stored or
         // taken back: a pain skip, and taking any skip back, delete that day's target, which is then worked out again.
         // A change of an exercise's plate setting asks again too (1.17): the coach then reads it in its new unit. Only
@@ -369,7 +388,7 @@ class TodayViewModel(
         }
         return TodayState(
             date = date,
-            loading = false,
+            loading = !l.restored,
             sessionId = d.sessionId,
             items = items,
             pending = l.pending,
@@ -679,7 +698,17 @@ class TodayViewModel(
             if (fresh.isNotEmpty()) advice.insert(fresh)
             val done = now.items.filter { it.sets.isNotEmpty() }
             val skipped = todaysSkips(training.skips().first(), now.mode).size
-            local.update { it.copy(summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size, skipped)) }
+            val summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size, skipped)
+            // Stored before it is shown, so the summary on screen means the session stays finished when the app is
+            // closed and opened. A failed write only costs that: the session is finished on screen all the same.
+            try {
+                settings.setFinishedSession(FinishedSession(now.sessionId, date, summary.setCount, summary.exerciseCount, summary.newNotes, summary.skipped))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Nothing to undo.
+            }
+            local.update { it.copy(summary = summary) }
         }
     }
 
@@ -750,9 +779,18 @@ class TodayViewModel(
         viewModelScope.launch { settings.clearLeftOn(settings.settings.first().trainingMode) }
     }
 
-    /** Back to logging after the summary. */
+    /** Back to logging after the summary: the session is open again, also when the app is next opened. */
     fun dismissSummary() {
         local.update { it.copy(summary = null) }
+        viewModelScope.launch {
+            try {
+                settings.setFinishedSession(null)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The session is open on screen; a failed write only brings the summary back on the next open.
+            }
+        }
     }
 
     companion object {
