@@ -60,6 +60,64 @@ describe('useToday', () => {
     expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
   })
 
+  it('finishedSession_staysFinished_afterAReload', async () => {
+    await logSet(db, await startSession(db, TODAY), set(squatId, 140))
+    const first = renderHook(() => useToday(db, () => TODAY))
+    await waitFor(() => expect(first.result.current.loading).toBe(false))
+    await act(() => first.result.current.finishSession())
+    await waitFor(() => expect(first.result.current.summary).not.toBeNull())
+    const summary = first.result.current.summary
+    first.unmount()
+
+    // Closed and opened again: still finished, with the numbers Finish showed, from the moment the screen has its data.
+    const second = renderHook(() => useToday(db, () => TODAY))
+    await waitFor(() => expect(second.result.current.loading).toBe(false))
+    expect(second.result.current.summary).toEqual(summary)
+    expect(second.result.current.sessionId).not.toBeNull()
+
+    // Keep logging opens the session again, and it is still open after the next reload.
+    act(() => second.result.current.dismissSummary())
+    await waitFor(async () => expect(await db.meta.get('today:finished')).toBeUndefined())
+    second.unmount()
+    const third = show()
+    await waitFor(() => expect(third.current.loading).toBe(false))
+    expect(third.current.summary).toBeNull()
+    expect(third.current.sessionId).not.toBeNull()
+  })
+
+  it('finishedYesterday_reloadedToday_opensOnTheNewDay', async () => {
+    await logSet(db, await startSession(db, TODAY), set(squatId, 140))
+    const first = renderHook(() => useToday(db, () => TODAY))
+    await waitFor(() => expect(first.result.current.loading).toBe(false))
+    await act(() => first.result.current.finishSession())
+    await waitFor(() => expect(first.result.current.summary).not.toBeNull())
+    first.unmount()
+
+    const vm = show(db, () => addDays(TODAY, 1))
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+    expect(vm.current.date).toBe(addDays(TODAY, 1))
+    expect(vm.current.sessionId).toBeNull()
+    expect(vm.current.summary).toBeNull()
+  })
+
+  it('finishedNote_ofASessionThatIsGone_isIgnored', async () => {
+    // The note names a session by id and day: another session on that day (the log was replaced) is not finished by it.
+    const sessionId = await startSession(db, TODAY)
+    await db.meta.put({ key: 'today:finished', value: { sessionId: sessionId + 1, date: TODAY, summary: { setCount: 3, exerciseCount: 1, newNotes: 0 } } })
+    const vm = show()
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+    expect(vm.current.sessionId).toBe(sessionId)
+    expect(vm.current.summary).toBeNull()
+  })
+
+  it('finishedNote_thatIsDamaged_isIgnored', async () => {
+    const sessionId = await startSession(db, TODAY)
+    await db.meta.put({ key: 'today:finished', value: { sessionId, date: TODAY, summary: { setCount: 'three' } } })
+    const vm = show()
+    await waitFor(() => expect(vm.current.loading).toBe(false))
+    expect(vm.current.summary).toBeNull()
+  })
+
   it('finishTappedTwice_keepsTheFirstSummary', async () => {
     await logSet(db, await startSession(db, addDays(TODAY, -30)), set(squatId, 150))
     await logSet(db, await startSession(db, TODAY), set(squatId, 140))

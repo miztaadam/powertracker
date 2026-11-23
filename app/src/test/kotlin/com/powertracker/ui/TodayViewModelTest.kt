@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ApplicationProvider
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.AppSettings
+import com.powertracker.data.FinishedSession
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.model.Advice
@@ -113,6 +114,47 @@ class TodayViewModelTest {
         assertEquals(listOf(AdviceType.RE_ENTRY), stored.map { it.type })
         assertEquals(1, vm.state.value.summary?.newNotes)
         assertEquals(1, vm.state.value.summary?.setCount)
+    }
+
+    @Test
+    fun finishedSession_staysFinished_whenTheAppIsOpenedAgain() {
+        runBlocking { training.logSet(training.startSession(today, null, null), set(squat, 140.0)) }
+        val first = viewModel()
+        await("state") { !first.state.value.loading }
+        first.finishSession()
+        await("summary") { first.state.value.summary != null }
+
+        // The app is closed and opened again: a new view model over what is stored.
+        val second = viewModel()
+        await("second state") { !second.state.value.loading }
+
+        // Still finished, with the numbers Finish showed, from the first moment the screen has its data.
+        assertEquals(first.state.value.summary, second.state.value.summary)
+        assertEquals(false, second.state.value.inSession)
+
+        // Keep logging opens the session again, and it is still open when the app is next opened.
+        second.dismissSummary()
+        await("forgotten") { runBlocking { settings.finishedSession.first() } == null }
+        val third = viewModel()
+        await("third state") { !third.state.value.loading }
+        assertNull(third.state.value.summary)
+        assertEquals(true, third.state.value.inSession)
+    }
+
+    @Test
+    fun finishedNote_ofAnotherDayOrAnotherSession_finishesNothing() {
+        val sessionId = runBlocking { training.startSession(today, null, null) }
+        // Finished yesterday; and a note naming a session that is not the one stored for today (the log was replaced).
+        for (note in listOf(
+            FinishedSession(sessionId, today.minus(1, DateTimeUnit.DAY), 3, 1, 0, 0),
+            FinishedSession(sessionId + 1, today, 3, 1, 0, 0),
+        )) {
+            runBlocking { settings.setFinishedSession(note) }
+            val vm = viewModel()
+            await("state") { !vm.state.value.loading }
+            assertNull(vm.state.value.summary)
+            assertEquals(true, vm.state.value.inSession)
+        }
     }
 
     @Test

@@ -141,6 +141,18 @@ class BackupTest {
         assertEquals(setOf(DayOfWeek.TUESDAY, DayOfWeek.SATURDAY), settings.settings.first().trainingDays)
     }
 
+    /** 1.17.5: the note that a session was finished is about the replaced log, so a restore forgets it. */
+    @Test
+    fun restore_forgetsTheFinishedSession() = runTest {
+        seedData()
+        val exported = service.export(1L)
+        settings.setFinishedSession(FinishedSession(1, LocalDate(2026, 6, 1), 3, 1, 0, 0))
+
+        service.restore(exported)
+
+        assertNull(settings.finishedSession.first())
+    }
+
     @Test
     fun restore_failureLeavesDataUntouched() = runTest {
         seedData()

@@ -217,7 +217,7 @@ type Stored = {
 /** What only this screen knows: edited numbers, exercises added but not yet logged, open prompts. */
 type Local = {
   date: string
-  /** False until the editor values saved for this day have been read back. */
+  /** False until the editor values saved for this day, and whether its session was finished, have been read back. */
   restored: boolean
   editors: Record<number, SetEditor>
   added: number[]
@@ -313,6 +313,29 @@ async function readEditors(db: GritDb, date: string): Promise<Record<number, Set
     if (Number.isInteger(exerciseId) && isEditor(row.value)) editors[exerciseId] = row.value
   }
   return editors
+}
+
+/**
+ * The session Finish was tapped for, kept in `meta` so that closing and opening the app does not open it again: its id
+ * and day, and the summary Finish showed. Keep logging removes it. It belongs to this device and is not in a backup.
+ */
+export const FINISHED_KEY = 'today:finished'
+
+const isCount = (value: unknown): value is number => typeof value === 'number' && Number.isInteger(value) && value >= 0
+
+/**
+ * The summary to show again for `date`, or null: the stored note's, when it is whole and names the session that is
+ * stored for that day. A note of another day, or of a session since replaced (a restore), finishes nothing.
+ */
+async function readFinished(db: GritDb, date: string): Promise<FinishSummary | null> {
+  const note = (await db.meta.get(FINISHED_KEY))?.value
+  if (typeof note !== 'object' || note === null) return null
+  const { sessionId, date: day, summary } = note as Record<string, unknown>
+  if (typeof sessionId !== 'number' || day !== date || typeof summary !== 'object' || summary === null) return null
+  const { setCount, exerciseCount, newNotes, skipped } = summary as Record<string, unknown>
+  if (!isCount(setCount) || !isCount(exerciseCount) || !isCount(newNotes) || (skipped !== undefined && !isCount(skipped))) return null
+  if ((await db.sessions.get(sessionId))?.date !== date) return null
+  return { setCount, exerciseCount, newNotes, ...(skipped != null && skipped > 0 ? { skipped } : {}) }
 }
 
 const coachSettings = (s: AppSettings) => new JsCoachSettings(s.defaultRpe, s.changePlates)
@@ -656,13 +679,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   const local = localState.date === date ? localState : emptyLocal(date)
   const update = useCallback((fn: (l: Local) => Local) => setLocal((prev) => fn(prev.date === date ? prev : emptyLocal(date))), [date])
 
-  // Bring back the editor values saved before a reload.
+  // Bring back the editor values saved before a reload, and the finish summary: a session finished before the app was
+  // closed is still finished when it opens again. Nothing is shown until both are read, so it never shows as open first.
   useEffect(() => {
     if (!resumed) return
     let stale = false
-    readEditors(db, date)
-      .then((saved) => {
-        if (!stale) update((l) => ({ ...l, restored: true, editors: { ...saved, ...l.editors } }))
+    Promise.all([readEditors(db, date), readFinished(db, date)])
+      .then(([saved, finished]) => {
+        if (!stale) update((l) => ({ ...l, restored: true, editors: { ...saved, ...l.editors }, summary: l.summary ?? finished }))
       })
       // Once the screen has moved on (or the database closed under it) the failure concerns nobody.
       .catch((e: unknown) => {
@@ -1113,8 +1137,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       activity.current = null
       db.meta.delete(ACTIVITY_KEY).catch(() => {})
       const done = now.items.filter((i) => i.sets.length > 0)
-      // A summary already up is kept: it is the one that counted the new notes.
       const summary: FinishSummary = { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes, ...(skipped > 0 ? { skipped } : {}) }
+      // Stored before it is shown, so the summary on screen means the session stays finished over a reload. A failed
+      // write only costs that: the session is finished on screen all the same.
+      await db.meta.put({ key: FINISHED_KEY, value: { sessionId: now.sessionId, date: now.date, summary } }).catch(() => {})
+      // A summary already up is kept: it is the one that counted the new notes.
       update((l) => (l.summary != null ? l : { ...l, summary }))
     } finally {
       finishing.current = false
@@ -1171,9 +1198,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const dismissSummary = useCallback(() => {
     update((l) => ({ ...l, summary: null }))
+    // Open again, also after a reload.
+    db.meta.delete(FINISHED_KEY).catch(() => {})
     // A session finished after midnight is behind us now: on to the new day.
     syncDay()
-  }, [update, syncDay])
+  }, [db, update, syncDay])
 
   return {
     ...state,

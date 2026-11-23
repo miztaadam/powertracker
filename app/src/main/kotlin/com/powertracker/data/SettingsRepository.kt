@@ -96,6 +96,26 @@ data class AppSettings(
     }
 }
 
+/**
+ * The session Finish was tapped for, with the numbers its summary showed: kept so that closing and opening the app does
+ * not open the session again. It names the session by [sessionId] and [date]; a note of another day, or of a session
+ * since replaced (a restore), finishes nothing.
+ */
+data class FinishedSession(val sessionId: Long, val date: LocalDate, val setCount: Int, val exerciseCount: Int, val newNotes: Int, val skipped: Int) {
+    internal fun encode(): String = listOf(sessionId, date, setCount, exerciseCount, newNotes, skipped).joinToString("|")
+
+    internal companion object {
+        /** Null for anything that is not a whole note: a damaged one finishes nothing. */
+        fun decode(text: String): FinishedSession? {
+            val parts = text.split("|")
+            if (parts.size != 6) return null
+            val date = runCatching { LocalDate.parse(parts[1]) }.getOrNull() ?: return null
+            val counts = parts.drop(2).map { it.toIntOrNull()?.takeIf { n -> n >= 0 } ?: return null }
+            return FinishedSession(parts[0].toLongOrNull() ?: return null, date, counts[0], counts[1], counts[2], counts[3])
+        }
+    }
+}
+
 // One DataStore per process: the delegate caches the instance on the application context.
 private val Context.settingsStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -139,6 +159,16 @@ class SettingsRepository(context: Context) {
         store.edit { it.remove(GUIDE_SEEN) }
     }
 
+    /**
+     * The session last finished on this device, until Keep logging or a restore forgets it (null). A key of its own in
+     * this store, outside AppSettings, like [guideSeen]: not in a backup.
+     */
+    val finishedSession: Flow<FinishedSession?> = store.data.map { it[FINISHED_SESSION]?.let(FinishedSession::decode) }.distinctUntilChanged()
+
+    suspend fun setFinishedSession(note: FinishedSession?) {
+        store.edit { if (note != null) it[FINISHED_SESSION] = note.encode() else it.remove(FINISHED_SESSION) }
+    }
+
     suspend fun update(f: (AppSettings) -> AppSettings) {
         store.edit { prefs -> prefs.write(f(prefs.toAppSettings())) }
     }
@@ -160,6 +190,7 @@ class SettingsRepository(context: Context) {
         val BODYBUILDING_LEFT_ON = stringPreferencesKey("bodybuildingLeftOn")
         val VIBRATE_ON_TAPS = booleanPreferencesKey("vibrateOnTaps")
         val GUIDE_SEEN = booleanPreferencesKey("guide_seen")
+        val FINISHED_SESSION = stringPreferencesKey("finished_session")
 
         fun Preferences.toAppSettings(): AppSettings {
             val d = AppSettings()

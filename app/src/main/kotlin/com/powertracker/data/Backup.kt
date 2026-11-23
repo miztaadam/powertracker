@@ -359,6 +359,8 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
             db.skips().insertAll(skips)
         }
         settings.update { newSettings }
+        // The note that a session was finished is about the replaced data.
+        settings.setFinishedSession(null)
     }
 }
 
