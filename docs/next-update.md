@@ -1549,7 +1549,7 @@ Reported by the owner on 2026-11-23: "When I finish a workout on the today page 
 
 **Shots, before and after the change:** the full run was repeated on the code before this release (`47fc711`, in a scratch worktree, `--project e2e`: 513 passed, 12 skipped), and the 174 web shots of the two runs were compared. 163 are byte-identical, every Today shot among them. The six Settings shots differ in the version line only (about 280 pixels in a 17 by 27 pixel box). Five differ by a few pixels in pictures no part of this release touches, shots already known not to be byte-stable between runs: `form-guide-dark` (169 pixels), `guide-side-first-launch-bodybuilding-light` and `guide-side-first-launch-powerlifting-light` (221 each), `guide-targets-bodybuilding-dark` and `-light` (9 each).
 
-**Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws.
+**Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws. **Settled on 2026-11-24:** the committed shots were out of date, not the browser; they were re-shot (see "Done (2026-11-24)").
 
 **Published 2026-11-23 (owner: "publish"), on main as `c5f7754`** (a `--no-ff` merge of the branch; its tree is the branch's, `02b2a91`). On merged main, one at a time, before the push:
 - Gradle: `:domain:allTests` passed; `:app:testDebugUnitTest` passed, 1,113 tests, 0 failed, 1 skipped; `:domain:checkWebDomain` passed.
@@ -1561,6 +1561,39 @@ Reported by the owner on 2026-11-23: "When I finish a workout on the today page 
 - A session finished before the update has no note, so it shows as open once more after the update; one more Finish, and it stays finished.
 
 **Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: six shots on each. Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, and no other tracked shot changed. Web: from the full run above; the other shots it rewrote were put back (see the shots paragraph).
+
+## Done (2026-11-24): the web tests run in CI, ten phone checks, the web shots re-shot (no app change, no version change)
+Asked for by the owner on 2026-11-24, from a list of possible improvements: "do these and show me the skip ring design". Still 1.17.5 (versionCode 33): nothing a lifter sees changed.
+
+**1. The web tests run by themselves.** `.github/workflows/tests.yml` has a second job, `web`, beside `kotlin`:
+- Type check, unit tests, build, then the browser tests as an iPhone (`--project e2e`) and as an Android phone (`E2E_UA=android`, the 1.17.4 list plus `reload.spec.ts`; the list now lives in the workflow, and `CLAUDE.md` points there).
+- It installs the Chromium that Playwright's version was built for (`npx playwright install --with-deps chromium`). Here the tests keep using the container's own Chromium.
+- **The timing checks (`@speed`) are not in CI:** they hold two screens to 100 ms on the machine's clock and have no headroom (see the 2026-11-13 follow-up), so on a shared runner they would measure the runner. Changing that limit is the owner's call. They stay a check to run by hand.
+- No retries and no longer timeouts in CI: a test that fails only there is a finding.
+- The `kotlin` job also runs `:domain:checkWebDomain` now.
+- **When it runs:** on pull requests, on pushes to `main`, and by hand on any branch. On a push to `main` it reports after the live site has updated, so it does not hold a release back: the checks on merged main before the push stay as they are.
+- The repository is private, so the runs use the account's Actions minutes.
+- **First run:** started by hand on the work branch (`e260e2c`, run 45341802266); still going when this was written. Its result is in the next commit.
+
+**2. Ten phone checks per release.** `README.md` had 185 checks, none ticked. They moved, word for word, to `docs/manual-checks.md` (three lists: iPhone, Chrome on Android, the Android app). `README.md` now has "Phone checks after a release": nine standing checks that only a real phone can answer (it updated; the log is still there; offline; log a set; the rest alert after locking; App lock; backup out; backup in, only when moving the log or when the backup changed; Back closes what is open) and a tenth for the release's own change (now 1.17.5's "finished stays finished", which is still not done on a phone). `CLAUDE.md` says where a release's checks go from now on: its one check in item 10, its detailed checks in `docs/manual-checks.md`.
+- **My choice of the nine,** not the owner's: he can swap any.
+
+**3. The web shots re-shot.** 33 tracked shots in `docs/design/web/screens/` rewritten and 4 added that were never committed (`older-copy-{dark,light}`, `plan-known-bests-{dark,light}`: their specs were not run in the sessions that wrote them).
+- **Cause found: the committed shots were out of date, not this machine.** The code that last wrote `today-dark.png` (`bf17b19`, 2026-11-18, version 1.12.3) was checked out and its `screenshots.spec.ts` run here: `today-dark` and `today-light` came out byte for byte as committed. So this Chromium draws that code as the committed shots show it, and the difference is what later releases changed (the steppers' columns sit about 8 px further left). This corrects the earlier notes ("render differently on this machine", from 1.16 on, and 1.17.5's "found on the way").
+- `form-guide-{dark,light}` were last shot on 2026-11-12, before the accent turned grey (`b2f896b`, 2026-11-16). The plate's outline is the accent (`.fig-accent`), so grey is right and the old chalk outline was the old accent. Not an app finding.
+- Each release since had compared a run before with a run after, never with the committed files, which is why nothing flagged it.
+- **Shot twice** (the 14 specs that write shots, `--project e2e`, 270 passed and 12 skipped each time): 169 of 174 identical between the two runs. **Not byte-stable, 5:** `exercise-guide-actions-{dark,light}`, `guide-side-first-launch-bodybuilding-{dark,light}`, `guide-targets-powerlifting-light`. They will show as changed on a later re-shoot with nothing changed; the second run's copies are the ones committed.
+- Looked at by eye: six of the new shots (Today, Today with a rest, the RPE sheet, Coach on the bodybuilding side, the skip menu, the skipped line). All whole screens, nothing cut or missing. The other 31 were not looked at one by one.
+- Correction to 1.17.5's note: that re-shoot wrote 4 untracked shots, not 5 (the fifth untracked entry was the scratch worktree's link to `node_modules`).
+- The Android shots (`docs/design/screens/`) were not re-shot: the 1.17.5 run rewrote only its six Settings shots, so they are current.
+
+**4. The skip ring: shown, not built.** Asked for as "the skip ring design". **There is no drawn design,** and my summary to the owner ("designed but not built") overstated it. What exists:
+- one line in 1.16's follow-ups: "A skip ring (a tap ring on Skip today's menu) was not built; it could be anchored as Log set's is";
+- the guide spec's rule for the ring it would copy (`docs/superpowers/specs/2026-11-19-grit-guide-design.md`, point 7): "A tap ring pulses once on the button just before its result appears. It shows only in the guide."
+- Today, on the guide's screen 4, the ring pulses on Log set before the set is ticked; the skip step has none: the last row just leaves and "Skipped today" rises in.
+- Shown to the owner: three frames of the web guide's screen 4 with motion on, on a held clock. Two are the app as it is (the ring on Log set; the skip step settled). The middle one is a mock-up made in the page for the picture only: a ring of the same make, at the same point of its pulse, on the ⋮ of the row about to be skipped. Kept out of the repository. Nothing was built; whether to build it is the owner's.
+
+**Checks:** no app code changed. `README.md`, `CLAUDE.md` and the notes are prose; the workflow is checked by its run (above); the shots by the two runs. The full local suites were not run for this.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
