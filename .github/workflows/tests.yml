@@ -51,7 +51,21 @@ jobs:
       - name: App unit tests (Robolectric)
         # Runs even when the domain tests failed, so one run reports both.
         if: success() || failure()
-        run: ./gradlew :app:testDebugUnitTest
+        # A run takes about 12 minutes. One run hung here (2026-11-24: 38 minutes with no output, ended by the job's
+        # limit) and left nothing to say where. So: still going after 25 minutes, the test JVM's threads are printed
+        # (which test is running, and where it waits), and the step's own limit then ends it.
+        timeout-minutes: 30
+        run: |
+          ( sleep 1500
+            for p in $(pgrep -f 'Gradle Test Executor'); do
+              echo "=== still running after 25 minutes: the threads of test JVM $p"
+              jstack "$p" || true
+            done ) &
+          watchdog=$!
+          status=0
+          ./gradlew :app:testDebugUnitTest || status=$?
+          kill "$watchdog" 2>/dev/null || true
+          exit "$status"
 
       # Fails when web/src/domain/generated/ is not what :domain builds now (run :domain:syncWebDomain and commit).
       - name: The web app's copy of the domain is up to date
