@@ -1632,7 +1632,9 @@ The owner passed on, on 2026-11-24, that a user called the app "buggy" on an iPh
 
 **Offered by the owner:** running the session on his Mac with Xcode. That would give the real thing: the iPhone Simulator runs iOS Safari, with Add to Home Screen, and Safari's Web Inspector attaches to it or to a phone on a cable.
 
-**Parked meanwhile:** the polish pass asked for the same day (`/polish the whole app`). Its four read-only audits and a browser sweep are done and nothing was changed; the findings are kept outside the repository until this is settled, and no polish goes into a fix for this.
+**Parked meanwhile:** the polish pass asked for the same day (`/polish the whole app`). Its four read-only audits and a browser sweep are done and nothing was changed; the findings, unverified, are in `docs/polish-audit-2026-11-24.md`, and no polish goes into a fix for this.
+
+**Handed to a session on the owner's Mac (2026-11-24):** the cloud session could not attach to the Mac (its folder is in the owner's Remote Control list but not offered to cloud sessions; cause not known). The steps for the Simulator are in `docs/handoff-2026-11-24.md`.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
