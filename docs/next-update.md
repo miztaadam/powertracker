@@ -1613,6 +1613,27 @@ Asked for by the owner on 2026-11-24, from a list of possible improvements: "do 
 
 **Checks:** no app code changed, so no version bump. `README.md`, `CLAUDE.md` and the notes are prose. The workflow is checked by its three runs (above), the last green on both jobs. The shots by the two runs. The Android test set-up change by its new test and by the whole app suite here (1,115 tests, 0 failed, 1 skipped). The one web test changed (`guide.spec.ts:509`) passed here alone on Chromium 153 and in CI's full runs on 156. **Not run for this, here:** the web unit tests, the full local Playwright run and the timing checks (CI ran the first two; the routine's runs on merged main come with "publish").
 
+## Open (2026-11-24): a user reports the web app "buggy" on an iPhone, with no details
+The owner passed on, on 2026-11-24, that a user called the app "buggy" on an iPhone and said nothing more. No symptom, no version, no screen. **No app code was changed for it.** Nothing here runs Safari, so an iPhone fault can be neither confirmed nor ruled out from this container.
+
+**What is known:**
+- 1.17.4 (2026-11-22) changed how Back works on an iPhone and iPad only (`historyCloses.ts`: a history entry per open dialog, sheet or menu). It is the one large iPhone-only change of the week, and it was never confirmed on a phone.
+- Until 1.17.5 (published 2026-11-23, 20:33 UTC) a finished session came back as open after a reload, on the web as on Android. Three pushes to main since 2026-11-22 each gave open copies of the web app an update. A report of "it came back as active" or "it reloaded by itself" may be from before 1.17.5.
+- Reading `historyCloses.ts`: after a sheet or menu is closed by a tap, the module asks for a step back and holds the app's own history calls (a tab tap among them, while entries are on the stack) until that step's `popstate` arrives. In Chromium it arrives within milliseconds. If Safari delivered it late or not at all, a tab tap could wait up to 4.5 s (three looks, 1.5 s apart). **That is a reading of the code, not something seen.**
+
+**Tried: the browser tests in WebKit, Safari's engine, on GitHub (by hand).** New: `E2E_BROWSER=webkit` in `playwright.config.ts`, and a `webkit` job in the workflow that runs only when started by hand with its box ticked (then the two usual jobs do not run). It is not part of the automatic runs.
+- **First run: 103 of 103 failed at their first step.** Not the app: Playwright's WebKit windows refuse private file storage, as a private Safari window does, so Grit showed its own "Private browsing won't keep your log" screen instead of the app (read from the failed page's content, which the job now prints, since the artifact store is full). The tests now start as if "Continue anyway" had been chosen, in the WebKit pass only (`e2e/storage.ts`).
+- **Then: 102 of 103 passed, in 9.4 minutes.** `backClosesIphone` 24 (the iPhone Back path, in an engine without CloseWatcher, as on the phone), `menu` 26, `skip` 15, `plan` 11, `progress` 8, `today` 5, `coach` 4, `library` 4, `reload` 2 (a reload mid-session, and after Finish), `session` 1, `offline` 1, `smoke` 1.
+- **The one failure is the test's own:** `backup.spec.ts` clears the site's data with a Chromium-only tool (`newCDPSession`). The export before that step worked in WebKit. Left as it is, not skipped.
+- **What this does and does not show:** the app starts, logs, finishes, reloads, works offline and closes dialogs on Back in WebKit on Linux. It is not iOS Safari: no Home Screen app, no edge swipe, no real touch or keyboard, not Safari's own timing of `popstate`. A pass here is not an iPhone pass.
+- Cost: three by-hand runs, about 24 runner-minutes together.
+
+**Asked of the owner, for the reporter:** the last line of Plan, Settings (the version); a Safari tab or the Home Screen icon; one example of what was tapped and what happened (a screen recording is best); when it started; and to export a backup first and not delete the Home Screen app, which takes its log with it. **And for the owner's own iPhone:** checks 1, 9 and 10 in `README.md`, in Safari and from the Home Screen icon (9 is the iPhone Back path).
+
+**Offered by the owner:** running the session on his Mac with Xcode. That would give the real thing: the iPhone Simulator runs iOS Safari, with Add to Home Screen, and Safari's Web Inspector attaches to it or to a phone on a cable.
+
+**Parked meanwhile:** the polish pass asked for the same day (`/polish the whole app`). Its four read-only audits and a browser sweep are done and nothing was changed; the findings are kept outside the repository until this is settled, and no polish goes into a fix for this.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
