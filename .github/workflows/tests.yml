@@ -1,5 +1,11 @@
-# Runs the Kotlin tests: the shared coach in :domain (JVM and JS on Node) and the Android app's
-# Robolectric tests, one after the other. Nothing here needs an emulator. The web app's own tests are not run here.
+# Two jobs, side by side:
+# - kotlin: the shared coach in :domain (JVM and JS on Node) and the Android app's Robolectric tests, one after the
+#   other, then a check that the web app's generated copy of the domain is current. Nothing here needs an emulator.
+# - web: the web app's type check, unit tests, build and browser tests (as an iPhone, then as an Android phone).
+#   The timing checks (@speed) are not run here: they hold two screens to 100 ms on the machine's own clock, and a
+#   shared runner would measure the runner.
+# On a push to main this reports after the live site has already updated: it does not hold a release back, so the
+# checks before a push (CLAUDE.md) stay.
 name: Tests
 
 on:
@@ -47,6 +53,11 @@ jobs:
         if: success() || failure()
         run: ./gradlew :app:testDebugUnitTest
 
+      # Fails when web/src/domain/generated/ is not what :domain builds now (run :domain:syncWebDomain and commit).
+      - name: The web app's copy of the domain is up to date
+        if: success() || failure()
+        run: ./gradlew :domain:checkWebDomain
+
       - name: Keep the test reports
         if: failure()
         uses: actions/upload-artifact@v4
@@ -56,3 +67,66 @@ jobs:
             domain/build/reports/tests/
             app/build/reports/tests/
           retention-days: 14
+
+  web:
+    name: Web unit and browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+
+      # No version is pinned in the repository; 22 is the one the app is built and tested with.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # web/src/domain/generated/ is committed, so this job needs no Gradle; the kotlin job checks it is up to date.
+      - run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        if: success() || failure()
+        run: npm test
+
+      - name: Build
+        if: success() || failure()
+        run: npm run build
+
+      # The browser Playwright's version in package-lock.json was built for. Chromium only: the tests emulate an
+      # iPhone 13 in it (playwright.config.ts).
+      - name: Install Chromium
+        id: chromium
+        run: npx playwright install --with-deps chromium
+
+      # No retries and no longer timeouts: a test that fails only here is a finding (CLAUDE.md, "Timing-sensitive tests").
+      - name: Browser tests, as an iPhone
+        run: npx playwright test --project e2e --trace off
+
+      # The same phone with Chrome on Android's user agent, over the specs with dialogs, menus, history and Today:
+      # the paths every phone but an iPhone takes. The screenshot specs are iPhone shots and are not in the list.
+      - name: Browser tests, as an Android phone
+        # Also when the iPhone run failed, so one run reports both; not when there is no browser to run them in.
+        if: (success() || failure()) && steps.chromium.outcome == 'success'
+        env:
+          E2E_UA: android
+        run: >
+          npx playwright test --project e2e --trace off
+          e2e/backCloses.spec.ts e2e/library.spec.ts e2e/plan.spec.ts e2e/rpe.spec.ts e2e/skip.spec.ts
+          e2e/plates.spec.ts e2e/menu.spec.ts e2e/templates.spec.ts e2e/bodybuilding.spec.ts e2e/guide.spec.ts
+          e2e/today.spec.ts e2e/session.spec.ts e2e/progress.spec.ts e2e/update.spec.ts e2e/reload.spec.ts
+
+      - name: Keep what the failed browser tests left
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-test-results
+          path: web/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
