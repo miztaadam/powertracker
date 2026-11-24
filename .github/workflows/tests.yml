@@ -13,6 +13,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      webkit:
+        description: "Run only the WebKit (Safari's engine) pass, not the usual two jobs"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,6 +30,7 @@ concurrency:
 jobs:
   kotlin:
     name: Domain and app unit tests
+    if: ${{ !inputs.webkit }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -85,6 +91,7 @@ jobs:
 
   web:
     name: Web unit and browser tests
+    if: ${{ !inputs.webkit }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     defaults:
@@ -147,3 +154,33 @@ jobs:
           path: web/test-results/
           retention-days: 14
           if-no-files-found: ignore
+
+  # By hand only ("Run workflow" with the box ticked, or the dispatch call with -f inputs[webkit]=true): some of the
+  # browser tests in WebKit, Safari's engine, as an iPhone 13. Never part of the automatic runs. The tests were written
+  # in Chromium, so a failure here is first of all a question: the app in WebKit, or the test's own assumption?
+  webkit:
+    name: Browser tests in WebKit (by hand)
+    if: ${{ inputs.webkit }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Install WebKit
+        run: npx playwright install --with-deps webkit
+      - name: Browser tests in WebKit, as an iPhone
+        env:
+          E2E_BROWSER: webkit
+        run: >
+          npx playwright test --project e2e --trace off
+          e2e/backClosesIphone.spec.ts e2e/today.spec.ts e2e/session.spec.ts e2e/reload.spec.ts
+          e2e/plan.spec.ts e2e/library.spec.ts e2e/backup.spec.ts e2e/menu.spec.ts e2e/skip.spec.ts
+          e2e/coach.spec.ts e2e/progress.spec.ts e2e/offline.spec.ts e2e/smoke.spec.ts
