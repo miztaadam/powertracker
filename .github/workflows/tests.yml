@@ -60,6 +60,7 @@ jobs:
 
       - name: Keep the test reports
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
@@ -122,8 +123,10 @@ jobs:
           e2e/plates.spec.ts e2e/menu.spec.ts e2e/templates.spec.ts e2e/bodybuilding.spec.ts e2e/guide.spec.ts
           e2e/today.spec.ts e2e/session.spec.ts e2e/progress.spec.ts e2e/update.spec.ts e2e/reload.spec.ts
 
+      # Never the reason a run is red: the account's artifact storage can be full ("quota has been hit").
       - name: Keep what the failed browser tests left
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: web-test-results
