@@ -13,7 +13,11 @@ export type Workout = { sessionId: number; date: string; side: TrainingMode; bod
 
 export type WorkoutHistoryState = { loading: boolean; workouts: Workout[] }
 
-/** A set whose exercise has no row any more (never the case for a stored log: an exercise with sets cannot be deleted). */
+/**
+ * The name for a set whose exercise has no row. Not expected in a stored log: the web app never deletes an exercise's row
+ * (it archives it), and a restore refuses a backup with a set whose exercise is missing (backup.ts). Shown rather than
+ * hiding the set, should it ever happen.
+ */
 const UNKNOWN_EXERCISE = 'Exercise'
 
 /**

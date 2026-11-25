@@ -37,7 +37,7 @@ export type ProgressContentProps = { state: ProgressState; onRange: (range: Char
 export function ProgressContent({ state, onRange, onOpenLift, onOpenHistory }: ProgressContentProps) {
   return (
     <section className="screen">
-      <ScreenHeader title="Progress" eyebrow="Estimated 1RM" label={<ModeLabel />} actions={<HistoryButton onOpen={onOpenHistory} />} />
+      <ScreenHeader className="progress-header" title="Progress" eyebrow="Estimated 1RM" label={<ModeLabel />} actions={<HistoryButton onOpen={onOpenHistory} />} />
       <div className="screen-body">
         {!state.loading && !state.hasData && (
           <EmptyState

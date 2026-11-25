@@ -356,3 +356,45 @@ test('History opened directly: Back goes to Progress and replaces it', async ({ 
   await page.goBack()
   await expect(page).not.toHaveURL(/#\/history/)
 })
+
+// 1.19: beside the History button the header's caption and title have less room. At 246 px (a 320 px phone at 130%
+// zoom) the button is still beside the title, and nothing in the header is cut, on either side.
+for (const side of ['POWERLIFTING', 'BODYBUILDING'] as const) {
+  test(`the Progress header with its History button is whole at 246 px, ${side.toLowerCase()} side`, async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2026-11-11T09:41:00'))
+    await page.goto('/#/progress')
+    await expect(page.getByText('No lifts logged yet')).toBeVisible()
+    if (side === 'BODYBUILDING') {
+      await page.evaluate(async () => {
+        const db = await new Promise<IDBDatabase>((done, fail) => {
+          const request = indexedDB.open('grit')
+          request.onsuccess = () => done(request.result)
+          request.onerror = () => fail(request.error)
+        })
+        const tx = db.transaction(['settings'], 'readwrite')
+        tx.objectStore('settings').put({ key: 'trainingMode', value: 'BODYBUILDING' })
+        await new Promise<void>((done, fail) => {
+          tx.oncomplete = () => done()
+          tx.onerror = () => fail(tx.error)
+        })
+        db.close()
+      })
+      await page.reload()
+      await expect(page.getByText('No exercises in your plan yet')).toBeVisible()
+    }
+    await page.setViewportSize({ width: 246, height: 624 })
+    const history = page.getByRole('button', { name: 'History', exact: true })
+    await expect(history).toBeVisible()
+    const cut = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>('.gr-screen-header, .gr-screen-header *')]
+        .filter((el) => !el.closest('.sr-only') && getComputedStyle(el).display !== 'inline' && el.scrollWidth > el.clientWidth + 1)
+        .map((el) => `${el.className}: ${el.textContent}`),
+    )
+    expect(cut).toEqual([])
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+    // Still beside the title, not under it.
+    const [button, title] = await Promise.all([history.boundingBox(), page.getByRole('heading', { level: 1, name: 'Progress' }).boundingBox()])
+    expect(button!.x).toBeGreaterThan(title!.x + title!.width - 1)
+  })
+}

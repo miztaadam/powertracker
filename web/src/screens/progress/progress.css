@@ -162,6 +162,13 @@
   margin-right: var(--space-3);
 }
 
+/* Beside the button the header's caption has less room: on a narrow phone at a large text size ("Best set per
+   session" at 246 px) it wraps onto a second line, never cut with dots. Wider, it is one line as before. */
+.progress-header .gr-screen-header-text > .eyebrow {
+  white-space: normal;
+  overflow: visible;
+}
+
 /* History (1.19): every workout, each a card: its date, its side and counts, then each exercise over its sets. */
 .workout > .workout-summary {
   /* A long summary (a bodyweight too) wraps, into lines of about one length where the browser can (no one word left

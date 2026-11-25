@@ -35,7 +35,7 @@ export const FIRST_CHECK_IN_LINE = 'Your first check-in is four weeks after your
 export function BodybuildingProgressContent({ state, onOpenExercise, onCheckIn = () => {}, onOpenHistory }: BodybuildingProgressContentProps) {
   return (
     <section className="screen">
-      <ScreenHeader title="Progress" eyebrow="Best set per session" label={<ModeLabel />} actions={<HistoryButton onOpen={onOpenHistory} />} />
+      <ScreenHeader className="progress-header" title="Progress" eyebrow="Best set per session" label={<ModeLabel />} actions={<HistoryButton onOpen={onOpenHistory} />} />
       <div className="screen-body">
         {/* An empty plan has nothing to check in on (coordinator's ruling, as on Android). */}
         {!state.loading && state.rows.length > 0 && (
