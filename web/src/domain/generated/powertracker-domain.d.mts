@@ -75,6 +75,7 @@ export declare namespace GritDomain {
             mainLiftOf(exercise: JsExercise): Nullable<string>;
             isMainLift(exercise: JsExercise): boolean;
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
+            lastTimes(history: JsHistory, mode: string, before: string): Array<JsLastTime>;
             openAdviceExpired(type: string, createdAt: string, today: string): boolean;
             advicePayload(payloadJson: string): Nullable<JsAdvicePayload>;
             library(): Array<JsLibraryExercise>;
@@ -904,6 +905,22 @@ export declare namespace JsHistory {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsHistory;
+    }
+}
+export declare class JsLastTime {
+    constructor(exerciseId: number, date: string, sets: Array<JsSet>);
+    get exerciseId(): number;
+    get date(): string;
+    get sets(): Array<JsSet>;
+    copy(exerciseId?: number, date?: string, sets?: Array<JsSet>): JsLastTime;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsLastTime {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsLastTime;
     }
 }
 export declare class JsBestSet {

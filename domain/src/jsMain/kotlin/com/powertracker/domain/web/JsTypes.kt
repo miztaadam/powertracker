@@ -142,6 +142,10 @@ data class JsHistory(
     val baselines: Array<JsBaseline>,
 )
 
+/** An exercise's sets, in logged order, in its last session before a day: the Today card's "Last time". [date] is ISO. */
+@JsExport
+data class JsLastTime(val exerciseId: Int, val date: String, val sets: Array<JsSet>)
+
 /** One session's best set on the bodybuilding Progress screen. */
 @JsExport
 data class JsBestSet(val date: String, val set: JsSet)
