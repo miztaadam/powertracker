@@ -1703,6 +1703,8 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 3. Today's own session is in the list as soon as it has a set. A session with no sets is left out and not counted.
 4. An archived exercise's sets still show, under its name.
 5. No "Top set" or "PR" marks: the screen says what was done; Progress's lift histories mark the records.
+6. The in-app guide's picture of Progress has no History button (the picture has nowhere to open it).
+7. Beside the button, Progress's small caption wraps onto a second line when it has no room ("Best set per session" on a 320 px phone at 130% zoom was cut by 4 px before this), instead of being cut with dots.
 
 **How:**
 - `router.tsx`: a `history` page, `#/history`. `App.tsx` draws `WorkoutHistoryScreen` for it and gives Progress `onOpenHistory`.
@@ -1720,7 +1722,19 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 - `useWorkoutHistory.test.ts` (5): newest first from both sides with side, counts and bodyweight; a session with no sets is no workout; an exercise come back to is one group; every kind of set as logged, an archived exercise under its name; a set of an exercise with no row.
 - `WorkoutHistoryScreen.test.tsx` (6): the button opens the list and Back returns without leaving History behind; the button on both sides with nothing logged; opened directly; 45 workouts drawn 20 at a time; singular counts; loading.
 - `router.test.tsx`: `#/history`, opened from the button in the whole app.
-- e2e, `progress.spec.ts`: the button at the right of the title; 35 workouts, 20 drawn, then all; the cards' lines; Back three ways (the arrow, the phone's Back, opened directly). Two older checks there counted buttons whose name ends in "history" and now look for the lifts' tiles only. `narrowDeeper.spec.ts`: Progress with the button, and History with each side's story, at 320 px and 200% text.
+- e2e, `progress.spec.ts`: the button at the right of the title; 35 workouts, 20 drawn, then all; the cards' lines; Back three ways (the arrow, the phone's Back, opened directly). Two older checks there counted buttons whose name ends in "history" and now look for the lifts' tiles only. `narrowDeeper.spec.ts`: Progress with the button, and History with each side's story, at 320 px and 200% text. `progress.spec.ts` also holds the header at 246 px on both sides: nothing cut, the button beside the title.
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-25, one at a time, on the 1.19 code (which holds 1.18):**
+- Web: `npm run typecheck` clean; unit tests 1,699 of 1,699; build clean.
+- **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 519 passed, 12 skipped, 0 failed, first time,** with no source change while it ran. This is also the all-green full run that 1.18's own code had not had.
+- **The `E2E_UA=android` pass** (CI's list): 257 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: `:domain:allTests` passed; `:domain:checkWebDomain` passed. `:app:testDebugUnitTest`: passed, 1,115 tests, 0 failed, 1 skipped (counted from the result files).
+- **After those runs, one small change from a review, then rerun:** Progress's caption now wraps beside the History button (call 7), with its test. On that final code: `progress`, `bodybuilding`, `narrow`, `narrowDeeper` and `guide` specs with `UPDATE_SCREENSHOTS=1`, 234 passed, 12 skipped, and no Progress or History shot changed; `E2E_UA=android` `progress` and `bodybuilding` specs, 36 passed; speed, 6 of 6; type check clean; unit tests 1,699 of 1,699; build clean. **The full Playwright run above was before this change;** the run on merged main before a publish covers it whole.
+- **Not run on merged main,** and **not checked on a phone or in Safari.**
+
+**Shots:** from the full run, 23 tracked web shots were rewritten and two are new. 14 are committed: the six Settings shots (the version line), the six Progress shots (the History button), and the new `history-dark` and `history-light`. Eleven were put back as drift in pictures this release does not touch (`exercise-guide-actions-*`, three `guide-side-first-launch-*`, `guide-side-powerlifting-light`, the four `guide-targets-*`, and `today-rest-light`, whose dark twin did not change). Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful; the six Settings shots changed (the version line) and no other tracked shot did.
+
+**Version:** Android 1.19 (versionCode 35), web 1.19.0 (shown as 1.19). The Android app's screens are unchanged.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
