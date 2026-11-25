@@ -1636,7 +1636,7 @@ The owner passed on, on 2026-11-24, that a user called the app "buggy" on an iPh
 
 **Handed to a session on the owner's Mac (2026-11-24):** the cloud session could not attach to the Mac (its folder is in the owner's Remote Control list but not offered to cloud sessions; cause not known). The steps for the Simulator are in `docs/handoff-2026-11-24.md`.
 
-## Built, not published: 1.18, last time's sets on the Today card (web first; the Android card is not ported yet)
+## Done: 1.18, last time's sets on the Today card (web; the Android card is not ported yet)
 Asked by the owner on 2026-11-25, with a screenshot of the bodybuilding Today card: "where the stretch and squeeze instructions are I would like it to display what you achieved on this exercise the previous week instead. Same for powerlifting side." Then, on the design: "could it show all sets from the time the exercise was done previously?" Spec: `docs/superpowers/specs/2026-11-25-grit-last-time-on-today-design.md`; plan: `docs/superpowers/plans/2026-11-25-grit-last-time-on-today.md`.
 
 **What the lifter gets (web app):**
@@ -1686,7 +1686,7 @@ Asked by the owner on 2026-11-25, with a screenshot of the bodybuilding Today ca
 
 **1.18 is complete at commit `929b437`.** The branch carries 1.19 (History) after it. A "publish" of 1.18 alone merges that commit, not the branch tip.
 
-## Built, not published: 1.19, History on Progress (web first; the Android app is not ported yet)
+## Done: 1.19, History on Progress (web; the Android app is not ported yet)
 Asked by the owner on 2026-11-25: "lets also add a "History" button at the top right of the UI on the progress tab showing all previous workouts, times,dates,sets,reps,weight etc". Spec: `docs/superpowers/specs/2026-11-25-grit-workout-history-design.md`; plan: `docs/superpowers/plans/2026-11-25-grit-workout-history.md`.
 
 **What the lifter gets (web app):**
@@ -1735,6 +1735,17 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 **Shots:** from the full run, 23 tracked web shots were rewritten and two are new. 14 are committed: the six Settings shots (the version line), the six Progress shots (the History button), and the new `history-dark` and `history-light`. Eleven were put back as drift in pictures this release does not touch (`exercise-guide-actions-*`, three `guide-side-first-launch-*`, `guide-side-powerlifting-light`, the four `guide-targets-*`, and `today-rest-light`, whose dark twin did not change). Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful; the six Settings shots changed (the version line) and no other tracked shot did.
 
 **Version:** Android 1.19 (versionCode 35), web 1.19.0 (shown as 1.19). The Android app's screens are unchanged.
+
+**1.18 and 1.19 published together, 2026-11-25 (owner: "publish"), on main as `18f154f`** (a `--no-ff` merge of the branch at `5a46e6f`; its tree is the branch's). On merged main, one at a time, before the push, with no source change:
+- Web: `npm run typecheck` clean; unit tests 1,699 of 1,699; build clean.
+- **Full Playwright run: 521 passed, 12 skipped, first time** (519 on the branch, plus the two header tests added after it). So the header change has now been through the whole run.
+- The `E2E_UA=android` pass (CI's list): 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: `:domain:allTests` passed; `:domain:checkWebDomain` passed; `:app:testDebugUnitTest` passed, 1,115 tests, 0 failed, 1 skipped.
+- Live, a few minutes after the push: `/` names `assets/index-CNAqNnza.js`, which carries 1.19.0 (no 1.18.0, no 1.17.5), build id `18f154f`, and the new screens' words ("Last time · ", "Show older workouts"); `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 35, versionName 1.19. **No APK was handed over.** The Android app from `main` shows 1.19 in Settings and is otherwise as 1.17.5: its Today card still has Stretch and Squeeze on the bodybuilding side, and its Progress has no History button.
+- **Still not checked on a phone or in Safari:** the owner's check is item 10 of README's "Phone checks after a release"; the detailed ones are "Last time on the Today card (web, 1.18)" and "History on Progress (web, 1.19)" in `docs/manual-checks.md`.
+
+**Open, next:** port both to the Android app once the owner has used them on the web. Last time: `TodayItem.lastTime` from `history.lastTimes(mode, date)` in `TodayViewModel.kt`, and a block in `ExerciseCard.kt` in place of `MuscleCues`. History: a screen beside `LiftHistoryScreen.kt` and a button in Progress's header.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
