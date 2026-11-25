@@ -442,152 +442,127 @@ describe('typed numbers on the exercise card', () => {
   })
 })
 
-// Stage 4: where the muscle stretches and where it is squeezed, on the bodybuilding side only (owner decision 1).
-describe('stretch and squeeze on the exercise card', () => {
-  /** Today's plan is `name` alone, 3 × 8–12 on `mode`, with today's session and the app on that side. */
+// 1.18: what was done on the exercise last time, where the stretch and squeeze lines were, on both sides.
+describe('last time on the exercise card', () => {
+  const LAST_WEEK = addDays(TODAY, -7)
+  const sessionOn = async (date: string) => (await db.sessions.where('date').equals(date).first())!.id!
+  /** Today's plan is the exercise alone, 3 × 8–12 on `mode`, with today's session and the app on that side. */
   async function onlyToday(mode: TrainingMode, exerciseId: number) {
     await db.planItems.clear()
     await db.planItems.add({ weekday: 3, exerciseId, sets: 3, reps: 8, ...(mode === 'BODYBUILDING' ? { repsHigh: 12 } : {}), targetRpe: 8, order: 0, mode })
     await db.sessions.where('date').equals(TODAY).modify({ mode })
     await updateSettings(db, (s) => ({ ...s, trainingMode: mode }))
   }
-  /** A stored row for a catalogue exercise the seed does not hold. */
-  const addCatalogueRow = async (name: string) => {
-    const entry = grit.findInLibrary(name)!
-    return (await db.exercises.add({ name: entry.name, category: entry.category, parentLift: entry.parentLift ?? null, muscles: [...entry.muscles], isBuiltIn: true, archived: false })) as number
-  }
-  const squat = grit.muscleFocus('Squat')!
-  const NO_FOCUS_LINE = 'No stretch or squeeze to aim for in this one.'
-  const cues = () => document.querySelector('.today-cues')
-
-  it('bodybuildingCard_showsStretchAndSqueeze', async () => {
-    await onlyToday('BODYBUILDING', squatId)
-    const session = (await db.sessions.where('date').equals(TODAY).first())!.id!
-    await logSet(db, session, set(squatId, 100, { reps: 10 }))
-    show()
-    await screen.findByText('Set 2 of 3')
-
-    const stretch = screen.getByText('STRETCH')
-    const squeeze = screen.getByText('SQUEEZE')
-    expect(screen.getByText(squat.stretch!)).toBeInTheDocument()
-    expect(screen.getByText(squat.squeeze!)).toBeInTheDocument()
-    // Labels in the eyebrow style, the lines in 16 px body text, stretch first.
-    expect(stretch).toHaveClass('eyebrow')
-    expect(squeeze).toHaveClass('eyebrow')
-    expect(screen.getByText(squat.stretch!)).toHaveClass('body-large')
-    expect(screen.getByText(squat.squeeze!)).toHaveClass('body-large')
-    expect(stretch.compareDocumentPosition(squeeze) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    // Between the logged sets and the weight entry, as the mockup.
-    const lastSet = screen.getByRole('button', { name: /^Set 1/ })
-    expect(lastSet.compareDocumentPosition(stretch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(squeeze.compareDocumentPosition(weight()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-  })
-
-  it('bodybuildingCard_noFocus_showsNothing', async () => {
-    const plank = await addCatalogueRow('Front plank')
-    expect(grit.muscleFocus('Front plank')).toMatchObject({ stretch: null, squeeze: null, none: NO_FOCUS_LINE })
-    await onlyToday('BODYBUILDING', plank)
-    show()
-    await screen.findByRole('heading', { name: 'Front plank' })
-    await ready()
-    expect(screen.queryByText('STRETCH')).toBeNull()
-    expect(screen.queryByText('SQUEEZE')).toBeNull()
-    expect(screen.queryByText(NO_FOCUS_LINE)).toBeNull()
-    expect(cues()).toBeNull()
-
-    // The lifter's own exercise: no lines, and no empty place for them.
-    cleanup()
-    const own = (await db.exercises.add({ name: 'Tyre flip', category: 'ACCESSORY', parentLift: null, muscles: ['QUADS'], isBuiltIn: false, archived: false })) as number
-    expect(grit.muscleFocus('Tyre flip')).toBeNull()
-    await onlyToday('BODYBUILDING', own)
-    show()
-    await screen.findByRole('heading', { name: 'Tyre flip' })
-    await ready()
-    expect(screen.queryByText('STRETCH')).toBeNull()
-    expect(cues()).toBeNull()
-  })
-
-  it('bodybuildingCard_restoredRowUnderCatalogueName_showsLines', async () => {
-    // A row restored from a backup under a catalogue name, in lower case: matched the way its guide is.
-    await db.exercises.update(squatId, { name: 'squat' })
-    await onlyToday('BODYBUILDING', squatId)
-    show()
-    await screen.findByRole('heading', { name: 'squat' })
-    expect(await screen.findByText(squat.stretch!)).toBeInTheDocument()
-    expect(screen.getByText(squat.squeeze!)).toBeInTheDocument()
-  })
-
+  const block = () => document.querySelector('.today-last')
   /** What a screen reader reads for an element: its text, without what is hidden from it. */
   const spoken = (el: Element): string =>
     Array.from(el.childNodes)
       .map((n) => (n.nodeType === Node.TEXT_NODE ? (n.textContent ?? '') : n instanceof Element && n.getAttribute('aria-hidden') !== 'true' ? spoken(n) : ''))
       .join('')
+  /** What shows in each row: its figures as drawn, without the sentence kept for a screen reader. */
+  const drawn = () => Array.from(document.querySelectorAll('.today-last-line')).map((el) => el.textContent)
+  const follows = (first: Element, second: Element) => Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
 
-  it('bodybuildingCard_eachCueRow_readsAsLabelAndLine', async () => {
-    await onlyToday('BODYBUILDING', squatId)
+  it('powerliftingCard_showsEverySetOfLastTime_inOrder', async () => {
+    // Last week: 150 × 5 @ 7 (the fixture's), then a set with no RPE, then a missed one.
+    const lastWeek = await sessionOn(LAST_WEEK)
+    await logSet(db, lastWeek, set(squatId, 152.5, { reps: 4, rpe: null }))
+    await logSet(db, lastWeek, set(squatId, 155, { reps: 2, rpe: 9.5, failed: true }))
     show()
-    await screen.findByText(squat.stretch!)
-    // One list of two items, each read as one: "Stretch: …", then "Squeeze: …", as Android reads them.
-    const list = screen.getByRole('list', { name: 'Stretch and squeeze' })
-    const rows = within(list).getAllByRole('listitem')
-    expect(rows.map(spoken)).toEqual([`Stretch: ${squat.stretch}`, `Squeeze: ${squat.squeeze}`])
+    await ready()
+
+    const section = screen.getByRole('region', { name: 'Last time, Wed 4 Nov' })
+    const head = within(section).getByText('Last time · Wed 4 Nov')
+    expect(head).toHaveClass('eyebrow')
+    const rows = within(within(section).getByRole('list')).getAllByRole('listitem')
+    expect(rows.map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7', 'Set 2: 152.5 kg × 4', 'Set 3: 155 kg × 2 at RPE 9.5, missed'])
+    // A set with no RPE has no "@" with nothing after it; only the missed set says so.
+    expect(drawn()).toEqual(['150 kg × 5@ 7', '152.5 kg × 4', '155 kg × 2@ 9.5Missed'])
+    expect(Array.from(document.querySelectorAll('.today-last-index')).map((el) => el.textContent)).toEqual(['1', '2', '3'])
+    // Nothing in it can be tapped.
+    expect(within(section).queryByRole('button')).toBeNull()
+    // Before the weight entry.
+    expect(follows(section, weight())).toBe(true)
   })
 
-  it('bodybuildingCard_sideSwitch_hidesAndShowsTheCues', async () => {
+  it('bodybuildingCard_showsItsOwnSidesLastTime_andNoStretchOrSqueeze', async () => {
+    const squat = grit.muscleFocus('Squat')!
+    // The squat was last done a week ago on the powerlifting side: not this side's last time.
     await onlyToday('BODYBUILDING', squatId)
-    // A set done, so the squat is in today's session whichever side it is on.
-    const session = (await db.sessions.where('date').equals(TODAY).first())!.id!
-    await logSet(db, session, set(squatId, 100, { reps: 10 }))
+    const view = show()
+    await ready()
+    expect(block()).toBeNull()
+    expect(screen.queryByText(/Last time/)).toBeNull()
+    // The lines moved to the guide: they are not on the card, whether or not there is a last time.
+    expect(screen.queryByText('STRETCH')).toBeNull()
+    expect(screen.queryByText(squat.squeeze!)).toBeNull()
+    view.unmount()
+
+    // Two weeks ago on this side, before the powerlifting session: that one is shown.
+    const earlier = await startSession(db, addDays(TODAY, -14))
+    await db.sessions.update(earlier, { mode: 'BODYBUILDING' })
+    for (const reps of [12, 11, 10]) await logSet(db, earlier, set(squatId, 100, { reps }))
     show()
-    await screen.findByText(squat.stretch!)
-    const heading = screen.getByRole('heading', { name: 'Squat' })
-    // Today's session moves to the powerlifting side: the same card, without the lines; and back again.
-    await db.sessions.where('date').equals(TODAY).modify({ mode: 'POWERLIFTING' })
-    await waitFor(() => expect(screen.queryByText('STRETCH')).toBeNull())
-    expect(cues()).toBeNull()
-    expect(screen.getByRole('heading', { name: 'Squat' })).toBe(heading)
-    await db.sessions.where('date').equals(TODAY).modify({ mode: 'BODYBUILDING' })
-    expect(await screen.findByText(squat.stretch!)).toBeInTheDocument()
-    expect(screen.getByText('SQUEEZE')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Squat' })).toBe(heading)
+    const section = await screen.findByRole('region', { name: 'Last time, Wed 28 Oct' })
+    expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 100 kg × 12 at RPE 8', 'Set 2: 100 kg × 11 at RPE 8', 'Set 3: 100 kg × 10 at RPE 8'])
+    expect(screen.queryByText('STRETCH')).toBeNull()
   })
 
-  it('bodybuildingCard_notWrittenYet_showsNothing', async () => {
-    // Every catalogue exercise has lines now, so this fakes the lookup giving null: the card shows nothing.
-    const lookup = vi.spyOn(grit, 'muscleFocus').mockImplementation(() => null)
-    try {
-      await onlyToday('BODYBUILDING', squatId)
-      show()
-      await ready()
-      expect(screen.queryByText('STRETCH')).toBeNull()
-      expect(cues()).toBeNull()
-      expect(lookup).toHaveBeenCalledWith('Squat')
-    } finally {
-      lookup.mockRestore()
-    }
+  it('card_neverDone_showsNothing_andTodaysOwnSetsAreNotLastTime', async () => {
+    const bench = (await exerciseNamed(db, 'Bench')).id
+    await db.planItems.clear()
+    await plan(db, bench)
+    await logSet(db, await sessionOn(TODAY), set(bench, 100))
+    show()
+    await screen.findByText('Set 2 of 5')
+    expect(screen.getByRole('button', { name: /^Set 1: 100 kg/ })).toBeInTheDocument()
+    expect(block()).toBeNull()
+    expect(screen.queryByText(/Last time/)).toBeNull()
   })
 
-  it('bodybuildingCard_finished_keepsTheCuesAboveTheNextButton', async () => {
-    await onlyToday('BODYBUILDING', squatId)
-    const session = (await db.sessions.where('date').equals(TODAY).first())!.id!
-    for (const reps of [12, 11, 10]) await logSet(db, session, set(squatId, 100, { reps }))
+  it('card_lastTimeSitsBetweenTodaysSetsAndTheEntry_thenAboveTheNextButton', async () => {
+    const today = await sessionOn(TODAY)
+    await logSet(db, today, set(squatId, 152.5))
+    const view = show()
+    await screen.findByText('Set 2 of 5')
+    expect(follows(screen.getByRole('button', { name: /^Set 1:/ }), block()!)).toBe(true)
+    expect(follows(block()!, weight())).toBe(true)
+    view.unmount()
+
+    // Every set done: the block stays, above the way on.
+    for (let i = 0; i < 4; i++) await logSet(db, today, set(squatId, 152.5))
     show()
     const finish = await screen.findByRole('button', { name: 'Finish session' })
     expect(screen.queryByRole('textbox', { name: 'Weight, kilograms' })).toBeNull()
-    const squeeze = screen.getByText(squat.squeeze!)
-    expect(screen.getByText('STRETCH')).toBeInTheDocument()
-    expect(squeeze.compareDocumentPosition(finish) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const lastSet = screen.getByRole('button', { name: /^Set 3:/ })
-    expect(lastSet.compareDocumentPosition(screen.getByText('STRETCH')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(follows(screen.getByRole('button', { name: /^Set 5:/ }), block()!)).toBe(true)
+    expect(follows(block()!, finish)).toBe(true)
   })
 
-  it('powerliftingCard_showsNoCues', async () => {
+  it('lastTime_fromAnotherYear_carriesTheYear', async () => {
+    await db.sessions.update(await sessionOn(LAST_WEEK), { date: '2025-12-31' })
     show()
-    await screen.findByRole('heading', { name: 'Squat' })
-    await ready()
-    expect(screen.queryByText('STRETCH')).toBeNull()
-    expect(screen.queryByText('SQUEEZE')).toBeNull()
-    expect(screen.queryByText(squat.stretch!)).toBeNull()
-    expect(cues()).toBeNull()
+    expect(await screen.findByRole('region', { name: 'Last time, Wed 31 Dec 2025' })).toBeInTheDocument()
+    expect(screen.getByText('Last time · Wed 31 Dec 2025')).toBeInTheDocument()
+  })
+
+  it('lastTime_aPlateSetBesideAKgSet_eachInItsOwnUnit', async () => {
+    await logSet(db, await sessionOn(LAST_WEEK), { ...set(squatId, 7.5, { reps: 12 }), unit: 'PLATES' })
+    show()
+    const section = await screen.findByRole('region', { name: /^Last time/ })
+    expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7', `Set 2: ${grit.plateSpoken(7.5)} × 12 at RPE 8`])
+    expect(drawn()).toEqual(['150 kg × 5@ 7', `${grit.plateText(7.5)} × 12@ 8`])
+  })
+
+  it('lastTime_followsTheSideOfTodaysSession', async () => {
+    // Today's session moves to the bodybuilding side, where the squat was never done: the same card, without the block; and back.
+    await logSet(db, await sessionOn(TODAY), set(squatId, 100, { reps: 10 }))
+    show()
+    await screen.findByRole('region', { name: 'Last time, Wed 4 Nov' })
+    const heading = screen.getByRole('heading', { name: 'Squat' })
+    await db.sessions.where('date').equals(TODAY).modify({ mode: 'BODYBUILDING' })
+    await waitFor(() => expect(block()).toBeNull())
+    expect(screen.getByRole('heading', { name: 'Squat' })).toBe(heading)
+    await db.sessions.where('date').equals(TODAY).modify({ mode: 'POWERLIFTING' })
+    expect(await screen.findByRole('region', { name: 'Last time, Wed 4 Nov' })).toBeInTheDocument()
   })
 })

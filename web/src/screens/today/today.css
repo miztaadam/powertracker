@@ -125,39 +125,70 @@
 }
 
 
-/*
- * Stretch and squeeze (bodybuilding side): a label column and the line beside it, as the mockup. The hairline above
- * sets them apart from the logged sets; the editor's own hairline closes them off below. The lines wrap as far as
- * they need, at any text size.
- */
-.today-cues {
-  display: grid;
-  /* The labels share one column, as wide as the longer of them; the lines take the rest. */
-  grid-template-columns: max-content minmax(0, 1fr);
-  row-gap: var(--space-3);
-  margin: 0;
+/* Last time (1.18): the exercise's sets in its last session on this side, between today's sets and the weight entry.
+   Read-only, so quieter than today's rows: smaller figures in the secondary colour, no tick, nothing to tap. */
+.today-last {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-2) var(--space-2);
   border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+
+/* The date wraps under "Last time" on a narrow screen or at a large text size; an eyebrow elsewhere is cut with dots. */
+.today-last > .today-last-head {
+  color: var(--accent-text);
+  white-space: normal;
+  overflow: visible;
+}
+
+.today-last-sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-/* Each row keeps its own box (a list item to a screen reader) and lines up with the others through the subgrid. */
-.today-cue {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-  column-gap: var(--space-4);
+.today-last-set {
+  position: relative;
+  display: flex;
   align-items: baseline;
+  gap: var(--space-4);
 }
 
-.today-cue-line {
+/* As wide as today's set numbers, so the two lists line up. */
+.today-last-index {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Weight × reps, then the effort, then "Missed": each stays whole, and goes to the next line where the row is too narrow. */
+.today-last-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-4);
   min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--text);
+  color: var(--text-secondary);
 }
 
-.today-cue > .today-cue-label {
-  color: var(--accent-text);
+.today-last-load,
+.today-last-effort {
+  white-space: nowrap;
+}
+
+.today-last-soft {
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+.today-last-missed {
+  color: var(--danger);
+  text-transform: uppercase;
 }
 
 .today-miss {
@@ -741,13 +772,6 @@
     white-space: normal;
     text-align: center;
     padding-block: var(--space-2);
-  }
-
-  /* Stretch and squeeze: the label over its line, so the line has the card's width. */
-  .shell-main .today-screen .today-cue {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
   }
 
   /* The bar picture's words go under the bar. */

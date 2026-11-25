@@ -70,6 +70,7 @@ export function guideTodayState(mode: TrainingMode, step: string, shown?: SetEdi
       isComplete: sets.length >= p.sets,
       perSide: editor.weightKg != null ? (grit.platesPerSide(editor.weightKg, false) ?? null) : null,
       lastWeightKg: sets[sets.length - 1]?.weightKg ?? null,
+      lastTime: null,
     }
   }
 
@@ -247,6 +248,8 @@ export function guideTargetsState(mode: TrainingMode, index: number, editor: Set
         isComplete: false,
         perSide: editor.weightKg != null ? (grit.platesPerSide(editor.weightKg, false) ?? null) : null,
         lastWeightKg: last,
+        // The guide's pictures keep to the coach's box: no "Last time" rows.
+        lastTime: null,
       },
     ],
     pending: null,

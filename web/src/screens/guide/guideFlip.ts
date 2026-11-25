@@ -30,7 +30,7 @@ const STILL_PX = 0.5
 /** The parts of the open card that shift when something above them inside the card comes or goes. */
 const CARD_PARTS: [string, string][] = [
   ['.gr-set', 'set'],
-  ['.today-cues', 'cues'],
+  ['.today-last', 'last'],
   ['.today-hairline', 'hairline'],
   ['.today-steppers', 'steppers'],
   ['.gr-plates-note', 'plates-note'],
