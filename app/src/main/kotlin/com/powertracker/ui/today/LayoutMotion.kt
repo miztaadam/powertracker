@@ -408,12 +408,18 @@ private class SlidingReorderElement(val generation: Int) : ModifierNodeElement<S
 }
 
 private class SlidingReorderNode(var generation: Int) : Modifier.Node(), LayoutModifierNode {
-    private val offset = Animatable(IntOffset.Zero, IntOffset.VectorConverter, IntOffset.VisibilityThreshold)
+    private var offset = restingOffset()
     private var lastPosition: IntOffset? = null
     private var seenGeneration = generation
 
+    private fun restingOffset() = Animatable(IntOffset.Zero, IntOffset.VectorConverter, IntOffset.VisibilityThreshold)
+
     override fun onDetach() {
         lastPosition = null
+        // A slide cut short here is over. A lazy list lets go of a row whose new place is off the screen while it is
+        // still sliding there, and uses this node again when the row comes back: it must then be in its place, not
+        // short of it by what was left of the slide (Today's "Add exercise", drawn over the card just added).
+        offset = restingOffset()
     }
 
     override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
@@ -422,6 +428,7 @@ private class SlidingReorderNode(var generation: Int) : Modifier.Node(), LayoutM
             val position = coordinates?.positionInParent()?.round()
             val last = lastPosition
             lastPosition = position
+            val offset = offset
             var from = offset.value
             if (generation != seenGeneration) {
                 seenGeneration = generation

@@ -47,6 +47,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -418,6 +421,37 @@ class LayoutMotionTest {
         compose.onNodeWithTag("swap-row").performClick()
         compose.waitForIdle()
         assertEquals("the row takes taps", 1, rowTaps)
+    }
+
+    @Test
+    fun aRowPushedOutOfViewWhileItSlides_isInItsPlaceWhenItComesBack() {
+        // Today's "Add exercise" when an exercise is added and its card opens: the button's new place is below the
+        // screen. It starts its slide there, and the list lets go of it at its next change, before the slide is over.
+        var rows by mutableStateOf(listOf("a"))
+        var firstHeight by mutableStateOf(50.dp)
+        val list = LazyListState()
+        show(motion = true) {
+            LazyColumn(Modifier.fillMaxWidth().height(300.dp), list) {
+                val keys: List<Any> = rows + "add"
+                items(rows, key = { it }) { Box(slidingListItem(keys).fillMaxWidth().height(if (it == "a") firstHeight else 400.dp).testTag(it)) }
+                item(key = "add") { Box(slidingListItem(keys).fillMaxWidth().height(50.dp).testTag("add")) }
+            }
+        }
+        fun top(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot.y
+        val rowHeight = compose.onNodeWithTag("add").fetchSemanticsNode().size.height
+        assertEquals(top("a") + rowHeight, top("add"))
+
+        compose.runOnUiThread { rows = listOf("a", "b") }
+        compose.waitForIdle()
+        advance(32)
+        compose.runOnUiThread { firstHeight = 60.dp }
+        compose.waitForIdle()
+        advance(1_000)
+        compose.runOnUiThread { list.requestScrollToItem(2) }
+        advance(1_000)
+
+        val b = compose.onNodeWithTag("b").fetchSemanticsNode()
+        assertEquals("directly below the new row", b.positionInRoot.y + b.size.height, top("add"))
     }
 
     @Test
