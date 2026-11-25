@@ -1736,7 +1736,7 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 
 **Version:** Android 1.19 (versionCode 35), web 1.19.0 (shown as 1.19). The Android app's screens are unchanged.
 
-## Fixed on a branch, not published (2026-11-25): Android, "Add exercise" drawn over the card just added
+## 1.19.1 (2026-11-25): Android, "Add exercise" drawn over the card just added
 
 **The bug (owner, on the emulator):** on Today, after adding an exercise, the "Add exercise" button sat on top of the new card's heading. Each further add left it higher; after the second it was under the "Today" header.
 
@@ -1750,9 +1750,18 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 - All 18 of `MigrationTest`: `androidx.sqlite` 2.6.2's `SupportSQLiteDriver.open` compares the database's name after the last `/`, so a Windows path never matches. The upgrade tests therefore do not run on this PC.
 - `NoVoltTest.scansTheAppSourcesAndTheDesignDoc`: it looks for paths ending `ui/theme/Color.kt`. A two-line fix, not made.
 
-**On the owner's phone (OPPO CPH2913, Android 17), at the owner's request:** a signed release built from this branch, installed over 1.17.4 as an update (same signing key, data kept). It opened with no crash in the log; nothing was tapped and no screen was looked at. It reads 1.19 (versionCode 35), the same as main's 1.19, but has this fix and the uncommitted build-tool update (AGP 9.5.2): **there was no version bump**, so the release that carries this fix needs one (versionCode 36 or higher) to install over it.
+**On the owner's phone (OPPO CPH2913, Android 17), at the owner's request:** a signed release built from this branch, installed over 1.17.4 as an update (same signing key, data kept). It opened with no crash in the log; nothing was tapped and no screen was looked at. It reads 1.19 (versionCode 35), the same as main's 1.19, but has this fix and the build-tool update (AGP 9.5.2): that build had no version bump, so 1.19.1 (versionCode 36) is what installs over it.
 
-**Not done:** the version bump, the Settings shots, a phone check written for it, the merge to main.
+**Version:** Android 1.19.1 (versionCode 36), web 1.19.1. The web app is unchanged but for its version line. The owner said "publish" on 2026-11-25.
+
+**Also in this release (owner's commit `27aff59`):** release signing read from the git-ignored `keystore.properties` (no key or password is in the repository; without that file the release APK is unsigned, as before), `keystore.properties` in `.gitignore`, and AGP 9.5.0 to 9.5.2.
+
+**Shots:** the six Settings shots of each app, re-shot on the Windows PC. The Android run rewrote only those six. The web run (`e2e/plan.spec.ts` alone, 11 passed) also rewrote four Plan shots, which differ only by this PC's drawing and were put back.
+
+**The checks cannot all pass on this PC, so GitHub's run on the same commit stands in for them:**
+- Kotlin: the 19 Windows-only failures above.
+- Web unit tests: 49 of 1,699 fail here because this PC has Node 26, not 22: Node 26 has its own `localStorage`, which is undefined without `--localstorage-file` ("Cannot read properties of undefined (reading 'removeItem')"), and its dates read "Sept" where the tests expect "Sep". `npm run typecheck` and `npm run build` pass here.
+- `gradle/gradle-daemon-jvm.properties` (made by Android Studio on this PC, Java 25 for the Gradle daemon) is deliberately not committed: CI uses Java 21.
 
 **Noticed, not looked into:** on the emulator, exercises added on Today with no set logged were gone after the app restarted.
 
