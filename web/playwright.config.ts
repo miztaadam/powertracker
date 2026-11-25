@@ -6,7 +6,11 @@ import { ANDROID_CHROME_UA } from './e2e/userAgents'
 // The container only has a pre-installed Chromium (no WebKit), so e2e runs in Chromium
 // with the iPhone 13 viewport and touch emulation.
 const CHROMIUM = '/opt/pw-browsers/chromium'
-const iphone = { ...devices['iPhone 13'], browserName: 'chromium' as const }
+// E2E_BROWSER=webkit runs the same phone in WebKit, Safari's engine, as the iPhone 13 descriptor itself asks for. Only
+// where WebKit is installed (CI's "webkit" job, started by hand): it is not in the container. Playwright's WebKit is
+// not iOS Safari, and it is no Home Screen app; it is the nearest thing to Safari these tests can run in.
+const WEBKIT_RUN = process.env.E2E_BROWSER === 'webkit'
+const iphone = { ...devices['iPhone 13'], browserName: WEBKIT_RUN ? ('webkit' as const) : ('chromium' as const) }
 // The iPhone 13 descriptor brings Safari's iPhone user agent, so the app takes its iPhone paths. E2E_UA=android runs the
 // same phone with Chrome on Android's user agent instead (e2e/userAgents.ts), for the paths of every other phone.
 const ANDROID_RUN = process.env.E2E_UA === 'android'
@@ -38,7 +42,7 @@ export default defineConfig({
     ...iphone,
     ...(ANDROID_RUN ? { userAgent: ANDROID_CHROME_UA } : {}),
     storageState: SHARED_STATE,
-    launchOptions: existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
+    launchOptions: !WEBKIT_RUN && existsSync(CHROMIUM) ? { executablePath: CHROMIUM } : {},
   },
   webServer: [
     {

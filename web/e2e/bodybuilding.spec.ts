@@ -43,7 +43,10 @@ type Story = {
   checkInDue?: boolean
   /** Two check-ins (chest lagging four weeks ago, then growing well with lats two days ago), for Progress's ratings. */
   checkIns?: boolean
-  /** Stage 4: Squat leads Wednesday's bodybuilding plan, with one set done today, for its stretch and squeeze. */
+  /**
+   * Squat leads Wednesday's bodybuilding plan, with one set done today and eight the Monday before (one of them
+   * missed, one with no RPE), for the card's "Last time" (1.18).
+   */
   squatToday?: boolean
 }
 
@@ -146,6 +149,10 @@ async function seedStory(page: Page, story: Story = {}) {
     }
     if (squatToday) {
       plan(3, idOf('Squat'), -1, 10, 15)
+      const monday = await added(tx.objectStore('sessions').add({ date: '2026-11-02', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' }))
+      ;[15, 14, 13, 12, 12, 11, 10, 8].forEach((reps, i) =>
+        tx.objectStore('sets').add({ sessionId: monday, exerciseId: idOf('Squat'), weightKg: 102.5, reps, rpe: i === 6 ? null : 9.5, failed: i === 7, missPoint: null, isTopSet: false }),
+      )
       await session('2026-11-11', [[idOf('Squat'), 80, 12]])
     }
     if (todaySession)
@@ -423,8 +430,8 @@ for (const scheme of ['dark', 'light'] as const) {
   })
 }
 
-// Stage 4. The lines on the card wrap and are never cut off at 130% zoom on a 375 px phone (review focus 2).
-test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', async ({ page }) => {
+// 1.18. Last time's sets on the card, eight of them, fit and are never cut off at 130% zoom on a 375 px phone.
+test('today: last time\'s sets sit between today\'s sets and the weight entry, unclipped at 130% zoom', async ({ page }) => {
   const squat = GritDomain.getInstance().muscleFocus('Squat')!
   await openOnWednesday(page)
   await seedStory(page, { squatToday: true })
@@ -432,10 +439,18 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
   await page.setViewportSize({ width: Math.floor(375 / 1.3), height: Math.floor(812 / 1.3) })
   const card = page.locator('.gr-card', { has: page.getByRole('heading', { name: 'Squat' }) })
   await expect(card.getByText('Set 2 of 3')).toBeVisible()
-  await expect(card.getByText('STRETCH', { exact: true })).toBeVisible()
-  await expect(card.getByText(squat.stretch!, { exact: true })).toBeVisible()
-  await expect(card.getByText('SQUEEZE', { exact: true })).toBeVisible()
-  await expect(card.getByText(squat.squeeze!, { exact: true })).toBeVisible()
+  const last = card.getByRole('region', { name: 'Last time, Mon 2 Nov' })
+  await expect(last.getByText('Last time · Mon 2 Nov', { exact: true })).toBeVisible()
+  const rows = last.getByRole('listitem')
+  await expect(rows).toHaveCount(8)
+  await expect(rows.first().locator('.today-last-line')).toHaveText('102.5 kg× 15@ 9.5')
+  // A set with no RPE has no "@"; the missed set says so.
+  await expect(rows.nth(6).locator('.today-last-line')).toHaveText('102.5 kg× 10')
+  await expect(rows.nth(7).locator('.today-last-line')).toHaveText('102.5 kg× 8@ 9.5Missed')
+  await expect(rows.nth(7)).toBeVisible()
+  // The stretch and squeeze lines are in the guide now, not on the card.
+  await expect(card.getByText('STRETCH', { exact: true })).toHaveCount(0)
+  await expect(card.getByText(squat.squeeze!, { exact: true })).toHaveCount(0)
   // Today scrolls the open card to the top with a smooth scroll: measure once it has come to rest, not part way.
   await expect
     .poll(() => page.locator('.shell-main').evaluate((el) => new Promise<boolean>((done) => {
@@ -445,22 +460,17 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
     .toBe(true)
   // Between the logged set and the weight entry, every position read in the same frame.
   const order = await card.evaluate((el) => {
-    const bottomOf = (node: Element | null | undefined) => node!.getBoundingClientRect().bottom
-    const topOf = (node: Element | null | undefined) => node!.getBoundingClientRect().top
-    const labels = el.querySelectorAll('.today-cue-label')
-    const lines = el.querySelectorAll('.today-cue-line')
+    const box = (node: Element | null | undefined) => node!.getBoundingClientRect()
     return {
       // Set 1, the one set done: the button around its figures.
-      setBottom: bottomOf(el.querySelector('.gr-set-visual')?.closest('button')),
-      stretchTop: topOf(labels[0]),
-      squeezeLabel: labels[1]?.textContent,
-      squeezeLineTop: topOf(lines[1]),
-      weightTop: topOf(el.querySelector('input[aria-label="Weight, kilograms"]')),
+      setBottom: box(el.querySelector('.gr-set-visual')?.closest('button')).bottom,
+      lastTop: box(el.querySelector('.today-last')).top,
+      lastBottom: box(el.querySelector('.today-last')).bottom,
+      weightTop: box(el.querySelector('input[aria-label="Weight, kilograms"]')).top,
     }
   })
-  expect(order.squeezeLabel).toBe('SQUEEZE')
-  expect(order.stretchTop).toBeGreaterThanOrEqual(order.setBottom)
-  expect(order.squeezeLineTop).toBeLessThan(order.weightTop)
+  expect(order.lastTop).toBeGreaterThanOrEqual(order.setBottom)
+  expect(order.lastBottom).toBeLessThanOrEqual(order.weightTop)
 
   const fit = await card.evaluate((el) => {
     const found: string[] = []
@@ -470,22 +480,21 @@ test('today: the stretch and squeeze lines wrap without clipping at 130% zoom', 
       const box = node.getBoundingClientRect()
       if (box.width > 0 && (box.right > window.innerWidth + 0.5 || box.left < -0.5)) found.push(`outside ${node.tagName.toLowerCase()}.${node.className}`)
     }
-    for (const node of el.querySelectorAll<HTMLElement>('.today-cue-line')) {
-      if (node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1) found.push(`clipped ${node.textContent}`)
+    // Nothing in the block is cut: not the heading, not a row, not a figure.
+    for (const node of el.querySelectorAll<HTMLElement>('.today-last, .today-last *')) {
+      if (node.closest('.sr-only') || getComputedStyle(node).display === 'inline') continue
+      if (node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1) found.push(`clipped ${node.className}: ${node.textContent}`)
     }
     return found
   })
   expect(fit).toEqual([])
   expect(await fitsThePhone(page)).toBe(true)
-  // The long lines wrap onto more than one line, in 16 px text.
-  for (const line of [squat.stretch!, squat.squeeze!]) {
-    const shape = await card.getByText(line, { exact: true }).evaluate((node) => ({ height: node.getBoundingClientRect().height, lineHeight: parseFloat(getComputedStyle(node).lineHeight), fontSize: parseFloat(getComputedStyle(node).fontSize) }))
-    expect(shape.fontSize, line).toBeGreaterThanOrEqual(16)
-    expect(shape.height, line).toBeGreaterThan(shape.lineHeight * 1.5)
-  }
+  // The figures are at least 16 px.
+  const size = await rows.first().locator('.today-last-line').evaluate((node) => parseFloat(getComputedStyle(node).fontSize))
+  expect(size).toBeGreaterThanOrEqual(16)
   // For looking at, not committed.
   mkdirSync(resolve(process.cwd(), 'test-results/screens'), { recursive: true })
-  await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-cues-zoom.png'), fullPage: true, animations: 'disabled' })
+  await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-last-time-zoom.png'), fullPage: true, animations: 'disabled' })
 })
 
 test('switching sides swaps the plan, keeps one log, and a day already trained stays on its session', async ({ page }) => {

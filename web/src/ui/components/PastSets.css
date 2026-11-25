@@ -1,0 +1,70 @@
+/*
+ * Past sets (1.18, shared in 1.19): the sets of an earlier session, read-only. On the Today card under "Last time", and
+ * in each workout of Progress's History. Quieter than a set being logged: smaller figures in the secondary colour, no
+ * tick, nothing to tap. The class names are the Today block's, where the rows were first drawn.
+ */
+.today-last-sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-last-set {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+/* As wide as today's set numbers, so the two lists line up. */
+.today-last-index {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* The weight, "× reps", "@ effort" and "Missed": each stays whole, and goes to the next line where the row is too narrow. */
+.today-last-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.35em;
+  min-width: 0;
+  color: var(--text-secondary);
+}
+
+.today-last-part {
+  white-space: nowrap;
+}
+
+/* Columns without a table, so a row can still wrap: the widths are the list's longest weight and reps (LastTime.tsx). */
+.today-last-load {
+  display: inline-block;
+  min-width: var(--last-load, 0);
+  text-align: end;
+}
+
+.today-last-reps {
+  display: inline-block;
+  min-width: var(--last-reps, 0);
+}
+
+/* Set a little apart from weight × reps, as today's rows set their "@". */
+.today-last-effort,
+.today-last-missed {
+  margin-left: 0.5em;
+}
+
+.today-last-soft {
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+.today-last-missed {
+  color: var(--danger);
+  text-transform: uppercase;
+}

@@ -2,6 +2,7 @@ package com.powertracker.domain.coach
 
 import com.powertracker.domain.e1rm.E1rm
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.history.lastTime
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceType
@@ -123,11 +124,7 @@ object BodybuildingCoach {
 
     /** The exercise's sets, in logged order, in its latest bodybuilding session before [today]; null if none. */
     private fun lastSets(exerciseId: Long, history: TrainingHistory, today: LocalDate): List<LoggedSet>? =
-        history.sessions
-            .filter { it.mode == TrainingMode.BODYBUILDING && it.date < today }
-            .sortedBy { it.date }
-            .lastOrNull { s -> s.sets.any { it.exerciseId == exerciseId } }
-            ?.sets?.filter { it.exerciseId == exerciseId }
+        history.lastTime(exerciseId, TrainingMode.BODYBUILDING, today)?.sets
 
     /** Every planned set at the top of the range at or under the target RPE; never for a 0 kg (bodyweight) load. */
     private fun earnedIncrease(sets: List<LoggedSet>, item: PlanItem): Boolean =

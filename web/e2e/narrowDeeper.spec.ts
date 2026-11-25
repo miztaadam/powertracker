@@ -162,6 +162,32 @@ test.describe('the deeper screens and dialogs at 320 px and 200 % text', () => {
     await expect(page.getByText('plate 12½', { exact: true }).first()).toBeAttached()
   })
 
+  // 1.19: every workout, with each side's story: missed sets, no RPE, plates, the long and the one-word names.
+  for (const [side, story] of [['powerlifting', powerliftingStory], ['bodybuilding', bodybuildingStory]] as const) {
+    test(`workout history, ${side} side's log, fits, and the History button on Progress fits`, async ({ page }) => {
+      await openOnWednesday(page)
+      await seedStory(page, story())
+      await page.goto('/#/progress')
+      const history = page.getByRole('button', { name: 'History', exact: true })
+      await expect(history).toBeVisible()
+      await holds(page, `Progress with its History button, ${side}`, history)
+      await history.click()
+      await expect(page.getByRole('heading', { level: 1, name: 'History' })).toBeVisible()
+      await expect(page.locator('.workout').first()).toBeVisible()
+      await expect(page.locator('.today-last-set').first()).toBeVisible()
+      await holds(page, `History, ${side}`, undefined, page.getByRole('button', { name: 'Back' }))
+      // Every workout of the story drawn, not the first twenty only.
+      const older = page.getByRole('button', { name: 'Show older workouts' })
+      while ((await older.count()) > 0) {
+        await holds(page, `History, ${side}, with older workouts to show`, older)
+        await older.click()
+      }
+      await holds(page, `History, ${side}, every workout`, undefined, page.getByRole('button', { name: 'Back' }))
+      await page.getByRole('button', { name: 'Back' }).click()
+      await expect(page).toHaveURL(/#\/progress$/)
+    })
+  }
+
   // The check-in and the plan builder are the bodybuilding side's own: on the powerlifting side their pages lead back.
   test('the check-in, every step, fits', async ({ page }) => {
     await openOnWednesday(page)

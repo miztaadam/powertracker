@@ -33,6 +33,11 @@
     order: 1;
   }
 
+  /* Progress's History button, gone under the title, starts at the header's own edge. */
+  .shell-main .screen > .gr-screen-header > .progress-history {
+    margin-right: 0;
+  }
+
   /* The title at the next size down: "Exercises" at the large size is wider than the screen. */
   .shell-main .screen:not(.today-screen) .gr-screen-title:not(.gr-dialog *) {
     font: 700 26px/30px var(--font-display);

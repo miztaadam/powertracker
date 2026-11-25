@@ -1549,9 +1549,192 @@ Reported by the owner on 2026-11-23: "When I finish a workout on the today page 
 
 **Shots, before and after the change:** the full run was repeated on the code before this release (`47fc711`, in a scratch worktree, `--project e2e`: 513 passed, 12 skipped), and the 174 web shots of the two runs were compared. 163 are byte-identical, every Today shot among them. The six Settings shots differ in the version line only (about 280 pixels in a 17 by 27 pixel box). Five differ by a few pixels in pictures no part of this release touches, shots already known not to be byte-stable between runs: `form-guide-dark` (169 pixels), `guide-side-first-launch-bodybuilding-light` and `guide-side-first-launch-powerlifting-light` (221 each), `guide-targets-bodybuilding-dark` and `-light` (9 each).
 
-**Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws.
+**Found on the way, open:** a re-shoot here of the unchanged code (`47fc711`) rewrote 36 tracked web shots and wrote 5 that are not tracked (`older-copy-*`, `plan-known-bests-*` among them). Looked at in two: in `today-dark` the three stepper columns sit about 8 pixels further left than in the committed shot, and in `form-guide-dark` the plate's outline is grey where the committed one is chalk. The cause was not looked for (the browser or its fonts in this session, or shots left behind by an earlier release, are both possible). None of them was committed: only the six Settings shots were, as the routine says. So the committed web shots, other than Settings, are not what this session's Chromium draws. **Settled on 2026-11-24:** the committed shots were out of date, not the browser; they were re-shot (see "Done (2026-11-24)").
+
+**Published 2026-11-23 (owner: "publish"), on main as `c5f7754`** (a `--no-ff` merge of the branch; its tree is the branch's, `02b2a91`). On merged main, one at a time, before the push:
+- Gradle: `:domain:allTests` passed; `:app:testDebugUnitTest` passed, 1,113 tests, 0 failed, 1 skipped; `:domain:checkWebDomain` passed.
+- Web: `npm run typecheck` clean; unit tests 1,688 of 1,688; build clean.
+- **Full Playwright run: 520 passed, 12 skipped, first time.** The `E2E_UA=android` pass (the 1.17.4 list plus `reload.spec.ts`): 254 passed, 12 skipped. Speed project alone, three times: 6 of 6 each. So the two late changes have now been through every run.
+- Live, about a minute after the push: `/` names `assets/index-2b98uWcf.js`, which carries 1.17.5 (no 1.17.4) and build id `c5f7754`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 33, versionName 1.17.5. **No APK was handed over:** the owner installs from Android Studio (Update Project on `main`, then Run), which builds and installs the debug build on the phone.
+- **Still not checked on a phone,** neither app: the owner's checks are in `README.md`, "Finished stays finished (1.17.5)".
+- A session finished before the update has no note, so it shows as open once more after the update; one more Finish, and it stays finished.
 
 **Version:** Android 1.17.5 (versionCode 33), web 1.17.5. No database or backup change. Settings re-shot on both apps for the version line: six shots on each. Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful, and no other tracked shot changed. Web: from the full run above; the other shots it rewrote were put back (see the shots paragraph).
+
+## Done (2026-11-24): the web tests run in CI, ten phone checks, the web shots re-shot (no app change, no version change)
+Asked for by the owner on 2026-11-24, from a list of possible improvements: "do these and show me the skip ring design". Still 1.17.5 (versionCode 33): nothing a lifter sees changed.
+
+**1. The web tests run by themselves.** `.github/workflows/tests.yml` has a second job, `web`, beside `kotlin`:
+- Type check, unit tests, build, then the browser tests as an iPhone (`--project e2e`) and as an Android phone (`E2E_UA=android`, the 1.17.4 list plus `reload.spec.ts`; the list now lives in the workflow, and `CLAUDE.md` points there).
+- It installs the Chromium that Playwright's version was built for (`npx playwright install --with-deps chromium`). Here the tests keep using the container's own Chromium.
+- **The timing checks (`@speed`) are not in CI:** they hold two screens to 100 ms on the machine's clock and have no headroom (see the 2026-11-13 follow-up), so on a shared runner they would measure the runner. Changing that limit is the owner's call. They stay a check to run by hand.
+- No retries and no longer timeouts in CI: a test that fails only there is a finding.
+- The `kotlin` job also runs `:domain:checkWebDomain` now.
+- **When it runs:** on pull requests, on pushes to `main`, and by hand on any branch. On a push to `main` it reports after the live site has updated, so it does not hold a release back: the checks on merged main before the push stay as they are.
+- The repository is private, so the runs use the account's Actions minutes.
+- **First run** (by hand on the work branch, `e260e2c`, run 45341802266, 39 minutes): the `kotlin` job passed (17 min: domain tests, app tests, the generated-domain check). In `web`, the type check, unit tests (7 min) and build passed. **The browser tests failed by one test, the same one in both passes:** as an iPhone 513 passed, 1 failed, 12 skipped (21.8 min); as an Android phone 253 passed, 1 failed, 12 skipped (9.0 min).
+  - **The failure, and its cause:** `guide.spec.ts:509`, `guide_today_skippedRow_slidesAndTheRestCloseUp`, at its line 544. It compared the properties of the "Skipped today" line's animation in a fixed order (`opacity, transform, opacity, transform`) and got `transform, opacity, transform, opacity`: the same two properties in both keyframes, listed the other way round. The order a keyframe lists its properties in is the browser's. **CI runs Chromium 156** (the build Playwright 1.64.1 ships, v1248); **this container has Chromium 153** (v1243), where the order is the one the test expected. Not an app fault, and not load: it failed in both passes at the same line.
+  - **Fix (test only, `ed521fa`):** the properties are sorted before they are compared, as the file's other animation checks already do (a `Set` at the ring, `.sort()` at the tick). It still checks one animation with opacity and transform in each of two keyframes. Passes here on 153.
+  - **So the local runs and CI are on different Chromiums.** Everything checked here before a release runs on 153; CI is three versions newer. The one difference found is this test's. Which of the two is closer to the phones is not known.
+  - **The artifact upload failed too:** "Artifact storage quota has been hit" (the account's, not this run's). The two upload steps now carry `continue-on-error`, so a full store cannot be the reason a run is red; until the owner frees space (GitHub, Settings, Billing, or deleting old artifacts), a failed run leaves no report to download, only its log.
+  - A run costs about 55 runner-minutes (17 + 34 to 39), where the Kotlin job alone cost about 12 to 17, and the repository is private. **At the last week's pace (about 23 runs in seven days, all but one a push to main) that is roughly 1,200 minutes a week,** against roughly 300 before. The account's plan and its included minutes cannot be read from here: for the owner to check (GitHub, Settings, Billing). If the allowance runs out, the runs stop or are charged. Running the Android pass only on main would save almost nothing, since nearly every run is a push to main; running the web job only when `web/` or `domain/` changed, or dropping the Android pass, would.
+- **Second run** (`ed521fa`, run 45346888893), with that test fix: **the `web` job passed, every step** (type check, unit tests, build, the iPhone pass in 21.8 min, the Android pass in 8.9 min; 39 minutes). So the web tests run in CI and pass on Chromium 156.
+- **In the same run the `kotlin` job hung** and was ended by its 45-minute limit: the domain tests passed (4 min), then `:app:testDebugUnitTest` printed nothing for 38 minutes. In the first run, an hour earlier, it took 11.6 minutes and passed. The two commits differ in one web test file and the workflow's upload steps, nothing the app's tests read.
+  - Gradle prints nothing while tests run, so the log does not say which test was running. **A mechanism that produces exactly this was then proven here, and is the most likely cause** (below). No log or thread dump of that run shows what it was actually waiting on.
+  - **Not seen before:** the 25 runs before today show no hang (four failures, which are the known flaky tests: `SkipTodayViewModelTest.painSkip_nextTodayTarget_isHeld` on `cabcc06`, `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` on `9c9b8a0`, `PlanScreenTest.planAdd_changeToOwnExerciseFails_…` on `b49d7d3`; each failed, none hung). Three runs include 1.17.5's test change (`TestDatabase.before` now forgets the finished note inside `runBlocking`): two passed (`c5f7754` on main, `e260e2c`), this one hung. So 1.17.5 was the suspect.
+  - **So that the next hang says where:** the app-test step now has its own 30-minute limit, and if it is still going after 25 minutes it prints the test JVM's threads first (`jstack`: which test, and where it waits).
+  - **The mechanism (proven), most likely the cause (not shown for that run): a settings write left in flight when a test ends blocks the settings store for every test after it.** The store (DataStore) takes its writes one at a time and runs each write's change in the context of whoever asked. A write begun by a view model is handed back to the main thread. Under Robolectric the main thread runs only when a test lets it, and its pending work is thrown away when the test ends. If a test ends between the hand-off and the main thread running it, that write never finishes and every later write queues behind it. The next test's set-up then waits in `runBlocking`, which has no time limit: a hang.
+    - **Why since 1.17.5:** Keep logging (`dismissSummary`) now starts such a write and nobody waits for it. `ExercisesScreenTest`'s finished-session test ends two assertions after calling it. Whether the write is through by then is a race, which the slower runner lost once in three runs. My `TestDatabase.before` (also 1.17.5) is the `runBlocking` it hung in, and every test class's own `settings.update { AppSettings() }` set-up would have hung the same way.
+    - **The mechanism, shown:** a scratch test started a write on the main dispatcher and did not let the main thread run: a second, blocking write timed out; once the main thread ran, it went through. Then two tests in order, the first ending with such a write in flight: the second test's write timed out. With the fix it goes through in 20 ms.
+    - **Not an app fault.** On a phone the main thread always runs, so the write finishes. Nothing in the app changes.
+  - **Fix (test only):** `TestDatabase` no longer blocks on the store. Before and after each test it makes its own write off the main thread and lets the main thread run until that write is through, which is only once every write before it is. So a write a screen began is finished while its test's main thread still exists, and a store that stays stuck fails the test after 10 s with a message instead of hanging. New test `SettingsWriteLeftInFlightTest` (the two-test case above). Tests that do not use `TestDatabase` (the two `MainActivity` ones) get no such wait.
+  - A repeat of the whole app suite on two processors, to catch the hang here with a thread dump, was started and stopped after a few minutes, once the mechanism test had answered it.
+- **Third run** (`e7a0009`, run 45355199099), with the test set-up fix: **green, both jobs, every step, in 34 minutes.** `kotlin` 17 min (app tests 11.3 min); `web` 34 min (unit tests 5.6, the iPhone pass 18.9, the Android pass 8.0). One green run does not show the hang is gone, since it came once in three; the mechanism test does that, and if it comes back the step now says where. Here, on the fix: the whole app suite, 1,115 tests, 0 failed, 1 skipped.
+- **Found in the history, not from today:** the run on `cabcc06` (the publish before 1.17.5) was red in CI, and so were three earlier pushes to main, each by one flaky test. Nothing reports a red run to the owner unless he looks, and the artifact store has been full since at least 2026-11-21 (`9c9b8a0`'s upload failed the same way).
+
+**2. Ten phone checks per release.** `README.md` had 185 checks, none ticked. They moved, word for word, to `docs/manual-checks.md` (three lists: iPhone, Chrome on Android, the Android app). `README.md` now has "Phone checks after a release": nine standing checks that only a real phone can answer (it updated; the log is still there; offline; log a set; the rest alert after locking; App lock; backup out; backup in, only when moving the log or when the backup changed; Back closes what is open) and a tenth for the release's own change (now 1.17.5's "finished stays finished", which is still not done on a phone). `CLAUDE.md` says where a release's checks go from now on: its one check in item 10, its detailed checks in `docs/manual-checks.md`.
+- **My choice of the nine,** not the owner's: he can swap any.
+
+**3. The web shots re-shot.** 33 tracked shots in `docs/design/web/screens/` rewritten and 4 added that were never committed (`older-copy-{dark,light}`, `plan-known-bests-{dark,light}`: their specs were not run in the sessions that wrote them).
+- **Cause found: the committed shots were out of date, not this machine.** The code that last wrote `today-dark.png` (`bf17b19`, 2026-11-18, version 1.12.3) was checked out and its `screenshots.spec.ts` run here: `today-dark` and `today-light` came out byte for byte as committed. So this Chromium draws that code as the committed shots show it, and the difference is what later releases changed (the steppers' columns sit about 8 px further left). This corrects the earlier notes ("render differently on this machine", from 1.16 on, and 1.17.5's "found on the way").
+- `form-guide-{dark,light}` were last shot on 2026-11-12, before the accent turned grey (`b2f896b`, 2026-11-16). The plate's outline is the accent (`.fig-accent`), so grey is right and the old chalk outline was the old accent. Not an app finding.
+- Each release since had compared a run before with a run after, never with the committed files, which is why nothing flagged it.
+- **Shot twice** (the 14 specs that write shots, `--project e2e`, 270 passed and 12 skipped each time): 169 of 174 identical between the two runs. **Not byte-stable, 5:** `exercise-guide-actions-{dark,light}`, `guide-side-first-launch-bodybuilding-{dark,light}`, `guide-targets-powerlifting-light`. They will show as changed on a later re-shoot with nothing changed; the second run's copies are the ones committed.
+- Looked at by eye: six of the new shots (Today, Today with a rest, the RPE sheet, Coach on the bodybuilding side, the skip menu, the skipped line). All whole screens, nothing cut or missing. The other 31 were not looked at one by one.
+- Correction to 1.17.5's note: that re-shoot wrote 4 untracked shots, not 5 (the fifth untracked entry was the scratch worktree's link to `node_modules`).
+- The Android shots (`docs/design/screens/`) were not re-shot: the 1.17.5 run rewrote only its six Settings shots, so they are current.
+
+**4. The skip ring: shown, not built.** Asked for as "the skip ring design". **There is no drawn design,** and my summary to the owner ("designed but not built") overstated it. What exists:
+- one line in 1.16's follow-ups: "A skip ring (a tap ring on Skip today's menu) was not built; it could be anchored as Log set's is";
+- the guide spec's rule for the ring it would copy (`docs/superpowers/specs/2026-11-19-grit-guide-design.md`, point 7): "A tap ring pulses once on the button just before its result appears. It shows only in the guide."
+- Today, on the guide's screen 4, the ring pulses on Log set before the set is ticked; the skip step has none: the last row just leaves and "Skipped today" rises in.
+- Shown to the owner: three frames of the web guide's screen 4 with motion on, on a held clock. Two are the app as it is (the ring on Log set; the skip step settled). The middle one is a mock-up made in the page for the picture only: a ring of the same make, at the same point of its pulse, on the ⋮ of the row about to be skipped. Kept out of the repository. Nothing was built; whether to build it is the owner's.
+
+**Checks:** no app code changed, so no version bump. `README.md`, `CLAUDE.md` and the notes are prose. The workflow is checked by its three runs (above), the last green on both jobs. The shots by the two runs. The Android test set-up change by its new test and by the whole app suite here (1,115 tests, 0 failed, 1 skipped). The one web test changed (`guide.spec.ts:509`) passed here alone on Chromium 153 and in CI's full runs on 156. **Not run for this, here:** the web unit tests, the full local Playwright run and the timing checks (CI ran the first two; the routine's runs on merged main come with "publish").
+
+## Open (2026-11-24): a user reports the web app "buggy" on an iPhone, with no details
+The owner passed on, on 2026-11-24, that a user called the app "buggy" on an iPhone and said nothing more. No symptom, no version, no screen. **No app code was changed for it.** Nothing here runs Safari, so an iPhone fault can be neither confirmed nor ruled out from this container.
+
+**What is known:**
+- 1.17.4 (2026-11-22) changed how Back works on an iPhone and iPad only (`historyCloses.ts`: a history entry per open dialog, sheet or menu). It is the one large iPhone-only change of the week, and it was never confirmed on a phone.
+- Until 1.17.5 (published 2026-11-23, 20:33 UTC) a finished session came back as open after a reload, on the web as on Android. Three pushes to main since 2026-11-22 each gave open copies of the web app an update. A report of "it came back as active" or "it reloaded by itself" may be from before 1.17.5.
+- Reading `historyCloses.ts`: after a sheet or menu is closed by a tap, the module asks for a step back and holds the app's own history calls (a tab tap among them, while entries are on the stack) until that step's `popstate` arrives. In Chromium it arrives within milliseconds. If Safari delivered it late or not at all, a tab tap could wait up to 4.5 s (three looks, 1.5 s apart). **That is a reading of the code, not something seen.**
+
+**Tried: the browser tests in WebKit, Safari's engine, on GitHub (by hand).** New: `E2E_BROWSER=webkit` in `playwright.config.ts`, and a `webkit` job in the workflow that runs only when started by hand with its box ticked (then the two usual jobs do not run). It is not part of the automatic runs.
+- **First run: 103 of 103 failed at their first step.** Not the app: Playwright's WebKit windows refuse private file storage, as a private Safari window does, so Grit showed its own "Private browsing won't keep your log" screen instead of the app (read from the failed page's content, which the job now prints, since the artifact store is full). The tests now start as if "Continue anyway" had been chosen, in the WebKit pass only (`e2e/storage.ts`).
+- **Then: 102 of 103 passed, in 9.4 minutes.** `backClosesIphone` 24 (the iPhone Back path, in an engine without CloseWatcher, as on the phone), `menu` 26, `skip` 15, `plan` 11, `progress` 8, `today` 5, `coach` 4, `library` 4, `reload` 2 (a reload mid-session, and after Finish), `session` 1, `offline` 1, `smoke` 1.
+- **The one failure is the test's own:** `backup.spec.ts` clears the site's data with a Chromium-only tool (`newCDPSession`). The export before that step worked in WebKit. Left as it is, not skipped.
+- **What this does and does not show:** the app starts, logs, finishes, reloads, works offline and closes dialogs on Back in WebKit on Linux. It is not iOS Safari: no Home Screen app, no edge swipe, no real touch or keyboard, not Safari's own timing of `popstate`. A pass here is not an iPhone pass.
+- Cost: three by-hand runs, about 24 runner-minutes together.
+
+**Asked of the owner, for the reporter:** the last line of Plan, Settings (the version); a Safari tab or the Home Screen icon; one example of what was tapped and what happened (a screen recording is best); when it started; and to export a backup first and not delete the Home Screen app, which takes its log with it. **And for the owner's own iPhone:** checks 1, 9 and 10 in `README.md`, in Safari and from the Home Screen icon (9 is the iPhone Back path).
+
+**Offered by the owner:** running the session on his Mac with Xcode. That would give the real thing: the iPhone Simulator runs iOS Safari, with Add to Home Screen, and Safari's Web Inspector attaches to it or to a phone on a cable.
+
+**Parked meanwhile:** the polish pass asked for the same day (`/polish the whole app`). Its four read-only audits and a browser sweep are done and nothing was changed; the findings, unverified, are in `docs/polish-audit-2026-11-24.md`, and no polish goes into a fix for this.
+
+**Handed to a session on the owner's Mac (2026-11-24):** the cloud session could not attach to the Mac (its folder is in the owner's Remote Control list but not offered to cloud sessions; cause not known). The steps for the Simulator are in `docs/handoff-2026-11-24.md`.
+
+## Built, not published: 1.18, last time's sets on the Today card (web first; the Android card is not ported yet)
+Asked by the owner on 2026-11-25, with a screenshot of the bodybuilding Today card: "where the stretch and squeeze instructions are I would like it to display what you achieved on this exercise the previous week instead. Same for powerlifting side." Then, on the design: "could it show all sets from the time the exercise was done previously?" Spec: `docs/superpowers/specs/2026-11-25-grit-last-time-on-today-design.md`; plan: `docs/superpowers/plans/2026-11-25-grit-last-time-on-today.md`.
+
+**What the lifter gets (web app):**
+- On the open Today card, between today's sets and the weight entry, a block headed **"Last time · Wed 18 Nov"** with **one row for every set of that session**, in the order logged: set number, weight × reps, "@ RPE" when one was logged, "Missed" on a missed set. A plate-counted set reads as a plate number.
+- **On both sides.** The bodybuilding card had the Stretch and Squeeze lines there; the powerlifting card had nothing.
+- **"Last time" is the latest earlier session on this side that has the exercise,** whatever its date (a missed week, or a lift done twice a week, still shows the most recent one). Each side shows its own sessions, as its coach reads them. The year is added to the date when it is not this year.
+- An exercise never done on this side shows nothing there, and the card is shorter.
+- The rows are read-only: quieter than today's rows, no tick, nothing to tap. Once the day's sets are done the block stays, above the button to the next exercise.
+- **The Stretch and Squeeze lines are no longer on the Today card.** They are still in the exercise's ⓘ guide on the bodybuilding side.
+
+**Owner decided:** the block replaces Stretch and Squeeze; it is on both sides; every set of the last session shows (not a one-line summary).
+
+**My calls** (each said to the owner before building, except 4 to 6):
+1. "Previous week" is read as the last session with the exercise, not the calendar week before. The date in the heading says which day it was.
+2. The coach's box is left alone. On the bodybuilding side its sentence ("Last time: 26 × 11, 10, 9. Beat it.") shows the same numbers while the box is open, so they are on the card twice until it is applied or dismissed. That sentence is stored text that the app matches by pattern, so it was not touched.
+3. Web first, Android after the owner has used it (the owner's rule of 2026-11-21).
+4. Each set shows in the unit it was logged in (kg or plate number), even after the exercise's plate setting has changed. **This is the one case where the block and the coach's box can name different days:** just after a machine is switched between kg and plates, both coaches read only the sets in the new unit (`inCurrentUnits`), so their "Last time" can be an earlier session, while the block shows the session really done last. Otherwise they name the same session: each coach reads its own side's sessions before today, as the block does (checked in `Coach.targetsFor` and `BodybuildingCoach`). The powerlifting coach's sentence gives that session's top set only; the block gives every set.
+5. The block has no inset at its sides, so its set numbers sit under today's (the Stretch and Squeeze lines were inset by 4 px).
+6. The in-app guide's sample Today cards show no "Last time" block (their sample card has no earlier session to show), so on the bodybuilding side those two pictures lost their Stretch and Squeeze lines and gained nothing.
+
+**How:**
+- `domain`: `TrainingHistory.lastTime(exerciseId, mode, before)` and `lastTimes(mode, before)` in `history/LastTime.kt` are the one rule for "last time". `BodybuildingCoach.lastSets` now calls it (no change in what the coach says: its tests pass unchanged). The web gets `GritDomain.lastTimes`, one call for all the cards.
+- Web: `TodayItem.lastTime` (`useToday.ts`), worked out from the history Today already holds and kept for as long as that history object, like the top sets. No new database read. `LastTime.tsx` draws it; `Cues` and its styles are gone from `ExerciseCard.tsx` and `today.css`.
+- **Android app: the Today card is unchanged** and still shows Stretch and Squeeze on the bodybuilding side. It carries the shared rule and the version number only. Its port is the next step: the same field on `TodayItem` (`TodayViewModel.kt`) from `history.lastTimes(mode, date)`, and a block in `ExerciseCard.kt` in place of `MuscleCues`.
+- No database, Dexie or backup change.
+
+**Limits:**
+- Until the Android port, the two apps differ on this card.
+- With many sets last time the card is long: each set is a 24 px row, so eight sets put about 220 px above the weight entry.
+- **Not checked on a phone,** and not in Safari.
+
+**Tests:**
+- Domain: `LastTimeTest` (6): none; the latest of several, every set in order; strictly before the day; its own side only, even when the other side is later; each set in its own unit; `lastTimes` agrees with `lastTime` for every exercise, two sessions on one day included. `GritDomainTest.lastTimes_oneEntryForEachExerciseDoneOnTheSide`.
+- Web, `ExerciseCard.test.tsx`, "last time on the exercise card" (7), in place of the six Stretch and Squeeze tests: every set in order with what a screen reader hears; its own side and no Stretch or Squeeze; never done shows nothing and today's own sets are not "last time"; its place on the card before and after the day's sets are done; another year; a plate set beside a kg set; it follows the side of today's session.
+- Web e2e, `bodybuilding.spec.ts`: "last time's sets sit between today's sets and the weight entry, unclipped at 130% zoom", with eight sets (one missed, one with no RPE), in place of the Stretch and Squeeze zoom test. The very narrow Today tests in `narrow.spec.ts` (320 px at 200% text, kg and plates, both sides) already had four weeks of history, so they now hold the block: they failed on the first layout (a row wider than the card) and pass now that a row's weight, reps and effort can each go to the next line.
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-25, one at a time:**
+- Web: `npm run typecheck` clean; unit tests 1,687 of 1,687 (1,688 before: the eight Stretch and Squeeze tests on the card became seven); build clean.
+- **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 512 passed, 12 skipped, 2 failed.** The two were `showcase.spec.ts`'s "showcase renders every component" (dark and light), with "connection refused" on port 4174: the run had reused a dev server left over from an earlier run that I had stopped part way, and that server went away. Not the app: `showcase.spec.ts` rerun alone, starting its own server, passed 3 of 3. **So there has been no single all-green full run of this code yet;** the run on merged main before a publish is one.
+- **The `E2E_UA=android` pass** (CI's list): 254 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: `:domain:allTests` passed; `:domain:checkWebDomain` passed. `:app:testDebugUnitTest`: passed, 1,115 tests, 0 failed, 1 skipped (counted from the result files).
+- **Not run on merged main,** and **not checked on a phone or in Safari.**
+
+**Shots:** from the full run, 32 tracked web shots were rewritten. 26 are committed, each changed by this release: the six Settings shots (the version line), the sixteen `today-*` shots that hold a card with an earlier session or had the Stretch and Squeeze lines, and the four bodybuilding guide pictures of the Today card (`guide-today-bodybuilding-*`, `guide-targets-bodybuilding-*`), which lost their Stretch and Squeeze lines. Six were put back as drift of a few bytes in pictures this release does not touch (`exercise-guide-actions-*`, `form-guide-light`, `guide-side-bodybuilding-light`, `guide-targets-powerlifting-*`). The 1.17.5 notes say `today-dark` is drawn a few pixels differently in this environment than in its committed shot; the committed `today-*` shots now carry whatever of that there is. Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful; the six Settings shots changed (the version line) and no other tracked shot did.
+
+**Version:** Android 1.18 (versionCode 34), web 1.18.0 (shown as 1.18). The Android app's screens are unchanged.
+
+**1.18 is complete at commit `929b437`.** The branch carries 1.19 (History) after it. A "publish" of 1.18 alone merges that commit, not the branch tip.
+
+## Built, not published: 1.19, History on Progress (web first; the Android app is not ported yet)
+Asked by the owner on 2026-11-25: "lets also add a "History" button at the top right of the UI on the progress tab showing all previous workouts, times,dates,sets,reps,weight etc". Spec: `docs/superpowers/specs/2026-11-25-grit-workout-history-design.md`; plan: `docs/superpowers/plans/2026-11-25-grit-workout-history.md`.
+
+**What the lifter gets (web app):**
+- A **History** button at the top right of Progress, on both sides, there whether or not that side has anything logged.
+- It opens **History**: every workout with at least one set, newest first, from both sides in one list. Each workout is a card: its date ("Tue 10 Nov 2026"), then its side, how many exercises and sets, and the bodyweight when one was logged that day; then each exercise in the order it was first logged, with every set of it (weight × reps, "@ RPE" when logged, "Missed", a plate number for a plate-counted set). The rows are the Today card's "Last time" rows.
+- The count at the top ("35 workouts") is of the whole log. **The first 20 workouts are drawn; "Show older workouts" draws 20 more each time.**
+- Read-only: nothing in the list can be tapped. Back returns to Progress.
+
+**Owner decided: dates only, no times.** Grit has never stored a workout's time of day or its length, only its date. Recording them was offered (it would change the stored log and the backup file on both apps, and past workouts would still have no time); the owner chose to leave times out.
+
+**My calls** (in the design the owner saw, except 3 to 5):
+1. Read-only, both sides in one list, web first, its own version.
+2. The first 20, then 20 more each time: a long log is never drawn whole on a phone.
+3. Today's own session is in the list as soon as it has a set. A session with no sets is left out and not counted.
+4. An archived exercise's sets still show, under its name.
+5. No "Top set" or "PR" marks: the screen says what was done; Progress's lift histories mark the records.
+6. The in-app guide's picture of Progress has no History button (the picture has nowhere to open it).
+7. Beside the button, Progress's small caption wraps onto a second line when it has no room ("Best set per session" on a 320 px phone at 130% zoom was cut by 4 px before this), instead of being cut with dots.
+
+**How:**
+- `router.tsx`: a `history` page, `#/history`. `App.tsx` draws `WorkoutHistoryScreen` for it and gives Progress `onOpenHistory`.
+- `state/useWorkoutHistory.ts`: `buildWorkoutHistory(history)` groups each session's sets by exercise, beside the lift and exercise histories; read live, like them.
+- `ui/components/PastSets.tsx` (with `PastSets.css`): the "Last time" rows moved out of `LastTime.tsx` unchanged, same class names, so the Today block and the History list are one component.
+- `screens/progress/HistoryButton.tsx` in both Progress headers; `WorkoutHistoryScreen.tsx`.
+- **No database, Dexie or backup change. No change under `domain/`. The Android app has the version number only.**
+
+**Limits:**
+- No search, no filter by side or exercise, no editing or deleting from this screen.
+- Until the Android port, History is in the web app only.
+- **Not checked on a phone,** and not in Safari.
+
+**Tests:**
+- `useWorkoutHistory.test.ts` (5): newest first from both sides with side, counts and bodyweight; a session with no sets is no workout; an exercise come back to is one group; every kind of set as logged, an archived exercise under its name; a set of an exercise with no row.
+- `WorkoutHistoryScreen.test.tsx` (6): the button opens the list and Back returns without leaving History behind; the button on both sides with nothing logged; opened directly; 45 workouts drawn 20 at a time; singular counts; loading.
+- `router.test.tsx`: `#/history`, opened from the button in the whole app.
+- e2e, `progress.spec.ts`: the button at the right of the title; 35 workouts, 20 drawn, then all; the cards' lines; Back three ways (the arrow, the phone's Back, opened directly). Two older checks there counted buttons whose name ends in "history" and now look for the lifts' tiles only. `narrowDeeper.spec.ts`: Progress with the button, and History with each side's story, at 320 px and 200% text. `progress.spec.ts` also holds the header at 246 px on both sides: nothing cut, the button beside the title.
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-25, one at a time, on the 1.19 code (which holds 1.18):**
+- Web: `npm run typecheck` clean; unit tests 1,699 of 1,699; build clean.
+- **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 519 passed, 12 skipped, 0 failed, first time,** with no source change while it ran. This is also the all-green full run that 1.18's own code had not had.
+- **The `E2E_UA=android` pass** (CI's list): 257 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: `:domain:allTests` passed; `:domain:checkWebDomain` passed. `:app:testDebugUnitTest`: passed, 1,115 tests, 0 failed, 1 skipped (counted from the result files).
+- **After those runs, one small change from a review, then rerun:** Progress's caption now wraps beside the History button (call 7), with its test. On that final code: `progress`, `bodybuilding`, `narrow`, `narrowDeeper` and `guide` specs with `UPDATE_SCREENSHOTS=1`, 234 passed, 12 skipped, and no Progress or History shot changed; `E2E_UA=android` `progress` and `bodybuilding` specs, 36 passed; speed, 6 of 6; type check clean; unit tests 1,699 of 1,699; build clean. **The full Playwright run above was before this change;** the run on merged main before a publish covers it whole.
+- **Not run on merged main,** and **not checked on a phone or in Safari.**
+
+**Shots:** from the full run, 23 tracked web shots were rewritten and two are new. 14 are committed: the six Settings shots (the version line), the six Progress shots (the History button), and the new `history-dark` and `history-light`. Eleven were put back as drift in pictures this release does not touch (`exercise-guide-actions-*`, three `guide-side-first-launch-*`, `guide-side-powerlifting-light`, the four `guide-targets-*`, and `today-rest-light`, whose dark twin did not change). Android: `:app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true`, build successful; the six Settings shots changed (the version line) and no other tracked shot did.
+
+**Version:** Android 1.19 (versionCode 35), web 1.19.0 (shown as 1.19). The Android app's screens are unchanged.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

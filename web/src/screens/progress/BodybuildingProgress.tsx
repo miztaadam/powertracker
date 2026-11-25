@@ -10,6 +10,7 @@ import { formatKg } from '../../ui/components/format'
 import { ChevronRightIcon, InsightsIcon, TrendingFlatIcon, TrendingUpIcon } from '../../ui/components/icons'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
+import { HistoryButton } from './HistoryButton'
 import './progress.css'
 
 export type BodybuildingProgressContentProps = {
@@ -21,6 +22,8 @@ export type BodybuildingProgressContentProps = {
   onOpenExercise: (exerciseId: number) => void
   /** Opens a check-in, any time (stage 3). */
   onCheckIn?: () => void
+  /** Opens every past workout (1.19): the History button at the top right, as on the powerlifting side. */
+  onOpenHistory?: () => void
 }
 
 export const FIRST_CHECK_IN_LINE = 'Your first check-in is four weeks after your first bodybuilding session. You can check in any time.'
@@ -29,10 +32,10 @@ export const FIRST_CHECK_IN_LINE = 'Your first check-in is four weeks after your
  * Progress on the bodybuilding side (spec §7.6): each exercise of the plan with its best set from each of its last
  * four sessions on this side, and whether it is going up. The powerlifting charts, records and total are not shown.
  */
-export function BodybuildingProgressContent({ state, onOpenExercise, onCheckIn = () => {} }: BodybuildingProgressContentProps) {
+export function BodybuildingProgressContent({ state, onOpenExercise, onCheckIn = () => {}, onOpenHistory }: BodybuildingProgressContentProps) {
   return (
     <section className="screen">
-      <ScreenHeader title="Progress" eyebrow="Best set per session" label={<ModeLabel />} />
+      <ScreenHeader className="progress-header" title="Progress" eyebrow="Best set per session" label={<ModeLabel />} actions={<HistoryButton onOpen={onOpenHistory} />} />
       <div className="screen-body">
         {/* An empty plan has nothing to check in on (coordinator's ruling, as on Android). */}
         {!state.loading && state.rows.length > 0 && (

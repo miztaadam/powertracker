@@ -239,6 +239,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
                     next={nextStep(i)}
                     actions={actions}
                     side={state.side}
+                    today={state.date}
                     onSkipToday={skipToday(item)}
                     onCountPlates={countPlates(item)}
                   />

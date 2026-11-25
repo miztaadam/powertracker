@@ -17,6 +17,7 @@ import com.powertracker.domain.guide.GuideSample
 import com.powertracker.domain.guide.GuideScreenId
 import com.powertracker.domain.guide.GuideStep
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.history.lastTimes
 import com.powertracker.domain.library.BodyArea
 import com.powertracker.domain.library.Equipment
 import com.powertracker.domain.library.Library
@@ -487,6 +488,16 @@ object GritDomain {
      */
     fun lastTopSet(history: JsHistory, exerciseId: Int, before: String): JsSet? =
         HistoryStats(history.toDomain().inCurrentUnits()).lastTopSet(exerciseId.toLong(), parseDate("before", before))?.second?.toJs()
+
+    /**
+     * "Last time" for every exercise done on the [mode] side before [before]: its sets, in logged order and each in the
+     * unit it was logged in, in the latest such session that holds it. One entry per exercise, in no order; an exercise
+     * never done on that side has none. The rule the bodybuilding coach's "Last time: …" follows.
+     */
+    fun lastTimes(history: JsHistory, mode: String, before: String): Array<JsLastTime> =
+        history.toDomain().lastTimes(parseEnum<TrainingMode>("mode", mode), parseDate("before", before))
+            .map { (id, last) -> JsLastTime(id.toFacadeId("lastTime.exerciseId"), last.date.toString(), last.sets.map { it.toJs() }.toTypedArray()) }
+            .toTypedArray()
 
     /** True once open advice of [type] created on [createdAt] no longer counts on [today] (a deload or re-entry after 14 days). */
     fun openAdviceExpired(type: String, createdAt: String, today: String): Boolean =

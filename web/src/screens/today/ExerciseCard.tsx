@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { grit, muscleFocus } from '../../domain'
+import { grit, todayIso } from '../../domain'
 import { setUnit, type LoadUnit, type TrainingMode } from '../../db/schema'
 import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
@@ -19,6 +19,7 @@ import { slideName, withTransition } from '../../ui/viewTransition'
 import { InfoButton } from '../library/InfoButton'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, weightKind, type EntryKind } from './entry'
+import { LastTime } from './LastTime'
 import { SkipMenu } from './SkipToday'
 import './today.css'
 
@@ -97,6 +98,8 @@ export type ExerciseCardProps = {
    * question (spec §7.4); a set can still be marked Missed.
    */
   side?: TrainingMode
+  /** The day shown, `YYYY-MM-DD`: "Last time" writes the year of a session from another one. Left out, it is today. */
+  today?: string
   /** Opens the reason sheet (1.13); left out, Skip today is not in the row menu (an added exercise, or one with sets). */
   onSkipToday?: () => void
   /** Opens the plate sheet (1.17); left out, Count plates is not in the row menu. With neither, there is no menu. */
@@ -104,7 +107,7 @@ export type ExerciseCardProps = {
 }
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', onSkipToday, onCountPlates }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', today = todayIso(), onSkipToday, onCountPlates }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
@@ -164,7 +167,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         </div>
       )}
 
-      {!powerlifting && <Cues name={item.exercise.name} />}
+      <LastTime last={item.lastTime} today={today} />
 
       {!item.isComplete || extraSet ? (
         <>
@@ -204,36 +207,6 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         </Dialog>
       )}
     </Card>
-  )
-}
-
-/**
- * Where the muscle stretches and where to squeeze it (stage 4), between the logged sets and the weight entry as the
- * mockup has it: bodybuilding side only. Nothing at all, taking no room, for an exercise with no lines: one with
- * nothing to aim for (a plank), or the lifter's own (outside the catalogue).
- */
-function Cues({ name }: { name: string }) {
-  const focus = muscleFocus(name)
-  if (focus?.kind !== 'lines') return null
-  const rows: [label: string, line: string][] = [
-    ['Stretch', focus.stretch],
-    ['Squeeze', focus.squeeze],
-  ]
-  return (
-    // A list of two, each row read once as "Stretch: …", as on Android; what shows is the label beside its line.
-    <ul role="list" className="today-cues" aria-label="Stretch and squeeze">
-      {rows.map(([label, line]) => (
-        <li key={label} className="today-cue">
-          <span className="today-cue-label eyebrow" aria-hidden="true">
-            {label.toUpperCase()}
-          </span>
-          <span className="today-cue-line body-large" aria-hidden="true">
-            {line}
-          </span>
-          <span className="sr-only">{`${label}: ${line}`}</span>
-        </li>
-      ))}
-    </ul>
   )
 }
 
