@@ -1736,6 +1736,26 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 
 **Version:** Android 1.19 (versionCode 35), web 1.19.0 (shown as 1.19). The Android app's screens are unchanged.
 
+## Fixed on a branch, not published (2026-11-25): Android, "Add exercise" drawn over the card just added
+
+**The bug (owner, on the emulator):** on Today, after adding an exercise, the "Add exercise" button sat on top of the new card's heading. Each further add left it higher; after the second it was under the "Today" header.
+
+**Cause:** the new card opens and pushes the button's place below the screen. The button starts its slide there, the list lets go of it at its next change, and what was left of the slide (about 900 px) stayed on the button when the list brought it back (`slidingReorder` in `LayoutMotion.kt`).
+
+**Fix:** a slide cut short that way is over. Commit `12f2b3d` on the branch `fix/add-exercise-button-out-of-place`, with a test in `LayoutMotionTest` that failed before it. Android only: the web app's Today does not use this code (not run in a browser).
+
+**Checked:** on the emulator (Medium Phone, Android 17), the bug twice with the old build, then two adds in a row with the fix, the button below the card both times. `:app:testDebugUnitTest` on the owner's Windows PC: 1,116 run, 1,096 pass, 19 fail, 1 skipped.
+
+**The 19 fail on Windows only** (CI on Linux passes them), from backslashes in file paths, not from the app:
+- All 18 of `MigrationTest`: `androidx.sqlite` 2.6.2's `SupportSQLiteDriver.open` compares the database's name after the last `/`, so a Windows path never matches. The upgrade tests therefore do not run on this PC.
+- `NoVoltTest.scansTheAppSourcesAndTheDesignDoc`: it looks for paths ending `ui/theme/Color.kt`. A two-line fix, not made.
+
+**On the owner's phone (OPPO CPH2913, Android 17), at the owner's request:** a signed release built from this branch, installed over 1.17.4 as an update (same signing key, data kept). It opened with no crash in the log; nothing was tapped and no screen was looked at. It reads 1.19 (versionCode 35), the same as main's 1.19, but has this fix and the uncommitted build-tool update (AGP 9.5.2): **there was no version bump**, so the release that carries this fix needs one (versionCode 36 or higher) to install over it.
+
+**Not done:** the version bump, the Settings shots, a phone check written for it, the merge to main.
+
+**Noticed, not looked into:** on the emulator, exercises added on Today with no set logged were gone after the app restarted.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
