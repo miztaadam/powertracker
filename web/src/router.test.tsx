@@ -107,6 +107,21 @@ describe('app shell routing', () => {
     expect(screen.getByText('Step 1 of 4')).toBeInTheDocument()
   })
 
+  it('#/history is every past workout, opened from the History button on Progress', async () => {
+    expect(parseHash('#/history')).toEqual({ page: 'history' })
+    expect(routeToHash({ page: 'history' })).toBe('#/history')
+    // Not a lift page with something after it, and nothing after it either.
+    expect(parseHash('#/history/1')).toEqual({ tab: 'today' })
+    window.location.hash = '#/progress'
+    show()
+    await opened()
+    await userEvent.click(await screen.findByRole('button', { name: 'History' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'History' })).toBeInTheDocument()
+    expect(window.location.hash).toBe('#/history')
+    // A page, not a tab: no tab is marked as the current one.
+    expect(screen.getByRole('navigation', { name: 'Main' }).querySelector('[aria-current]')).toBeNull()
+  })
+
   it('#/checkin is the check-in on the bodybuilding side, and Coach on the powerlifting side', async () => {
     expect(parseHash('#/checkin')).toEqual({ page: 'checkIn' })
     expect(routeToHash({ page: 'checkIn' })).toBe('#/checkin')

@@ -56,3 +56,22 @@ test('reloadMidSession_keepsEverything', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
   await expect(page.locator('.today-summary-stats')).toContainText('3')
 })
+
+test('reloadAfterFinish_staysFinished', async ({ page }) => {
+  await openOnWednesday(page)
+  await seedFlatBench(page)
+
+  await tap(page, 'Start session')
+  await tap(page, 'Log set 1')
+  await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+  await tap(page, 'Finish')
+  await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
+
+  // "Session saved" on screen means finished is stored: closing and opening the app does not open the session again.
+  await page.reload()
+
+  await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
+  await expect(page.locator('.today-summary-stats')).toContainText('1')
+  await expect(page.getByRole('button', { name: 'Finish', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Log set 2' })).toHaveCount(0)
+})

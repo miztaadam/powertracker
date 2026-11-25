@@ -1,13 +1,20 @@
 package com.powertracker.testing
 
 import android.content.Context
+import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
+import com.powertracker.data.SettingsRepository
 import com.powertracker.data.db.AppDatabase
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.rules.ExternalResource
+import org.robolectric.Shadows.shadowOf
 
 /**
  * An in-memory [AppDatabase] for one test, closed only once nothing is reading it.
@@ -56,6 +63,9 @@ class TestDatabase : ExternalResource() {
     }
 
     override fun before() {
+        // The settings store is one per process and outlives each test's database, where session ids start again at 1:
+        // a session finished in one test must not open another test's Today on the finish summary.
+        forgetFinishedSession("before")
         val threads = Executors.newCachedThreadPool { work -> Thread(work, "test-database").apply { isDaemon = true } }
         executor = threads
         val counted = java.util.concurrent.Executor { work ->
@@ -86,7 +96,35 @@ class TestDatabase : ExternalResource() {
         opened = AppDatabase.inMemory(ApplicationProvider.getApplicationContext<Context>(), counted)
     }
 
+    /**
+     * Forgets the finished-session note, and with it waits out every settings write still in flight: the store takes
+     * its writes one at a time, so this one ends only after those before it.
+     *
+     * Why not `runBlocking { settings… }`: the store runs each write's change in the context of whoever asked. A write
+     * begun by a screen or a view model (Keep logging, since 1.17.5) is handed back to the main thread, which under
+     * Robolectric runs only when a test lets it, and is thrown away with its pending work when the test ends. A write
+     * left in flight then never finishes, and every later write waits behind it: `runBlocking` in the next test's set-up
+     * hung for good (seen once in CI on 2026-11-24, as 38 silent minutes). So this write is made off the main thread,
+     * the main thread is let run until it is through, and a store that stays stuck fails the test by name instead.
+     */
+    private fun forgetFinishedSession(whenRun: String) {
+        val settings = SettingsRepository(ApplicationProvider.getApplicationContext<Context>())
+        val forgotten = CoroutineScope(Dispatchers.IO).async { settings.setFinishedSession(null) }
+        val deadline = System.currentTimeMillis() + 10_000
+        while (!forgotten.isCompleted) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(2)
+            check(System.currentTimeMillis() < deadline) {
+                "a settings write was still in flight 10 s $whenRun the test: one begun on the main thread and never let finish"
+            }
+        }
+        // A failed write is this test's to hear of.
+        runBlocking { forgotten.await() }
+    }
+
     override fun after() {
+        // While this test's main thread can still run it: a settings write its screens began and did not wait for.
+        forgetFinishedSession("after")
         val threads = executor ?: return
         // A held test that failed before letting its work go: let it go, or the wait below reports a query still running
         // instead of the test's own failure.

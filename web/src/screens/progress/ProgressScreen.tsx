@@ -7,6 +7,7 @@ import { InsightsIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
 import { BodybuildingProgressContent } from './BodybuildingProgress'
+import { HistoryButton } from './HistoryButton'
 import { BodyweightSection, RatioSection, RecordsSection, SummaryCard, TrendCard, VolumeSection } from './ProgressSections'
 import './progress.css'
 
@@ -19,22 +20,24 @@ export type ProgressScreenProps = {
   today?: () => string
   /** Opens a check-in, from the bodybuilding side's Check in button. */
   onCheckIn?: () => void
+  /** Opens every past workout (1.19), from the History button at the top right on both sides. */
+  onOpenHistory?: () => void
 }
 
 /** Where the lifter stands: total and lift e1RMs, their trend, records, weekly volume, ratios and bodyweight. */
-export function ProgressScreen({ db, onOpenLift, onOpenExercise = () => {}, today = todayIso, onCheckIn }: ProgressScreenProps) {
+export function ProgressScreen({ db, onOpenLift, onOpenExercise = () => {}, today = todayIso, onCheckIn, onOpenHistory }: ProgressScreenProps) {
   const { state, setRange, side, bodybuilding } = useProgress(db, today)
-  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenExercise={onOpenExercise} onCheckIn={onCheckIn} />
-  return <ProgressContent state={state} onRange={setRange} onOpenLift={onOpenLift} />
+  if (side === 'BODYBUILDING') return <BodybuildingProgressContent state={bodybuilding} onOpenExercise={onOpenExercise} onCheckIn={onCheckIn} onOpenHistory={onOpenHistory} />
+  return <ProgressContent state={state} onRange={setRange} onOpenLift={onOpenLift} onOpenHistory={onOpenHistory} />
 }
 
-export type ProgressContentProps = { state: ProgressState; onRange: (range: ChartRange) => void; onOpenLift: (lift: Lift) => void }
+export type ProgressContentProps = { state: ProgressState; onRange: (range: ChartRange) => void; onOpenLift: (lift: Lift) => void; onOpenHistory?: () => void }
 
 /** The Progress screen without its data source. */
-export function ProgressContent({ state, onRange, onOpenLift }: ProgressContentProps) {
+export function ProgressContent({ state, onRange, onOpenLift, onOpenHistory }: ProgressContentProps) {
   return (
     <section className="screen">
-      <ScreenHeader title="Progress" eyebrow="Estimated 1RM" label={<ModeLabel />} />
+      <ScreenHeader className="progress-header" title="Progress" eyebrow="Estimated 1RM" label={<ModeLabel />} actions={<HistoryButton onOpen={onOpenHistory} />} />
       <div className="screen-body">
         {!state.loading && !state.hasData && (
           <EmptyState

@@ -540,8 +540,10 @@ test.describe('with motion on', () => {
     expect(motion.add[0]!.time).toBeGreaterThan(0)
     expect(motion.add[0]!.time).toBeLessThan(motion.add[0]!.duration)
     expect(motion.add[0]!.duration).toBe(grit.guideMoveMs())
-    // The line fades in as it did, and now rises as it does (Task 2c): one animation, opacity and transform.
-    expect(motion.skipped.map((a) => a.properties)).toEqual([['opacity', 'transform', 'opacity', 'transform']])
+    // The line fades in as it did, and now rises as it does (Task 2c): one animation, opacity and transform, in both of
+    // its keyframes. Sorted: the order a keyframe lists its properties in is the browser's (Chromium 153 gives opacity
+    // first, 156 transform first).
+    expect(motion.skipped.map((a) => [...a.properties].sort())).toEqual([['opacity', 'opacity', 'transform', 'transform']])
     const exercises = grit.guideSampleExercises(side)
     const liftId = exercises.find((e) => e.name === grit.guideSampleTodaySet(side).exerciseId)!.id
     const skippedName = exercises.find((e) => e.id === grit.guideSampleTodayItems(side).filter((p) => p.exerciseId !== liftId).at(-1)!.exerciseId)!.name

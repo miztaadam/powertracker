@@ -236,7 +236,7 @@ describe('Skip today', () => {
     // An exercise the lifter added (no plan item) is left to do: the normal count, not the skipped one.
     const row = await exerciseNamed(db, 'Deadlift')
     const exercise = new JsExercise(row.id, row.name, row.category, row.parentLift ?? null, [...(row.muscles ?? [])], true, false)
-    const added: TodayItem = { exercise, planned: null, suggestion: null, sets: [], editor: { weightKg: null, reps: 5, rpe: 8 }, targetSets: null, isComplete: false, perSide: null, lastWeightKg: null }
+    const added: TodayItem = { exercise, planned: null, suggestion: null, sets: [], editor: { weightKg: null, reps: 5, rpe: 8 }, targetSets: null, isComplete: false, perSide: null, lastWeightKg: null, lastTime: null }
     render(<StartSessionCard items={[added]} dayName="Wednesday" onStart={() => {}} skipped={2} />)
     expect(screen.getByText('Wednesday · 1 exercise')).toBeInTheDocument()
     expect(screen.queryByText(/ skipped$/)).toBeNull()

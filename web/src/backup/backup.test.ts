@@ -293,9 +293,10 @@ describe('backup', () => {
 
   it('restore_forgetsTheTodayScreensNotesAboutTheReplacedData', async () => {
     const db = await openDb()
-    // What the Today screen keeps for a reload: the session being logged and the unlogged numbers.
+    // What the Today screen keeps for a reload: the session being logged, the one finished, and the unlogged numbers.
     await db.meta.bulkPut([
       { key: 'today:active', value: { date: '2026-11-11', at: Date.now() } },
+      { key: 'today:finished', value: { sessionId: 1, date: '2026-11-11', summary: { setCount: 3, exerciseCount: 1, newNotes: 0 } } },
       { key: 'editor:2026-11-11:1', value: { weightKg: 152.5, reps: 3, rpe: 9 } },
       { key: 'unrelated', value: 'kept' },
     ])

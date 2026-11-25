@@ -271,6 +271,33 @@ class GritDomainTest {
     }
 
     @Test
+    fun lastTimes_oneEntryForEachExerciseDoneOnTheSide() {
+        fun set(id: Int, kg: Double, reps: Int, unit: String = "KG") = JsSet(id, kg, reps, 8.0, false, null, false, unit)
+        val history = JsHistory(
+            arrayOf(
+                JsSession(1, "2026-01-05", null, null, arrayOf(set(1, 100.0, 5), set(2, 20.0, 12)), "BODYBUILDING"),
+                JsSession(2, "2026-01-12", null, null, arrayOf(set(2, 22.0, 11), set(1, 105.0, 5), set(2, 7.5, 10, "PLATES")), "BODYBUILDING"),
+                // The other side, later: not this side's last time.
+                JsSession(3, "2026-01-14", null, null, arrayOf(set(2, 30.0, 5)), "POWERLIFTING"),
+                JsSession(4, "2026-01-19", null, null, arrayOf(set(1, 110.0, 5)), "BODYBUILDING"),
+            ),
+            arrayOf(JsExercise(1, "Squat", "SQUAT", null, emptyArray(), true, false), JsExercise(2, "Curl", "ACCESSORY", null, emptyArray(), true, false)),
+            emptyArray(),
+        )
+        val last = GritDomain.lastTimes(history, "BODYBUILDING", "2026-01-19").associateBy { it.exerciseId }
+        assertEquals(setOf(1, 2), last.keys)
+        assertEquals("2026-01-12", last.getValue(1).date)
+        assertEquals(listOf(105.0), last.getValue(1).sets.map { it.weightKg })
+        // Every set, in logged order, each in its own unit.
+        assertEquals(listOf(Triple(22.0, 11, "KG"), Triple(7.5, 10, "PLATES")), last.getValue(2).sets.map { Triple(it.weightKg, it.reps, it.unit) })
+        val powerlifting = GritDomain.lastTimes(history, "POWERLIFTING", "2026-01-19")
+        assertEquals(listOf(2 to "2026-01-14"), powerlifting.map { it.exerciseId to it.date })
+        assertEquals(0, GritDomain.lastTimes(history, "POWERLIFTING", "2026-01-14").size)
+        assertFailsWith<IllegalArgumentException> { GritDomain.lastTimes(history, "NOPE", "2026-01-19") }
+        assertFailsWith<IllegalArgumentException> { GritDomain.lastTimes(history, "BODYBUILDING", "soon") }
+    }
+
+    @Test
     fun openAdviceExpired_after14Days() {
         // Created 2026-03-01: day 14 is 2026-03-14, the last day it counts.
         for (type in listOf("DELOAD", "RE_ENTRY")) {

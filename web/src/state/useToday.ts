@@ -7,6 +7,7 @@ import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { LOAD_UNITS, setUnit, sideOf, type AdviceRow, type LoadUnit, type PlanItemRow, type PlateCount, type SetRow, type SkipReason, type TrainingMode } from '../db/schema'
 import { skip as storeSkip, skips as readSkips, skipToJs, unskip, type StoredSkip } from '../db/skips'
 import { haptic, hapticsPossible } from '../platform/haptics'
+import type { PastSet } from '../ui/components/PastSets'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
@@ -36,6 +37,11 @@ export type Target = { exerciseId: number; weightKg: number; reps: number; rpe: 
  */
 export type Suggestion = { id: number; reason: string; target: Target; applyReps?: number }
 
+export type { PastSet }
+
+/** An exercise's sets in one earlier session; `date` is `YYYY-MM-DD`. */
+export type LastTime = { date: string; sets: PastSet[] }
+
 export type TodayItem = {
   exercise: JsExercise
   /** Today's plan item, or null for an exercise added during the session. */
@@ -50,6 +56,12 @@ export type TodayItem = {
   perSide: number[] | null
   /** The weight a typo is judged against: the last set today, else the last top set before today, both in `unit`. */
   lastWeightKg: number | null
+  /**
+   * 1.18: every set of this exercise in its last session on the side shown, before the day shown, in logged order and
+   * each in the unit it was logged in; null when it was never done on this side. The coach's "Last time: …" names the same
+   * session, except just after the exercise's plate setting changed (the coach then reads only the sets in the new unit).
+   */
+  lastTime: LastTime | null
   /**
    * 1.17, each there only when it is not the default: the exercise's current unit (PLATES; absent is kg), which the
    * editor, the targets and the typo check are in; its stored plate setting (WHOLE or HALF; absent is OFF), which the
@@ -217,7 +229,7 @@ type Stored = {
 /** What only this screen knows: edited numbers, exercises added but not yet logged, open prompts. */
 type Local = {
   date: string
-  /** False until the editor values saved for this day have been read back. */
+  /** False until the editor values saved for this day, and whether its session was finished, have been read back. */
   restored: boolean
   editors: Record<number, SetEditor>
   added: number[]
@@ -313,6 +325,29 @@ async function readEditors(db: GritDb, date: string): Promise<Record<number, Set
     if (Number.isInteger(exerciseId) && isEditor(row.value)) editors[exerciseId] = row.value
   }
   return editors
+}
+
+/**
+ * The session Finish was tapped for, kept in `meta` so that closing and opening the app does not open it again: its id
+ * and day, and the summary Finish showed. Keep logging removes it. It belongs to this device and is not in a backup.
+ */
+export const FINISHED_KEY = 'today:finished'
+
+const isCount = (value: unknown): value is number => typeof value === 'number' && Number.isInteger(value) && value >= 0
+
+/**
+ * The summary to show again for `date`, or null: the stored note's, when it is whole and names the session that is
+ * stored for that day. A note of another day, or of a session since replaced (a restore), finishes nothing.
+ */
+async function readFinished(db: GritDb, date: string): Promise<FinishSummary | null> {
+  const note = (await db.meta.get(FINISHED_KEY))?.value
+  if (typeof note !== 'object' || note === null) return null
+  const { sessionId, date: day, summary } = note as Record<string, unknown>
+  if (typeof sessionId !== 'number' || day !== date || typeof summary !== 'object' || summary === null) return null
+  const { setCount, exerciseCount, newNotes, skipped } = summary as Record<string, unknown>
+  if (!isCount(setCount) || !isCount(exerciseCount) || !isCount(newNotes) || (skipped !== undefined && !isCount(skipped))) return null
+  if ((await db.sessions.get(sessionId))?.date !== date) return null
+  return { setCount, exerciseCount, newNotes, ...(skipped != null && skipped > 0 ? { skipped } : {}) }
 }
 
 const coachSettings = (s: AppSettings) => new JsCoachSettings(s.defaultRpe, s.changePlates)
@@ -422,6 +457,29 @@ function lastTopSet(history: JsHistory, exerciseId: number, before: string): JsS
   return top
 }
 
+const lastTimesOf = new WeakMap<JsHistory, Map<string, Map<number, LastTime>>>()
+
+/**
+ * Each exercise's sets in its last session on `side` before `before` (the domain's `lastTime`), by exercise id: asked
+ * once for all the cards, and kept like the top sets.
+ */
+function lastTimes(history: JsHistory, side: TrainingMode, before: string): Map<number, LastTime> {
+  let known = lastTimesOf.get(history)
+  if (!known) lastTimesOf.set(history, (known = new Map()))
+  const key = `${side}:${before}`
+  let all = known.get(key)
+  if (!all) {
+    all = new Map(
+      grit.lastTimes(history, side, before).map((last) => [
+        last.exerciseId,
+        { date: last.date, sets: last.sets.map((s) => ({ weightKg: s.weightKg, reps: s.reps, rpe: s.rpe ?? null, failed: s.failed, ...unitKey(s.unit as LoadUnit) })) },
+      ]),
+    )
+    known.set(key, all)
+  }
+  return all
+}
+
 /** The id a catalogue exercise is shown under while it has no row: negative, so it can never be a row's. */
 const standInId = (entry: JsLibraryExercise) => -(library().findIndex((e) => e.name === entry.name) + 1)
 
@@ -464,6 +522,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
   const planned = allPlanned.filter((p) => !skippedIds.has(p.exerciseId) || loggedIds.includes(p.exerciseId))
   const plannedIds = new Set(planned.map((p) => p.exerciseId))
   const jsSkips: JsSkip[] | null = d.side === 'BODYBUILDING' ? d.skips.map(skipToJs) : null
+  const past = lastTimes(d.history, d.side, d.date)
   const addedIds = [...new Set([...loggedIds.filter((id) => !added.includes(id)), ...added])].filter((id) => !plannedIds.has(id))
 
   function item(exercise: JsExercise, plan: PlannedItem | null): TodayItem {
@@ -509,6 +568,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
       // A plate number has no bar and no kg plates.
       perSide: editor.weightKg != null && unit === 'KG' ? (grit.platesPerSide(editor.weightKg, d.settings.changePlates) ?? null) : null,
       lastWeightKg: lastToday?.weightKg ?? top?.weightKg ?? null,
+      lastTime: past.get(exercise.id) ?? null,
       ...unitKey(unit),
       ...(offered && plateCount !== 'OFF' ? { plateCount } : {}),
       ...(offered ? { plateOffered: true } : {}),
@@ -656,13 +716,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   const local = localState.date === date ? localState : emptyLocal(date)
   const update = useCallback((fn: (l: Local) => Local) => setLocal((prev) => fn(prev.date === date ? prev : emptyLocal(date))), [date])
 
-  // Bring back the editor values saved before a reload.
+  // Bring back the editor values saved before a reload, and the finish summary: a session finished before the app was
+  // closed is still finished when it opens again. Nothing is shown until both are read, so it never shows as open first.
   useEffect(() => {
     if (!resumed) return
     let stale = false
-    readEditors(db, date)
-      .then((saved) => {
-        if (!stale) update((l) => ({ ...l, restored: true, editors: { ...saved, ...l.editors } }))
+    Promise.all([readEditors(db, date), readFinished(db, date)])
+      .then(([saved, finished]) => {
+        if (!stale) update((l) => ({ ...l, restored: true, editors: { ...saved, ...l.editors }, summary: l.summary ?? finished }))
       })
       // Once the screen has moved on (or the database closed under it) the failure concerns nobody.
       .catch((e: unknown) => {
@@ -1109,12 +1170,16 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         const skipped = await db.skips.where('[date+mode+exerciseId]').between([now.date, side, Dexie.minKey], [now.date, side, Dexie.maxKey]).count()
         return [fresh.length, skipped] as const
       })
-      // Finished: it no longer keeps the screen, here or after a reload.
+      const done = now.items.filter((i) => i.sets.length > 0)
+      const summary: FinishSummary = { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes, ...(skipped > 0 ? { skipped } : {}) }
+      // Stored before it is shown, so the summary on screen means the session stays finished over a reload. A failed
+      // write only costs that: the session is finished on screen all the same.
+      await db.meta.put({ key: FINISHED_KEY, value: { sessionId: now.sessionId, date: now.date, summary } }).catch(() => {})
+      // Finished: it no longer keeps the screen, here or after a reload. Only now, in the step that puts the summary up:
+      // from here the summary keeps the screen, so a phone unlocked after midnight meanwhile never finds neither.
       activity.current = null
       db.meta.delete(ACTIVITY_KEY).catch(() => {})
-      const done = now.items.filter((i) => i.sets.length > 0)
       // A summary already up is kept: it is the one that counted the new notes.
-      const summary: FinishSummary = { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes, ...(skipped > 0 ? { skipped } : {}) }
       update((l) => (l.summary != null ? l : { ...l, summary }))
     } finally {
       finishing.current = false
@@ -1171,9 +1236,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const dismissSummary = useCallback(() => {
     update((l) => ({ ...l, summary: null }))
+    // Open again, also after a reload.
+    db.meta.delete(FINISHED_KEY).catch(() => {})
     // A session finished after midnight is behind us now: on to the new day.
     syncDay()
-  }, [update, syncDay])
+  }, [db, update, syncDay])
 
   return {
     ...state,

@@ -580,8 +580,8 @@ export function onDataReplaced(cb: () => void): () => void {
   return () => replacedListeners.delete(cb)
 }
 
-/** `meta` rows about the replaced data: the session being logged, unlogged numbers, the running rest. */
-const aboutReplacedData = (key: string) => key === 'today:active' || key === 'restTimer' || key.startsWith('editor:')
+/** `meta` rows about the replaced data: the session being logged, the one finished, unlogged numbers, the running rest. */
+const aboutReplacedData = (key: string) => key === 'today:active' || key === 'today:finished' || key === 'restTimer' || key.startsWith('editor:')
 
 /**
  * Replaces all data. Everything is validated and mapped first, so bad content fails before a
