@@ -157,6 +157,31 @@
   color: var(--text-secondary);
 }
 
+/* The History button (1.19) lines up with the cards' right edge, as Today's Finish does. */
+.progress-history {
+  margin-right: var(--space-3);
+}
+
+/* History (1.19): every workout, each a card: its date, its side and counts, then each exercise over its sets. */
+.workout > .workout-summary {
+  /* A long summary (a bodyweight too) wraps; an eyebrow elsewhere is cut with dots. */
+  white-space: normal;
+  overflow: visible;
+  padding-bottom: var(--space-2);
+}
+
+.workout-exercise-name {
+  margin: 0;
+  padding-bottom: var(--space-1);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.workout-older {
+  display: flex;
+  justify-content: center;
+}
+
 /* The bodybuilding side's list: one row per exercise of the plan, its best sets oldest first, and its trend. */
 .bb-rows {
   margin: 0;

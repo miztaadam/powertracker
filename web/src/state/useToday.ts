@@ -7,6 +7,7 @@ import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
 import { LOAD_UNITS, setUnit, sideOf, type AdviceRow, type LoadUnit, type PlanItemRow, type PlateCount, type SetRow, type SkipReason, type TrainingMode } from '../db/schema'
 import { skip as storeSkip, skips as readSkips, skipToJs, unskip, type StoredSkip } from '../db/skips'
 import { haptic, hapticsPossible } from '../platform/haptics'
+import type { PastSet } from '../ui/components/PastSets'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
@@ -36,8 +37,7 @@ export type Target = { exerciseId: number; weightKg: number; reps: number; rpe: 
  */
 export type Suggestion = { id: number; reason: string; target: Target; applyReps?: number }
 
-/** One set of a past session, as the card's "Last time" shows it. `unit` is there only for plates. */
-export type PastSet = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit }
+export type { PastSet }
 
 /** An exercise's sets in one earlier session; `date` is `YYYY-MM-DD`. */
 export type LastTime = { date: string; sets: PastSet[] }

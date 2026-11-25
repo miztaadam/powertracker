@@ -24,6 +24,7 @@ import { planSetText } from './state/useTemplates'
 import { ExerciseHistoryScreen } from './screens/progress/ExerciseHistoryScreen'
 import { LiftHistoryScreen } from './screens/progress/LiftHistoryScreen'
 import { ProgressScreen } from './screens/progress/ProgressScreen'
+import { WorkoutHistoryScreen } from './screens/progress/WorkoutHistoryScreen'
 import { ErrorBoundary } from './screens/recovery/ErrorBoundary'
 import { OlderCopyScreen } from './screens/recovery/OlderCopyScreen'
 import { OtherTabScreen, ReloadScreen } from './screens/recovery/OtherTabScreen'
@@ -72,7 +73,7 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
     const openPlan = () => navigate({ tab: 'plan' })
     if (route.tab === 'today') return <TodayView db={db} session={session} onOpenCoach={() => navigate({ tab: 'coach' })} onOpenSettings={openSettings} onOpenPlan={openPlan} onOpenBuilder={openBuilder} banner={<InstallCard db={db} />} />
     if (route.tab === 'coach') return <CoachScreen db={db} onOpenPlan={openPlan} onOpenBuilder={openBuilder} onOpenCheckIn={openCheckIn} />
-    if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} onOpenExercise={(exerciseId) => navigate({ page: 'exercise', exerciseId })} onCheckIn={openCheckIn} />
+    if (route.tab === 'progress') return <ProgressScreen db={db} onOpenLift={(lift) => navigate({ page: 'lift', lift })} onOpenExercise={(exerciseId) => navigate({ page: 'exercise', exerciseId })} onOpenHistory={() => navigate({ page: 'history' })} onCheckIn={openCheckIn} />
     if (route.tab === 'exercises') return <ExercisesScreen db={db} session={session} browser={browser} onOpenPlan={() => navigate({ tab: 'plan' })} onOpenToday={() => navigate({ tab: 'today' })} />
     return (
       <PlanScreen
@@ -115,6 +116,7 @@ function screenFor(route: Route, db: GritDb, { session, browser, planMessage, se
   // Drawn by the Shell over everything, in place of the screens and the tab bar.
   if (route.page === 'guide') return null
   if (route.page === 'exercise') return <ExerciseHistoryScreen db={db} exerciseId={route.exerciseId} onBack={() => goBack({ tab: 'progress' })} />
+  if (route.page === 'history') return <WorkoutHistoryScreen db={db} onBack={() => goBack({ tab: 'progress' })} />
   return <LiftHistoryScreen db={db} lift={route.lift} onBack={() => goBack({ tab: 'progress' })} />
 }
 
