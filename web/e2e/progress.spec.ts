@@ -158,6 +158,44 @@ for (const scheme of ['dark', 'light'] as const) {
     await page.getByRole('button', { name: 'Back' }).click()
     await expect(page).toHaveURL(/#\/progress$/)
     await expect(page.getByText('Weekly best e1RM')).toBeVisible()
+
+    // 1.19: History, at the top right of Progress, lists every workout, newest first, twenty at a time.
+    await page.setViewportSize({ width: 375, height: 812 })
+    const history = page.getByRole('button', { name: 'History', exact: true })
+    const [button, title] = await Promise.all([history.boundingBox(), page.getByRole('heading', { level: 1, name: 'Progress' }).boundingBox()])
+    // At the right of the title, on its line.
+    expect(button!.x).toBeGreaterThan(title!.x + title!.width - 1)
+    expect(button!.y).toBeLessThan(title!.y + title!.height)
+    expect(button!.y + button!.height).toBeGreaterThan(title!.y)
+    await history.click()
+    await expect(page).toHaveURL(/#\/history$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'History' })).toBeVisible()
+    await expect(page.getByText('35 workouts')).toBeVisible()
+    const workouts = page.locator('.workout')
+    await expect(workouts).toHaveCount(20)
+    await expect(workouts.first().getByRole('heading', { level: 2 })).toHaveText('Tue 10 Nov 2026')
+    await expect(workouts.first().getByText('Powerlifting · 1 exercise · 2 sets · 93.3 kg bodyweight')).toBeVisible()
+    await expect(workouts.first().getByRole('heading', { level: 3 })).toHaveText('Bench')
+    await expect(workouts.first().getByText('Set 1: 107.5 kg × 3 at RPE 9', { exact: true })).toBeAttached()
+    await expect(workouts.nth(1).getByRole('heading', { level: 3 })).toHaveText(['Squat', 'Pause squat'])
+    await expect(workouts.nth(1).getByRole('listitem')).toHaveCount(8)
+    expect(await overflowing(page)).toEqual([])
+    expect(await clippedText(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+    await shoot(page, `history-${scheme}`, 1500)
+
+    await page.setViewportSize({ width: 375, height: 812 })
+    const older = page.getByRole('button', { name: 'Show older workouts' })
+    await older.click()
+    await expect(workouts).toHaveCount(35)
+    await expect(older).toHaveCount(0)
+    await expect(workouts.last().getByRole('heading', { level: 2 })).toHaveText('Mon 24 Aug 2026')
+    expect(await overflowing(page)).toEqual([])
+    expect(await smallTargets(page)).toEqual([])
+
+    await page.getByRole('button', { name: 'Back' }).click()
+    await expect(page).toHaveURL(/#\/progress$/)
+    await expect(page.getByText('Weekly best e1RM')).toBeVisible()
   })
 }
 
@@ -177,7 +215,8 @@ for (const scheme of ['dark', 'light'] as const) {
     expect(await smallTargets(page)).toEqual([])
 
     // Four lift tiles, two to a row, none over another.
-    const tiles = await page.getByRole('button', { name: /history$/i }).evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect))
+    // The lifts' tiles ("… squat history"), not the header's History button (1.19).
+    const tiles = await page.getByRole('button', { name: / history$/i }).evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect))
     expect(tiles).toHaveLength(4)
     for (const [i, a] of tiles.entries()) {
       for (const b of tiles.slice(i + 1)) expect(a.right <= b.left + 0.5 || b.right <= a.left + 0.5 || a.bottom <= b.top + 0.5 || b.bottom <= a.top + 0.5).toBe(true)
@@ -232,7 +271,7 @@ test('the strict press switch in Settings changes Progress and its total', async
   // Off: the screen is the three-lift one, as if strict press had never been logged.
   await expect(page.getByText('Total (S+B+D)', { exact: true })).toBeVisible()
   await expect(page.getByText(/strict press/i)).toHaveCount(0)
-  await expect(page.getByRole('button', { name: /history$/i })).toHaveCount(3)
+  await expect(page.getByRole('button', { name: / history$/i })).toHaveCount(3)
   await expect.poll(() => page.locator('.progress-total-figure .gr-number-value').first().textContent()).not.toBe(withPress)
 })
 
@@ -276,4 +315,44 @@ test('back from a lift page opened directly goes to Progress and replaces it', a
   expect(await page.evaluate(() => window.history.length)).toBe(entries)
   await page.goBack()
   await expect(page).not.toHaveURL(/#\/lift/)
+})
+
+test('back from History does not leave it behind in history', async ({ page }) => {
+  await openWithSampleData(page)
+  await page.getByRole('link', { name: 'Today' }).click()
+  await page.getByRole('link', { name: 'Progress' }).click()
+  await page.getByRole('button', { name: 'History', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'History' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Back' }).click()
+  await expect(page).toHaveURL(/#\/progress$/)
+  // The swipe back in the installed app: on from Progress to where the lifter was before, not to History again.
+  await page.goBack()
+  await expect(page).toHaveURL(/#\/today$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
+})
+
+test('the phone\'s Back on History returns to Progress', async ({ page }) => {
+  await openWithSampleData(page)
+  await page.getByRole('button', { name: 'History', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'History' })).toBeVisible()
+  await page.goBack()
+  await expect(page).toHaveURL(/#\/progress$/)
+  await expect(page.getByText('Weekly best e1RM')).toBeVisible()
+})
+
+test('History opened directly: Back goes to Progress and replaces it', async ({ page }) => {
+  await openWithSampleData(page)
+  await page.goto('about:blank')
+  await page.goto('/#/history')
+  await expect(page.getByRole('heading', { level: 1, name: 'History' })).toBeVisible()
+  await expect(page.getByText('35 workouts')).toBeVisible()
+  const entries = await page.evaluate(() => window.history.length)
+
+  await page.getByRole('button', { name: 'Back' }).click()
+  await expect(page).toHaveURL(/#\/progress$/)
+  await expect(page.getByText('Weekly best e1RM')).toBeVisible()
+  expect(await page.evaluate(() => window.history.length)).toBe(entries)
+  await page.goBack()
+  await expect(page).not.toHaveURL(/#\/history/)
 })
