@@ -33,7 +33,9 @@ const figureWidth = (figure: string) => [...figure].reduce((sum, c) => sum + (c 
  * What the lifter did on this exercise last time (1.18), between today's sets and the weight entry on both sides:
  * every set of its last session on this side, in the order logged and each in the unit it was logged in, under the
  * session's date. Read-only and quieter than today's rows. Nothing at all, taking no room, for an exercise never
- * done on this side. The coach's "Last time: …" is the same session (the domain's `lastTime`).
+ * done on this side. The coach's "Last time: …" names the same session (on the bodybuilding side through the same
+ * domain rule, `lastTime`), with one exception: just after an exercise's plate setting changed the coach reads only the
+ * sets in the new unit, so it can name an earlier day, while this shows what was really done last.
  */
 export function LastTime({ last, today }: { last: LastTimeSets | null; today: string }) {
   if (last == null || last.sets.length === 0) return null

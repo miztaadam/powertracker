@@ -58,7 +58,8 @@ export type TodayItem = {
   lastWeightKg: number | null
   /**
    * 1.18: every set of this exercise in its last session on the side shown, before the day shown, in logged order and
-   * each in the unit it was logged in; null when it was never done on this side. The coach's "Last time: …" is the same session.
+   * each in the unit it was logged in; null when it was never done on this side. The coach's "Last time: …" names the same
+   * session, except just after the exercise's plate setting changed (the coach then reads only the sets in the new unit).
    */
   lastTime: LastTime | null
   /**

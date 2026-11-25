@@ -35,7 +35,9 @@ LAST TIME · WED 18 NOV
 - Non-goal: the coach's box. Its "Last time: …" sentence is stored and matched by pattern; it is left alone, so on
   the bodybuilding side the numbers show twice while the box is open.
 - Non-goal: the Stretch and Squeeze lines in the ⓘ guide. They stay there in both apps.
-- Anti-goal: the block and the coach's sentence disagreeing about which session was "last time".
+- Anti-goal: the block and the coach's sentence disagreeing about which session was "last time". (As built: they
+  agree, except just after an exercise's plate setting changed. The coaches then read only the sets in the new unit
+  and can name an earlier day; the block shows what was really done last, in the unit it was logged in.)
 - Anti-goal: a slower Today screen. The history already loaded is reused; nothing more is read.
 
 ## Approaches
