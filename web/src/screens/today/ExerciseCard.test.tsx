@@ -477,7 +477,7 @@ describe('last time on the exercise card', () => {
     const rows = within(within(section).getByRole('list')).getAllByRole('listitem')
     expect(rows.map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7', 'Set 2: 152.5 kg × 4', 'Set 3: 155 kg × 2 at RPE 9.5, missed'])
     // A set with no RPE has no "@" with nothing after it; only the missed set says so.
-    expect(drawn()).toEqual(['150 kg × 5@ 7', '152.5 kg × 4', '155 kg × 2@ 9.5Missed'])
+    expect(drawn()).toEqual(['150 kg× 5@ 7', '152.5 kg× 4', '155 kg× 2@ 9.5Missed'])
     expect(Array.from(document.querySelectorAll('.today-last-index')).map((el) => el.textContent)).toEqual(['1', '2', '3'])
     // Nothing in it can be tapped.
     expect(within(section).queryByRole('button')).toBeNull()
@@ -550,7 +550,7 @@ describe('last time on the exercise card', () => {
     show()
     const section = await screen.findByRole('region', { name: /^Last time/ })
     expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7', `Set 2: ${grit.plateSpoken(7.5)} × 12 at RPE 8`])
-    expect(drawn()).toEqual(['150 kg × 5@ 7', `${grit.plateText(7.5)} × 12@ 8`])
+    expect(drawn()).toEqual(['150 kg× 5@ 7', `${grit.plateText(7.5)}× 12@ 8`])
   })
 
   it('lastTime_followsTheSideOfTodaysSession', async () => {

@@ -131,7 +131,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-2) var(--space-2);
+  /* No inset at the sides: the set numbers sit under today's, and the heading under the card's own. */
+  padding: var(--space-3) 0 var(--space-2);
   border-top: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
 }
 
@@ -166,19 +167,36 @@
   color: var(--text-muted);
 }
 
-/* Weight × reps, then the effort, then "Missed": each stays whole, and goes to the next line where the row is too narrow. */
+/* The weight, "× reps", "@ effort" and "Missed": each stays whole, and goes to the next line where the row is too narrow. */
 .today-last-line {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  column-gap: var(--space-4);
+  column-gap: 0.35em;
   min-width: 0;
   color: var(--text-secondary);
 }
 
-.today-last-load,
-.today-last-effort {
+.today-last-part {
   white-space: nowrap;
+}
+
+/* Columns without a table, so a row can still wrap: the widths are the list's longest weight and reps (LastTime.tsx). */
+.today-last-load {
+  display: inline-block;
+  min-width: var(--last-load, 0);
+  text-align: end;
+}
+
+.today-last-reps {
+  display: inline-block;
+  min-width: var(--last-reps, 0);
+}
+
+/* Set a little apart from weight × reps, as today's rows set their "@". */
+.today-last-effort,
+.today-last-missed {
+  margin-left: 0.5em;
 }
 
 .today-last-soft {

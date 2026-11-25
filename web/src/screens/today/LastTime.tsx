@@ -1,7 +1,8 @@
+import type { CSSProperties } from 'react'
 import { setUnit } from '../../db/schema'
 import { grit } from '../../domain'
 import type { LastTime as LastTimeSets, PastSet } from '../../state/useToday'
-import { formatKg, formatLoad, formatRpe } from '../../ui/components/format'
+import { formatKg, formatRpe } from '../../ui/components/format'
 import { formatSessionDate } from '../progress/dates'
 
 /** "Wed 18 Nov"; "Wed 18 Nov 2025" when it is not the year of `today` (both `YYYY-MM-DD`). */
@@ -17,6 +18,17 @@ export function pastSetLabel(number: number, set: PastSet): string {
   return set.failed ? `${s}, missed` : s
 }
 
+/** A load as its figure and the words around it: "102.5" + " kg", or "plate " + "7½" (the domain's plate wording). */
+function loadParts(set: PastSet): { before: string; figure: string; after: string } {
+  if (setUnit(set) !== 'PLATES') return { before: '', figure: formatKg(set.weightKg), after: ' kg' }
+  const text = grit.plateText(set.weightKg)
+  const cut = text.lastIndexOf(' ') + 1
+  return { before: text.slice(0, cut), figure: text.slice(cut), after: '' }
+}
+
+/** A figure's width in digits: a decimal point takes about half of one. */
+const figureWidth = (figure: string) => [...figure].reduce((sum, c) => sum + (c === '.' ? 0.5 : 1), 0)
+
 /**
  * What the lifter did on this exercise last time (1.18), between today's sets and the weight entry on both sides:
  * every set of its last session on this side, in the order logged and each in the unit it was logged in, under the
@@ -26,12 +38,16 @@ export function pastSetLabel(number: number, set: PastSet): string {
 export function LastTime({ last, today }: { last: LastTimeSets | null; today: string }) {
   if (last == null || last.sets.length === 0) return null
   const date = lastTimeDate(last.date, today)
+  // The weights end on one line and the "@" signs start on one, whatever each row's digits: the weight's figure and
+  // the reps each get the room of the longest one in the list (the digits are tabular, one `ch` each).
+  const loads = last.sets.map((set) => loadParts(set))
+  const columns = { '--last-load': `${Math.max(...loads.map((l) => figureWidth(l.figure)))}ch`, '--last-reps': `${Math.max(...last.sets.map((set) => String(set.reps).length))}ch` } as CSSProperties
   return (
     <section className="today-last" aria-label={`Last time, ${date}`}>
       <p className="today-last-head eyebrow" aria-hidden="true">
         {`Last time · ${date}`}
       </p>
-      <ol role="list" className="today-last-sets">
+      <ol role="list" className="today-last-sets" style={columns}>
         {last.sets.map((set, i) => (
           // Each row read once, as one sentence; what shows is the number beside its figures.
           <li key={i} className="today-last-set">
@@ -40,13 +56,18 @@ export function LastTime({ last, today }: { last: LastTimeSets | null; today: st
               {i + 1}
             </span>
             <span className="today-last-line title-medium" aria-hidden="true">
-              <span className="today-last-load">
-                {formatLoad(set.weightKg, setUnit(set))}
-                <span className="today-last-soft"> × </span>
-                {set.reps}
+              {/* The weight, the reps and the effort each stay whole; on a very narrow screen one goes under the other. */}
+              <span className="today-last-part">
+                {loads[i]!.before}
+                <span className="today-last-load">{loads[i]!.figure}</span>
+                {loads[i]!.after}
+              </span>
+              <span className="today-last-part">
+                <span className="today-last-soft">× </span>
+                <span className="today-last-reps">{set.reps}</span>
               </span>
               {set.rpe != null && (
-                <span className="today-last-effort">
+                <span className="today-last-part today-last-effort">
                   <span className="today-last-soft">@ </span>
                   {formatRpe(set.rpe)}
                 </span>
