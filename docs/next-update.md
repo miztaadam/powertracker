@@ -1684,6 +1684,44 @@ Asked by the owner on 2026-11-25, with a screenshot of the bodybuilding Today ca
 
 **Version:** Android 1.18 (versionCode 34), web 1.18.0 (shown as 1.18). The Android app's screens are unchanged.
 
+**1.18 is complete at commit `929b437`.** The branch carries 1.19 (History) after it. A "publish" of 1.18 alone merges that commit, not the branch tip.
+
+## Built, not published: 1.19, History on Progress (web first; the Android app is not ported yet)
+Asked by the owner on 2026-11-25: "lets also add a "History" button at the top right of the UI on the progress tab showing all previous workouts, times,dates,sets,reps,weight etc". Spec: `docs/superpowers/specs/2026-11-25-grit-workout-history-design.md`; plan: `docs/superpowers/plans/2026-11-25-grit-workout-history.md`.
+
+**What the lifter gets (web app):**
+- A **History** button at the top right of Progress, on both sides, there whether or not that side has anything logged.
+- It opens **History**: every workout with at least one set, newest first, from both sides in one list. Each workout is a card: its date ("Tue 10 Nov 2026"), then its side, how many exercises and sets, and the bodyweight when one was logged that day; then each exercise in the order it was first logged, with every set of it (weight × reps, "@ RPE" when logged, "Missed", a plate number for a plate-counted set). The rows are the Today card's "Last time" rows.
+- The count at the top ("35 workouts") is of the whole log. **The first 20 workouts are drawn; "Show older workouts" draws 20 more each time.**
+- Read-only: nothing in the list can be tapped. Back returns to Progress.
+
+**Owner decided: dates only, no times.** Grit has never stored a workout's time of day or its length, only its date. Recording them was offered (it would change the stored log and the backup file on both apps, and past workouts would still have no time); the owner chose to leave times out.
+
+**My calls** (in the design the owner saw, except 3 to 5):
+1. Read-only, both sides in one list, web first, its own version.
+2. The first 20, then 20 more each time: a long log is never drawn whole on a phone.
+3. Today's own session is in the list as soon as it has a set. A session with no sets is left out and not counted.
+4. An archived exercise's sets still show, under its name.
+5. No "Top set" or "PR" marks: the screen says what was done; Progress's lift histories mark the records.
+
+**How:**
+- `router.tsx`: a `history` page, `#/history`. `App.tsx` draws `WorkoutHistoryScreen` for it and gives Progress `onOpenHistory`.
+- `state/useWorkoutHistory.ts`: `buildWorkoutHistory(history)` groups each session's sets by exercise, beside the lift and exercise histories; read live, like them.
+- `ui/components/PastSets.tsx` (with `PastSets.css`): the "Last time" rows moved out of `LastTime.tsx` unchanged, same class names, so the Today block and the History list are one component.
+- `screens/progress/HistoryButton.tsx` in both Progress headers; `WorkoutHistoryScreen.tsx`.
+- **No database, Dexie or backup change. No change under `domain/`. The Android app has the version number only.**
+
+**Limits:**
+- No search, no filter by side or exercise, no editing or deleting from this screen.
+- Until the Android port, History is in the web app only.
+- **Not checked on a phone,** and not in Safari.
+
+**Tests:**
+- `useWorkoutHistory.test.ts` (5): newest first from both sides with side, counts and bodyweight; a session with no sets is no workout; an exercise come back to is one group; every kind of set as logged, an archived exercise under its name; a set of an exercise with no row.
+- `WorkoutHistoryScreen.test.tsx` (6): the button opens the list and Back returns without leaving History behind; the button on both sides with nothing logged; opened directly; 45 workouts drawn 20 at a time; singular counts; loading.
+- `router.test.tsx`: `#/history`, opened from the button in the whole app.
+- e2e, `progress.spec.ts`: the button at the right of the title; 35 workouts, 20 drawn, then all; the cards' lines; Back three ways (the arrow, the phone's Back, opened directly). Two older checks there counted buttons whose name ends in "history" and now look for the lifts' tiles only. `narrowDeeper.spec.ts`: Progress with the button, and History with each side's story, at 320 px and 200% text.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
