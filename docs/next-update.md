@@ -1636,6 +1636,43 @@ The owner passed on, on 2026-11-24, that a user called the app "buggy" on an iPh
 
 **Handed to a session on the owner's Mac (2026-11-24):** the cloud session could not attach to the Mac (its folder is in the owner's Remote Control list but not offered to cloud sessions; cause not known). The steps for the Simulator are in `docs/handoff-2026-11-24.md`.
 
+## Built, not published: 1.18, last time's sets on the Today card (web first; the Android card is not ported yet)
+Asked by the owner on 2026-11-25, with a screenshot of the bodybuilding Today card: "where the stretch and squeeze instructions are I would like it to display what you achieved on this exercise the previous week instead. Same for powerlifting side." Then, on the design: "could it show all sets from the time the exercise was done previously?" Spec: `docs/superpowers/specs/2026-11-25-grit-last-time-on-today-design.md`; plan: `docs/superpowers/plans/2026-11-25-grit-last-time-on-today.md`.
+
+**What the lifter gets (web app):**
+- On the open Today card, between today's sets and the weight entry, a block headed **"Last time · Wed 18 Nov"** with **one row for every set of that session**, in the order logged: set number, weight × reps, "@ RPE" when one was logged, "Missed" on a missed set. A plate-counted set reads as a plate number.
+- **On both sides.** The bodybuilding card had the Stretch and Squeeze lines there; the powerlifting card had nothing.
+- **"Last time" is the latest earlier session on this side that has the exercise,** whatever its date (a missed week, or a lift done twice a week, still shows the most recent one). Each side shows its own sessions, as its coach reads them. The year is added to the date when it is not this year.
+- An exercise never done on this side shows nothing there, and the card is shorter.
+- The rows are read-only: quieter than today's rows, no tick, nothing to tap. Once the day's sets are done the block stays, above the button to the next exercise.
+- **The Stretch and Squeeze lines are no longer on the Today card.** They are still in the exercise's ⓘ guide on the bodybuilding side.
+
+**Owner decided:** the block replaces Stretch and Squeeze; it is on both sides; every set of the last session shows (not a one-line summary).
+
+**My calls** (each said to the owner before building, except 4 to 6):
+1. "Previous week" is read as the last session with the exercise, not the calendar week before. The date in the heading says which day it was.
+2. The coach's box is left alone. On the bodybuilding side its sentence ("Last time: 26 × 11, 10, 9. Beat it.") shows the same numbers while the box is open, so they are on the card twice until it is applied or dismissed. That sentence is stored text that the app matches by pattern, so it was not touched.
+3. Web first, Android after the owner has used it (the owner's rule of 2026-11-21).
+4. Each set shows in the unit it was logged in (kg or plate number), as the coach's sentence has them, even after the exercise's plate setting has changed.
+5. The block has no inset at its sides, so its set numbers sit under today's (the Stretch and Squeeze lines were inset by 4 px).
+6. The in-app guide's sample Today cards show no "Last time" block (their sample card has no earlier session to show), so on the bodybuilding side those two pictures lost their Stretch and Squeeze lines and gained nothing.
+
+**How:**
+- `domain`: `TrainingHistory.lastTime(exerciseId, mode, before)` and `lastTimes(mode, before)` in `history/LastTime.kt` are the one rule for "last time". `BodybuildingCoach.lastSets` now calls it (no change in what the coach says: its tests pass unchanged). The web gets `GritDomain.lastTimes`, one call for all the cards.
+- Web: `TodayItem.lastTime` (`useToday.ts`), worked out from the history Today already holds and kept for as long as that history object, like the top sets. No new database read. `LastTime.tsx` draws it; `Cues` and its styles are gone from `ExerciseCard.tsx` and `today.css`.
+- **Android app: the Today card is unchanged** and still shows Stretch and Squeeze on the bodybuilding side. It carries the shared rule and the version number only. Its port is the next step: the same field on `TodayItem` (`TodayViewModel.kt`) from `history.lastTimes(mode, date)`, and a block in `ExerciseCard.kt` in place of `MuscleCues`.
+- No database, Dexie or backup change.
+
+**Limits:**
+- Until the Android port, the two apps differ on this card.
+- With many sets last time the card is long: each set is a 24 px row, so eight sets put about 220 px above the weight entry.
+- **Not checked on a phone,** and not in Safari.
+
+**Tests:**
+- Domain: `LastTimeTest` (6): none; the latest of several, every set in order; strictly before the day; its own side only, even when the other side is later; each set in its own unit; `lastTimes` agrees with `lastTime` for every exercise, two sessions on one day included. `GritDomainTest.lastTimes_oneEntryForEachExerciseDoneOnTheSide`.
+- Web, `ExerciseCard.test.tsx`, "last time on the exercise card" (7), in place of the six Stretch and Squeeze tests: every set in order with what a screen reader hears; its own side and no Stretch or Squeeze; never done shows nothing and today's own sets are not "last time"; its place on the card before and after the day's sets are done; another year; a plate set beside a kg set; it follows the side of today's session.
+- Web e2e, `bodybuilding.spec.ts`: "last time's sets sit between today's sets and the weight entry, unclipped at 130% zoom", with eight sets (one missed, one with no RPE), in place of the Stretch and Squeeze zoom test. The very narrow Today tests in `narrow.spec.ts` (320 px at 200% text, kg and plates, both sides) already had four weeks of history, so they now hold the block: they failed on the first layout (a row wider than the card) and pass now that a row's weight, reps and effort can each go to the next line.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
