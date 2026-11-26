@@ -1909,6 +1909,16 @@ Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the 
 - Web, `WorkoutHistoryScreen.test.tsx` (11, five new): the month, a button on each workout day, the ring, the counts; the arrows' limits; no run says only the month's count; a tap brings a workout up, also the 50th down the log, and again on a second tap; the month maths (a month starting on a Sunday, on a Monday, a leap February, across a year). e2e `progress.spec.ts`: the calendar at 375 px (30 day cells, all at least 47.5 px wide and inside the screen), a month back and a tap (the card at the top and focused), the first month and a tap past the first twenty (35 drawn), the address unchanged. `narrowDeeper.spec.ts`'s History tests hold the calendar at 160 px.
 - Android, `WorkoutHistoryScreenTest` (18, six new): the same cases; a tap brings the 30th workout to the top of the lazy list; every day at least 48 dp each way and inside the screen at 360 dp; whole at 320 dp and font scale 1.3.
 
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-26, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,711 of 1,711 (1,705 before, plus six); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 521 passed, 12 skipped, first time,** with no source change while it ran. The `E2E_UA=android` pass: 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` (988 tests, 0 failed) and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,141 tests, 0 failed, 1 skipped (1,134 before, plus seven). `:domain:checkWebDomain` passed. `:app:assembleRelease` builds: versionCode 39, versionName 1.22, unsigned in this container.
+- Looked at, in scratch tests not kept: the web calendar's sizes at 390, 360, 320, 246 and 240 px (nothing cut, the page never wider than the screen); the light theme with today as a workout day (a button with the ring and the dot).
+- **Not run on merged main. Not run on a phone or an emulator.** The month's name and the weekday letters come from the phone's own language data, which the tests here (English) do not prove for another language.
+
+**Shots:** web, from the full run: `history-*` (the calendar), `showcase-*` (the icon list has the new left arrow) and the six Settings shots; five others were put back as drift of a few bytes. Android: `history-*` and the six Settings shots.
+
+**Version:** Android 1.22 (versionCode 39), web 1.22.0 (shown as 1.22).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
