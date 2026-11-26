@@ -57,6 +57,7 @@ import com.powertracker.domain.model.missPointLabel
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.repsText
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.stack.PlateCheck
 import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.components.CoachSuggestion
@@ -314,7 +315,13 @@ private fun ColumnScope.CardContent(
             val match = next?.let { last.sets[it] }
             LastTimeBlock(
                 last, today, next,
-                onUse = if (match != null && match.unit == item.unit) ({ actions.onEdit(id, item.editor.copy(weightKg = match.weightKg, reps = match.reps)) }) else null,
+                // ... and, for a plate number, on the grid the machine counts on now (plate 7½ is not offered once whole
+                // plates are on), as the coach's targets are held to.
+                onUse = if (match != null && match.unit == item.unit && (match.unit != LoadUnit.PLATES || PlateStack.check(match.weightKg, item.plateCount) == PlateCheck.OK)) {
+                    { actions.onEdit(id, item.editor.copy(weightKg = match.weightKg, reps = match.reps)) }
+                } else {
+                    null
+                },
             )
         }
 
@@ -354,7 +361,8 @@ private fun LastTimeBlock(last: LastTime, today: LocalDate, next: Int? = null, o
         )
         PastSets(last.sets, next = next)
         if (next != null && onUse != null) {
-            SecondaryButton(useSetText(next + 1, last.sets[next]), onUse, compact = true, modifier = Modifier.padding(top = Space.xs))
+            // Two lines at most: on a small phone at a large font the longest label does not fit one.
+            SecondaryButton(useSetText(next + 1, last.sets[next]), onUse, compact = true, modifier = Modifier.padding(top = Space.xs), textMaxLines = 2)
         }
     }
 }

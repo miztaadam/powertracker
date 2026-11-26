@@ -77,3 +77,10 @@
 .today-last-set-next > .today-last-index {
   color: var(--accent-text);
 }
+
+.today-last-next {
+  margin-left: 0.5em;
+  color: var(--text);
+  text-transform: uppercase;
+  white-space: nowrap;
+}

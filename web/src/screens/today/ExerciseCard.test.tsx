@@ -478,7 +478,7 @@ describe('last time on the exercise card', () => {
     // Nothing is logged today, so last time's first set is the one to match (1.21).
     expect(rows.map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7, your next set', 'Set 2: 152.5 kg × 4', 'Set 3: 155 kg × 2 at RPE 9.5, missed'])
     // A set with no RPE has no "@" with nothing after it; only the missed set says so.
-    expect(drawn()).toEqual(['150 kg× 5@ 7', '152.5 kg× 4', '155 kg× 2@ 9.5Missed'])
+    expect(drawn()).toEqual(['150 kg× 5@ 7Next', '152.5 kg× 4', '155 kg× 2@ 9.5Missed'])
     expect(Array.from(document.querySelectorAll('.today-last-index')).map((el) => el.textContent)).toEqual(['1', '2', '3'])
     // No row can be tapped: the block's one button is "Use set N" (1.21).
     expect(within(section).getAllByRole('button').map((b) => b.textContent)).toEqual(['Use set 1: 150 kg × 5'])
@@ -552,7 +552,7 @@ describe('last time on the exercise card', () => {
     show()
     const section = await screen.findByRole('region', { name: /^Last time/ })
     expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7, your next set', `Set 2: ${grit.plateSpoken(7.5)} × 12 at RPE 8`])
-    expect(drawn()).toEqual(['150 kg× 5@ 7', `${grit.plateText(7.5)}× 12@ 8`])
+    expect(drawn()).toEqual(['150 kg× 5@ 7Next', `${grit.plateText(7.5)}× 12@ 8`])
   })
 
   // 1.21: the row for the set about to be logged is marked, and one button puts its weight and reps in the fields.
@@ -619,6 +619,76 @@ describe('last time on the exercise card', () => {
     // Six sets last time, five done today: the sixth is next.
     await waitFor(() => expect(nextRow()).toHaveTextContent('Set 6: 144 kg × 5 at RPE 8, your next set'))
     expect(useButton()).toHaveTextContent('Use set 6: 144 kg × 5')
+  })
+
+  it('useSet_onARamp_thenLog_isNotHeldAsATypo_butATypedJumpStillIs', async () => {
+    // Last week ramped: 100, 140, 170. Today's first set is 100; the second, 140, is 40% up: a jump the typo check asks about.
+    const lastWeek = await sessionOn(LAST_WEEK)
+    await db.sets.where('sessionId').equals(lastWeek).modify({ weightKg: 100, rpe: 5 })
+    await logSet(db, lastWeek, set(squatId, 140, { rpe: 6 }))
+    await logSet(db, lastWeek, set(squatId, 170, { rpe: 7 }))
+    await logSet(db, await sessionOn(TODAY), set(squatId, 100, { rpe: 5 }))
+    show()
+    await screen.findByText('Set 2 of 5')
+
+    await userEvent.click(useButton()!)
+    await waitFor(() => expect(weight()).toHaveValue('140'))
+    await userEvent.click(button('Log set 2'))
+    // Done last time as set 2: logged at once, no "is this right?".
+    await waitForSets(2)
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect((await setsOn(db, TODAY)).map((s) => s.weightKg)).toEqual([100, 140])
+
+    // A weight not done last time as set 3, just as far up: still asked about.
+    await waitFor(() => expect(useButton()).toHaveTextContent('Use set 3: 170 kg × 5'))
+    await type(weight(), '190')
+    await userEvent.click(button('Log set 3'))
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    await settled()
+    expect(await setsOn(db, TODAY)).toHaveLength(2)
+  })
+
+  it('useSet_withANumberTypedAndLeftInTheField_actsAsApplyDoes', async () => {
+    const lastWeek = await sessionOn(LAST_WEEK)
+    await logSet(db, lastWeek, set(squatId, 152.5, { reps: 4 }))
+    await logSet(db, await sessionOn(TODAY), set(squatId, 150))
+    show()
+    await screen.findByText('Set 2 of 5')
+
+    // Half-way through typing "140" the lifter taps the button; on iOS the field keeps the cursor.
+    weight().focus()
+    fireEvent.change(weight(), { target: { value: '14' } })
+    fireEvent.click(useButton()!)
+    await waitFor(async () => expect(await savedEditor()).toMatchObject({ weightKg: 152.5, reps: 4 }))
+    // The keystrokes are still there while the cursor is; the reps field, untouched, shows the row's.
+    expect(weight()).toHaveFocus()
+    expect(weight()).toHaveValue('14')
+    expect(reps()).toHaveValue('4')
+    // Leaving the field shows the row's weight: the stale "14" is not saved over it.
+    fireEvent.blur(weight())
+    expect(weight()).toHaveValue('152.5')
+    expect(await savedEditor()).toMatchObject({ weightKg: 152.5, reps: 4 })
+  })
+
+  it('useSet_aPlateNumberOffTheMachinesGrid_isMarked_butHasNoButton', async () => {
+    // Lat pulldown counts whole plates now; last time's first set was plate 7½, logged when it counted half steps.
+    const entry = grit.findInLibrary('Lat pulldown')!
+    const pulldown = (await db.exercises.add({ name: entry.name, category: entry.category, parentLift: entry.parentLift ?? null, muscles: [...entry.muscles], isBuiltIn: true, archived: false, plateCount: 'WHOLE' })) as number
+    await db.planItems.clear()
+    await plan(db, pulldown, { sets: 3, reps: 10 })
+    const lastWeek = await sessionOn(LAST_WEEK)
+    await logSet(db, lastWeek, { ...set(pulldown, 7.5, { reps: 12 }), unit: 'PLATES' })
+    await logSet(db, lastWeek, { ...set(pulldown, 8, { reps: 10 }), unit: 'PLATES' })
+    const view = show()
+    await screen.findByRole('heading', { name: 'Lat pulldown' })
+    await waitFor(() => expect(nextRow()).toHaveTextContent(`Set 1: ${grit.plateSpoken(7.5)} × 12 at RPE 8, your next set`))
+    expect(useButton()).toBeNull()
+    view.unmount()
+
+    // With one set logged, the second row, a whole plate, can be used.
+    await logSet(db, await sessionOn(TODAY), { ...set(pulldown, 7, { reps: 12 }), unit: 'PLATES' })
+    show()
+    await waitFor(() => expect(useButton()).toHaveTextContent(`Use set 2: ${grit.plateText(8)} × 10`))
   })
 
   it('useSet_aSetInAnotherUnitThanTheField_isMarked_butHasNoButton', async () => {

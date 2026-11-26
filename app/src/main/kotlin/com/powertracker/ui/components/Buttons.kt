@@ -27,13 +27,13 @@ private val Regular = PaddingValues(horizontal = 20.dp, vertical = 14.dp)
 private val Compact = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
 
 @Composable
-private fun Label(text: String, icon: ImageVector?, spoken: Boolean = true) {
+private fun Label(text: String, icon: ImageVector?, spoken: Boolean = true, maxLines: Int = 1) {
     if (icon != null) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
     }
     // With an accessible name of its own ([SecondaryButton]'s label), the visible word is not read as well.
-    Text(text, style = MaterialTheme.typography.labelLarge, maxLines = 1, modifier = if (spoken) Modifier else Modifier.clearAndSetSemantics {})
+    Text(text, style = MaterialTheme.typography.labelLarge, maxLines = maxLines, modifier = if (spoken) Modifier else Modifier.clearAndSetSemantics {})
 }
 
 // Compact buttons are 40 dp tall to look at, but Material pads their touch target to 48 dp
@@ -76,6 +76,8 @@ fun SecondaryButton(
     icon: ImageVector? = null,
     compact: Boolean = false,
     label: String? = null,
+    /** One line by default; a button whose words are numbers it does not choose ("Use set 11: plate 12½ × 15") lets them wrap. */
+    textMaxLines: Int = 1,
 ) {
     val interaction = remember { MutableInteractionSource() }
     Button(
@@ -92,7 +94,7 @@ fun SecondaryButton(
             contentColor = MaterialTheme.colorScheme.onSurface,
         ),
         contentPadding = if (compact) Compact else Regular,
-    ) { Label(text, icon, spoken = label == null) }
+    ) { Label(text, icon, spoken = label == null, maxLines = textMaxLines) }
 }
 
 /** A text-only action: dismiss, cancel, skip. */

@@ -494,7 +494,9 @@ test('today: last time\'s sets sit between today\'s sets and the weight entry, u
   expect(size).toBeGreaterThanOrEqual(16)
   // 1.21: one set is done today, so last time's second set is marked, and the button under the rows names it.
   await expect(last.locator('.today-last-set-next')).toHaveCount(1)
-  await expect(last.locator('.today-last-set-next .today-last-line')).toHaveText('102.5 kg× 14@ 9.5')
+  // The marked row says "Next" too: not by colour alone.
+  await expect(last.locator('.today-last-set-next .today-last-line')).toHaveText('102.5 kg× 14@ 9.5Next')
+  await expect(last.locator('.today-last-next')).toBeVisible()
   const use = last.getByRole('button', { name: 'Use set 2: 102.5 kg × 14' })
   await expect(use).toBeVisible()
   const useBox = (await use.boundingBox())!

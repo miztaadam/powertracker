@@ -29,7 +29,8 @@ const figureWidth = (figure: string) => [...figure].reduce((sum, c) => sum + (c 
  * The sets of one exercise in an earlier session, in the order given, numbered from 1: weight × reps, "@ RPE" when
  * there is one, "Missed" on a missed set, each in the unit it was logged in. Read-only. Each row is read once by a
  * screen reader, as one sentence. `next` (1.21, Today only) is the index, from 0, of the row that matches the set about
- * to be logged: it is drawn in the full text colour with its number in the accent, and reads ", your next set".
+ * to be logged: it is drawn in the full text colour with its number in the accent and the word "Next" after it, and reads
+ * ", your next set".
  */
 export function PastSets({ sets, next }: { sets: readonly PastSet[]; next?: number }) {
   // The weights end on one line and the "@" signs start on one, whatever each row's digits: the weight's figure and
@@ -63,6 +64,8 @@ export function PastSets({ sets, next }: { sets: readonly PastSet[]; next?: numb
               </span>
             )}
             {set.failed && <span className="today-last-missed label-medium">Missed</span>}
+            {/* The marked row says so in a word too: on the powerlifting side the accent is a grey close to the others. */}
+            {i === next && <span className="today-last-next label-medium">Next</span>}
           </span>
         </li>
       ))}

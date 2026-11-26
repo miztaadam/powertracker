@@ -11,6 +11,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.LoadUnit
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.pastSetSpoken
@@ -451,5 +452,61 @@ class BodybuildingContentTest {
         // The same set in kg can.
         showCard(TrainingMode.POWERLIFTING, LastTime(LocalDate(2026, 11, 4), listOf(past(100.0, 12), past(100.0, 11), past(97.5, 10))))
         compose.onNodeWithText("Use set 3: 97.5 kg × 10").assertExists()
+    }
+
+    /** A plate-counted machine's card with [last] as its last time and [logged] plate sets done today. */
+    private fun platesCard(count: PlateCount, last: LastTime, logged: Int) = item(squat.copy(plateCount = count), (1..logged).map { StoredSet(it.toLong(), 1, past(7.0, 12, unit = LoadUnit.PLATES)) })
+        .copy(editor = SetEditor(7.0, 12, 8.0, LoadUnit.PLATES), unit = LoadUnit.PLATES, plateCount = count, lastTime = last)
+
+    @Test
+    fun useSet_aPlateNumberOffTheMachinesGrid_isMarked_butHasNoButton() {
+        // Plate 7½ was logged when the machine counted half steps; it counts whole plates now.
+        val last = LastTime(LocalDate(2026, 11, 4), listOf(past(7.5, 12, unit = LoadUnit.PLATES), past(8.0, 10, unit = LoadUnit.PLATES)))
+        val shown = mutableStateOf(platesCard(PlateCount.WHOLE, last, logged = 0))
+        compose.setContent {
+            PowertrackerTheme { TodayContent(TodayState(date, loading = false, sessionId = 1, items = listOf(shown.value)), TodayActions()) }
+        }
+        compose.onNodeWithText("Set 1: ${PlateStack.spoken(7.5)} × 12 at RPE 8, your next set", useUnmergedTree = true).assertExists()
+        compose.onAllNodesWithText("Use set", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        // With half steps on, the same row can be used.
+        shown.value = platesCard(PlateCount.HALF, last, logged = 0)
+        compose.waitForIdle()
+        compose.onNodeWithText("Use set 1: ${PlateStack.text(7.5)} × 12").assertExists()
+        // And on whole plates the second row, a whole plate, can.
+        shown.value = platesCard(PlateCount.WHOLE, last, logged = 1)
+        compose.waitForIdle()
+        compose.onNodeWithText("Use set 2: ${PlateStack.text(8.0)} × 10").assertExists()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun useSet_theLongestLabel_isWholeOnASmallPhoneAtALargeFont() {
+        // Ten sets logged of a machine on half steps: "Use set 11: plate 12½ × 15", the longest the button gets.
+        val last = LastTime(LocalDate(2026, 11, 4), (1..11).map { past(12.5, 15, 9.5, unit = LoadUnit.PLATES) })
+        val label = "Use set 11: ${PlateStack.text(12.5)} × 15"
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1.3f)) {
+                PowertrackerTheme(mode = TrainingMode.BODYBUILDING) {
+                    TodayContent(
+                        TodayState(date, loading = false, sessionId = 1, items = listOf(platesCard(PlateCount.HALF, last, logged = 10).copy(targetSets = 12)), mode = TrainingMode.BODYBUILDING),
+                        TodayActions(),
+                    )
+                }
+            }
+        }
+        compose.waitForIdle()
+        val screen = compose.onRoot().getUnclippedBoundsInRoot()
+        val button = compose.onNodeWithText(label).getUnclippedBoundsInRoot()
+        assertTrue("the button is inside the screen", button.left >= screen.left && button.right <= screen.right)
+        // Every letter of the label is on a line that is drawn: a one-line text that runs out of room drops its tail.
+        val text = compose.onNodeWithText(label, useUnmergedTree = true).fetchSemanticsNode()
+        val layout = mutableListOf<TextLayoutResult>().also { text.config[SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
+        assertEquals("the label is whole", label.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
+        assertFalse("the label is cut at the bottom", layout.didOverflowHeight)
+        // The marked row, the eleventh, says "NEXT" and is whole too.
+        compose.onNodeWithText("Set 11: ${PlateStack.spoken(12.5)} × 15 at RPE 9.5, your next set", useUnmergedTree = true).assertExists()
+        compose.assertTextsFit()
     }
 }

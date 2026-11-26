@@ -47,7 +47,8 @@ fun pastSetSpoken(number: Int, set: LoggedSet): String = buildString {
  * logged: smaller figures in the secondary colour, no tick, nothing to tap. Each row is one sentence to TalkBack.
  * The weights end on one line and the "@" signs start on one; at a large font size or on a narrow screen a row's parts
  * go to the next line whole, never cut. [next] (1.21, Today only) is the index, from 0, of the row that matches the set
- * about to be logged: it is drawn in the full text colour with its number in the accent, and reads ", your next set".
+ * about to be logged: it is drawn in the full text colour with its number in the accent and the word "Next" after it, and
+ * reads ", your next set".
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -73,14 +74,15 @@ fun PastSets(sets: List<LoggedSet>, modifier: Modifier = Modifier, next: Int? = 
                 horizontalArrangement = Arrangement.spacedBy(Space.m),
             ) {
                 Text((i + 1).toString(), style = MaterialTheme.typography.titleSmall, color = if (marked) pt.accentText else pt.muted, textAlign = TextAlign.Center, modifier = Modifier.width(20.dp).alignByBaseline())
+                // Its parts sit on one baseline, the smaller "MISSED" and "NEXT" too, so the row is no taller for them.
                 FlowRow(Modifier.weight(1f).alignByBaseline(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-                    Text(loads[i], style = style, color = figures, textAlign = TextAlign.End, maxLines = 1, modifier = Modifier.widthIn(min = loadWidth))
+                    Text(loads[i], style = style, color = figures, textAlign = TextAlign.End, maxLines = 1, modifier = Modifier.widthIn(min = loadWidth).alignByBaseline())
                     Text(
                         buildAnnotatedString {
                             withStyle(SpanStyle(color = pt.muted)) { append("× ") }
                             append(set.reps.toString())
                         },
-                        style = style, color = figures, maxLines = 1, modifier = Modifier.widthIn(min = repsWidth),
+                        style = style, color = figures, maxLines = 1, modifier = Modifier.widthIn(min = repsWidth).alignByBaseline(),
                     )
                     set.rpe?.let { rpe ->
                         Text(
@@ -88,11 +90,15 @@ fun PastSets(sets: List<LoggedSet>, modifier: Modifier = Modifier, next: Int? = 
                                 withStyle(SpanStyle(color = pt.muted)) { append("@ ") }
                                 append(formatRpe(rpe))
                             },
-                            style = style, color = figures, maxLines = 1, modifier = Modifier.padding(start = Space.xs),
+                            style = style, color = figures, maxLines = 1, modifier = Modifier.padding(start = Space.xs).alignByBaseline(),
                         )
                     }
                     if (set.failed) {
-                        Text("MISSED", style = MaterialTheme.typography.labelMedium, color = pt.danger, maxLines = 1, modifier = Modifier.padding(start = Space.xs))
+                        Text("MISSED", style = MaterialTheme.typography.labelMedium, color = pt.danger, maxLines = 1, modifier = Modifier.padding(start = Space.xs).alignByBaseline())
+                    }
+                    // The marked row says so in a word too: on the powerlifting side the accent is a grey close to the others.
+                    if (marked) {
+                        Text("NEXT", style = MaterialTheme.typography.labelMedium, color = scheme.onSurface, maxLines = 1, modifier = Modifier.padding(start = Space.xs).alignByBaseline())
                     }
                 }
             }

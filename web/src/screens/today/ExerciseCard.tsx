@@ -118,7 +118,10 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
   const entering = !item.isComplete || extraSet
   // Last time's set with the number of the one about to be logged, when it is in the unit the exercise counts in now.
   const matching = entering ? item.lastTime?.sets[item.sets.length] : undefined
-  const usable = matching != null && setUnit(matching) === setUnit(item)
+  // ... and, for a plate number, on the grid the machine counts on now (plate 7½ is not offered once whole plates are
+  // on), as the coach's targets are held to.
+  const usable =
+    matching != null && setUnit(matching) === setUnit(item) && (setUnit(matching) !== 'PLATES' || grit.plateCheck(matching.weightKg, item.plateCount ?? 'OFF') === 'OK')
 
   return (
     <Card spacing={8}>
