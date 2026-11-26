@@ -1826,6 +1826,28 @@ The owner, 2026-11-25, after installing the Android app: "its missing the update
 
 **Agreed next, in this order (owner, 2026-11-26):** (1) "Last time" you can act on: the row for the set about to be done highlighted, and a "Use set N" button that fills weight and reps (design sent, not yet confirmed); (2) a calendar in History; (3) warm-up sets; (4) supersets. Supersets change the stored log and the backup, so both apps ship together; warm-ups too if they are saved in the log.
 
+## Built, not published: 1.21, "Use set N" under Last time (both apps)
+Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" something you act on). The idea as listed had a tap on a row copy it into the fields; the design sent instead was one button, and the owner did not object after being asked twice, so the button was built. **If the owner wants tappable rows after all, that is a change to make.**
+
+**What the lifter gets (both apps):**
+- While a card takes sets, **the row of "Last time" with the number of the set about to be logged is highlighted** (its figures in the full text colour, its number in the accent). A screen reader hears ", your next set" after it.
+- Under the rows, **one button: "Use set 2: 25 kg × 9"**. It puts that row's weight and reps in the fields. The RPE stays as it was, and nothing is logged.
+- After each set is logged, the highlight and the button move to the next row.
+- **No highlight and no button** past the number of sets done last time, or once the day's sets are done (until "Add another set"). **Highlight but no button** when that set was logged in another unit than the exercise counts in now (a plate number never goes in a kg field).
+
+**Why a button and not tappable rows:** the rows are 24 px tall; a tap target must be 48. Making each row a target would double the block's height on the card.
+
+**Both apps in one release.** From 1.21 the owner uses the Android app day to day and found 1.18/1.19 missing there, so features now go to both apps together unless the owner says otherwise (this sets aside the web-first rule of 2026-11-21; said to the owner on 2026-11-26).
+
+**How:**
+- Web: `PastSets` takes `next` (the row to mark); `LastTime` takes `next` and `onUse`; `ExerciseCard` passes how many sets are logged while the entry shows, and an `onUse` that calls the existing `actions.edit` with the row's weight and reps. No new state.
+- Android: the same in `PastSets(next = …)`, `LastTimeBlock(next, onUse)` and `CardContent`, through the existing `TodayActions.onEdit`.
+- No database, backup or `domain/` change.
+
+**Tests:**
+- Web, `ExerciseCard.test.tsx`: the row marked and the fields filled, nothing logged, then the next row after a set is logged; nothing marked past last time's sets or with the day's sets done, and the sixth row after "Add another set"; a set in another unit is marked without a button. Three earlier tests now expect ", your next set" on the first row. e2e `bodybuilding.spec.ts`: the marked row and the button at 130% zoom with eight sets, a full-size target inside the screen, and it fills the fields. The very narrow Today tests (`narrow.spec.ts`) hold the button and pass.
+- Android, `BodybuildingContentTest`: the row marked and `onEdit` called with the row's weight and reps, nothing logged; no button past last time's sets or in another unit; the button whole on a 320 dp phone at font scale 1.3.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
