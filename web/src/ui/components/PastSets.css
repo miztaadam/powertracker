@@ -68,3 +68,12 @@
   color: var(--danger);
   text-transform: uppercase;
 }
+
+/* The row that matches the set about to be logged (1.21): the figures in the full text colour, the number in the accent. */
+.today-last-set-next > .today-last-line {
+  color: var(--text);
+}
+
+.today-last-set-next > .today-last-index {
+  color: var(--accent-text);
+}

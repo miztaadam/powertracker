@@ -114,6 +114,11 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
   const powerlifting = side === 'POWERLIFTING'
   const top = powerlifting ? topSetIndex(item.sets, setUnit(item)) : null
   const nextNumber = item.sets.length + 1
+  // The card takes sets: the entry shows, not the way on.
+  const entering = !item.isComplete || extraSet
+  // Last time's set with the number of the one about to be logged, when it is in the unit the exercise counts in now.
+  const matching = entering ? item.lastTime?.sets[item.sets.length] : undefined
+  const usable = matching != null && setUnit(matching) === setUnit(item)
 
   return (
     <Card spacing={8}>
@@ -167,9 +172,16 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         </div>
       )}
 
-      <LastTime last={item.lastTime} today={today} />
+      <LastTime
+        last={item.lastTime}
+        today={today}
+        // The set about to be logged, while the card takes sets: its row of last time is marked.
+        next={entering ? item.sets.length : undefined}
+        // Weight and reps only, and only from a set in the unit the field is in now: a plate number never goes in a kg field.
+        onUse={usable ? (set) => actions.edit(id, { ...item.editor, weightKg: set.weightKg, reps: set.reps }) : undefined}
+      />
 
-      {!item.isComplete || extraSet ? (
+      {entering ? (
         <>
           <hr className="today-hairline" />
           {/* A change of weight field (kg, whole plates, half steps) starts the editor afresh: nothing typed in one is read as the other. */}

@@ -143,6 +143,12 @@
   overflow: visible;
 }
 
+/* "Use set N: …" (1.21), under last time's rows, starting where their figures start. */
+.today-last-use {
+  display: flex;
+  padding-top: var(--space-2);
+}
+
 .today-miss {
   display: flex;
   align-items: center;

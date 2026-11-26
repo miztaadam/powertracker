@@ -475,12 +475,14 @@ describe('last time on the exercise card', () => {
     const head = within(section).getByText('Last time · Wed 4 Nov')
     expect(head).toHaveClass('eyebrow')
     const rows = within(within(section).getByRole('list')).getAllByRole('listitem')
-    expect(rows.map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7', 'Set 2: 152.5 kg × 4', 'Set 3: 155 kg × 2 at RPE 9.5, missed'])
+    // Nothing is logged today, so last time's first set is the one to match (1.21).
+    expect(rows.map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7, your next set', 'Set 2: 152.5 kg × 4', 'Set 3: 155 kg × 2 at RPE 9.5, missed'])
     // A set with no RPE has no "@" with nothing after it; only the missed set says so.
     expect(drawn()).toEqual(['150 kg× 5@ 7', '152.5 kg× 4', '155 kg× 2@ 9.5Missed'])
     expect(Array.from(document.querySelectorAll('.today-last-index')).map((el) => el.textContent)).toEqual(['1', '2', '3'])
-    // Nothing in it can be tapped.
-    expect(within(section).queryByRole('button')).toBeNull()
+    // No row can be tapped: the block's one button is "Use set N" (1.21).
+    expect(within(section).getAllByRole('button').map((b) => b.textContent)).toEqual(['Use set 1: 150 kg × 5'])
+    expect(within(within(section).getByRole('list')).queryByRole('button')).toBeNull()
     // Before the weight entry.
     expect(follows(section, weight())).toBe(true)
   })
@@ -504,7 +506,7 @@ describe('last time on the exercise card', () => {
     for (const reps of [12, 11, 10]) await logSet(db, earlier, set(squatId, 100, { reps }))
     show()
     const section = await screen.findByRole('region', { name: 'Last time, Wed 28 Oct' })
-    expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 100 kg × 12 at RPE 8', 'Set 2: 100 kg × 11 at RPE 8', 'Set 3: 100 kg × 10 at RPE 8'])
+    expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 100 kg × 12 at RPE 8, your next set', 'Set 2: 100 kg × 11 at RPE 8', 'Set 3: 100 kg × 10 at RPE 8'])
     expect(screen.queryByText('STRETCH')).toBeNull()
   })
 
@@ -549,8 +551,83 @@ describe('last time on the exercise card', () => {
     await logSet(db, await sessionOn(LAST_WEEK), { ...set(squatId, 7.5, { reps: 12 }), unit: 'PLATES' })
     show()
     const section = await screen.findByRole('region', { name: /^Last time/ })
-    expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7', `Set 2: ${grit.plateSpoken(7.5)} × 12 at RPE 8`])
+    expect(within(section).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7, your next set', `Set 2: ${grit.plateSpoken(7.5)} × 12 at RPE 8`])
     expect(drawn()).toEqual(['150 kg× 5@ 7', `${grit.plateText(7.5)}× 12@ 8`])
+  })
+
+  // 1.21: the row for the set about to be logged is marked, and one button puts its weight and reps in the fields.
+  const nextRow = () => document.querySelector('.today-last-set-next')
+  const useButton = () => screen.queryByRole('button', { name: /^Use set / })
+
+  it('useSet_marksTheRowForTheNextSet_andFillsWeightAndReps_loggingNothing', async () => {
+    // Last week worked up: 150 × 5 @ 7 (the fixture's), 152.5 × 4, 155 × 2 @ 9.5.
+    const lastWeek = await sessionOn(LAST_WEEK)
+    await logSet(db, lastWeek, set(squatId, 152.5, { reps: 4, rpe: null }))
+    await logSet(db, lastWeek, set(squatId, 155, { reps: 2, rpe: 9.5 }))
+    // One set done today, so the second of last time is the one to match.
+    await logSet(db, await sessionOn(TODAY), set(squatId, 150, { rpe: 7.5 }))
+    show()
+    await screen.findByText('Set 2 of 5')
+    expect(nextRow()).toHaveTextContent('Set 2: 152.5 kg × 4, your next set')
+    expect(document.querySelectorAll('.today-last-set-next')).toHaveLength(1)
+    expect(useButton()).toHaveTextContent('Use set 2: 152.5 kg × 4')
+    // The field holds today's last set until the button is tapped.
+    expect(weight()).toHaveValue('150')
+    expect(reps()).toHaveValue('5')
+    expect(rpe()).toHaveValue('7.5')
+
+    await userEvent.click(useButton()!)
+    await waitFor(() => expect(weight()).toHaveValue('152.5'))
+    expect(reps()).toHaveValue('4')
+    // The effort is left as it was, and nothing was logged.
+    expect(rpe()).toHaveValue('7.5')
+    await settled()
+    expect(await setsOn(db, TODAY)).toHaveLength(1)
+    // The plates follow, as after any change of weight.
+    expect(await screen.findByText('25 + 25 + 15 + 1.25')).toBeInTheDocument()
+
+    // Log it: the third row is next, and the button names it.
+    await userEvent.click(button('Log set 2'))
+    await waitForSets(2)
+    expect(await setsOn(db, TODAY)).toMatchObject([{ weightKg: 150 }, { weightKg: 152.5, reps: 4, rpe: 7.5 }])
+    await waitFor(() => expect(nextRow()).toHaveTextContent('Set 3: 155 kg × 2 at RPE 9.5, your next set'))
+    expect(useButton()).toHaveTextContent('Use set 3: 155 kg × 2')
+  })
+
+  it('useSet_pastLastTimesSets_orWithTheDaysSetsDone_marksNothing_andHasNoButton', async () => {
+    // Last time was one set; today's second set has none to match.
+    const today = await sessionOn(TODAY)
+    await logSet(db, today, set(squatId, 152.5))
+    const view = show()
+    await screen.findByText('Set 2 of 5')
+    expect(block()).not.toBeNull()
+    expect(nextRow()).toBeNull()
+    expect(useButton()).toBeNull()
+    expect(within(block() as HTMLElement).getAllByRole('listitem').map(spoken)).toEqual(['Set 1: 150 kg × 5 at RPE 7'])
+    view.unmount()
+
+    // Every set of the day done: the block stays, with nothing marked and no button, until another set is asked for.
+    await db.sessions.update(await sessionOn(LAST_WEEK), {})
+    for (let i = 0; i < 5; i++) await logSet(db, await sessionOn(LAST_WEEK), set(squatId, 140 + i))
+    for (let i = 0; i < 4; i++) await logSet(db, today, set(squatId, 152.5))
+    show()
+    await screen.findByRole('button', { name: 'Finish session' })
+    expect(block()).not.toBeNull()
+    expect(nextRow()).toBeNull()
+    expect(useButton()).toBeNull()
+    await userEvent.click(button('Add another set'))
+    // Six sets last time, five done today: the sixth is next.
+    await waitFor(() => expect(nextRow()).toHaveTextContent('Set 6: 144 kg × 5 at RPE 8, your next set'))
+    expect(useButton()).toHaveTextContent('Use set 6: 144 kg × 5')
+  })
+
+  it('useSet_aSetInAnotherUnitThanTheField_isMarked_butHasNoButton', async () => {
+    // Last time's first set was a plate number; the squat counts in kg, so it cannot go in the field.
+    await db.sets.where('sessionId').equals(await sessionOn(LAST_WEEK)).modify({ unit: 'PLATES', weightKg: 7.5 })
+    show()
+    await ready()
+    expect(nextRow()).toHaveTextContent(`Set 1: ${grit.plateSpoken(7.5)} × 5 at RPE 7, your next set`)
+    expect(useButton()).toBeNull()
   })
 
   it('lastTime_followsTheSideOfTodaysSession', async () => {
