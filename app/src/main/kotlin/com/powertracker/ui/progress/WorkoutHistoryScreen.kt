@@ -1,0 +1,104 @@
+package com.powertracker.ui.progress
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.powertracker.data.TrainingRepository
+import com.powertracker.ui.components.EmptyState
+import com.powertracker.ui.components.PastSets
+import com.powertracker.ui.components.PtCard
+import com.powertracker.ui.components.PtIconButton
+import com.powertracker.ui.components.ScreenHeader
+import com.powertracker.ui.components.SoftDivider
+import com.powertracker.ui.theme.PowertrackerTheme
+import com.powertracker.ui.theme.Space
+import kotlinx.datetime.toJavaLocalDate
+import java.time.format.DateTimeFormatter
+
+/** Every past workout, newest first, from both sides (1.20): opened from Progress's History button. Read-only. */
+@Composable
+fun WorkoutHistoryScreen(training: TrainingRepository, onBack: () -> Unit) {
+    val viewModel: WorkoutHistoryViewModel = viewModel(factory = WorkoutHistoryViewModel.factory(training))
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    WorkoutHistoryContent(state, onBack)
+}
+
+private val WORKOUT_DATE = DateTimeFormatter.ofPattern("EEE d MMM yyyy")
+
+/**
+ * The History screen without its view model. The list is lazy: only the workouts on screen are drawn, so a long log
+ * needs no "Show older workouts" (the web app draws twenty at a time instead).
+ */
+@Composable
+fun WorkoutHistoryContent(state: WorkoutHistoryState, onBack: () -> Unit) {
+    val total = state.workouts.size
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            ScreenHeader(
+                "History",
+                eyebrow = if (state.loading) null else count(total, "workout"),
+                navigation = { PtIconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } },
+            )
+        },
+    ) { padding ->
+        LazyColumn(
+            Modifier.padding(padding).fillMaxSize().testTag("workout-list"),
+            contentPadding = PaddingValues(start = Space.gutter, end = Space.gutter, bottom = Space.xl),
+            verticalArrangement = Arrangement.spacedBy(Space.m),
+        ) {
+            if (!state.loading && total == 0) {
+                item(key = "empty") {
+                    EmptyState(Icons.Filled.FitnessCenter, "No workouts yet", "Every workout you log on Today will be listed here, with each exercise and its sets.")
+                }
+            }
+            items(state.workouts, key = { it.sessionId }) { workout -> WorkoutCard(workout) }
+        }
+    }
+}
+
+/** One workout: its date, its side and counts, then each exercise with every set of it. */
+@Composable
+private fun WorkoutCard(workout: Workout) {
+    val scheme = MaterialTheme.colorScheme
+    PtCard(
+        Modifier.testTag("workout-${workout.sessionId}"),
+        contentPadding = PaddingValues(start = Space.l, end = Space.l, top = Space.m, bottom = Space.m),
+        spacing = Space.xs,
+    ) {
+        Text(
+            WORKOUT_DATE.format(workout.date.toJavaLocalDate()),
+            style = MaterialTheme.typography.titleMedium,
+            color = scheme.onSurface,
+            modifier = Modifier.semantics { heading() },
+        )
+        // Wraps: a summary with a bodyweight is longer than the card at a large font size.
+        Text(workout.summary.uppercase(), style = MaterialTheme.typography.labelSmall, color = PowertrackerTheme.colors.muted, modifier = Modifier.padding(bottom = Space.xs))
+        workout.exercises.forEachIndexed { i, exercise ->
+            if (i > 0) SoftDivider(Modifier.padding(vertical = Space.xs))
+            Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                Text(exercise.name, style = MaterialTheme.typography.titleSmall, color = scheme.onSurface, modifier = Modifier.semantics { heading() })
+                PastSets(exercise.sets)
+            }
+        }
+    }
+}

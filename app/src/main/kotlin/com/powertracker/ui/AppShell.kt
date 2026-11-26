@@ -64,6 +64,7 @@ import com.powertracker.ui.plan.templates.planSetText
 import com.powertracker.ui.plan.PLAN_SAVED
 import com.powertracker.ui.progress.ExerciseHistoryScreen
 import com.powertracker.ui.progress.LiftHistoryScreen
+import com.powertracker.ui.progress.WorkoutHistoryScreen
 import com.powertracker.ui.progress.ProgressScreen
 import com.powertracker.ui.theme.LocalMotion
 import com.powertracker.ui.theme.PowertrackerTheme
@@ -88,6 +89,8 @@ object Routes {
     fun liftHistory(lift: String) = "liftHistory/$lift"
     const val EXERCISE_HISTORY = "exerciseHistory/{id}"
     fun exerciseHistory(id: Long) = "exerciseHistory/$id"
+    /** Every past workout (1.20), opened from Progress's History button. */
+    const val WORKOUT_HISTORY = "workoutHistory"
     /** The bodybuilding side's plan builder (stage 2). */
     const val PLAN_BUILDER = "planBuilder"
     /** A side's plan templates (1.14): the mode's name, POWERLIFTING or BODYBUILDING. */
@@ -213,6 +216,8 @@ fun AppShell(
                     onOpenLift = { nav.navigate(Routes.liftHistory(it.name)) },
                     onOpenExercise = { nav.navigate(Routes.exerciseHistory(it)) },
                     onCheckIn = ::checkIn,
+                    // Single top: a double tap opens one History, not two.
+                    onOpenHistory = { nav.navigate(Routes.WORKOUT_HISTORY) { launchSingleTop = true } },
                 )
             }
             composable(Tab.EXERCISES.route) { entry ->
@@ -286,6 +291,9 @@ fun AppShell(
             }
             composable(Routes.EXERCISE_HISTORY) { entry ->
                 ExerciseHistoryScreen(training, entry.arguments?.getString("id")?.toLongOrNull() ?: 0L, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.WORKOUT_HISTORY) {
+                WorkoutHistoryScreen(training, onBack = { nav.popBackStack() })
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(settings, backup, onBack = { nav.popBackStack() }, onOpenGuide = { nav.navigate(Routes.GUIDE) { launchSingleTop = true } })

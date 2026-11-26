@@ -41,9 +41,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
+import java.time.format.DateTimeFormatter
 import com.powertracker.data.StoredSet
-import com.powertracker.domain.library.Library
-import com.powertracker.domain.library.MuscleFocus
+import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.Category
@@ -59,6 +61,7 @@ import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.components.CoachSuggestion
 import com.powertracker.ui.components.Eyebrow
+import com.powertracker.ui.components.PastSets
 import com.powertracker.ui.components.Pill
 import com.powertracker.ui.components.PlateStrip
 import com.powertracker.ui.components.PlateStripNote
@@ -74,6 +77,7 @@ import com.powertracker.ui.components.StepperField
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.formatRpe
 import com.powertracker.ui.components.SoftDivider
+import com.powertracker.platform.systemToday
 import com.powertracker.ui.library.InfoButton
 import com.powertracker.ui.library.RpeInfoButton
 import com.powertracker.ui.theme.LocalMotion
@@ -168,6 +172,8 @@ fun ExerciseCard(
     actions: TodayActions,
     modifier: Modifier = Modifier,
     bodybuilding: Boolean = false,
+    /** The day shown: "Last time" writes the year of a session from another one. */
+    today: LocalDate = systemToday(),
     /** With motion on, Today's modifier for the card's content as it opens and closes ([SlidingSwap]); null otherwise. */
     slidingContent: Modifier? = null,
     /** Opens the reason sheet; null hides the row menu (an added exercise, or one with sets). */
@@ -181,10 +187,10 @@ fun ExerciseCard(
 
     PtCard(modifier, spacing = Space.s) {
         if (slidingContent == null) {
-            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
         } else {
             Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
             }
         }
     }
@@ -223,6 +229,7 @@ private fun ColumnScope.CardContent(
     next: NextStep,
     actions: TodayActions,
     bodybuilding: Boolean,
+    today: LocalDate,
     extraSet: Boolean,
     onAddSet: () -> Unit,
     onSkipToday: (() -> Unit)?,
@@ -295,12 +302,10 @@ private fun ColumnScope.CardContent(
             }
         }
 
-        // Bodybuilding side only, and only for an exercise with two lines: a hold, a custom exercise or one not written
-        // yet adds nothing here, not even a gap.
-        if (bodybuilding) {
-            val focus = remember(item.exercise.name) { Library.focus(item.exercise.name) as? MuscleFocus.Lines }
-            if (focus != null) MuscleCues(focus)
-        }
+        // What was done on this exercise last time (1.20), on both sides, where the stretch and squeeze lines were on the
+        // bodybuilding side (they are in the exercise's guide). An exercise never done on this side adds nothing here,
+        // not even a gap.
+        item.lastTime?.takeIf { it.sets.isNotEmpty() }?.let { LastTimeBlock(it, today) }
 
         // The entry, or once the sets are done, the way on: one slides closed as the other slides open.
         val entering = !item.isComplete || extraSet
@@ -314,24 +319,28 @@ private fun ColumnScope.CardContent(
         }
 }
 
-/** Wide enough for "SQUEEZE" at any font size: it grows with the text, so the label is never cut. */
-private val CUE_LABEL_WIDTH = 72.sp
+private val LAST_TIME_DAY = DateTimeFormatter.ofPattern("EEE d MMM")
+private val LAST_TIME_DAY_AND_YEAR = DateTimeFormatter.ofPattern("EEE d MMM yyyy")
+
+/** "Wed 18 Nov"; "Wed 18 Nov 2025" when it is not [today]'s year. */
+internal fun lastTimeDate(date: LocalDate, today: LocalDate): String =
+    (if (date.year == today.year) LAST_TIME_DAY else LAST_TIME_DAY_AND_YEAR).format(date.toJavaLocalDate())
 
 /**
- * Where the muscle is stretched and where it is squeezed, each line behind its label, as the bodybuilding mockup has
- * them between the logged sets and the weight entry. The lines wrap; nothing is cut at a large font size.
+ * "Last time · Wed 18 Nov" over every set of that session ([PastSets]), between the logged sets and the weight entry,
+ * and above the way on once the day's sets are done. The heading wraps at a large font size; nothing is cut.
  */
 @Composable
-private fun MuscleCues(focus: MuscleFocus.Lines) {
-    val labelWidth = with(LocalDensity.current) { CUE_LABEL_WIDTH.toDp() }
-    Column(Modifier.testTag("muscle-cues"), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+private fun LastTimeBlock(last: LastTime, today: LocalDate) {
+    Column(Modifier.testTag("last-time"), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
         SoftDivider()
-        for ((label, line) in listOf("Stretch" to focus.stretch, "Squeeze" to focus.squeeze)) {
-            Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
-                Eyebrow(label, Modifier.width(labelWidth).alignByBaseline(), color = PowertrackerTheme.colors.accentText)
-                Text(line, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f).alignByBaseline())
-            }
-        }
+        Text(
+            "Last time · ${lastTimeDate(last.date, today)}".uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = PowertrackerTheme.colors.accentText,
+            modifier = Modifier.padding(top = Space.xs).semantics { heading() },
+        )
+        PastSets(last.sets)
     }
 }
 

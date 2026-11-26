@@ -129,6 +129,9 @@ class ScreenshotTest {
     fun liftHistory() = render("lift-history", null) { LiftHistoryShowcase() }
 
     @Test
+    fun workoutHistory() = render("history", null) { WorkoutHistoryShowcase() }
+
+    @Test
     fun plan() = render("plan", Tab.PLAN) { PlanShowcase() }
 
     @Test

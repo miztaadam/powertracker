@@ -393,6 +393,7 @@ fun TodayContent(
                                     ExerciseCard(
                                         item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
                                         bodybuilding = state.mode == TrainingMode.BODYBUILDING,
+                                        today = state.date,
                                         slidingContent = content,
                                         onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
                                         onCountPlates = countPlates(item),
