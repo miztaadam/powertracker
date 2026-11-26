@@ -1776,6 +1776,37 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 
 **Noticed, not looked into:** on the emulator, exercises added on Today with no set logged were gone after the app restarted.
 
+## Built, not published: 1.20, last time's sets and History in the Android app
+The owner, 2026-11-25, after installing the Android app: "its missing the update tab from progress?" 1.18 and 1.19 put both screens in the web app only (web first, by the owner's rule of 2026-11-21); this is their Android port. Specs: `docs/superpowers/specs/2026-11-25-grit-last-time-on-today-design.md` and `…-grit-workout-history-design.md`.
+
+**What the lifter gets (Android app), the same as in the web app:**
+- **Today:** on the open card, between today's sets and the weight entry, "Last time · Wed 4 Nov" and one row for every set of the exercise's last session on this side (weight × reps, "@ RPE" when logged, "Missed", a plate number for a plate-counted set). On both sides. Nothing there for an exercise never done on this side. **The Stretch and Squeeze lines are no longer on the card;** they stay in the ⓘ guide on the bodybuilding side.
+- **Progress:** a **History** button at the top right, on both sides. It opens every workout with at least one set, newest first, both sides in one list: the date, the side, how many exercises and sets, the bodyweight when logged, then each exercise with every set. Read-only; Back returns to Progress.
+
+**Where the Android app differs from the web, on purpose:**
+- **No "Show older workouts".** The Android list is lazy (only what is on screen is drawn), so a long log needs no pages.
+- The History button is 40 dp tall, as Today's Finish is (a compact button); the web's is 48 px.
+
+**How:**
+- `TodayItem.lastTime` (`TodayViewModel.kt`) from the shared `history.lastTimes(mode, date)`, asked once for all the cards, of the log as stored. `LastTimeBlock` in `ExerciseCard.kt` in place of `MuscleCues`.
+- `ui/components/PastSets.kt`: the read-only rows, one composable for Today and History; each row speaks the web's sentence ("Set 1: 25 kg × 10 at RPE 8"). The weights end on one line and the "@" signs start on one; at a large font size a row's parts wrap whole.
+- `WorkoutHistoryViewModel.build` mirrors the web's `buildWorkoutHistory`; `WorkoutHistoryScreen.kt`; `Routes.WORKOUT_HISTORY`, opened single-top so a double tap opens one screen; `ProgressContent(onOpenHistory = …)`, null in the guide's picture of Progress, which has no button.
+- **No database or backup change. No change under `domain/` or `web/` but the web's version number.**
+
+**My calls:**
+1. Done now, before the owner has used the web versions for long: the owner installed the Android app and asked where History was.
+2. The guide's sample Today cards show no "Last time" (they have no earlier session), as in the web app.
+3. The screenshot samples (`Showcase.kt`, `BodybuildingShowcase.kt`) got a last session each, matching their coach's "Last time: …" sentence, so the committed Today shots show the block.
+
+**Tests (Android):**
+- `BodybuildingContentTest`: the five Stretch and Squeeze tests became five for the block: every set between the logged sets and the weight entry on both sides; nothing and no gap when never done; kept above the next button; another year and a plate set; a 320 dp phone at font scale 1.3 with eight sets.
+- `TodayViewModelTest.lastTime_isEverySetOfTheExercisesLastSessionOnThisSide_andNeverTodaysOwn`.
+- `WorkoutHistoryBuildTest` (6) and `WorkoutHistoryScreenTest` (6): the button opens the list and Back returns; the button on both sides with nothing logged; 45 workouts in one lazy list, the oldest reachable; singular counts; loading; a 320 dp phone at font scale 1.3, History and Progress's header with the button on both sides.
+
+**Limits:**
+- **Not run on a phone or an emulator from here:** the tests draw the screens in Robolectric. The owner's phone is the check.
+- Left as it was: the 1.19.1 notes' "exercises added on Today with no set logged were gone after the app restarted" (noticed on the emulator, not looked into).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
