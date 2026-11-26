@@ -492,9 +492,25 @@ test('today: last time\'s sets sit between today\'s sets and the weight entry, u
   // The figures are at least 16 px.
   const size = await rows.first().locator('.today-last-line').evaluate((node) => parseFloat(getComputedStyle(node).fontSize))
   expect(size).toBeGreaterThanOrEqual(16)
+  // 1.21: one set is done today, so last time's second set is marked, and the button under the rows names it.
+  await expect(last.locator('.today-last-set-next')).toHaveCount(1)
+  // The marked row says "Next" too: not by colour alone.
+  await expect(last.locator('.today-last-set-next .today-last-line')).toHaveText('102.5 kg× 14@ 9.5Next')
+  await expect(last.locator('.today-last-next')).toBeVisible()
+  const use = last.getByRole('button', { name: 'Use set 2: 102.5 kg × 14' })
+  await expect(use).toBeVisible()
+  const useBox = (await use.boundingBox())!
+  expect(useBox.height).toBeGreaterThanOrEqual(47.5)
+  expect(useBox.x + useBox.width).toBeLessThanOrEqual(Math.floor(375 / 1.3) + 0.5)
   // For looking at, not committed.
   mkdirSync(resolve(process.cwd(), 'test-results/screens'), { recursive: true })
   await page.screenshot({ path: resolve(process.cwd(), 'test-results/screens/today-last-time-zoom.png'), fullPage: true, animations: 'disabled' })
+  // It fills the weight and the reps, and logs nothing.
+  await use.click()
+  await expect(weightField(page)).toHaveValue('102.5')
+  await expect(repsField(page)).toHaveValue('14')
+  await expect(card.getByText('Set 2 of 3')).toBeVisible()
+  expect(await fitsThePhone(page)).toBe(true)
 })
 
 test('switching sides swaps the plan, keeps one log, and a day already trained stays on its session', async ({ page }) => {

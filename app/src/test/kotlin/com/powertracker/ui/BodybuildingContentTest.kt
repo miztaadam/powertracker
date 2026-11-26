@@ -11,10 +11,12 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.LoadUnit
+import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatKg
 import com.powertracker.ui.components.pastSetSpoken
 import com.powertracker.ui.today.lastTimeDate
+import com.powertracker.ui.today.useSetText
 import androidx.compose.ui.test.assertCountEquals
 import com.powertracker.ui.design.assertTextsFit
 import org.junit.Assert.assertFalse
@@ -249,7 +251,8 @@ class BodybuildingContentTest {
 
     /** Wednesday 4 November: a set, a set with no RPE, and a missed one at another weight. */
     private val lastWeek = LastTime(LocalDate(2026, 11, 4), listOf(past(100.0, 12), past(100.0, 11, rpe = null), past(102.5, 8, 9.5, failed = true)))
-    private val lastWeekRows = listOf("Set 1: 100 kg × 12 at RPE 8", "Set 2: 100 kg × 11", "Set 3: 102.5 kg × 8 at RPE 9.5, missed")
+    /** As TalkBack reads them with two sets logged today: the third is the one to match (1.21). */
+    private val lastWeekRows = listOf("Set 1: 100 kg × 12 at RPE 8", "Set 2: 100 kg × 11", "Set 3: 102.5 kg × 8 at RPE 9.5, missed, your next set")
 
     private var shownCard: MutableState<Triple<TrainingMode, LastTime?, List<StoredSet>>>? = null
 
@@ -286,14 +289,17 @@ class BodybuildingContentTest {
             val rows = lastWeekRows.map { top(it) }
             assertEquals("$mode: the rows are in logged order", rows.sorted(), rows)
             assertEquals("$mode: each row is on its own line", rows.distinct().size, rows.size)
-            // Today's two rows and last time's three, and no more ("Set 3 of 3" is the card's count, not a row).
-            compose.onAllNodesWithText(" kg × ", substring = true, useUnmergedTree = true).assertCountEquals(twoSets.size + lastWeekRows.size)
+            // Today's two rows, last time's three and the "Use set 3" button under them (1.21), and no more
+            // ("Set 3 of 3" is the card's count, not a row).
+            compose.onAllNodesWithText(" kg × ", substring = true, useUnmergedTree = true).assertCountEquals(twoSets.size + lastWeekRows.size + 1)
+            compose.onNodeWithText("Use set 3: 102.5 kg × 8").assertExists()
             // After today's logged sets, before the weight entry.
             val lastSet = compose.onNodeWithText("Set 2: 26 kg × 10", substring = true).getUnclippedBoundsInRoot().bottom
             val weight = compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top
             assertTrue("$mode: the heading comes after the logged sets", top("LAST TIME · WED 4 NOV") >= lastSet)
             assertTrue("$mode: the heading is over the rows", top("LAST TIME · WED 4 NOV") < rows.first())
-            assertTrue("$mode: the whole block ends above the weight entry", bottom(lastWeekRows.last()) <= weight)
+            assertTrue("$mode: the button is under the rows", top("Use set 3: 102.5 kg × 8") >= bottom(lastWeekRows.last()))
+            assertTrue("$mode: the whole block ends above the weight entry", bottom("Use set 3: 102.5 kg × 8") <= weight)
             // The stretch and squeeze lines are not on the card, on either side.
             compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
@@ -331,7 +337,11 @@ class BodybuildingContentTest {
         compose.onNodeWithContentDescription("Weight, kilograms").assertDoesNotExist()
         val lastSet = compose.onNodeWithText("Set 3: 26 kg × 9", substring = true).getUnclippedBoundsInRoot().bottom
         assertTrue("last time comes after the logged sets", top("LAST TIME · WED 4 NOV") >= lastSet)
-        assertTrue("the whole block ends above the button", bottom(lastWeekRows.last()) <= top("Finish session"))
+        // Nothing is being logged, so no row is marked and there is no "Use set" button.
+        val unmarked = "Set 3: 102.5 kg × 8 at RPE 9.5, missed"
+        assertTrue("the whole block ends above the button", bottom(unmarked) <= top("Finish session"))
+        compose.onAllNodesWithText("your next set", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        compose.onAllNodesWithText("Use set", substring = true, useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
@@ -380,7 +390,10 @@ class BodybuildingContentTest {
         assertFalse("the heading is ellipsised", (0 until layout.lineCount).any { layout.isLineEllipsized(it) })
         assertEquals("the heading's last line ends with its last letter", "LAST TIME · WED 4 NOV".length, layout.getLineEnd(layout.lineCount - 1))
         // Every row is inside the screen and drawn whole, one under the other.
-        val rows = (1..8).map { n -> compose.onNodeWithText("Set $n: ${formatKg(101.5 + n)} kg × ${16 - n} at RPE 9.5" + if (n == 8) ", missed" else "", useUnmergedTree = true) }
+        // Two sets are logged today, so the third row is the marked one.
+        val rows = (1..8).map { n ->
+            compose.onNodeWithText("Set $n: ${formatKg(101.5 + n)} kg × ${16 - n} at RPE 9.5" + (if (n == 8) ", missed" else "") + (if (n == 3) ", your next set" else ""), useUnmergedTree = true)
+        }
         var above = h.boundsInRoot.bottom
         for ((i, row) in rows.withIndex()) {
             val b = row.getUnclippedBoundsInRoot()
@@ -391,6 +404,109 @@ class BodybuildingContentTest {
             assertTrue("row ${i + 1} is below the one before", n.boundsInRoot.top >= above - 0.5f)
             above = n.boundsInRoot.bottom
         }
+        // The "Use set" button under the rows is whole and inside the screen.
+        val use = compose.onNodeWithText("Use set 3: 104.5 kg × 13").getUnclippedBoundsInRoot()
+        assertTrue("the Use set button is inside the screen", use.left >= screen.left && use.right <= screen.right)
+        assertTrue("the Use set button is below the rows", use.top >= rows.last().getUnclippedBoundsInRoot().bottom)
+        compose.assertTextsFit()
+    }
+
+    // ---- 1.21: the row for the set about to be logged is marked, and "Use set N" fills its weight and reps ----
+
+    @Test
+    fun useSet_marksTheRowForTheNextSet_andPutsItsWeightAndRepsInTheFields_loggingNothing() {
+        val edits = mutableListOf<Pair<Long, SetEditor>>()
+        var logged = 0
+        compose.setContent {
+            PowertrackerTheme {
+                TodayContent(
+                    TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, twoSets).copy(lastTime = lastWeek)), mode = TrainingMode.POWERLIFTING),
+                    TodayActions(onEdit = { id, editor -> edits += id to editor }, onLogSet = { _, _ -> logged++ }),
+                )
+            }
+        }
+        // Two sets are logged, so last time's third is the one to match: the only row marked.
+        compose.onAllNodesWithText("your next set", substring = true, useUnmergedTree = true).assertCountEquals(1)
+        compose.onNodeWithText("Set 3: 102.5 kg × 8 at RPE 9.5, missed, your next set", useUnmergedTree = true).assertExists()
+        assertEquals("Use set 3: 102.5 kg × 8", useSetText(3, lastWeek.sets[2]))
+        compose.onNodeWithText("Use set 3: 102.5 kg × 8").performClick()
+        // The weight and the reps of that row, the effort as it was in the field; nothing logged.
+        assertEquals(listOf(squat.id to SetEditor(102.5, 8, 8.0)), edits)
+        assertEquals(0, logged)
+    }
+
+    @Test
+    fun useSet_pastLastTimesSets_orInAnotherUnit_hasNoButton() {
+        // Three sets last time and three logged today, with a fourth asked for: none to match.
+        val oneSet = LastTime(LocalDate(2026, 11, 4), listOf(past(100.0, 12)))
+        showCard(TrainingMode.POWERLIFTING, oneSet)
+        compose.onNodeWithText("Set 1: 100 kg × 12 at RPE 8", useUnmergedTree = true).assertExists()
+        compose.onAllNodesWithText("your next set", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        compose.onAllNodesWithText("Use set", substring = true, useUnmergedTree = true).assertCountEquals(0)
+
+        // The set to match was logged as a plate number; the squat counts in kg: it is marked, but cannot be used.
+        showCard(TrainingMode.POWERLIFTING, LastTime(LocalDate(2026, 11, 4), listOf(past(100.0, 12), past(100.0, 11), past(7.5, 10, unit = LoadUnit.PLATES))))
+        compose.onNodeWithText("Set 3: ${PlateStack.spoken(7.5)} × 10 at RPE 8, your next set", useUnmergedTree = true).assertExists()
+        compose.onAllNodesWithText("Use set", substring = true, useUnmergedTree = true).assertCountEquals(0)
+
+        // The same set in kg can.
+        showCard(TrainingMode.POWERLIFTING, LastTime(LocalDate(2026, 11, 4), listOf(past(100.0, 12), past(100.0, 11), past(97.5, 10))))
+        compose.onNodeWithText("Use set 3: 97.5 kg × 10").assertExists()
+    }
+
+    /** A plate-counted machine's card with [last] as its last time and [logged] plate sets done today. */
+    private fun platesCard(count: PlateCount, last: LastTime, logged: Int) = item(squat.copy(plateCount = count), (1..logged).map { StoredSet(it.toLong(), 1, past(7.0, 12, unit = LoadUnit.PLATES)) })
+        .copy(editor = SetEditor(7.0, 12, 8.0, LoadUnit.PLATES), unit = LoadUnit.PLATES, plateCount = count, lastTime = last)
+
+    @Test
+    fun useSet_aPlateNumberOffTheMachinesGrid_isMarked_butHasNoButton() {
+        // Plate 7½ was logged when the machine counted half steps; it counts whole plates now.
+        val last = LastTime(LocalDate(2026, 11, 4), listOf(past(7.5, 12, unit = LoadUnit.PLATES), past(8.0, 10, unit = LoadUnit.PLATES)))
+        val shown = mutableStateOf(platesCard(PlateCount.WHOLE, last, logged = 0))
+        compose.setContent {
+            PowertrackerTheme { TodayContent(TodayState(date, loading = false, sessionId = 1, items = listOf(shown.value)), TodayActions()) }
+        }
+        compose.onNodeWithText("Set 1: ${PlateStack.spoken(7.5)} × 12 at RPE 8, your next set", useUnmergedTree = true).assertExists()
+        compose.onAllNodesWithText("Use set", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        // With half steps on, the same row can be used.
+        shown.value = platesCard(PlateCount.HALF, last, logged = 0)
+        compose.waitForIdle()
+        compose.onNodeWithText("Use set 1: ${PlateStack.text(7.5)} × 12").assertExists()
+        // And on whole plates the second row, a whole plate, can.
+        shown.value = platesCard(PlateCount.WHOLE, last, logged = 1)
+        compose.waitForIdle()
+        compose.onNodeWithText("Use set 2: ${PlateStack.text(8.0)} × 10").assertExists()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun useSet_theLongestLabel_isWholeOnASmallPhoneAtALargeFont() {
+        // Ten sets logged of a machine on half steps: "Use set 11: plate 12½ × 15", the longest the button gets.
+        val last = LastTime(LocalDate(2026, 11, 4), (1..11).map { past(12.5, 15, 9.5, unit = LoadUnit.PLATES) })
+        val label = "Use set 11: ${PlateStack.text(12.5)} × 15"
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1.3f)) {
+                PowertrackerTheme(mode = TrainingMode.BODYBUILDING) {
+                    TodayContent(
+                        TodayState(date, loading = false, sessionId = 1, items = listOf(platesCard(PlateCount.HALF, last, logged = 10).copy(targetSets = 12)), mode = TrainingMode.BODYBUILDING),
+                        TodayActions(),
+                    )
+                }
+            }
+        }
+        compose.waitForIdle()
+        val screen = compose.onRoot().getUnclippedBoundsInRoot()
+        val button = compose.onNodeWithText(label).getUnclippedBoundsInRoot()
+        assertTrue("the button is inside the screen", button.left >= screen.left && button.right <= screen.right)
+        // Every letter of the label is on a line that is drawn: a one-line text that runs out of room drops its tail.
+        val text = compose.onNodeWithText(label, useUnmergedTree = true).fetchSemanticsNode()
+        val layout = mutableListOf<TextLayoutResult>().also { text.config[SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
+        assertEquals("the label is whole", label.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
+        assertFalse("the label is cut at the bottom", layout.didOverflowHeight)
+        // The marked row, the eleventh, says "NEXT" and is whole too.
+        compose.onNodeWithText("Set 11: ${PlateStack.spoken(12.5)} × 15 at RPE 9.5, your next set", useUnmergedTree = true).assertExists()
         compose.assertTextsFit()
     }
 }

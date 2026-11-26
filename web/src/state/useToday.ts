@@ -953,7 +953,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
           // lifter types it again in the new field. A set held for the typo dialog keeps its own unit when confirmed.
           if (item != null && setUnit(set) !== setUnit(item)) return
           // Judged against the last weight in the same unit only, with the plate step for a plate number.
-          const warnings = grit.checkLoadInput(set.weightKg, set.reps, lastWeightKg, setUnit(set), item?.plateCount ?? 'OFF') as InputWarning[]
+          // A weight done last time as the set with this number is no typo, however big the step from the set before it
+          // (last time's own ramp: 100, 140, 170). The jump is then not asked about (1.21: "Use set N" fills such a
+          // weight in); a high rep count still is.
+          const sameSetLastTime = item?.lastTime?.sets[item.sets.length]
+          const doneLastTime = sameSetLastTime != null && setUnit(sameSetLastTime) === setUnit(set) && sameSetLastTime.weightKg === set.weightKg
+          const warnings = (grit.checkLoadInput(set.weightKg, set.reps, lastWeightKg, setUnit(set), item?.plateCount ?? 'OFF') as InputWarning[]).filter(
+            (w) => !(w === 'BIG_JUMP' && doneLastTime),
+          )
           if (warnings.length > 0) {
             update((l) => ({ ...l, pending: { exerciseId: itemKey, set, warnings, lastWeightKg } }))
             return

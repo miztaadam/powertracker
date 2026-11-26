@@ -57,6 +57,7 @@ import com.powertracker.domain.model.missPointLabel
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.repsText
 import com.powertracker.domain.plates.PlateLoader
+import com.powertracker.domain.stack.PlateCheck
 import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.components.CoachSuggestion
@@ -305,10 +306,26 @@ private fun ColumnScope.CardContent(
         // What was done on this exercise last time (1.20), on both sides, where the stretch and squeeze lines were on the
         // bodybuilding side (they are in the exercise's guide). An exercise never done on this side adds nothing here,
         // not even a gap.
-        item.lastTime?.takeIf { it.sets.isNotEmpty() }?.let { LastTimeBlock(it, today) }
+        // While the card takes sets (1.21), the row of last time with the number of the set about to be logged is
+        // marked, and "Use set N" puts its weight and reps in the fields: only from a set in the unit the exercise
+        // counts in now, so a plate number never goes in a kg field.
+        val entering = !item.isComplete || extraSet
+        item.lastTime?.takeIf { it.sets.isNotEmpty() }?.let { last ->
+            val next = item.sets.size.takeIf { entering && it < last.sets.size }
+            val match = next?.let { last.sets[it] }
+            LastTimeBlock(
+                last, today, next,
+                // ... and, for a plate number, on the grid the machine counts on now (plate 7½ is not offered once whole
+                // plates are on), as the coach's targets are held to.
+                onUse = if (match != null && match.unit == item.unit && (match.unit != LoadUnit.PLATES || PlateStack.check(match.weightKg, item.plateCount) == PlateCheck.OK)) {
+                    { actions.onEdit(id, item.editor.copy(weightKg = match.weightKg, reps = match.reps)) }
+                } else {
+                    null
+                },
+            )
+        }
 
         // The entry, or once the sets are done, the way on: one slides closed as the other slides open.
-        val entering = !item.isComplete || extraSet
         SlidingBlock(entering, spacing = Space.s) {
             SoftDivider()
             Editor(item, weightStepKg, changePlates, actions)
@@ -329,9 +346,11 @@ internal fun lastTimeDate(date: LocalDate, today: LocalDate): String =
 /**
  * "Last time · Wed 18 Nov" over every set of that session ([PastSets]), between the logged sets and the weight entry,
  * and above the way on once the day's sets are done. The heading wraps at a large font size; nothing is cut.
+ * [next] (1.21) is the index, from 0, of the row to mark as the set about to be logged; [onUse] puts that row's weight
+ * and reps in the fields, and without it there is no button.
  */
 @Composable
-private fun LastTimeBlock(last: LastTime, today: LocalDate) {
+private fun LastTimeBlock(last: LastTime, today: LocalDate, next: Int? = null, onUse: (() -> Unit)? = null) {
     Column(Modifier.testTag("last-time"), verticalArrangement = Arrangement.spacedBy(Space.xs)) {
         SoftDivider()
         Text(
@@ -340,9 +359,16 @@ private fun LastTimeBlock(last: LastTime, today: LocalDate) {
             color = PowertrackerTheme.colors.accentText,
             modifier = Modifier.padding(top = Space.xs).semantics { heading() },
         )
-        PastSets(last.sets)
+        PastSets(last.sets, next = next)
+        if (next != null && onUse != null) {
+            // Two lines at most: on a small phone at a large font the longest label does not fit one.
+            SecondaryButton(useSetText(next + 1, last.sets[next]), onUse, compact = true, modifier = Modifier.padding(top = Space.xs), textMaxLines = 2)
+        }
     }
 }
+
+/** "Use set 2: 25 kg × 9"; "Use set 1: plate 7½ × 12". The web app's words. */
+internal fun useSetText(number: Int, set: LoggedSet): String = "Use set $number: ${formatLoad(set.weightKg, set.unit)} × ${set.reps}"
 
 @Composable
 private fun MissRow(number: Int, set: LoggedSet, lift: MainLift?, onSelect: (MissPoint?) -> Unit) {

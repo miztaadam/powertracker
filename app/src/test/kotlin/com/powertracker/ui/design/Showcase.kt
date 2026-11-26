@@ -146,8 +146,9 @@ private fun todayItems(squatSets: List<StoredSet>, suggest: Boolean) = listOf(
         } else {
             null
         },
-        // Last week's squats (1.20), worked up to the top set the coach's "Last time: 150 × 5 @ 7" names.
-    ).copy(lastTime = LastTime(SHOWCASE_DATE.minus(7, DateTimeUnit.DAY), listOf(120.0 to 5.0, 140.0 to 6.0, 150.0 to 7.0).map { (kg, rpe) -> LoggedSet(1, kg, 5, rpe, failed = false, missPoint = null, isTopSet = false) })),
+        // Last week's squats (1.20), worked up to the top set the coach's "Last time: 150 × 5 @ 7" names, then two
+        // lighter ones: with three sets logged today the fourth is the marked row, with its "Use set 4" button (1.21).
+    ).copy(lastTime = LastTime(SHOWCASE_DATE.minus(7, DateTimeUnit.DAY), listOf(120.0 to 5.0, 140.0 to 6.0, 150.0 to 7.0, 130.0 to 6.0, 130.0 to 6.5).map { (kg, rpe) -> LoggedSet(1, kg, 5, rpe, failed = false, missPoint = null, isTopSet = false) })),
     todayItem(2, "Bench", Category.BENCH, 4, 6, 7.5, 100.0),
     todayItem(3, "Barbell row", Category.ACCESSORY, 3, 8, 8.0, 80.0),
     todayItem(4, "Triceps pushdown", Category.ACCESSORY, 3, 12, 8.0, 30.0),

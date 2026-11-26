@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import { setUnit, type LoadUnit } from '../../db/schema'
 import { grit } from '../../domain'
-import { formatKg, formatRpe } from './format'
+import { cx, formatKg, formatRpe } from './format'
 import './PastSets.css'
 
 /** One set of a past session. `unit` is there only for plates. */
@@ -28,9 +28,11 @@ const figureWidth = (figure: string) => [...figure].reduce((sum, c) => sum + (c 
 /**
  * The sets of one exercise in an earlier session, in the order given, numbered from 1: weight × reps, "@ RPE" when
  * there is one, "Missed" on a missed set, each in the unit it was logged in. Read-only. Each row is read once by a
- * screen reader, as one sentence.
+ * screen reader, as one sentence. `next` (1.21, Today only) is the index, from 0, of the row that matches the set about
+ * to be logged: it is drawn in the full text colour with its number in the accent and the word "Next" after it, and reads
+ * ", your next set".
  */
-export function PastSets({ sets }: { sets: readonly PastSet[] }) {
+export function PastSets({ sets, next }: { sets: readonly PastSet[]; next?: number }) {
   // The weights end on one line and the "@" signs start on one, whatever each row's digits: the weight's figure and
   // the reps each get the room of the longest one in the list (the digits are tabular, one `ch` each).
   const loads = sets.map((set) => loadParts(set))
@@ -39,8 +41,8 @@ export function PastSets({ sets }: { sets: readonly PastSet[] }) {
     <ol role="list" className="today-last-sets" style={columns}>
       {sets.map((set, i) => (
         // Each row read once, as one sentence; what shows is the number beside its figures.
-        <li key={i} className="today-last-set">
-          <span className="sr-only">{pastSetLabel(i + 1, set)}</span>
+        <li key={i} className={cx('today-last-set', i === next && 'today-last-set-next')}>
+          <span className="sr-only">{pastSetLabel(i + 1, set) + (i === next ? ', your next set' : '')}</span>
           <span className="today-last-index title-small" aria-hidden="true">
             {i + 1}
           </span>
@@ -62,6 +64,8 @@ export function PastSets({ sets }: { sets: readonly PastSet[] }) {
               </span>
             )}
             {set.failed && <span className="today-last-missed label-medium">Missed</span>}
+            {/* The marked row says so in a word too: on the powerlifting side the accent is a grey close to the others. */}
+            {i === next && <span className="today-last-next label-medium">Next</span>}
           </span>
         </li>
       ))}

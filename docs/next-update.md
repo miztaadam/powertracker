@@ -1776,7 +1776,7 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 
 **Noticed, not looked into:** on the emulator, exercises added on Today with no set logged were gone after the app restarted.
 
-## Built, not published: 1.20, last time's sets and History in the Android app
+## Done: 1.20, last time's sets and History in the Android app
 The owner, 2026-11-25, after installing the Android app: "its missing the update tab from progress?" 1.18 and 1.19 put both screens in the web app only (web first, by the owner's rule of 2026-11-21); this is their Android port. Specs: `docs/superpowers/specs/2026-11-25-grit-last-time-on-today-design.md` and `…-grit-workout-history-design.md`.
 
 **What the lifter gets (Android app), the same as in the web app:**
@@ -1816,6 +1816,53 @@ The owner, 2026-11-25, after installing the Android app: "its missing the update
 **Shots:** Android, from `ScreenshotTest` with `-Pscreenshots.update=true`: the Today shots that hold a card with an earlier session or had Stretch and Squeeze, the six Progress shots (the History button), the four bodybuilding guide pictures of the Today card (Stretch and Squeeze gone), the new `history-dark` and `history-light`, and the six Settings shots (the version line). Web: the six Settings shots; five others were put back as drift.
 
 **Version:** Android 1.20 (versionCode 37), web 1.20.0 (shown as 1.20). The web app is unchanged but for its version line.
+
+**Published 2026-11-26 (owner: "Publish"), on main as `678747c`** (a `--no-ff` merge of the branch at `b9e49b0` onto main's `f79f111`; its tree is the branch's). On merged main, one at a time, before the push, with no source change:
+- Web: `npm run typecheck` clean; unit tests 1,699 of 1,699; build clean. **Full Playwright run: 521 passed, 12 skipped, first time.** The `E2E_UA=android` pass: 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: the three tasks first answered "up to date" in a second each, because the merged tree is the branch's tree, byte for byte, and they had passed on it. They were then made to run again (`--rerun`): `:domain:jvmTest` and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,129 tests, 0 failed, 1 skipped. `:domain:checkWebDomain` passed.
+- Live, about two minutes after the push (the first look, a minute after, still had 1.19.1): `/` names `assets/index-QMXJxVef.js`, which carries 1.20.0 (no 1.19.1) and build id `678747c`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 37, versionName 1.20, unsigned in this container. **No APK was handed over:** the signed release is built on the owner's PC (`keystore.properties` is there), as 1.19.1 was.
+- **Still not run on a phone or an emulator.** The owner's check is item 10 of README's "Phone checks after a release".
+
+**Agreed next, in this order (owner, 2026-11-26):** (1) "Last time" you can act on: the row for the set about to be done highlighted, and a "Use set N" button that fills weight and reps (design sent, not yet confirmed); (2) a calendar in History; (3) warm-up sets; (4) supersets. Supersets change the stored log and the backup, so both apps ship together; warm-ups too if they are saved in the log.
+
+## Built, not published: 1.21, "Use set N" under Last time (both apps)
+Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" something you act on). The idea as listed had a tap on a row copy it into the fields; the design sent instead was one button, and the owner did not object after being asked twice, so the button was built. **If the owner wants tappable rows after all, that is a change to make.**
+
+**What the lifter gets (both apps):**
+- While a card takes sets, **the row of "Last time" with the number of the set about to be logged is highlighted**: its figures in the full text colour, its number in the accent, and **the word "NEXT" after it** (on the powerlifting side the accent is a grey close to the other greys, so colour alone was too faint). A screen reader hears ", your next set" after it.
+- Under the rows, **one button: "Use set 2: 25 kg × 9"**. It puts that row's weight and reps in the fields. The RPE stays as it was, and nothing is logged.
+- After each set is logged, the highlight and the button move to the next row.
+- **No highlight and no button** past the number of sets done last time, or once the day's sets are done (until "Add another set"). **Highlight but no button** when that set was logged in another unit than the exercise counts in now (a plate number never goes in a kg field).
+- **Highlight but no button** also for a plate number off the machine's grid now (plate 7½ once the machine counts whole plates), as the coach's targets are held to.
+- **A weight done last time as the set with the same number is no longer asked about as a "big jump".** The typo check holds a set back when the weight is more than 30% from the last one; last time's own ramp (100, 140, 170) does exactly that, so "Use set 2" then Log would have asked "is this right?" every time. Now it is logged at once. This holds however the weight got into the field (typed too). Any other jump is asked about as before, and so is a high rep count.
+
+**Why a button and not tappable rows:** the rows are 24 px tall; a tap target must be 48. Making each row a target would double the block's height on the card.
+
+**Both apps in one release.** From 1.21 the owner uses the Android app day to day and found 1.18/1.19 missing there, so features now go to both apps together unless the owner says otherwise (this sets aside the web-first rule of 2026-11-21; said to the owner on 2026-11-26).
+
+**How:**
+- Web: `PastSets` takes `next` (the row to mark); `LastTime` takes `next` and `onUse`; `ExerciseCard` passes how many sets are logged while the entry shows, and an `onUse` that calls the existing `actions.edit` with the row's weight and reps. No new state.
+- Android: the same in `PastSets(next = …)`, `LastTimeBlock(next, onUse)` and `CardContent`, through the existing `TodayActions.onEdit`.
+- No database, backup or `domain/` change.
+
+**Tests:**
+- Web, `ExerciseCard.test.tsx`: the row marked and the fields filled, nothing logged, then the next row after a set is logged; nothing marked past last time's sets or with the day's sets done, and the sixth row after "Add another set"; a set in another unit is marked without a button. Three earlier tests now expect ", your next set" on the first row. e2e `bodybuilding.spec.ts`: the marked row and the button at 130% zoom with eight sets, a full-size target inside the screen, and it fills the fields. The very narrow Today tests (`narrow.spec.ts`) hold the button and pass.
+- Web, added after the review: the ramp (set 2 at 140 after 100 is logged at once; a typed 190 for set 3 is still held); a number typed and left in the field, then the button, behaves as Apply does; a plate number off the grid is marked without a button.
+- Android, `BodybuildingContentTest`: the row marked and `onEdit` called with the row's weight and reps, nothing logged; no button past last time's sets, in another unit, or off the plate grid; the button and the longest label whole on a 320 dp phone at font scale 1.3. `TodayViewModelTest.aWeightDoneLastTimeAsTheSameSet_isNotHeldAsATypo_butAnotherJumpStillIs`.
+
+**After the first check round, from a review, five changes, then the whole round again:** the word "NEXT" on the marked row; the "big jump" exemption above (the ramp test was seen to fail with the exemption switched off, then pass with it); the plate grid rule; the Android button's label may take two lines (on a 320 dp phone at font scale 1.3 "Use set 11: plate 12½ × 15" had lost its last three characters); and every part of an Android row on one baseline (the smaller "NEXT" had made its row taller).
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-26, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,705 of 1,705 (1,699 before 1.21, plus six); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 521 passed, 12 skipped, first time,** with no source change while it ran. The `E2E_UA=android` pass: 259 passed, 12 skipped.
+- **Speed project alone, six times: five at 6 of 6, one at 5 of 6.** The miss was the Exercises tab's "settles within 100 ms" check, on a screen this release does not touch; it is the check the follow-up of 2026-11-15 measured as having no headroom (worst opens 96 to 108 ms). The machine's load average was about 3.6 on 4 cores at the time. Not chased further; the three runs on merged main before a publish stand.
+- Gradle: `:app:testDebugUnitTest` passed, 1,134 tests, 0 failed, 1 skipped (1,129 before 1.21, plus five). `:domain:allTests` and `:domain:checkWebDomain` answered "up to date": nothing under `domain/` changed since they last ran and passed (1.20). `:app:assembleRelease` builds: versionCode 38, versionName 1.21, unsigned in this container.
+- A ramp end to end in the browser, in a scratch test not kept: 100 logged, "Use set 2: 140 kg × 3", Log: logged with no dialog, and the button moved to set 3.
+- **Not run on merged main. Not run on a phone or an emulator.**
+
+**Shots:** web, from the full run: the six Settings shots (the version line); `today-bodybuilding-*` and `today-plates-bodybuilding-*` (the marked row, "NEXT" and the button); and `today-rest-*`, the same in two runs: the card is taller with the button under one row, so the shot is scrolled further down. Eight others were put back as drift of a few bytes. Android: `today-*` and `today-bodybuilding-*` (the powerlifting sample now has five sets last time, so its fourth row is marked) and the six Settings shots.
+
+**Version:** Android 1.21 (versionCode 38), web 1.21.0 (shown as 1.21).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

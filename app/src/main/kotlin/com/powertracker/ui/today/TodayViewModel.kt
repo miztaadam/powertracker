@@ -475,7 +475,13 @@ class TodayViewModel(
                 if (set.unit == LoadUnit.PLATES && PlateStack.check(set.weightKg, PlateCount.HALF) != PlateCheck.OK) return@launch
                 if (!confirmed) {
                     // Judged against the last weight in the same unit only, with the plate step for a plate number.
+                    // A weight done last time as the set with this number is no typo, however big the step from the set
+                    // before it (last time's own ramp: 100, 140, 170). The jump is then not asked about (1.21: "Use set N"
+                    // fills such a weight in); a high rep count still is.
+                    val sameSetLastTime = item?.lastTime?.sets?.getOrNull(item.sets.size)
+                    val doneLastTime = sameSetLastTime != null && sameSetLastTime.unit == set.unit && sameSetLastTime.weightKg == set.weightKg
                     val warnings = InputValidator.check(set.weightKg, set.reps, item?.lastWeightKg, set.unit, PlateStack.step(item?.plateCount ?: PlateCount.OFF))
+                        .filterNot { it is InputWarning.BigJump && doneLastTime }
                     if (warnings.isNotEmpty()) {
                         local.update { it.copy(pending = PendingLog(planItemId, exerciseId, set, warnings)) }
                         return@launch

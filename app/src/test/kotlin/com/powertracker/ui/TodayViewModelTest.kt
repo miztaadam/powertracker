@@ -248,6 +248,34 @@ class TodayViewModelTest {
         assertNull(curlCard.lastTime)
     }
 
+    @Test
+    fun aWeightDoneLastTimeAsTheSameSet_isNotHeldAsATypo_butAnotherJumpStillIs() {
+        val sessionId = runBlocking {
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+            // Last week ramped: 100, 140, 170.
+            val lastWeek = training.startSession(today.minus(7, DateTimeUnit.DAY), null, null)
+            for (kg in listOf(100.0, 140.0, 170.0)) training.logSet(lastWeek, set(squat, kg))
+            training.startSession(today, null, null).also { training.logSet(it, set(squat, 100.0)) }
+        }
+        val vm = viewModel()
+        await("the card") { !vm.state.value.loading && vm.state.value.items.singleOrNull()?.lastTime != null }
+
+        // 140 after 100 is 40% up, a jump the typo check asks about; done last time as set 2, it is logged at once.
+        vm.logSet(null, squat.id, set(squat, 140.0))
+        await("second set") { vm.state.value.items.single().logged.size == 2 }
+        assertNull(vm.state.value.pending)
+
+        // 190 was not last time's third set (170): held back, as before.
+        vm.logSet(null, squat.id, set(squat, 190.0))
+        await("held back") { vm.state.value.pending != null }
+        assertEquals(2, runBlocking { training.setsForSession(sessionId).first() }.size)
+        // A high rep count is still asked about, whatever the weight.
+        vm.dismissWarning()
+        await("let go") { vm.state.value.pending == null }
+        vm.logSet(null, squat.id, set(squat, 170.0).copy(reps = 13))
+        await("held back for its reps") { vm.state.value.pending != null }
+    }
+
     private fun planSquatWithHistory() = runBlocking {
         training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
         training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))
