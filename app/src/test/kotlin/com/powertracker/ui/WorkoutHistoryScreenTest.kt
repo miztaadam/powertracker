@@ -231,6 +231,15 @@ class WorkoutHistoryScreenTest {
             // A compact button, as Today's Finish is: 40 dp at least.
             assertTrue("$mode: the History button keeps its height", button.bottom - button.top >= androidx.compose.ui.unit.Dp(39.5f))
             compose.assertTextsFit()
+            // Beside the button the caption and the title have less room, and each is one line: a one-line text that
+            // runs out of room drops its tail without an ellipsis, which the check above cannot see. So: every letter
+            // of each is on its line.
+            for (text in listOf(if (mode == TrainingMode.BODYBUILDING) "BEST SET PER SESSION" else "ESTIMATED 1RM", "Progress")) {
+                val node = compose.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+                val layout = mutableListOf<androidx.compose.ui.text.TextLayoutResult>().also { node.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
+                assertEquals("$mode: \"$text\" is whole", text.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
+                assertTrue("$mode: \"$text\" is not cut at the bottom", !layout.didOverflowHeight)
+            }
         }
         history = true
         shown.value = side to history

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.LineBreak
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.TrainingRepository
@@ -91,8 +92,14 @@ private fun WorkoutCard(workout: Workout) {
             color = scheme.onSurface,
             modifier = Modifier.semantics { heading() },
         )
-        // Wraps: a summary with a bodyweight is longer than the card at a large font size.
-        Text(workout.summary.uppercase(), style = MaterialTheme.typography.labelSmall, color = PowertrackerTheme.colors.muted, modifier = Modifier.padding(bottom = Space.xs))
+        // Wraps: a summary with a bodyweight is longer than the card. Balanced, as the web's: no one word left alone on
+        // the second line.
+        Text(
+            workout.summary.uppercase(),
+            style = MaterialTheme.typography.labelSmall.copy(lineBreak = LineBreak.Heading),
+            color = PowertrackerTheme.colors.muted,
+            modifier = Modifier.padding(bottom = Space.xs),
+        )
         workout.exercises.forEachIndexed { i, exercise ->
             if (i > 0) SoftDivider(Modifier.padding(vertical = Space.xs))
             Column(verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
