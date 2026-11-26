@@ -1746,6 +1746,7 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 - **Still not checked on a phone or in Safari:** the owner's check is item 10 of README's "Phone checks after a release"; the detailed ones are "Last time on the Today card (web, 1.18)" and "History on Progress (web, 1.19)" in `docs/manual-checks.md`.
 
 **Open, next:** port both to the Android app once the owner has used them on the web. Last time: `TodayItem.lastTime` from `history.lastTimes(mode, date)` in `TodayViewModel.kt`, and a block in `ExerciseCard.kt` in place of `MuscleCues`. History: a screen beside `LiftHistoryScreen.kt` and a button in Progress's header.
+
 ## 1.19.1 (2026-11-25): Android, "Add exercise" drawn over the card just added
 
 **The bug (owner, on the emulator):** on Today, after adding an exercise, the "Add exercise" button sat on top of the new card's heading. Each further add left it higher; after the second it was under the "Today" header.
