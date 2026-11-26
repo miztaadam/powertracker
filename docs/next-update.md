@@ -1776,7 +1776,7 @@ Asked by the owner on 2026-11-25: "lets also add a "History" button at the top r
 
 **Noticed, not looked into:** on the emulator, exercises added on Today with no set logged were gone after the app restarted.
 
-## Built, not published: 1.20, last time's sets and History in the Android app
+## Done: 1.20, last time's sets and History in the Android app
 The owner, 2026-11-25, after installing the Android app: "its missing the update tab from progress?" 1.18 and 1.19 put both screens in the web app only (web first, by the owner's rule of 2026-11-21); this is their Android port. Specs: `docs/superpowers/specs/2026-11-25-grit-last-time-on-today-design.md` and `…-grit-workout-history-design.md`.
 
 **What the lifter gets (Android app), the same as in the web app:**
@@ -1816,6 +1816,15 @@ The owner, 2026-11-25, after installing the Android app: "its missing the update
 **Shots:** Android, from `ScreenshotTest` with `-Pscreenshots.update=true`: the Today shots that hold a card with an earlier session or had Stretch and Squeeze, the six Progress shots (the History button), the four bodybuilding guide pictures of the Today card (Stretch and Squeeze gone), the new `history-dark` and `history-light`, and the six Settings shots (the version line). Web: the six Settings shots; five others were put back as drift.
 
 **Version:** Android 1.20 (versionCode 37), web 1.20.0 (shown as 1.20). The web app is unchanged but for its version line.
+
+**Published 2026-11-26 (owner: "Publish"), on main as `678747c`** (a `--no-ff` merge of the branch at `b9e49b0` onto main's `f79f111`; its tree is the branch's). On merged main, one at a time, before the push, with no source change:
+- Web: `npm run typecheck` clean; unit tests 1,699 of 1,699; build clean. **Full Playwright run: 521 passed, 12 skipped, first time.** The `E2E_UA=android` pass: 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: the three tasks first answered "up to date" in a second each, because the merged tree is the branch's tree, byte for byte, and they had passed on it. They were then made to run again (`--rerun`): `:domain:jvmTest` and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,129 tests, 0 failed, 1 skipped. `:domain:checkWebDomain` passed.
+- Live, about two minutes after the push (the first look, a minute after, still had 1.19.1): `/` names `assets/index-QMXJxVef.js`, which carries 1.20.0 (no 1.19.1) and build id `678747c`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 37, versionName 1.20, unsigned in this container. **No APK was handed over:** the signed release is built on the owner's PC (`keystore.properties` is there), as 1.19.1 was.
+- **Still not run on a phone or an emulator.** The owner's check is item 10 of README's "Phone checks after a release".
+
+**Agreed next, in this order (owner, 2026-11-26):** (1) "Last time" you can act on: the row for the set about to be done highlighted, and a "Use set N" button that fills weight and reps (design sent, not yet confirmed); (2) a calendar in History; (3) warm-up sets; (4) supersets. Supersets change the stored log and the backup, so both apps ship together; warm-ups too if they are saved in the log.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
