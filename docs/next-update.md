@@ -1873,6 +1873,42 @@ Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" so
 
 **Next, agreed (owner, 2026-11-26), both apps together each time:** a calendar in History; warm-up sets (ask first: saved in the log, or a checklist that is not saved); supersets (owner decided: saved in the plan, linked once on the Plan tab; this changes the stored plan and the backup, so both apps ship together).
 
+## Built, not published: 1.22, a calendar in History (both apps)
+Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the same day, owner: "Go".
+
+**What the lifter gets (both apps), at the top of History, over the list:**
+- **One month at a time, Monday to Sunday,** opening on this month: **a dot under every day with a workout,** today in a ring, the other days in grey.
+- **A day with a dot is a button:** it brings that day's workout to the top of the list below. The list itself is as before: every workout, newest first.
+- **Arrows** go back as far as the month of the first workout, and forward to this month.
+- **Under the grid: "5 workouts in November · 12 weeks in a row".** The count is of the month on screen. The weeks in a row are calendar weeks (Monday to Sunday) with at least one workout, counted back from this week; a week in progress with none yet does not break the run (it is then counted back from last week). With no run, only the month's count shows.
+- No calendar on an empty log (the empty state shows instead). Nothing new is stored.
+
+**My calls** (the design the owner saw, except 3 to 7):
+1. The list stays whole; a tap on a day jumps to its workout (the alternative offered, the list showing only the month on screen, was not asked for).
+2. The streak counts weeks, not days: nobody lifts every day.
+3. The weekday names are single letters (M T W T F S S), so seven columns fit any phone.
+4. Only a day with a workout is a button; the others are numbers for the eye, hidden from a screen reader. A workout day reads "Tue 10 Nov 2026: Powerlifting · 1 exercise · 2 sets. Show it".
+5. The jump is at once, with no animation, and adds no history entry: Back still leaves for Progress.
+6. The dots are one colour for both sides (the workout's card says which side).
+7. A workout dated after today (a wrong clock) is listed but opens no month ahead of this one.
+
+**Limits, said to the owner with the first pictures:**
+- **Web: a tap on a day months back draws every workout down to it** (whole pages of 20, as "Show older workouts" would), which is what the pages were there to avoid; the calendar is then a long scroll above. The Android list is lazy and has neither cost.
+- The calendar is tall: six rows of 48 px in a month like November 2026, before the first workout's card.
+- Day buttons are 48 px tall everywhere. Their width is the screen's: 50 px or more from a 360 px phone up, 45 px on a 320 px phone, and 34 px on a 320 px phone at 130% zoom (measured on the web; the Android app is the same at 360 dp and 320 dp).
+- At 320 px and 200% text (about 160 px) the web calendar keeps inside the screen with its month name over the arrows and smaller figures; its columns are then about 20 px wide.
+
+**How:**
+- `domain`: `weeksInARow(workoutDays, today)` in `history/TrainingWeeks.kt`, exposed as `GritDomain.weeksInARow`; the generated web code is regenerated. Each app passes the dates of the workouts History lists, so the dots, the month's count and the run cannot disagree.
+- Web: `screens/progress/WorkoutCalendar.tsx` (the month maths in UTC on the ISO strings, as `dates.ts`); `WorkoutHistoryContent` takes a required `today`, holds the pages shown and the picked workout, and after the render scrolls its card into view and puts the focus on its date. `workoutSummary` moved to its own file. Narrow rules in `narrowDeeper.css`.
+- Android: `ui/progress/WorkoutCalendar.kt`, the first item of History's lazy list; a tap scrolls the list to the workout's item. `WorkoutHistoryContent` takes a required `today`. The list's side padding moved onto its items, so the calendar can reach closer to the screen's edge than the cards.
+- No database or backup change.
+
+**Tests:**
+- Domain: `TrainingWeeksTest` (8): none; a run of three however many workouts a week has; this week empty does not break the run; this week and last both empty is zero; a missed week ends it; Monday to Sunday; across New Year; a day after today is not counted. `GritDomainTest.weeksInARow_…`.
+- Web, `WorkoutHistoryScreen.test.tsx` (11, five new): the month, a button on each workout day, the ring, the counts; the arrows' limits; no run says only the month's count; a tap brings a workout up, also the 50th down the log, and again on a second tap; the month maths (a month starting on a Sunday, on a Monday, a leap February, across a year). e2e `progress.spec.ts`: the calendar at 375 px (30 day cells, all at least 47.5 px wide and inside the screen), a month back and a tap (the card at the top and focused), the first month and a tap past the first twenty (35 drawn), the address unchanged. `narrowDeeper.spec.ts`'s History tests hold the calendar at 160 px.
+- Android, `WorkoutHistoryScreenTest` (18, six new): the same cases; a tap brings the 30th workout to the top of the lazy list; every day at least 48 dp each way and inside the screen at 360 dp; whole at 320 dp and font scale 1.3.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
