@@ -1807,6 +1807,16 @@ The owner, 2026-11-25, after installing the Android app: "its missing the update
 - **Not run on a phone or an emulator from here:** the tests draw the screens in Robolectric. The owner's phone is the check.
 - Left as it was: the 1.19.1 notes' "exercises added on Today with no set logged were gone after the app restarted" (noticed on the emulator, not looked into).
 
+**Checks, on the branch (`ccr-2f9842b5-owq43n`, with main's 1.19.1 merged in), 2026-11-26, one at a time:**
+- Gradle, on the final code: `:domain:allTests` passed; `:domain:checkWebDomain` passed; `:app:testDebugUnitTest` passed, 1,129 tests, 0 failed, 1 skipped (1,115 before, plus the new ones). `:app:assembleRelease` builds: versionCode 37, versionName 1.20, unsigned here (no `keystore.properties` in this container).
+- Web (unchanged but for its version): `npm run typecheck` clean; unit tests 1,699 of 1,699; build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 521 passed, 12 skipped, first time.** The `E2E_UA=android` pass: 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- GitHub's run on main's `f79f111` (1.19.1), which that release's notes lean on: both jobs passed (read 2026-11-26).
+- **Not run on merged main. Not run on a phone or an emulator:** the Android screens were drawn in Robolectric tests only.
+
+**Shots:** Android, from `ScreenshotTest` with `-Pscreenshots.update=true`: the Today shots that hold a card with an earlier session or had Stretch and Squeeze, the six Progress shots (the History button), the four bodybuilding guide pictures of the Today card (Stretch and Squeeze gone), the new `history-dark` and `history-light`, and the six Settings shots (the version line). Web: the six Settings shots; five others were put back as drift.
+
+**Version:** Android 1.20 (versionCode 37), web 1.20.0 (shown as 1.20). The web app is unchanged but for its version line.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
