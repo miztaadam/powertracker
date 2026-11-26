@@ -1826,7 +1826,7 @@ The owner, 2026-11-25, after installing the Android app: "its missing the update
 
 **Agreed next, in this order (owner, 2026-11-26):** (1) "Last time" you can act on: the row for the set about to be done highlighted, and a "Use set N" button that fills weight and reps (design sent, not yet confirmed); (2) a calendar in History; (3) warm-up sets; (4) supersets. Supersets change the stored log and the backup, so both apps ship together; warm-ups too if they are saved in the log.
 
-## Built, not published: 1.21, "Use set N" under Last time (both apps)
+## Done: 1.21, "Use set N" under Last time (both apps)
 Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" something you act on). The idea as listed had a tap on a row copy it into the fields; the design sent instead was one button, and the owner did not object after being asked twice, so the button was built. **If the owner wants tappable rows after all, that is a change to make.**
 
 **What the lifter gets (both apps):**
@@ -1863,6 +1863,15 @@ Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" so
 **Shots:** web, from the full run: the six Settings shots (the version line); `today-bodybuilding-*` and `today-plates-bodybuilding-*` (the marked row, "NEXT" and the button); and `today-rest-*`, the same in two runs: the card is taller with the button under one row, so the shot is scrolled further down. Eight others were put back as drift of a few bytes. Android: `today-*` and `today-bodybuilding-*` (the powerlifting sample now has five sets last time, so its fourth row is marked) and the six Settings shots.
 
 **Version:** Android 1.21 (versionCode 38), web 1.21.0 (shown as 1.21).
+
+**Published 2026-11-26 (owner: "publish"), on main as `f654b48`** (a `--no-ff` merge of the branch at `c66674e` onto main's `678747c`; its tree is the branch's). On merged main, one at a time, before the push, with no source change:
+- Web: `npm run typecheck` clean; unit tests 1,705 of 1,705; build clean. **Full Playwright run: 521 passed, 12 skipped, first time.** The `E2E_UA=android` pass: 259 passed, 12 skipped. **Speed project alone, three times: 6 of 6 each** (the Exercises tab check that missed once on the branch passed all three).
+- Gradle, each made to run (`--rerun`), not answered from the branch's results: `:domain:jvmTest` and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,134 tests, 0 failed, 1 skipped. `:domain:checkWebDomain` passed.
+- Live, about two minutes after the push: `/` names `assets/index-DjhOoHrI.js`, which carries 1.21.0 (no 1.20.0), build id `f654b48` and the words "Use set "; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 38, versionName 1.21, unsigned in this container. **No APK was handed over:** the signed release is built on the owner's PC.
+- **Still not run on a phone or an emulator.** The owner did not say how 1.20 looked on the phone before saying "publish". The owner's check is item 10 of README's "Phone checks after a release".
+
+**Next, agreed (owner, 2026-11-26), both apps together each time:** a calendar in History; warm-up sets (ask first: saved in the log, or a checklist that is not saved); supersets (owner decided: saved in the plan, linked once on the Plan tab; this changes the stored plan and the backup, so both apps ship together).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
