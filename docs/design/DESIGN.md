@@ -8,7 +8,7 @@ big condensed tabular numerals you can read from the floor of a dim gym. One acc
 the single next action; every other colour means a state (PR, stall, deload) or a real object (a plate).
 
 Mockups: `docs/design/screens/` (rendered by `ScreenshotTest` from the real components; the
-`today-*`, `coach-*`, `progress-*` and `lift-history-*` ones are the real screens with sample state). A normal
+`today-*`, `coach-*`, `progress-*`, `lift-history-*` and `history-*` ones are the real screens with sample state). A normal
 test run only renders them to `app/build/screenshots/` as a smoke check. To update the committed
 PNGs after a visual change, run
 `./gradlew :app:testDebugUnitTest --tests '*ScreenshotTest*' -Pscreenshots.update=true` and look at them.

@@ -14,6 +14,8 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.history.LastTime
+import com.powertracker.domain.history.lastTimes
 import com.powertracker.domain.library.Library
 import com.powertracker.domain.library.LibraryExercise
 import com.powertracker.domain.model.Advice
@@ -89,6 +91,13 @@ data class TodayItem(
     val plateCount: PlateCount = PlateCount.OFF,
     /** Whether the exercise may count plates at all ([PlateStack.offered]): the row menu then offers it. */
     val plateOffered: Boolean = false,
+    /**
+     * Every set of this exercise in its last session on the side shown, before the day shown, in logged order and each
+     * in the unit it was logged in (1.20, as the web app's since 1.18); null when it was never done on this side. The
+     * domain's [lastTimes]: the session the coach's "Last time: …" names, except just after the exercise's plate setting
+     * changed, when the coach reads only the sets in the new unit.
+     */
+    val lastTime: LastTime? = null,
 ) {
     val logged: List<LoggedSet> get() = sets.map { it.set }
     val isComplete: Boolean get() = targetSets != null && sets.size >= targetSets
@@ -340,6 +349,10 @@ class TodayViewModel(
         val added = l.added.map { resolved[it] ?: it }
         val addedIds = (loggedIds.filter { it !in added } + added).filter { it !in plannedIds }.distinct()
 
+        // Each exercise's sets in its last session on this side, asked once for all the cards, of the log as it is stored
+        // (not the current-unit copy above: "Last time" shows what was done, in the unit it was logged in).
+        val past = d.history.lastTimes(d.mode, date)
+
         fun item(exercise: Exercise, plan: PlanItem?): TodayItem {
             val unit = PlateStack.unitOf(exercise)
             val sets = d.sets.filter { it.set.exerciseId == exercise.id }
@@ -374,6 +387,7 @@ class TodayViewModel(
                 unit = unit,
                 plateCount = exercise.plateCount,
                 plateOffered = PlateStack.offered(exercise),
+                lastTime = past[exercise.id],
             )
         }
 

@@ -9,8 +9,13 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
-import com.powertracker.domain.library.Library
-import com.powertracker.domain.library.MuscleFocus
+import com.powertracker.domain.history.LastTime
+import com.powertracker.domain.model.LoadUnit
+import com.powertracker.domain.stack.PlateStack
+import com.powertracker.ui.components.formatKg
+import com.powertracker.ui.components.pastSetSpoken
+import com.powertracker.ui.today.lastTimeDate
+import androidx.compose.ui.test.assertCountEquals
 import com.powertracker.ui.design.assertTextsFit
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -233,140 +238,120 @@ class BodybuildingContentTest {
         compose.onNode(hasTestTag("mode-label")).assertExists()
     }
 
-    // ---- Stretch and squeeze (stage 4): on the bodybuilding side's Today card only ----
+    // ---- Last time (1.20): every set of the exercise's last session, on the Today card on both sides, where the
+    // ---- stretch and squeeze lines were on the bodybuilding side (they are in the exercise's guide now) ----
 
     private val squat = Exercise(1, "Squat", Category.SQUAT, null, emptyList(), isBuiltIn = true)
-    private val plank = Exercise(9, "Front plank", Category.ACCESSORY, null, emptyList(), isBuiltIn = true)
-    private val tyreFlip = Exercise(900, "Tyre flip", Category.ACCESSORY, null, emptyList(), isBuiltIn = false)
     private val twoSets = listOf(stored(1, 26.0, 11, 8.0), stored(2, 26.0, 10, 8.0))
 
-    private fun lines(name: String) = Library.focus(name) as MuscleFocus.Lines
+    private fun past(kg: Double, reps: Int, rpe: Double? = 8.0, failed: Boolean = false, unit: LoadUnit = LoadUnit.KG) =
+        LoggedSet(squat.id, kg, reps, rpe, failed, null, isTopSet = false, unit = unit)
 
-    private var shownCard: MutableState<Pair<Exercise, TrainingMode>>? = null
+    /** Wednesday 4 November: a set, a set with no RPE, and a missed one at another weight. */
+    private val lastWeek = LastTime(LocalDate(2026, 11, 4), listOf(past(100.0, 12), past(100.0, 11, rpe = null), past(102.5, 8, 9.5, failed = true)))
+    private val lastWeekRows = listOf("Set 1: 100 kg × 12 at RPE 8", "Set 2: 100 kg × 11", "Set 3: 102.5 kg × 8 at RPE 9.5, missed")
 
-    /** One exercise card on [mode]'s side, in that side's theme. Called again, it swaps the card in place. */
-    private fun showCard(exercise: Exercise, mode: TrainingMode) {
+    private var shownCard: MutableState<Triple<TrainingMode, LastTime?, List<StoredSet>>>? = null
+
+    /** The squat's card on [mode]'s side, in that side's theme, with [last] as its last time. Called again, it swaps the card in place. */
+    private fun showCard(mode: TrainingMode, last: LastTime?, sets: List<StoredSet> = twoSets) {
         shownCard?.let {
-            it.value = exercise to mode
+            it.value = Triple(mode, last, sets)
             compose.waitForIdle()
             return
         }
-        val card = mutableStateOf(exercise to mode).also { shownCard = it }
+        val card = mutableStateOf(Triple(mode, last, sets)).also { shownCard = it }
         compose.setContent {
-            val (shown, side) = card.value
+            val (side, lastTime, logged) = card.value
             PowertrackerTheme(mode = side) {
-                TodayContent(TodayState(date, loading = false, sessionId = 1, items = listOf(item(shown, twoSets)), mode = side), TodayActions())
+                TodayContent(TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, logged).copy(lastTime = lastTime)), mode = side), TodayActions())
             }
         }
     }
 
     private fun top(text: String) = compose.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().top
+    private fun bottom(text: String) = compose.onNodeWithText(text, useUnmergedTree = true).getUnclippedBoundsInRoot().bottom
 
-    /** From the exercise's name to the Missed button: the height a cue block would add to. */
-    private fun cardSpan(name: String) = top("Missed") - top(name)
-
-    @Test
-    fun bodybuildingCard_showsStretchAndSqueeze() {
-        val squatLines = lines("Squat")
-        showCard(squat, TrainingMode.BODYBUILDING)
-
-        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText(squatLines.stretch, useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText(squatLines.squeeze, useUnmergedTree = true).assertExists()
-        // As the mockup: after the logged sets, before the weight entry; the stretch first, each label beside its line.
-        val lastSet = compose.onNodeWithText("Set 2: 26 kg × 10", substring = true).getUnclippedBoundsInRoot().bottom
-        val weight = compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top
-        val order = listOf(top("STRETCH"), top(squatLines.stretch), top("SQUEEZE"), top(squatLines.squeeze))
-        assertTrue("the cues come after the logged sets", order.all { it >= lastSet })
-        assertTrue("the cues come before the weight entry", order.all { it < weight })
-        assertTrue("the stretch comes before the squeeze", order[1] < order[3])
-        assertEquals("STRETCH sits beside its line", order[0].value, order[1].value, 4f)
-        assertEquals("SQUEEZE sits beside its line", order[2].value, order[3].value, 4f)
-    }
+    /** From the exercise's name to the Missed button: the height a block between them would add to. */
+    private fun cardSpan() = top("Missed") - top("Squat")
 
     @Test
-    fun bodybuildingCard_restoredRowUnderCatalogueName_showsLines() {
-        // A row restored from a backup under a catalogue name, in another case: matched as its guide is.
-        showCard(squat.copy(name = "squat"), TrainingMode.BODYBUILDING)
-        compose.onNodeWithText(lines("Squat").stretch, useUnmergedTree = true).assertExists()
-        compose.onNodeWithText(lines("Squat").squeeze, useUnmergedTree = true).assertExists()
-    }
+    fun card_showsEverySetOfLastTime_betweenTheLoggedSetsAndTheWeightEntry_onBothSides() {
+        for (mode in listOf(TrainingMode.BODYBUILDING, TrainingMode.POWERLIFTING)) {
+            showCard(mode, lastWeek)
 
-    @Test
-    fun bodybuildingCard_noFocus_showsNothing() {
-        // The plank has NoFocus: the card shows nothing (the guide sheet carries the fixed line).
-        assertTrue(Library.focus("Front plank") is MuscleFocus.NoFocus)
-        showCard(plank, TrainingMode.BODYBUILDING)
-        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithText(Library.NO_FOCUS_LINE, useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
-        val plankSpan = cardSpan("Front plank")
-
-        // The lifter's own exercise: nothing either.
-        showCard(tyreFlip, TrainingMode.BODYBUILDING)
-        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
-        val ownSpan = cardSpan("Tyre flip")
-
-        // No gap: both cards are exactly as tall as the same card on the powerlifting side, which has no cues at all.
-        showCard(plank, TrainingMode.POWERLIFTING)
-        val powerliftingSpan = cardSpan("Front plank")
-        assertEquals(powerliftingSpan.value, plankSpan.value, 0.5f)
-        assertEquals(powerliftingSpan.value, ownSpan.value, 0.5f)
-
-        // And the guard: a card that does have lines is taller by its cue block.
-        showCard(squat.copy(category = Category.ACCESSORY), TrainingMode.BODYBUILDING)
-        assertTrue(cardSpan("Squat") > powerliftingSpan)
-    }
-
-    @Test
-    fun bodybuildingCard_finished_keepsTheCues_aboveTheNextButton() {
-        val squatLines = lines("Squat")
-        val threeSets = twoSets + stored(3, 26.0, 9, 8.0)
-        compose.setContent {
-            PowertrackerTheme(mode = TrainingMode.BODYBUILDING) {
-                TodayContent(
-                    TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, threeSets)), mode = TrainingMode.BODYBUILDING),
-                    TodayActions(),
-                )
-            }
+            compose.onNodeWithTag("last-time", useUnmergedTree = true).assertExists()
+            compose.onNodeWithText("LAST TIME · WED 4 NOV", useUnmergedTree = true).assertExists()
+            // One row for each set, in the order logged: a set with no RPE says none, and only the missed set says so.
+            val rows = lastWeekRows.map { top(it) }
+            assertEquals("$mode: the rows are in logged order", rows.sorted(), rows)
+            assertEquals("$mode: each row is on its own line", rows.distinct().size, rows.size)
+            // Today's two rows and last time's three, and no more ("Set 3 of 3" is the card's count, not a row).
+            compose.onAllNodesWithText(" kg × ", substring = true, useUnmergedTree = true).assertCountEquals(twoSets.size + lastWeekRows.size)
+            // After today's logged sets, before the weight entry.
+            val lastSet = compose.onNodeWithText("Set 2: 26 kg × 10", substring = true).getUnclippedBoundsInRoot().bottom
+            val weight = compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top
+            assertTrue("$mode: the heading comes after the logged sets", top("LAST TIME · WED 4 NOV") >= lastSet)
+            assertTrue("$mode: the heading is over the rows", top("LAST TIME · WED 4 NOV") < rows.first())
+            assertTrue("$mode: the whole block ends above the weight entry", bottom(lastWeekRows.last()) <= weight)
+            // The stretch and squeeze lines are not on the card, on either side.
+            compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
         }
+    }
+
+    @Test
+    fun card_neverDoneOnThisSide_showsNothing_andLeavesNoGap() {
+        showCard(TrainingMode.BODYBUILDING, null)
+        compose.onNodeWithTag("last-time", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText("LAST TIME", substring = true, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
+        val none = cardSpan()
+
+        // A last time with no sets (never built, but never an empty box either) is nothing too.
+        showCard(TrainingMode.BODYBUILDING, LastTime(LocalDate(2026, 11, 4), emptyList()))
+        compose.onNodeWithTag("last-time", useUnmergedTree = true).assertDoesNotExist()
+        assertEquals(none.value, cardSpan().value, 0.5f)
+
+        // No gap: the same height on the powerlifting side, which never had anything there.
+        showCard(TrainingMode.POWERLIFTING, null)
+        assertEquals(none.value, cardSpan().value, 0.5f)
+
+        // And the guard: with a last time the card is taller by its block.
+        showCard(TrainingMode.POWERLIFTING, lastWeek)
+        assertTrue(cardSpan() > none)
+    }
+
+    @Test
+    fun card_finished_keepsLastTime_aboveTheNextButton() {
+        showCard(TrainingMode.BODYBUILDING, lastWeek, twoSets + stored(3, 26.0, 9, 8.0))
         compose.onNodeWithText("Done", useUnmergedTree = true).assertExists()
-        // The exercise is done: no weight entry, the button that moves on instead, and the cues still there above it.
+        // The exercise is done: no weight entry, the button that moves on instead, and last time still there above it.
         compose.onNodeWithContentDescription("Weight, kilograms").assertDoesNotExist()
         val lastSet = compose.onNodeWithText("Set 3: 26 kg × 9", substring = true).getUnclippedBoundsInRoot().bottom
-        val button = top("Finish session")
-        val order = listOf(top("STRETCH"), top(squatLines.stretch), top("SQUEEZE"), top(squatLines.squeeze))
-        assertTrue("the cues come after the logged sets", order.all { it >= lastSet })
-        assertTrue("the cues come before the Finish button", order.all { it < button })
-        val cuesBottom = compose.onNodeWithText(squatLines.squeeze, useUnmergedTree = true).getUnclippedBoundsInRoot().bottom
-        assertTrue("the whole cue block ends above the button", cuesBottom <= button)
+        assertTrue("last time comes after the logged sets", top("LAST TIME · WED 4 NOV") >= lastSet)
+        assertTrue("the whole block ends above the button", bottom(lastWeekRows.last()) <= top("Finish session"))
     }
 
     @Test
-    fun powerliftingCard_showsNoCues() {
-        showCard(squat, TrainingMode.POWERLIFTING)
-        compose.onNodeWithText("Squat", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithText("SQUEEZE", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithText(lines("Squat").stretch, useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
-
-        // Switching the side shows the cues at once, and switching back hides them.
-        showCard(squat, TrainingMode.BODYBUILDING)
-        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertExists()
-        showCard(squat, TrainingMode.POWERLIFTING)
-        compose.onNodeWithText("STRETCH", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag("muscle-cues", useUnmergedTree = true).assertDoesNotExist()
+    fun lastTime_fromAnotherYear_carriesTheYear_andAPlateSetReadsAsAPlateNumber() {
+        showCard(TrainingMode.POWERLIFTING, LastTime(LocalDate(2025, 12, 31), listOf(past(60.0, 12), past(7.5, 10, unit = LoadUnit.PLATES))))
+        compose.onNodeWithText("LAST TIME · WED 31 DEC 2025", useUnmergedTree = true).assertExists()
+        // Each set in the unit it was logged in.
+        compose.onNodeWithText("Set 1: 60 kg × 12 at RPE 8", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Set 2: ${PlateStack.spoken(7.5)} × 10 at RPE 8", useUnmergedTree = true).assertExists()
+        assertEquals("Set 2: ${PlateStack.spoken(7.5)} × 10 at RPE 8", pastSetSpoken(2, past(7.5, 10, unit = LoadUnit.PLATES)))
+        assertEquals("Wed 4 Nov", lastTimeDate(LocalDate(2026, 11, 4), date))
+        assertEquals("Wed 31 Dec 2025", lastTimeDate(LocalDate(2025, 12, 31), date))
     }
 
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
-    fun bodybuildingCard_largeFont_wrapsWithoutClipping() {
-        val squatLines = lines("Squat")
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun card_smallPhoneAndLargeFont_lastTimeWrapsWithoutClipping() {
+        // Eight sets, the long kind: a half-kilo weight, two-figure reps, a half RPE, and a missed one.
+        val long = LastTime(LocalDate(2026, 11, 4), (0 until 8).map { past(102.5 + it, 15 - it, 9.5, failed = it == 7) })
         var fontScale = 0f
         compose.setContent {
             val density = LocalDensity.current
@@ -374,7 +359,7 @@ class BodybuildingContentTest {
                 fontScale = LocalDensity.current.fontScale
                 PowertrackerTheme(mode = TrainingMode.BODYBUILDING) {
                     TodayContent(
-                        TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, twoSets)), mode = TrainingMode.BODYBUILDING),
+                        TodayState(date, loading = false, sessionId = 1, items = listOf(item(squat, twoSets).copy(lastTime = long)), mode = TrainingMode.BODYBUILDING),
                         TodayActions(),
                     )
                 }
@@ -383,25 +368,29 @@ class BodybuildingContentTest {
         compose.waitForIdle()
         assertEquals(1.3f, fontScale, 0.001f)
         val screen = compose.onRoot().getUnclippedBoundsInRoot()
-        for (text in listOf("STRETCH", "SQUEEZE", squatLines.stretch, squatLines.squeeze)) {
-            val node = compose.onNodeWithText(text, useUnmergedTree = true)
-            val b = node.getUnclippedBoundsInRoot()
-            assertTrue("\"$text\" fits across the screen", b.left >= screen.left && b.right <= screen.right)
-            val n = node.fetchSemanticsNode()
-            assertEquals("\"$text\" is not clipped", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
-            assertEquals("\"$text\" is not cut at the side", n.size.width.toFloat(), n.boundsInRoot.width, 0.5f)
-            val layouts = mutableListOf<TextLayoutResult>()
-            n.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-            val layout = layouts.single()
-            assertFalse("\"$text\" is cut short", layout.hasVisualOverflow)
-            assertFalse("\"$text\" is ellipsised", (0 until layout.lineCount).any { layout.isLineEllipsized(it) })
-            if (text.length > 20) assertTrue("\"$text\" is shown whole", layout.layoutInput.text.text == text)
+        // The heading is whole: not clipped, not cut short, not ellipsised.
+        val heading = compose.onNodeWithText("LAST TIME · WED 4 NOV", useUnmergedTree = true)
+        val h = heading.fetchSemanticsNode()
+        assertEquals("the heading is not clipped", h.size.height.toFloat(), h.boundsInRoot.height, 0.5f)
+        assertEquals("the heading is not cut at the side", h.size.width.toFloat(), h.boundsInRoot.width, 0.5f)
+        val layout = mutableListOf<TextLayoutResult>().also { h.config[SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
+        // Whole: every character is on a line that is drawn (a heading as wide as its words reports a width overflow
+        // against the room it was offered, so the width is checked by its bounds above).
+        assertFalse("the heading is cut at the bottom", layout.didOverflowHeight)
+        assertFalse("the heading is ellipsised", (0 until layout.lineCount).any { layout.isLineEllipsized(it) })
+        assertEquals("the heading's last line ends with its last letter", "LAST TIME · WED 4 NOV".length, layout.getLineEnd(layout.lineCount - 1))
+        // Every row is inside the screen and drawn whole, one under the other.
+        val rows = (1..8).map { n -> compose.onNodeWithText("Set $n: ${formatKg(101.5 + n)} kg × ${16 - n} at RPE 9.5" + if (n == 8) ", missed" else "", useUnmergedTree = true) }
+        var above = h.boundsInRoot.bottom
+        for ((i, row) in rows.withIndex()) {
+            val b = row.getUnclippedBoundsInRoot()
+            assertTrue("row ${i + 1} fits across the screen", b.left >= screen.left && b.right <= screen.right)
+            val n = row.fetchSemanticsNode()
+            assertEquals("row ${i + 1} is not clipped", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
+            assertEquals("row ${i + 1} is not cut at the side", n.size.width.toFloat(), n.boundsInRoot.width, 0.5f)
+            assertTrue("row ${i + 1} is below the one before", n.boundsInRoot.top >= above - 0.5f)
+            above = n.boundsInRoot.bottom
         }
-        // At this size the long line wraps rather than running on.
-        val stretch = mutableListOf<TextLayoutResult>().also {
-            compose.onNodeWithText(squatLines.stretch, useUnmergedTree = true).fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(it)
-        }.single()
-        assertTrue("the stretch line wraps at font scale 1.3 on a 360 dp phone", stretch.lineCount > 1)
         compose.assertTextsFit()
     }
 }

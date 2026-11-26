@@ -17,6 +17,7 @@ import com.powertracker.domain.model.Baseline
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.model.TrainingMode
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.today.TodayAdd
 import com.powertracker.ui.today.TodayViewModel
@@ -213,6 +214,38 @@ class TodayViewModelTest {
         val restarted = viewModel()
         await("restarted") { restarted.state.value.items.size == 2 }
         assertEquals(curl.id, restarted.state.value.items[1].exercise.id)
+    }
+
+    @Test
+    fun lastTime_isEverySetOfTheExercisesLastSessionOnThisSide_andNeverTodaysOwn() {
+        runBlocking {
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, curl.id, sets = 3, reps = 10, targetRpe = 8.0, order = 1))
+            training.logSet(training.startSession(today.minus(14, DateTimeUnit.DAY), null, null), set(squat, 140.0))
+            val lastWeek = training.startSession(today.minus(7, DateTimeUnit.DAY), null, null)
+            training.logSet(lastWeek, set(squat, 150.0).copy(rpe = 7.0))
+            training.logSet(lastWeek, set(squat, 152.5).copy(reps = 4, rpe = null))
+            training.logSet(lastWeek, set(squat, 155.0).copy(reps = 2, failed = true))
+            // The other side, later: not this side's last time. The curl was only ever done there.
+            val otherSide = training.startSession(today.minus(2, DateTimeUnit.DAY), null, null, TrainingMode.BODYBUILDING)
+            training.logSet(otherSide, set(squat, 100.0))
+            training.logSet(otherSide, set(curl, 20.0))
+            // Today's own set is not "last time".
+            training.logSet(training.startSession(today, null, null), set(squat, 160.0))
+        }
+        val vm = viewModel()
+        await("both cards") { !vm.state.value.loading && vm.state.value.items.size == 2 }
+
+        val (squatCard, curlCard) = vm.state.value.items
+        assertEquals(TrainingMode.POWERLIFTING, vm.state.value.mode)
+        val last = squatCard.lastTime!!
+        assertEquals(today.minus(7, DateTimeUnit.DAY), last.date)
+        assertEquals(listOf(Triple(150.0, 5, 7.0), Triple(152.5, 4, null), Triple(155.0, 2, 8.0)), last.sets.map { Triple(it.weightKg, it.reps, it.rpe) })
+        assertEquals(listOf(false, false, true), last.sets.map { it.failed })
+        assertEquals(listOf(160.0), squatCard.sets.map { it.set.weightKg })
+        // Never done on this side: nothing to show.
+        assertEquals(curl.id, curlCard.exercise.id)
+        assertNull(curlCard.lastTime)
     }
 
     private fun planSquatWithHistory() = runBlocking {

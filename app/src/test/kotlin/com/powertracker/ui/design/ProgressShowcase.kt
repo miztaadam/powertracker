@@ -14,6 +14,8 @@ import com.powertracker.ui.progress.LiftHistoryContent
 import com.powertracker.ui.progress.LiftHistoryViewModel
 import com.powertracker.ui.progress.ProgressContent
 import com.powertracker.ui.progress.ProgressViewModel
+import com.powertracker.ui.progress.WorkoutHistoryContent
+import com.powertracker.ui.progress.WorkoutHistoryViewModel
 import com.powertracker.domain.progress.weekStart
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -96,7 +98,13 @@ internal val SAMPLE_HISTORY_WITH_PRESS: TrainingHistory = run {
 @Composable
 fun ProgressShowcase(strictPress: Boolean = false) {
     val history = if (strictPress) SAMPLE_HISTORY_WITH_PRESS else SAMPLE_HISTORY
-    ProgressContent(ProgressViewModel.build(history, ChartRange.MONTHS_6, SHOWCASE_DATE, showStrictPress = strictPress), onRange = {}, onOpenLift = {})
+    ProgressContent(ProgressViewModel.build(history, ChartRange.MONTHS_6, SHOWCASE_DATE, showStrictPress = strictPress), onRange = {}, onOpenLift = {}, onOpenHistory = {})
+}
+
+/** History (1.20): every workout of the sample log, newest first. */
+@Composable
+fun WorkoutHistoryShowcase() {
+    WorkoutHistoryContent(WorkoutHistoryViewModel.build(SAMPLE_HISTORY), onBack = {})
 }
 
 @Composable

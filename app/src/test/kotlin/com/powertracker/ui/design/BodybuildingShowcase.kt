@@ -8,6 +8,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.library.MuscleGroup
@@ -64,7 +65,9 @@ fun TodayBodybuildingShowcase() {
         AdvicePayload.Target(1, 26.0, 8, 8.0, repsHigh = 12), id = 1, mode = TrainingMode.BODYBUILDING,
     )
     val items = listOf(
-        bbToday(1, "Incline DB press", 26.0, listOf(bbLogged(1, 1, 26.0, 11), bbLogged(2, 1, 26.0, 10)), target),
+        // Last week's three sets (1.20), the ones the coach's "Last time: 26 × 11, 10, 9" names.
+        bbToday(1, "Incline DB press", 26.0, listOf(bbLogged(1, 1, 26.0, 11), bbLogged(2, 1, 26.0, 10)), target)
+            .copy(lastTime = LastTime(SHOWCASE_DATE.minus(7, DateTimeUnit.DAY), listOf(11, 10, 9).map { LoggedSet(1, 26.0, it, 8.0, failed = false, missPoint = null, isTopSet = false) })),
         bbToday(2, "Lat pulldown", 60.0),
         bbToday(3, "Cable crossover", 15.0),
         bbToday(4, "Leg press", 140.0),
@@ -139,6 +142,6 @@ fun ProgressBodybuildingShowcase() {
     )
     ProgressContent(
         ProgressState(loading = false, hasData = true, mode = TrainingMode.BODYBUILDING, trends = trends, muscles = muscles, checkedIn = true),
-        onRange = {}, onOpenLift = {},
+        onRange = {}, onOpenLift = {}, onOpenHistory = {},
     )
 }

@@ -42,6 +42,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
@@ -81,9 +82,11 @@ import com.powertracker.ui.today.TodayActions
 import com.powertracker.ui.today.TodayContent
 import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayState
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.minus
 
 // Mockups for owner approval: real components, hard-coded sample data. One lifter, one story:
 // squat e1RM 190, bench 122.5 (stalled), deadlift 250, on Wednesday 11 November.
@@ -143,7 +146,8 @@ private fun todayItems(squatSets: List<StoredSet>, suggest: Boolean) = listOf(
         } else {
             null
         },
-    ),
+        // Last week's squats (1.20), worked up to the top set the coach's "Last time: 150 × 5 @ 7" names.
+    ).copy(lastTime = LastTime(SHOWCASE_DATE.minus(7, DateTimeUnit.DAY), listOf(120.0 to 5.0, 140.0 to 6.0, 150.0 to 7.0).map { (kg, rpe) -> LoggedSet(1, kg, 5, rpe, failed = false, missPoint = null, isTopSet = false) })),
     todayItem(2, "Bench", Category.BENCH, 4, 6, 7.5, 100.0),
     todayItem(3, "Barbell row", Category.ACCESSORY, 3, 8, 8.0, 80.0),
     todayItem(4, "Triceps pushdown", Category.ACCESSORY, 3, 12, 8.0, 30.0),

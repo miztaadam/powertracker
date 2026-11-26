@@ -98,10 +98,12 @@ fun ProgressScreen(
     today: () -> LocalDate = ::systemToday,
     onOpenExercise: (exerciseId: Long) -> Unit = {},
     onCheckIn: () -> Unit = {},
+    /** Opens every past workout (1.20), from the History button at the top right on both sides. */
+    onOpenHistory: (() -> Unit)? = null,
 ) {
     val viewModel: ProgressViewModel = viewModel(factory = ProgressViewModel.factory(training, settings, today))
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift, onOpenExercise = onOpenExercise, onCheckIn = onCheckIn)
+    ProgressContent(state, onRange = viewModel::setRange, onOpenLift = onOpenLift, onOpenExercise = onOpenExercise, onCheckIn = onCheckIn, onOpenHistory = onOpenHistory)
 }
 
 /** The Progress screen without its view model. */
@@ -112,12 +114,21 @@ fun ProgressContent(
     onOpenLift: (MainLift) -> Unit,
     onOpenExercise: (exerciseId: Long) -> Unit = {},
     onCheckIn: () -> Unit = {},
+    /**
+     * The History button at the top right (1.20), the same on both sides and there whether or not this side has
+     * anything logged: the list it opens is every workout, from both sides. Null (the guide's picture of Progress)
+     * leaves the button out.
+     */
+    onOpenHistory: (() -> Unit)? = null,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             val eyebrow = if (state.mode == TrainingMode.BODYBUILDING) "Best set per session" else "Estimated 1RM"
-            ScreenHeader("Progress", eyebrow = eyebrow, modeLabel = true)
+            ScreenHeader("Progress", eyebrow = eyebrow, modeLabel = true) {
+                // Lined up with the cards' right edge, as Today's Finish is.
+                if (onOpenHistory != null) SecondaryButton("History", onOpenHistory, compact = true, modifier = Modifier.padding(end = Space.s))
+            }
         },
     ) { padding ->
         Column(
