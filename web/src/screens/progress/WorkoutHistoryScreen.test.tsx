@@ -200,6 +200,19 @@ describe('workout history', () => {
     expect(within(calendar()).getByText('3 workouts in November · 3 weeks in a row')).toBeInTheDocument()
   })
 
+  it('calendar_todayWithAWorkout_isAButtonWithTheRingAndTheDot', () => {
+    // The usual sight: train, then open History.
+    render(<WorkoutHistoryContent state={{ loading: false, workouts: workoutsOn(TODAY, '2026-11-09') }} onBack={() => {}} today={TODAY} />)
+    const today = calendar().querySelectorAll('.workout-day-today')
+    expect(today).toHaveLength(1)
+    expect(today[0]!.tagName).toBe('BUTTON')
+    expect(today[0]).toHaveClass('workout-day-trained')
+    expect(today[0]).toHaveAccessibleName('Wed 11 Nov 2026: Powerlifting · 1 exercise · 1 set. Show it')
+    expect(today[0]!.querySelector('.workout-day-number')).toHaveTextContent('11')
+    expect(today[0]!.querySelectorAll('.workout-day-dot')).toHaveLength(1)
+    expect(within(calendar()).getByText('2 workouts in November · 1 week in a row')).toBeInTheDocument()
+  })
+
   it('calendar_arrows_goBackToTheFirstWorkoutsMonth_andForwardToThisMonth_only', async () => {
     const workouts = workoutsOn('2026-11-09', '2026-10-28', '2026-09-30')
     render(<WorkoutHistoryContent state={{ loading: false, workouts }} onBack={() => {}} today={TODAY} />)

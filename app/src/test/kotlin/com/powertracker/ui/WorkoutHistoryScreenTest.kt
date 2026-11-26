@@ -226,6 +226,17 @@ class WorkoutHistoryScreenTest {
     }
 
     @Test
+    fun calendar_todayWithAWorkout_isAButtonWithTheRing() {
+        // The usual sight: train, then open History.
+        showHistory(workoutsOn(today.toString(), "2026-11-09"))
+        compose.onNodeWithTag("workout-day-$today", useUnmergedTree = true).assertExists()
+        compose.onNodeWithContentDescription("Wed 11 Nov 2026: Powerlifting · 1 exercise · 1 set. Show it").assertExists()
+        compose.onAllNodesWithTag("workout-day-today", useUnmergedTree = true).assertCountEquals(1)
+        assertTrue(!exists("day-$today"))
+        compose.onNodeWithText("2 workouts in November · 1 week in a row", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
     fun calendar_arrows_goBackToTheFirstWorkoutsMonth_andForwardToThisMonth_only() {
         showHistory(workoutsOn("2026-11-09", "2026-10-28", "2026-09-30"))
         compose.onNodeWithContentDescription("Previous month").performClick()
@@ -323,6 +334,9 @@ class WorkoutHistoryScreenTest {
         for (tag in listOf("workout-day-2026-11-02", "workout-day-2026-11-30", "day-2026-11-28", "day-2026-11-11")) {
             val b = compose.onNodeWithTag(tag, useUnmergedTree = true).getUnclippedBoundsInRoot()
             assertTrue("$tag is inside the screen", b.left >= screen.left && b.right <= screen.right)
+            // On the narrowest phone a day is 44 dp wide (seven columns in 312 dp), and still 48 dp tall.
+            assertTrue("$tag is at least 44 dp wide (${b.right - b.left})", b.right - b.left >= androidx.compose.ui.unit.Dp(44f))
+            assertTrue("$tag is at least 48 dp tall (${b.bottom - b.top})", b.bottom - b.top >= androidx.compose.ui.unit.Dp(47.5f))
         }
         // The month's name and the line under the grid are whole: every letter on a line that is drawn.
         for (text in listOf("November 2026", "4 workouts in November · 2 weeks in a row")) {

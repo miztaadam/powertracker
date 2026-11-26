@@ -257,7 +257,8 @@ button.workout-day:active {
   background: var(--container);
 }
 
-.workout-day-trained {
+/* Two classes, so the heavier weight wins over the type class's own, wherever that sits in the stylesheet. */
+.workout-day.workout-day-trained {
   color: var(--text);
   font-weight: 600;
 }

@@ -1892,10 +1892,10 @@ Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the 
 6. The dots are one colour for both sides (the workout's card says which side).
 7. A workout dated after today (a wrong clock) is listed but opens no month ahead of this one.
 
-**Limits, said to the owner with the first pictures:**
+**Limits, said to the owner in the report before publishing:**
 - **Web: a tap on a day months back draws every workout down to it** (whole pages of 20, as "Show older workouts" would), which is what the pages were there to avoid; the calendar is then a long scroll above. The Android list is lazy and has neither cost.
 - The calendar is tall: six rows of 48 px in a month like November 2026, before the first workout's card.
-- Day buttons are 48 px tall everywhere. Their width is the screen's: 50 px or more from a 360 px phone up, 45 px on a 320 px phone, and 34 px on a 320 px phone at 130% zoom (measured on the web; the Android app is the same at 360 dp and 320 dp).
+- Day buttons are 48 px tall everywhere. Their width is the screen's: 50 px or more from a 360 px phone up, 45 px on a 320 px phone, and 34 px on a 320 px phone at 130% zoom (measured on the web). Android, asserted in its tests: at least 48 dp wide at 360 dp, at least 44 dp at 320 dp.
 - At 320 px and 200% text (about 160 px) the web calendar keeps inside the screen with its month name over the arrows and smaller figures; its columns are then about 20 px wide.
 
 **How:**
