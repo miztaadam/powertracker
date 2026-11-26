@@ -9815,6 +9815,36 @@ function lastTimes$lambda(a, b) {
   var tmp$ret$2 = b.z1j_1;
   return compareValues(tmp, tmp$ret$2);
 }
+function weeksInARow(workoutDays, today) {
+  // Inline function 'kotlin.collections.filter' call
+  // Inline function 'kotlin.collections.filterTo' call
+  var destination = ArrayList_init_$Create$();
+  var _iterator__ex2g4s = workoutDays.j();
+  while (_iterator__ex2g4s.k()) {
+    var element = _iterator__ex2g4s.l();
+    if (element.a10(today) <= 0) {
+      destination.i(element);
+    }
+  }
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination_0 = HashSet_init_$Create$();
+  var _iterator__ex2g4s_0 = destination.j();
+  while (_iterator__ex2g4s_0.k()) {
+    var item = _iterator__ex2g4s_0.l();
+    var tmp$ret$4 = mondayOfWeek(item);
+    destination_0.i(tmp$ret$4);
+  }
+  var weeks = destination_0;
+  var week = mondayOfWeek(today);
+  if (!weeks.r(week))
+    week = minus_0(week, 7, Companion_getInstance().dz_1);
+  var count = 0;
+  while (weeks.r(week)) {
+    count = count + 1 | 0;
+    week = minus_0(week, 7, Companion_getInstance().dz_1);
+  }
+  return count;
+}
 function _get_catalogue__ehuyh4_0($this) {
   var tmp0 = $this.q1r_1;
   var tmp = KProperty1;
@@ -44978,6 +45008,20 @@ protoOf(GritDomain).lastTimes = function (history, mode, before) {
   }
   // Inline function 'kotlin.collections.toTypedArray' call
   return copyToArray(destination);
+};
+protoOf(GritDomain).weeksInARow = function (workoutDays, today) {
+  // Inline function 'kotlin.collections.map' call
+  // Inline function 'kotlin.collections.mapTo' call
+  var destination = ArrayList_init_$Create$_0(workoutDays.length);
+  var inductionVariable = 0;
+  var last = workoutDays.length;
+  while (inductionVariable < last) {
+    var item = workoutDays[inductionVariable];
+    inductionVariable = inductionVariable + 1 | 0;
+    var tmp$ret$2 = parseDate('workoutDays', item);
+    destination.i(tmp$ret$2);
+  }
+  return weeksInARow(destination, parseDate('today', today));
 };
 protoOf(GritDomain).openAdviceExpired = function (type, createdAt, today) {
   var tmp = Coach_getInstance();
