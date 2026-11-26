@@ -1848,6 +1848,15 @@ Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" so
 - Web, `ExerciseCard.test.tsx`: the row marked and the fields filled, nothing logged, then the next row after a set is logged; nothing marked past last time's sets or with the day's sets done, and the sixth row after "Add another set"; a set in another unit is marked without a button. Three earlier tests now expect ", your next set" on the first row. e2e `bodybuilding.spec.ts`: the marked row and the button at 130% zoom with eight sets, a full-size target inside the screen, and it fills the fields. The very narrow Today tests (`narrow.spec.ts`) hold the button and pass.
 - Android, `BodybuildingContentTest`: the row marked and `onEdit` called with the row's weight and reps, nothing logged; no button past last time's sets or in another unit; the button whole on a 320 dp phone at font scale 1.3.
 
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-26, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,702 of 1,702 (1,699 before, plus three); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 521 passed, 12 skipped, first time,** with no source change while it ran. The `E2E_UA=android` pass: 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle: `:app:testDebugUnitTest` passed, 1,131 tests, 0 failed, 1 skipped (1,129 before, plus two). `:domain:allTests` and `:domain:checkWebDomain` answered "up to date": nothing under `domain/` changed since they last ran and passed (1.20). `:app:assembleRelease` builds: versionCode 38, versionName 1.21, unsigned in this container.
+- **Not run on merged main. Not run on a phone or an emulator.**
+
+**Shots:** web, from the full run: the six Settings shots (the version line), `today-bodybuilding-*` and `today-plates-bodybuilding-*` (the marked row and the button). Five were put back as drift: three `guide-targets-*` by a few bytes, and the two `today-rest-*`, which this time were shot with the card scrolled further down (the same card, no marked row: one set last time and one logged). Android: `today-bodybuilding-*` (the marked row and the button) and the six Settings shots.
+
+**Version:** Android 1.21 (versionCode 38), web 1.21.0 (shown as 1.21).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
