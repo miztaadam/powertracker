@@ -184,6 +184,48 @@ for (const scheme of ['dark', 'light'] as const) {
     expect(await smallTargets(page)).toEqual([])
     await shoot(page, `history-${scheme}`, 1500)
 
+    // 1.22: the calendar over the list. November 2026, a dot on each of its five workout days, a ring on today.
+    await page.setViewportSize({ width: 375, height: 812 })
+    const calendar = page.getByRole('region', { name: 'Calendar' })
+    await expect(calendar.getByText('November 2026', { exact: true })).toBeVisible()
+    await expect(calendar.locator('button.workout-day')).toHaveCount(5)
+    await expect(calendar.locator('.workout-day-today')).toHaveText('11')
+    await expect(calendar.getByText('5 workouts in November · 12 weeks in a row', { exact: true })).toBeVisible()
+    await expect(calendar.getByRole('button', { name: 'Next month' })).toBeDisabled()
+    // Every day button and both arrows are full touch targets at this width (checked with the rest above), and the
+    // seven columns are inside the screen.
+    const dayBoxes = await calendar.locator('.workout-day').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect))
+    expect(dayBoxes).toHaveLength(30)
+    expect(Math.min(...dayBoxes.map((b) => b.width))).toBeGreaterThanOrEqual(47.5)
+    expect(Math.min(...dayBoxes.map((b) => b.left))).toBeGreaterThanOrEqual(0)
+    expect(Math.max(...dayBoxes.map((b) => b.right))).toBeLessThanOrEqual(375)
+    // A month back, then a day in it: its workout (the 17th down the list, already drawn) comes to the top.
+    await calendar.getByRole('button', { name: 'Previous month' }).click()
+    await expect(calendar.getByText('October 2026', { exact: true })).toBeVisible()
+    await expect(calendar.locator('.workout-day-today')).toHaveCount(0)
+    await calendar.getByRole('button', { name: /^Mon 5 Oct 2026: / }).click()
+    const picked = page.getByRole('heading', { level: 2, name: 'Mon 5 Oct 2026' })
+    await expect(picked).toBeFocused()
+    await expect(picked).toBeInViewport()
+    expect((await picked.boundingBox())!.y).toBeLessThan(120)
+    // A day in the first month, past the first twenty: the older ones are drawn down to it, and it comes up.
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
+    await calendar.getByRole('button', { name: 'Previous month' }).click()
+    await calendar.getByRole('button', { name: 'Previous month' }).click()
+    await expect(calendar.getByText('August 2026', { exact: true })).toBeVisible()
+    await expect(calendar.getByRole('button', { name: 'Previous month' })).toBeDisabled()
+    await calendar.getByRole('button', { name: /^Mon 24 Aug 2026: / }).click()
+    const oldest = page.getByRole('heading', { level: 2, name: 'Mon 24 Aug 2026' })
+    await expect(oldest).toBeFocused()
+    await expect(oldest).toBeInViewport()
+    await expect(workouts).toHaveCount(35)
+    // The address did not change: Back still leaves for Progress (below).
+    await expect(page).toHaveURL(/#\/history$/)
+    expect(await overflowing(page)).toEqual([])
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
+    await page.reload()
+    await expect(workouts).toHaveCount(20)
+
     await page.setViewportSize({ width: 375, height: 812 })
     const older = page.getByRole('button', { name: 'Show older workouts' })
     await older.click()

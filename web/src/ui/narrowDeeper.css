@@ -409,4 +409,36 @@
     white-space: normal;
     overflow-wrap: normal;
   }
+
+  /* ==== History's calendar (1.22): inside the screen's own sides, the month over its two arrows, smaller figures ==== */
+
+  .shell-main .workout-calendar {
+    margin-inline: 0;
+  }
+
+  .shell-main .workout-calendar-head {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+
+  /* "November 2026" has the line above the arrows to itself, and wraps at its space if it must. */
+  .shell-main .workout-calendar-month {
+    flex-basis: 100%;
+    order: -1;
+  }
+
+  /* Seven columns of about 20 px: two figures fit at this size. */
+  .shell-main .workout-day {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .shell-main .workout-day-today > .workout-day-number {
+    min-width: 20px;
+    line-height: 20px;
+  }
+
+  .shell-main .workout-calendar-summary {
+    padding-inline: 0;
+  }
 }
