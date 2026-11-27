@@ -1995,6 +1995,37 @@ Picked by the owner on 2026-11-26 from the list of ideas ("warm up sets"); on 20
 
 **Next: supersets** (owner, 2026-11-26: saved in the plan, linked once on the Plan tab). They change the stored plan and the backup, so both apps ship together.
 
+## Done: 1.23.1, Finish counts a set that is still being saved (both apps)
+Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above, the `E2E_UA=android` pass of its second round).
+
+**What was wrong:** "Session saved" counted the sets that were on screen at the moment Finish was tapped. A set tapped a split second before, still on its way into the log, was stored but not counted, and the coach, which runs at Finish, had not read it either. Seen once on a busy test machine; on a phone it needs Log set and Finish within the moment a save takes.
+
+**What changes for the lifter (both apps):**
+- **Log set, then Finish, however fast:** Finish waits for the set to be stored and shown, then runs the coach and counts. The summary, the note kept for the next time the app is opened, and the coach all have that set.
+- **Finish, then Log set, within the moment Finish takes (the other order, found while fixing the first):** before, that set was stored behind a summary that did not count it. Now that tap does nothing; its numbers stay in the card, and "Keep logging" brings the card back to log it.
+- **Android app only: Finish tapped twice quickly** ran the coach twice and stored each new coach note twice (the new test showed two "easing back in" notes). The Android app had no guard there; the web app has had one all along. Now the second tap does nothing while the first is at work. Finish again after "Keep logging" still runs the coach again, as before.
+- The double-tap guards are kept: Log set twice still saves one set, on both apps.
+
+**Limits, left as they are:**
+- Finish waits for the set to be on screen for at most two seconds (the wait Log set itself has had since it got its guard). If the screen has not shown the set by then, the summary counts what the screen has.
+- A set held back by the "Did you mean …?" question is not being saved, so Finish does not wait for an answer. If Log set (held for that question) and Finish are tapped in the same instant, the question is on top of the summary, and "Confirm" then stores a set the summary did not count. Three things at once; not changed.
+- Android: while Finish waits or runs, "Add to today" on the Exercises tab is not refused (the web app refuses it). It only adds a card, no set.
+
+**How:**
+- Web, `state/useToday.ts`: `saving` is now the promise of the save under way (null when there is none), ended in `logSet`'s `finally` however the save ends; `finishSession` sets its guard, awaits it, waits for the screen's data and only then reads the screen. `logSet` returns at once while `finishing` is set.
+- Android, `ui/today/TodayViewModel.kt`: a new `finishing` flag; `finishSession` takes it (compare-and-set), waits for `saving` to be false, then reads the state; `logSet` returns at once while it is set.
+- No database or backup change.
+
+**Tests:**
+- Web, `TodayScreen.test.tsx`: `finishTappedWithLogSet_countsTheSetStillBeingSaved` (Log set 3 and Finish clicked in one tick: "Sets 3", "Exercises 1", three stored, the stored note says 3; it gave "Sets 2" before the fix) and `logSetTappedWhileFinishWorks_isNotSaved_soTheSummaryCountsEverySetStored` (the other order: "Sets 2", two stored, and Log set works again after "Keep logging"; before, a third set was stored). e2e `reload.spec.ts` taps Finish straight after Log set again, without 1.23's wait for the third row.
+- Android, `TodayViewModelTest`: the same two, calling what the two buttons call in one turn of the main thread, and `finishDoubleTap_runsTheCoachOnce`. All three failed before the fix: a summary of 2, a fourth set stored, two notes.
+
+**Checks:** being run on the branch as this is written; the results follow in the next commit.
+
+**Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
+
+**Not published.** Waiting for the owner's "publish". This branch (`claude/determined-fermat-po8wgi`) is built on 1.23's branch, which is not published either, so publishing it publishes 1.23 with it.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
