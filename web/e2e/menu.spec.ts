@@ -412,3 +412,38 @@ test.describe('the ⋮ menu, more cases', () => {
     }
   })
 })
+
+// 1.23.1: the "Install Grit" card is drawn a moment after the plan, above it. A menu opened before it arrives was pushed
+// down with the plan and never placed again: at 306 px its bottom ended at 786 of a 583 px room. Now a menu is placed
+// again when the page under it shifts.
+for (const [width, height] of [
+  [306, 664],
+  [390, 844],
+] as const) {
+  test.describe(`a card arriving above an open ⋮ menu, ${width} px`, () => {
+    test.use({ viewport: { width, height } })
+
+    test('the menu is placed again, inside the screen, and still works', async ({ page }) => {
+      await openOnWednesday(page)
+      await seed(page, false)
+      // As if the card had not arrived yet.
+      const hide = await page.addStyleTag({ content: '.install-card { display: none !important }' })
+      const more = page.locator('.today-plan').getByRole('button', { name: 'Options for Cable chest press' })
+      await more.click()
+      const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
+      await expect(menu).toBeVisible()
+      await expect(menu.getByRole('menuitem').first()).toBeFocused()
+      const top = async () => (await more.boundingBox())!.y
+      const before = await top()
+
+      // The card arrives: the plan, its ⋮ and the open menu go down by the card's height.
+      await hide.evaluate((el) => (el as Element).remove())
+      await expect(page.locator('.install-card')).toBeVisible()
+      await expect.poll(top).toBeGreaterThan(before + 100)
+
+      // Inside the screen again, every action whole, the focus where it was; and it still opens its sheet.
+      await expect(menu.getByRole('menuitem').first()).toBeFocused()
+      await opensInsideOpen(page, 'Cable chest press', `after the Install card arrives, ${width} px`)
+    })
+  })
+}

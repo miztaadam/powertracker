@@ -733,6 +733,10 @@ class TodayViewModel(
     /** Runs the coach over the history including today and stores what is new. */
     fun finishSession() {
         viewModelScope.launch {
+            // A set still being saved is counted (1.23.1): Finish tapped in the same instant as Log set waits until that
+            // set is on screen (the save's guard is held until then), and counts what is there then. Before, the summary
+            // said one set too few, with the set stored.
+            saving.first { !it }
             val now = loaded()
             if (now.sessionId == null) return@launch
             // The session's own side: its plan and its advice (deloads and easing back in count on both).

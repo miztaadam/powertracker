@@ -801,3 +801,23 @@ describe('TodayScreen haptics', () => {
     expect(vibrate).not.toHaveBeenCalled()
   })
 })
+
+it('finish_tappedInTheSameInstantAsLogSet_countsThatSet', async () => {
+  // Two sets logged already; the third is tapped, and Finish at once, before its row is on screen.
+  const today = await startSession(db, TODAY)
+  await logSet(db, today, set(squatId, 150))
+  await logSet(db, today, set(squatId, 150))
+  show()
+  const log = await findButton('Log set 3')
+  fireEvent.click(log)
+  fireEvent.click(button('Finish'))
+  await screen.findByRole('heading', { name: 'Session saved' })
+  // The set is stored, and the summary counts it.
+  await waitForSets(3)
+  expect(document.querySelector('.today-summary-stats')).toHaveTextContent('Sets3Exercises1')
+  // ... and still does when the screen is opened again.
+  cleanup()
+  show()
+  await screen.findByRole('heading', { name: 'Session saved' })
+  expect(document.querySelector('.today-summary-stats')).toHaveTextContent('Sets3Exercises1')
+})

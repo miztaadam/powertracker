@@ -337,6 +337,29 @@ class TodayViewModelTest {
         assertTrue(restarted.state.value.items.all { it.warmUpDone.isEmpty() })
     }
 
+    @Test
+    fun finishSession_calledWhileASetIsStillBeingSaved_countsThatSet() {
+        runBlocking {
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+            val today = training.startSession(today, null, null)
+            training.logSet(today, set(squat, 150.0))
+            training.logSet(today, set(squat, 150.0))
+        }
+        val vm = viewModel()
+        await("two sets") { !vm.state.value.loading && vm.state.value.items.singleOrNull()?.logged?.size == 2 }
+
+        // The third set and Finish in the same instant, as a thumb on Log set and then on Finish before the row is drawn.
+        vm.logSet(null, squat.id, set(squat, 150.0))
+        vm.finishSession()
+        await("summary") { vm.state.value.summary != null }
+        assertEquals(3, vm.state.value.summary?.setCount)
+        assertEquals(1, vm.state.value.summary?.exerciseCount)
+        // ... and what is kept for the next time the app opens says the same.
+        val restarted = viewModel()
+        await("restarted") { restarted.state.value.summary != null }
+        assertEquals(3, restarted.state.value.summary?.setCount)
+    }
+
     private fun planSquatWithHistory() = runBlocking {
         training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
         training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))

@@ -837,6 +837,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   // True while a set is being saved; further log taps are ignored until the screen shows it.
   const saving = useRef(false)
+  // Settles when the set being saved is on screen (or its save gave up): at once when none is. Finish waits for it.
+  const saved = useRef<Promise<void>>(Promise.resolve())
   const starting = useRef(false)
   const waiting = useRef<{ setId: number; done: () => void }[]>([])
   const loadWaiting = useRef<(() => void)[]>([])
@@ -970,6 +972,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       // A fast double tap must not save the set twice.
       if (saving.current) return
       saving.current = true
+      let settle!: () => void
+      saved.current = new Promise<void>((done) => (settle = done))
       try {
         // A set goes into the open session, also after midnight: the session belongs to the day it was started.
         // A tap is never dropped: it waits for the screen's data, and without a session it fails out loud.
@@ -1026,6 +1030,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         await shown(setId)
       } finally {
         saving.current = false
+        settle()
       }
     },
     [db, update, shown, loaded, touch, slide],
@@ -1194,10 +1199,15 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   )
 
   const finishSession = useCallback(async () => {
-    const now = latest.current
-    if (finishing.current || now.summary != null || now.loading || now.sessionId == null) return
+    const asked = latest.current
+    if (finishing.current || asked.summary != null || asked.loading || asked.sessionId == null) return
     finishing.current = true
     try {
+      // A set still being saved is counted (1.23.1): Finish tapped in the same instant as Log set waits until that set is
+      // on screen, and counts what is there then. Before, the summary said one set too few, with the set stored.
+      await saved.current
+      const now = latest.current
+      if (now.summary != null || now.sessionId == null) return
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
       const [newNotes, skipped] = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns, db.skips], async () => {
