@@ -151,3 +151,86 @@ describe('Menu is brought into view and focused only once it is placed', () => {
     for (const className of seen) expect(className).toContain('gr-menu-list-up')
   })
 })
+
+// 1.23.2: something drawn late above the button (the "Install Grit" card, a moment after the plan) pushes the button down
+// under an open menu. The menu is placed again for where its button is now; the lifter's own scrolling is not such a move.
+describe('Menu follows its button when the page under it shifts', () => {
+  const frames = (count = 2) =>
+    act(async () => {
+      for (let i = 0; i < count; i++) await new Promise((done) => requestAnimationFrame(done))
+    })
+
+  /** A window 400 px high, a menu 100 px tall, and a ⋮ whose top the test moves. */
+  function stage(top: number) {
+    setWindow(390, 400)
+    const at = { top }
+    const realRect = HTMLElement.prototype.getBoundingClientRect
+    const reads = { button: 0 }
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.getAttribute('aria-haspopup') !== 'menu') return realRect.call(this)
+      reads.button++
+      return { left: 300, right: 348, top: at.top, bottom: at.top + 48, width: 48, height: 48, x: 300, y: at.top, toJSON: () => ({}) } as DOMRect
+    })
+    for (const key of ['offsetHeight', 'scrollHeight'] as const)
+      vi.spyOn(HTMLElement.prototype, key, 'get').mockImplementation(function (this: HTMLElement) {
+        return this.getAttribute('role') === 'menu' ? 100 : 0
+      })
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
+      return this.getAttribute('role') === 'menu' ? 168 : 0
+    })
+    return { at, reads }
+  }
+
+  it('pushed down to where it has no room under it, it opens above instead, and the focus stays where it was', async () => {
+    const { at } = stage(40)
+    await open()
+    expect(screen.getByRole('menu').className).not.toContain('gr-menu-list-up')
+    const focused = document.activeElement
+    expect(screen.getByRole('menu').contains(focused)).toBe(true)
+    at.top = 340
+    await frames()
+    expect(screen.getByRole('menu').className).toContain('gr-menu-list-up')
+    expect(document.activeElement).toBe(focused)
+  })
+
+  it('pushed back up, it opens under its button again', async () => {
+    const { at } = stage(340)
+    await open()
+    expect(screen.getByRole('menu').className).toContain('gr-menu-list-up')
+    at.top = 40
+    await frames()
+    expect(screen.getByRole('menu').className).not.toContain('gr-menu-list-up')
+  })
+
+  it("the lifter's own scrolling is not a move: the menu is left as it was placed", async () => {
+    const { at } = stage(40)
+    const main = document.createElement('main')
+    main.className = 'shell-main'
+    document.body.append(main)
+    try {
+      main.scrollTop = 300
+      render(<Menu label="Options" items={[{ text: 'Skip today', onSelect: () => {} }]} />, { container: main })
+      await userEvent.click(screen.getByRole('button', { name: 'Options' }))
+      // Scrolled up by 300 px: the button is 300 px lower in the window, at the same place on its screen.
+      main.scrollTop = 0
+      at.top = 340
+      await frames()
+      expect(screen.getByRole('menu').className).not.toContain('gr-menu-list-up')
+    } finally {
+      cleanup()
+      main.remove()
+    }
+  })
+
+  it('stops looking at its button once it is closed', async () => {
+    const { reads } = stage(40)
+    await open()
+    await frames()
+    expect(reads.button).toBeGreaterThan(1)
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('menu')).toBeNull()
+    const after = reads.button
+    await frames(3)
+    expect(reads.button).toBe(after)
+  })
+})

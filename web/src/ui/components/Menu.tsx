@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
 import { closeRequestsSupported, holdCloseRequests } from './closeRequests'
 import { holdHistoryEntry } from './historyCloses'
 import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
 import './Menu.css'
-import { MENU_MARGIN, menuRoom, placeMenu, type MenuPlacement } from './menuPlacement'
+import { MENU_MARGIN, buttonSpot, menuRoom, placeMenu, type MenuPlacement } from './menuPlacement'
 
 export type MenuItem = {
   text: string
@@ -33,7 +34,7 @@ const AS_BEFORE: MenuPlacement = { align: 'end', shift: 0, up: false, maxHeight:
  * A 48 px icon button that opens a short list of actions under it. Escape, a tap outside, Back on a phone (1.17.4:
  * through CloseWatcher on Android, through a history entry on an iPhone or iPad) or choosing an action closes it; the
  * arrow keys move between the actions. The list opens under the button, right edges aligned; one that would leave the
- * screen there opens where it fits (1.17.1, `placeMenu`).
+ * screen there opens where it fits (1.17.1, `placeMenu`), and is placed again if its button is moved under it (1.23.2).
  */
 export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuProps) {
   const [open, setOpen] = useState(false)
@@ -47,12 +48,15 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   // height (the focus stays where it is). Kept with the placement it set, so that nothing is scrolled or focused until
   // that placement is on the page.
   const reveal = useRef<{ why: 'first' | 'again'; placement: MenuPlacement } | null>(null)
+  // Where the button was on its screen (`buttonSpot`) at the last placing.
+  const placedAt = useRef<{ left: number; top: number } | null>(null)
 
   /** Measures the menu's own size and the button's place now, and places it (`placeMenu`). */
   const place = useCallback((why: 'first' | 'again') => {
     const button = trigger.current?.getBoundingClientRect()
     const menu = list.current
     if (!button || !menu) return
+    placedAt.current = buttonSpot(trigger.current!)
     const style = getComputedStyle(menu)
     const borders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0)
     // Its whole height even while capped (scrollHeight holds the padding, not the border). The cap is on the whole box:
@@ -123,6 +127,24 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
       window.removeEventListener('orientationchange', close)
       viewport?.removeEventListener('resize', onResize)
     }
+  }, [open, place])
+
+  // 1.23.2: the page can shift under an open menu. On Today the "Install Grit" card is drawn a moment after the plan,
+  // above it, and a menu opened in that moment went down with its button, out of its room (its bottom at 786 px of 583).
+  // While it is open, each frame looks where the button is on its screen; when that is not where the menu was placed
+  // for, it is placed again, and that placing is on the page in the same frame, so no frame shows it out of its room.
+  // The lifter's own scrolling moves the button in the window but not on its screen, so it places nothing.
+  useEffect(() => {
+    if (!open) return
+    let frame = requestAnimationFrame(function look() {
+      frame = requestAnimationFrame(look)
+      const was = placedAt.current
+      if (!trigger.current || !was) return
+      const now = buttonSpot(trigger.current)
+      // A whole px or more: scrolling can leave a fraction of one between the two numbers a spot is made of.
+      if (Math.abs(now.left - was.left) >= 1 || Math.abs(now.top - was.top) >= 1) flushSync(() => place('again'))
+    })
+    return () => cancelAnimationFrame(frame)
   }, [open, place])
 
   // 1.17.4: where the browser has CloseWatcher, Back on a phone, and Escape (itself a close request there, so the key is

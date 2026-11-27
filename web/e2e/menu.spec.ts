@@ -256,6 +256,57 @@ test.describe('the ⋮ menu, more cases', () => {
     expect(item!.y).toBeGreaterThanOrEqual(list!.y - 1)
   })
 
+  // 1.23.2: the "Install Grit" card is drawn a moment after the plan, above it. A menu opened in that moment was pushed
+  // down with its button and stayed where it had been placed: at 306 px its bottom ended at 786 of a 583 px room. The
+  // card is held back here (hidden, as if it had not arrived), the menu opened, and the card let in under the open menu.
+  for (const [width, height] of [
+    [306, 664],
+    [320, 568],
+  ] as const) {
+    test(`a menu opened before the Install card arrives is placed again when the card pushes its button down, ${width} px`, async ({ page }) => {
+      await page.setViewportSize({ width, height })
+      await openOnWednesday(page)
+      await seed(page, false)
+      const held = await page.addStyleTag({ content: '.install-card { display: none !important }' })
+      const button = page.locator('.today-plan').getByRole('button', { name: 'Options for Cable chest press' })
+      await button.click()
+      const before = await settled(page, 'Cable chest press')
+      expect(before.y + before.height, 'before the card: the menu is above the docked bars').toBeLessThanOrEqual(before.roomBottom)
+      const [was] = await boxesTogether(button)
+
+      await held.evaluate((style) => (style as HTMLStyleElement).remove())
+      await expect(page.locator('.install-card')).toBeVisible()
+      const [now] = await boxesTogether(button)
+      expect(now!.y - was!.y, 'the card pushed the ⋮ down').toBeGreaterThan(100)
+      // Still open, its first action still focused, and wholly inside its room; Count plates opens its sheet.
+      await expect(page.getByRole('menu', { name: 'Options for Cable chest press' }).getByRole('menuitem').first()).toBeFocused()
+      await opensInsideOpen(page, 'Cable chest press', 'after the Install card arrived')
+    })
+  }
+
+  // The other side of 1.23.2: scrolling the screen under an open menu (a mouse wheel, the keyboard; a finger on the screen
+  // closes it) moves the button in the window, not on its screen. The menu goes with it and nothing scrolls back.
+  test('scrolling the screen under an open menu is left alone: the menu goes with its button', async ({ page }) => {
+    await page.setViewportSize({ width: 306, height: 500 })
+    await openOnWednesday(page)
+    await seed(page, false)
+    const main = page.locator('.shell-main')
+    await main.evaluate((el) => (el.scrollTop = el.scrollHeight))
+    await page.locator('.today-plan-line').filter({ hasText: LONG }).getByRole('button', { name: `Options for ${LONG}` }).click()
+    const before = await settled(page, LONG)
+    expect(before.y + before.height, 'opened inside its room').toBeLessThanOrEqual(before.roomBottom)
+    // Read with the menu open: opening it may itself scroll the screen a little, to bring the menu inside its room.
+    const far = await main.evaluate((el) => el.scrollTop)
+    // Back to the top: the button and its menu go down by as much, past the bottom of the room. A menu placed again there
+    // would be put above its button, or the screen scrolled back to it.
+    await main.evaluate((el) => (el.scrollTop = 0))
+    const after = await settled(page, LONG)
+    expect(after.y, 'the menu went down with its button').toBeCloseTo(before.y + far, 0)
+    expect(after.y + after.height, 'and is under the docked bars now').toBeGreaterThan(after.roomBottom)
+    expect(await main.evaluate((el) => el.scrollTop), 'nothing scrolled back').toBe(0)
+    await expect(page.getByRole('menu', { name: `Options for ${LONG}` })).toBeVisible()
+  })
+
   test('a menu closes when the window changes width (turning the phone)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await openOnWednesday(page)
