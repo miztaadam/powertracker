@@ -6,7 +6,7 @@ import { grit } from '../../domain'
 import { warmUpKey, warmUpSets } from '../../state/warmUp'
 import { TODAY, addDays, exerciseNamed, logSet, plan, set, setsOn, startSession, todayFixture } from '../../test/todayFixture'
 import { TodayScreen } from './TodayScreen'
-import { warmUpHint, warmUpLabel, warmUpText } from './WarmUp'
+import { warmUpHint, warmUpLabel, warmUpPlates, warmUpText } from './WarmUp'
 
 // The warm-up checklist on the exercise card (1.23).
 let fx: ReturnType<typeof todayFixture>
@@ -50,9 +50,12 @@ describe('the warm-up checklist on the exercise card', () => {
     show()
     await ready()
     expect(names()).toEqual(['Warm-up set 1: 75 kg × 12, 25 + 2.5 per side', 'Warm-up set 2: 112.5 kg × 5, 25 + 20 + 1.25 per side'])
-    expect(Array.from(block()!.querySelectorAll('.today-warm-line')).map((el) => el.textContent)).toEqual(['75 kg × 1225 + 2.5 per side', '112.5 kg × 525 + 20 + 1.25 per side'])
+    expect(Array.from(block()!.querySelectorAll('.today-warm-line')).map((el) => el.textContent)).toEqual(['75 kg × 1225 + 2.5', '112.5 kg × 525 + 20 + 1.25'])
     // The heading says what a tick is not.
-    expect(within(block()!).getByText('Warm-up · not logged')).toHaveClass('eyebrow')
+    expect(within(block()!).getByText('Warm-up · not logged').parentElement).toHaveClass('eyebrow')
+    // "per side" is said once, in the heading, and to a screen reader with each set.
+    expect(within(block()!).getByText('Plates per side')).toBeInTheDocument()
+    expect(block()!.textContent!.match(/per side/gi)).toHaveLength(1)
     expect(follows(document.querySelector('.today-last')!, block()!)).toBe(true)
     expect(follows(block()!, weight())).toBe(true)
     expect(boxes().every((box) => !box.checked)).toBe(true)
@@ -71,6 +74,8 @@ describe('the warm-up checklist on the exercise card', () => {
     // Just above the bar: the bar alone, once.
     await userEvent.type(weight(), '{Backspace}5')
     expect(names()).toEqual(['Warm-up set 1: 20 kg × 12, empty bar'])
+    expect(block()!.querySelector('.today-warm-hint')).toHaveTextContent('empty bar')
+    expect(within(block()!).queryByText('Plates per side')).toBeNull()
   })
 
   it('aTick_isKeptWhileAnotherExerciseIsOpen_andStoresNothing', async () => {
@@ -148,6 +153,8 @@ describe('the warm-up checklist on the exercise card', () => {
     await ready()
     expect(names()).toEqual(['Warm-up set 1: 12.5 kg × 12'])
     expect(block()!.querySelector('.today-warm-hint')).toBeNull()
+    // No bar, no plates: the heading does not speak of them.
+    expect(within(block()!).queryByText('Plates per side')).toBeNull()
     view.unmount()
 
     // The plan asks for 15: a high-rep exercise needs none.
@@ -186,7 +193,9 @@ describe('warm-up wording', () => {
   it('theRowsTextHintAndSpokenName', () => {
     const [first, second] = warmUpSets(squat as never, 100, 5, false)
     expect([warmUpText(first!), warmUpHint(first!), warmUpLabel(1, first!)]).toEqual(['50 kg × 12', '15 per side', 'Warm-up set 1: 50 kg × 12, 15 per side'])
-    expect([warmUpText(second!), warmUpHint(second!)]).toEqual(['75 kg × 5', '25 + 2.5 per side'])
+    expect([warmUpText(second!), warmUpHint(second!), warmUpPlates(second!)]).toEqual(['75 kg × 5', '25 + 2.5 per side', '25 + 2.5'])
+    expect(warmUpPlates({ weight: 20, reps: 12, unit: 'KG', perSide: [] })).toBe('empty bar')
+    expect(warmUpPlates({ weight: 12.5, reps: 12, unit: 'KG', perSide: null })).toBeNull()
     expect(warmUpHint({ weight: 20, reps: 12, unit: 'KG', perSide: [] })).toBe('empty bar')
     expect(warmUpHint({ weight: 12.5, reps: 12, unit: 'KG', perSide: null })).toBeNull()
     expect(warmUpText({ weight: 3.5, reps: 12, unit: 'PLATES', perSide: null })).toBe(`${grit.plateText(3.5)} × 12`)

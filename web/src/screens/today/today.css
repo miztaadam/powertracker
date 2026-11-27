@@ -159,10 +159,19 @@
   gap: var(--space-1);
 }
 
+/* "Warm-up · not logged" at the left, "Plates per side" at the right; the second goes under the first where it must. */
 .today-warm > .today-warm-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: var(--space-4);
   color: var(--accent-text);
   white-space: normal;
   overflow: visible;
+}
+
+.today-warm-note {
+  color: var(--text-muted);
 }
 
 /* Two sets side by side where each has 140 px, else one under the other; a single set takes the whole row. */
@@ -217,7 +226,13 @@
   white-space: nowrap;
 }
 
+/*
+ * The plates, in room for two lines whatever their number (40 px where `lh` is not known): a longer list wraps into the
+ * second line and the block keeps its height, so the − and + below do not move while the weight is stepped.
+ */
 .today-warm-hint {
+  min-height: 40px;
+  min-height: 2lh;
   color: var(--text-muted);
 }
 

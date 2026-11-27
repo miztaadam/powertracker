@@ -322,7 +322,8 @@ test('the warm-up checklist follows the weight, keeps its ticks while the app is
   await expect(boxes).toHaveCount(2)
   await expect(boxes.nth(0)).toHaveAccessibleName('Warm-up set 1: 75 kg × 12, 25 + 2.5 per side')
   await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 112.5 kg × 5, 25 + 20 + 1.25 per side')
-  await expect(warm.locator('.today-warm-line').first()).toHaveText('75 kg × 1225 + 2.5 per side')
+  await expect(warm.locator('.today-warm-line').first()).toHaveText('75 kg × 1225 + 2.5')
+  await expect(warm.getByText('Plates per side', { exact: true })).toBeVisible()
   // Above the weight entry, under the coach's box.
   const order = await page.evaluate(() => {
     const top = (selector: string) => document.querySelector(selector)!.getBoundingClientRect().top
@@ -339,7 +340,7 @@ test('the warm-up checklist follows the weight, keeps its ticks while the app is
     const laid = await rows.evaluateAll((labels) =>
       labels.map((label) => {
         const box = label.getBoundingClientRect()
-        const parts = [...label.querySelectorAll('.today-warm-part')].map((part) => part.getBoundingClientRect())
+        const parts = [...label.querySelectorAll('.today-warm-part, .today-warm-hint')].map((part) => part.getBoundingClientRect())
         return { top: Math.round(box.top), height: box.height, inside: parts.every((part) => part.left >= box.left - 0.5 && part.right <= box.right + 0.5) }
       }),
     )
@@ -365,6 +366,28 @@ test('the warm-up checklist follows the weight, keeps its ticks while the app is
   await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
   await expect(boxes.nth(0)).not.toBeChecked()
   await expect(boxes.nth(1)).not.toBeChecked()
+  // The heaviest plate lists wrap inside their set: nothing reaches past it, at any of the phone widths.
+  await page.keyboard.press('Enter')
+  await typeInto(page, weightField(page), '247.5')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 185 kg × 5, 25 + 25 + 25 + 5 + 2.5 per side')
+  for (const width of [390, 375, 360]) {
+    await page.setViewportSize({ width, height: 664 })
+    const inside = await rows.evaluateAll((labels) =>
+      labels.every((label) => {
+        const box = label.getBoundingClientRect()
+        return [...label.querySelectorAll('.today-warm-part, .today-warm-hint')].every((part) => {
+          const r = part.getBoundingClientRect()
+          return r.left >= box.left - 0.5 && r.right <= box.right + 0.5 && (part as HTMLElement).scrollWidth <= (part as HTMLElement).clientWidth + 1
+        })
+      }),
+    )
+    expect(inside, `the longest plate lists inside their sets at ${width} px`).toBe(true)
+    expect(await fitsThePhone(page)).toBe(true)
+  }
+  await page.setViewportSize({ width: 390, height: 664 })
+  await page.keyboard.press('Enter')
+  await typeInto(page, weightField(page), '100')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
   // ... and stay once the field is left.
   await page.keyboard.press('Enter')
   await expect(weightField(page)).not.toBeFocused()
@@ -378,6 +401,18 @@ test('the warm-up checklist follows the weight, keeps its ticks while the app is
   await page.keyboard.press('Enter')
   await boxes.nth(0).check()
   await boxes.nth(1).check()
+
+  // The − and + under the checklist keep still while the weight is stepped: the block is one height whatever the plates.
+  const steppersTop = () => page.evaluate(() => document.querySelector('.today-steppers')!.getBoundingClientRect().top + document.querySelector('.shell-main')!.scrollTop)
+  const tops = [await steppersTop()]
+  for (let i = 0; i < 12; i++) {
+    await tap(page, 'Increase Weight')
+    tops.push(await steppersTop())
+  }
+  await expect(weightField(page)).toHaveValue('130')
+  expect(new Set(tops.map((top) => Math.round(top))).size, `the steppers' top over 100 to 130 kg: ${tops.join(', ')}`).toBe(1)
+  await tap(page, 'Decrease Weight', 12)
+  await expect(weightField(page)).toHaveValue('100')
 
   // Nothing ticked was logged: the first real set is the only set stored, and the checklist goes with it.
   await tap(page, 'Log set 1')
