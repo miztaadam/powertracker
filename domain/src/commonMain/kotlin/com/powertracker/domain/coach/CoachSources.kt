@@ -353,4 +353,51 @@ object CoachSources {
         url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC7698840/",
         accessed = "2026-11-18",
     )
+
+    /**
+     * The warm-up checklist, [WarmUp]: one set at half the working weight for 12 reps, a second at three quarters on
+     * the heavy lifts, none for a high-rep exercise.
+     *
+     * What the pages say: ExRx.net's warm-up page describes a warm-up set as typically 12 to 15 reps of a light
+     * resistance done before the workout set, about half the workout weight, with 30 seconds to 3 minutes of rest
+     * before the workout set; a second warm-up with a moderate resistance may be done on heavy movements or where the
+     * muscles and joints involved may be more open to injury; and no warm-up set is typically needed for high
+     * repetition exercises. Its training-log shorthand ([WARM_UP_LOG]) writes the warm-up as "50% of workout weight ·
+     * 12 reps", and its workload calculator and variable-resistance article ([WARM_UP_SECOND]) give the second set as
+     * about 75% of the actual resistance, naming squats and deadlifts.
+     *
+     * From the source: 50%, 12 reps, 75% for the second set, and no warm-up on a high-rep exercise. Not from the
+     * source, the builder's choices, shown to the owner with the design and approved on 2026-11-27: the second set's
+     * 5 reps; "high repetition" read as 15 reps or more; "heavy movements" read as the four main lifts and their
+     * variations (the source names squats and deadlifts); no warm-up for a bodyweight or assisted exercise; and
+     * rounding each weight to one that can be loaded. The source's rest between the warm-up and the first set is not
+     * shown in the app.
+     *
+     * The sets are a checklist only: they are never logged, so no other rule reads them (the owner's call).
+     *
+     * Found on 2026-11-27 with web searches restricted to exrx.net; the pages themselves were
+     * not opened (the site cannot be reached from the build session).
+     */
+    val WARM_UP = Source(
+        title = "Warm-up",
+        publisher = "ExRx.net",
+        url = "https://exrx.net/ExInfo/WarmUp",
+        accessed = "2026-11-27",
+    )
+
+    /** The first warm-up set's "50% of workout weight · 12 reps", beside [WARM_UP]. From the search summary; not opened. */
+    val WARM_UP_LOG = Source(
+        title = "Shorthand Log",
+        publisher = "ExRx.net",
+        url = "https://exrx.net/WeightTraining/Log",
+        accessed = "2026-11-27",
+    )
+
+    /** The second warm-up set's "approximately 75% of actual resistance", beside [WARM_UP]. From the search summary; not opened. */
+    val WARM_UP_SECOND = Source(
+        title = "Workload Adjustment / Rep Performance Calculator",
+        publisher = "ExRx.net",
+        url = "https://exrx.net/Calculators/Workload",
+        accessed = "2026-11-27",
+    )
 }

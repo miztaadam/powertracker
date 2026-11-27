@@ -298,6 +298,23 @@ class GritDomainTest {
     }
 
     @Test
+    fun warmUp_theSetsInTheExercisesUnit_withThePlatesPerSideOnABarbell() {
+        val squat = JsExercise(1, "Squat", "SQUAT", null, emptyArray(), true, false)
+        val rows = GritDomain.warmUp(squat, 100.0, 5, false)
+        assertEquals(listOf(Triple(50.0, 12, "KG"), Triple(75.0, 5, "KG")), rows.map { Triple(it.weight, it.reps, it.unit) })
+        assertEquals(listOf(listOf(15.0), listOf(25.0, 2.5)), rows.map { it.perSide?.toList() })
+        // A machine counting plates: a plate number, no bar.
+        val press = JsExercise(2, "Leg press", "ACCESSORY", null, emptyArray(), true, false, "HALF")
+        val plates = GritDomain.warmUp(press, 7.0, 10, false).single()
+        assertEquals(Triple(3.5, 12, "PLATES"), Triple(plates.weight, plates.reps, plates.unit))
+        assertNull(plates.perSide)
+        // Nothing to suggest: an empty array, never null.
+        assertEquals(0, GritDomain.warmUp(squat, 100.0, 15, false).size)
+        assertEquals(0, GritDomain.warmUp(squat, 0.0, 5, false).size)
+        assertFailsWith<IllegalArgumentException> { GritDomain.warmUp(squat.copy(category = "NOPE"), 100.0, 5, false) }
+    }
+
+    @Test
     fun weeksInARow_countsBackFromThisWeek_aWeekInProgressDoesNotBreakTheRun() {
         // Wednesday 11 November 2026: this week has none yet, last week and the one before have one each.
         assertEquals(2, GritDomain.weeksInARow(arrayOf("2026-11-05", "2026-10-27"), "2026-11-11"))
