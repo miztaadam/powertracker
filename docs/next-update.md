@@ -2026,7 +2026,12 @@ Both were found by 1.23's check rounds, put to the owner as suggested tasks, and
 - **Tests:** `menu.spec.ts`, "a card arriving above an open ⋮ menu" at 306 and 390 px: the card is held back, the menu opened, the card let in; the menu is then back inside its room (the placing follows the shift by a frame or two, so the test waits for it), its focus kept; scrolling the screen 40 px with the menu open leaves the screen where it was put and the menu by its ⋮; and its sheet still opens. At 306 px it failed before the fix with the same 786. Repeated 15 times at both widths: 30 of 30. The set-up's wait for the Install card (added in 1.23 for the other 26 tests) stays: those tests are about a settled screen.
 - **Android:** not changed. The Android app has no Install card, and its ⋮ menus are Material `DropdownMenu`s (`SkipToday.kt`), each drawn in its own window and placed by the framework against its button. **Not checked:** whether a card that arrives late on its start screen (the welcome-back card) can move an open menu off screen there.
 
-CHECKS_1231
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-27, one at a time, on the final code, with no source change while they ran, everything green:**
+- Web: `npm run typecheck` clean; unit tests 1,723 of 1,723 (1,722 before, plus one); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 532 passed, 12 skipped** (530 before, plus two). **The `E2E_UA=android` pass: 264 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.**
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` 1,000 and `:domain:jsNodeTest` 1,052, 0 failed; `:app:testDebugUnitTest` 1,153, 0 failed, 1 skipped (1,152 before, plus one). `:domain:checkWebDomain` passed.
+- **Not run on merged main. Not run on a phone or an emulator.** The menu fix was seen in Chromium only; Safari has the same observers the fix uses, but was not run.
+
+**Shots:** the six Settings shots of each app (the version). Seven web guide shots were put back as drift of a few bytes.
 
 **Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
 
