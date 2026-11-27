@@ -5,7 +5,7 @@ import { applyPlanChange, deletePlanItem, movePlanItem, planFor, planItemsOn, pl
 import { ensureSeeded, installedVersion, openGritDb, type GritDb } from './db'
 import { planItemFromJs, planItemToJs } from './mapping'
 import { SCHEMA_VERSIONS, type PlanItemRow } from './schema'
-import { clearStaleLinks, setSuperset, supersetHalves } from './supersets'
+import { setSuperset, supersetHalves } from './supersets'
 
 // Supersets in the web app's storage (1.24): the link on a plan item, and what keeps or clears it.
 
@@ -189,18 +189,5 @@ describe('what keeps a link and what clears it', () => {
     expect((await planFor(db, 'POWERLIFTING')).some((p) => p.supersetWithAbove === true)).toBe(false)
     expect(await restorePlan(db, 'POWERLIFTING', snapshot)).toBe('restored')
     expect(await linked()).toEqual([b])
-  })
-
-  it('clearStaleLinks_takesOffEveryFlagThatCountsForNothing_onBothSides', async () => {
-    const [a, b, c] = await wednesday()
-    const exercises = await exerciseIds()
-    // By hand, as a backup could hold them: the first of a day, and a third in a row.
-    await db.planItems.update(a!, { supersetWithAbove: true })
-    await db.planItems.update(b!, { supersetWithAbove: true })
-    await db.planItems.update(c!, { supersetWithAbove: true })
-    const lone = (await db.planItems.add({ weekday: 1, exerciseId: exercises[0]!, sets: 3, reps: 8, targetRpe: 8, order: 0, mode: 'BODYBUILDING', supersetWithAbove: true })) as number
-    await clearStaleLinks(db)
-    expect(await linked()).toEqual([b])
-    expect('supersetWithAbove' in (await stored(lone))).toBe(false)
   })
 })

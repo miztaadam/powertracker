@@ -19,7 +19,8 @@ async function newerLog() {
   await ensureSeeded(db)
   db.close()
   await new Promise<void>((done, fail) => {
-    const req = indexedDB.open(name, 70)
+    // Ten above this copy's own native version (declared 7, native 70, since 1.24): a newer Grit's.
+    const req = indexedDB.open(name, 80)
     req.onupgradeneeded = () => {}
     req.onsuccess = () => {
       req.result.close()

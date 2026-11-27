@@ -19,6 +19,7 @@ import { plateCountOf, setUnit, sideOf } from '../db/schema'
 import { DEFAULT_SETTINGS, settingsFromRows, type AppSettings } from '../db/settings'
 import { applyStrictPressUpgrade } from '../db/strictPressUpgrade'
 import { inGroupOrder } from '../db/checkIns'
+import { planItemToJs } from '../db/mapping'
 import { grit } from '../domain'
 import { canVibrate } from '../platform/device'
 import {
@@ -190,6 +191,8 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         sortOrder: p.order,
         mode: sideOf(p),
         repsHigh: p.repsHigh ?? null,
+        // Version 7: only on a linked item, as its last key, as Android writes it.
+        ...(p.supersetWithAbove === true ? { supersetWithAbove: true } : {}),
       })),
       advice: advice.map((a) => ({
         id: a.id,
@@ -310,7 +313,7 @@ function parseBackup(root: Obj): BackupFile {
       }
     }),
     planItems: list(o.planItems, 'planItems', (v, p) => {
-      const x = obj(v, p, ['id', 'weekday', 'exerciseId', 'sets', 'reps', 'targetRpe', 'sortOrder'], ['mode', 'repsHigh'])
+      const x = obj(v, p, ['id', 'weekday', 'exerciseId', 'sets', 'reps', 'targetRpe', 'sortOrder'], ['mode', 'repsHigh', 'supersetWithAbove'])
       return {
         id: int(x, 'id'),
         weekday: int(x, 'weekday'),
@@ -321,6 +324,9 @@ function parseBackup(root: Obj): BackupFile {
         sortOrder: int(x, 'sortOrder'),
         mode: modeOf(x),
         repsHigh: 'repsHigh' in x ? nullable(x, 'repsHigh', int) : null,
+        // Version 7. Absent (every older file, and every item not linked) means not linked; the key is kept only
+        // when true, as the app writes it, so a file read and a file written hold the same items.
+        ...('supersetWithAbove' in x && bool(x, 'supersetWithAbove') ? { supersetWithAbove: true } : {}),
       }
     }),
     advice: list(o.advice, 'advice', (v, p) => {
@@ -445,7 +451,7 @@ function mapBackup(file: BackupFile): Mapped {
       ...(unit !== 'KG' ? { unit } : {}),
     }
   })
-  const planItems = file.planItems.map((p) => ({
+  const linkedPlanItems = file.planItems.map((p) => ({
     id: p.id,
     weekday: weekday(p.weekday),
     exerciseId: p.exerciseId,
@@ -456,7 +462,17 @@ function mapBackup(file: BackupFile): Mapped {
     mode: side(p.mode),
     // Fixed reps store no repsHigh, as on every row the app writes.
     ...(p.repsHigh != null ? { repsHigh: p.repsHigh } : {}),
+    // Stored only on a linked item, as the app writes it.
+    ...(p.supersetWithAbove === true ? { supersetWithAbove: true as const } : {}),
   }))
+  // A superset flag that cannot count (the first item of a day, the third in a row, one exercise twice) is cleared, as
+  // the Android app clears it, so the plan restored holds only links the Plan tab could have made.
+  const stale = new Set(grit.supersetStale(linkedPlanItems.map(planItemToJs)))
+  const planItems = linkedPlanItems.map((p) => {
+    if (!stale.has(p.id)) return p
+    const { supersetWithAbove: _cleared, ...unlinked } = p
+    return unlinked
+  })
   const advice = file.advice.map((a) => ({
     id: a.id,
     type: oneOf(a.type, ADVICE_TYPES, 'advice type'),

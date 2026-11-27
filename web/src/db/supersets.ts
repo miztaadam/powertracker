@@ -65,9 +65,3 @@ export function supersetHalves(plan: readonly Stored[]): Map<number, { partnerId
   }
   return out
 }
-
-/** Takes the link off every item of the stored plan (both sides) whose flag counts for nothing: after a restore. */
-export async function clearStaleLinks(db: GritDb): Promise<void> {
-  const all = (await db.planItems.toArray()) as Stored[]
-  await unlink(db, grit.supersetStale(all.map(planItemToJs)))
-}

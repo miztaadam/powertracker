@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { planFor, resolveCatalogue, setPlateCount } from '../db/catalogue'
 import { activeTrainingDays, ensureSeeded, getSettings, loadHistory, openGritDb, setTrainingMode, updateSettings, type GritDb } from '../db/db'
 import { exerciseToJs } from '../db/mapping'
-import { plateCountOf, setUnit, type ExerciseRow } from '../db/schema'
+import { plateCountOf, setUnit, sideOf, type ExerciseRow } from '../db/schema'
 import { readSafetyCopy } from '../db/safety'
 import {
   androidRestAlertOf,
@@ -36,8 +36,10 @@ const WEB_V3_FIXTURE = resolve(FIXTURES, 'web-v3.json')
 const WEB_V4_FIXTURE = resolve(FIXTURES, 'web-v4.json')
 /** What the skips apps wrote (version 5): frozen since version 6, and must keep restoring. */
 const WEB_V5_FIXTURE = resolve(FIXTURES, 'web-v5.json')
-/** What this app writes now (version 6, plates). Regenerate with UPDATE_FIXTURES=1. */
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v6.json')
+/** What the plates apps wrote (version 6): frozen since version 7, and must keep restoring. */
+const WEB_V6_FIXTURE = resolve(FIXTURES, 'web-v6.json')
+/** What this app writes now (version 7, supersets). Regenerate with UPDATE_FIXTURES=1. */
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v7.json')
 /** What the Android app wrote in 1.12 (version 4, stage 3 Task 2): frozen. */
 const ANDROID_V4_FIXTURE = resolve(FIXTURES, 'android-v4.json')
 /** What the Android app writes now (version 5, 1.13 Task 2). */
@@ -75,7 +77,7 @@ const decodeOk = (text: string): BackupFile => {
  * Mirrors the Android fixture's breadth, deterministically. `strictPress` adds what version 2 brought, as
  * Android's fixture has it: the switch on and a catalogue "Strict press" row with an "off the shoulders" miss.
  */
-async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false, skips = false, plates = false } = {}) {
+async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = false, checkIns = false, skips = false, plates = false, supersets = false } = {}) {
   await ensureSeeded(db)
   const byName = new Map((await db.exercises.toArray()).map((e) => [e.name, e.id as number]))
   const squat = byName.get('Squat')!
@@ -214,6 +216,14 @@ async function buildSampleDb(db: GritDb, { strictPress = false, bodybuilding = f
       createdAt: '2026-11-05',
       mode: 'BODYBUILDING',
     })
+  }
+  if (supersets) {
+    // Version 7: one pair on each side. Tuesday's pause squat is done with the squat above it; on the bodybuilding
+    // side Monday's squat with the curl above it. Every other item stays unlinked, with no key.
+    for (const p of await db.planItems.toArray()) {
+      const second = (p.weekday === 2 && p.exerciseId === pause && sideOf(p) === 'POWERLIFTING') || (p.weekday === 1 && p.exerciseId === squat && sideOf(p) === 'BODYBUILDING')
+      if (second) await db.planItems.update(p.id!, { supersetWithAbove: true })
+    }
   }
 }
 
@@ -520,7 +530,7 @@ describe('backup', () => {
 
   it('webFixture_isUpToDate', async () => {
     const db = await openDb()
-    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true, plates: true })
+    await buildSampleDb(db, { strictPress: true, bodybuilding: true, checkIns: true, skips: true, plates: true, supersets: true })
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     if (process.env.UPDATE_FIXTURES === '1') {
       writeFileSync(WEB_FIXTURE, JSON.stringify(JSON.parse(text), null, 4) + '\n')
@@ -530,7 +540,8 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
-    expect(file.version).toBe(6)
+    expect(file.version).toBe(7)
+    expect(file.planItems.filter((p) => p.supersetWithAbove).length).toBe(2)
     expect(file.checkIns).toHaveLength(2)
     expect(file.skips).toHaveLength(3)
     expect(file.advice.filter((a) => a.type === 'SKIP')).toHaveLength(1)
@@ -904,13 +915,13 @@ describe('backup version 4', () => {
 describe('backup version 5', () => {
   it('everyBackup_isVersion5_withOrWithoutSkips', async () => {
     const db = await openDb()
-    expect(BACKUP_VERSION).toBe(6)
+    expect(BACKUP_VERSION).toBe(7)
     const empty = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
-    expect(empty.version).toBe(6)
+    expect(empty.version).toBe(7)
     expect(empty.skips).toEqual([])
     await buildSampleDb(db, { bodybuilding: true, skips: true })
     const full = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
-    expect(full.version).toBe(6)
+    expect(full.version).toBe(7)
     expect(full.skips).toHaveLength(3)
   })
 
@@ -968,8 +979,8 @@ describe('backup version 5', () => {
     const text = readFileSync(WEB_V5_FIXTURE, 'utf8')
     expect(decodeBackup(text, 4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
     expect(decodeBackup(readFileSync(ANDROID_V5_FIXTURE, 'utf8'), 4)).toEqual({ ok: false, kind: 'TOO_NEW', version: 5 })
-    const v6 = JSON.stringify({ ...readJson(WEB_FIXTURE), version: 7 })
-    expect(decodeBackup(v6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 7 })
+    const newer = JSON.stringify({ ...readJson(WEB_FIXTURE), version: BACKUP_VERSION + 1 })
+    expect(decodeBackup(newer)).toEqual({ ok: false, kind: 'TOO_NEW', version: BACKUP_VERSION + 1 })
   })
 
   it('decode_skips_areOptionalButTyped', () => {
@@ -1307,8 +1318,9 @@ describe('backup version 6', () => {
     const db = await openDb()
     await sampleWithPlates(db)
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
-    expect(decodeBackup(text, 5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
-    expect(decodeBackup(readFileSync(WEB_FIXTURE, 'utf8'), 5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
+    // What the app writes now is version 7; the frozen version 6 file is the one a version 5 reader meets as "6".
+    expect(decodeBackup(text, 5)).toEqual({ ok: false, kind: 'TOO_NEW', version: BACKUP_VERSION })
+    expect(decodeBackup(readFileSync(WEB_V6_FIXTURE, 'utf8'), 5)).toEqual({ ok: false, kind: 'TOO_NEW', version: 6 })
     expect(decodeBackup(text).ok).toBe(true)
   })
 
@@ -1468,7 +1480,7 @@ describe('backup version 6', () => {
   })
 
   it('webFixture_holdsPlates', () => {
-    const v6 = readJson(WEB_FIXTURE) as Json & Record<'exercises' | 'sessions' | 'sets' | 'advice', Json[]>
+    const v6 = readJson(WEB_V6_FIXTURE) as Json & Record<'exercises' | 'sessions' | 'sets' | 'advice', Json[]>
     const v5 = readJson(WEB_V5_FIXTURE) as Json & Record<'exercises' | 'sessions' | 'sets' | 'advice', Json[]>
     expect(v6.version).toBe(6)
     // The plate rows are there: a WHOLE and a HALF exercise, plate sets with a half among them, a session holding a kg
@@ -1492,7 +1504,8 @@ describe('backup version 6', () => {
       const ids = new Set(v5[key].map((r) => r.id))
       return v6[key].filter((r) => ids.has(r.id))
     }
-    const kept = { ...v6, exercises: only('exercises'), sessions: only('sessions'), sets: only('sets'), advice: only('advice') }
+    // The frozen file says 6; the version 5 file brought up to date says the version written now.
+    const kept = { ...v6, version: BACKUP_VERSION, exercises: only('exercises'), sessions: only('sessions'), sets: only('sets'), advice: only('advice') }
     expect(withoutExportedAt(kept)).toEqual(withoutExportedAt(asUpgradedV5(v5)))
   })
 
@@ -1508,7 +1521,6 @@ describe('backup version 6', () => {
   it('restores android-v6.json with its plate sets, settings and plate target', async () => {
     const android = readJson(ANDROID_V6_FIXTURE) as Fixture
     expect(android.version).toBe(6)
-    expect(android.version).toBe(BACKUP_VERSION)
     const db = await openDb()
     await ensureSeeded(db)
     await restoreBackup(db, decodeOk(readFileSync(ANDROID_V6_FIXTURE, 'utf8')))
@@ -1521,6 +1533,8 @@ describe('backup version 6', () => {
     ;(expected.settings as Json).webRestAlert = 'SOUND'
     expect((expected.settings as Json).appLock).toBe(true)
     ;(expected.settings as Json).appLock = false
+    // ... and under the version written now (7 since 1.24; the file itself is version 6, with no supersets).
+    expected.version = BACKUP_VERSION
     expect(withoutExportedAt(out)).toEqual(expected)
 
     // The plate sets keep their unit and their 7½, the two machines their setting; every other row is kg / off, keyless.
@@ -1545,7 +1559,7 @@ describe('backup version 6', () => {
   it('the two version 6 fixtures hold the same keys on a set and on an exercise', () => {
     // The two files hold different rows (ids, dates) by design: only their shapes must agree.
     const android = readJson(ANDROID_V6_FIXTURE) as Fixture
-    const web = readJson(WEB_FIXTURE) as Fixture
+    const web = readJson(WEB_V6_FIXTURE) as Fixture
     for (const f of [android, web]) {
       const plateSet = f.sets.find((s) => s.unit === 'PLATES')!
       expect(Object.keys(plateSet)).toEqual([...V5_SET_KEYS, 'unit'])
@@ -1576,5 +1590,108 @@ describe('backup version 6', () => {
     const legPress = web.exercises.find((e) => e.name === 'Leg press')!.id
     const w = grit.advicePayload(plateTargetPayload(web))!
     expect([w.kind, w.exerciseId, w.weightKg, w.reps, w.rpe, w.sets ?? null, w.repsHigh ?? null, w.unit]).toEqual(['Target', legPress, 8, 8, 8, 3, 12, 'PLATES'])
+  })
+})
+
+/** 1.24: backup version 7 carries a plan item's superset link, only when it is linked. */
+describe('backup version 7', () => {
+  type PlanJson = Record<string, unknown> & { id: number; weekday: number; exerciseId: number; sortOrder: number; mode: string }
+  type FileJson = Record<string, unknown> & { version: number; planItems: PlanJson[] }
+  const V6_PLAN_KEYS = ['id', 'weekday', 'exerciseId', 'sets', 'reps', 'targetRpe', 'sortOrder', 'mode', 'repsHigh']
+  const linkedIn = async (db: GritDb) => ((await db.planItems.toArray()) as { id: number; supersetWithAbove?: true }[]).filter((p) => p.supersetWithAbove === true).map((p) => p.id)
+
+  it('writes the link only on a linked item, as its last key, and reads it back', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { bodybuilding: true, supersets: true })
+    const before = await linkedIn(db)
+    expect(before).toHaveLength(2)
+    const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
+    const json = JSON.parse(text) as FileJson
+    expect(json.version).toBe(7)
+    for (const p of json.planItems) expect(Object.keys(p)).toEqual(before.includes(p.id) ? [...V6_PLAN_KEYS, 'supersetWithAbove'] : V6_PLAN_KEYS)
+    expect(json.planItems.filter((p) => p.supersetWithAbove === true).map((p) => p.id)).toEqual(before)
+
+    // Restored over a log whose plan has other links: the file's are the ones kept.
+    const file = decodeOk(text)
+    expect(file.planItems.filter((p) => p.supersetWithAbove).map((p) => p.id)).toEqual(before)
+    await db.planItems.toCollection().modify((row: { supersetWithAbove?: true }) => {
+      delete row.supersetWithAbove
+    })
+    await restoreBackup(db, file)
+    expect(await linkedIn(db)).toEqual(before)
+    // And an item not linked has no key in storage.
+    const unlinked = ((await db.planItems.toArray()) as { id: number }[]).filter((p) => !before.includes(p.id))
+    expect(unlinked.every((p) => !('supersetWithAbove' in p))).toBe(true)
+    // What is exported again is the same file.
+    expect(withoutExportedAt(JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))))).toEqual(withoutExportedAt(json))
+  })
+
+  it('a version 6 file restores with no supersets, and a version 7 file is too new for a version 6 reader', async () => {
+    const db = await openDb()
+    await ensureSeeded(db)
+    const v6 = readFileSync(WEB_V6_FIXTURE, 'utf8')
+    expect((JSON.parse(v6) as FileJson).planItems.some((p) => 'supersetWithAbove' in p)).toBe(false)
+    const file = decodeOk(v6)
+    expect(file.planItems.every((p) => !('supersetWithAbove' in p))).toBe(true)
+    await restoreBackup(db, file)
+    expect(await linkedIn(db)).toEqual([])
+
+    expect(decodeBackup(readFileSync(WEB_FIXTURE, 'utf8'), 6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 7 })
+    expect(decodeBackup(readFileSync(WEB_FIXTURE, 'utf8')).ok).toBe(true)
+  })
+
+  it('a link that is not true or false is corrupt', () => {
+    const file = readJson(WEB_FIXTURE) as FileJson
+    for (const bad of ['true', 1, null]) {
+      const mutated = structuredClone(file)
+      mutated.planItems[0]!.supersetWithAbove = bad
+      expect(decodeBackup(JSON.stringify(mutated)), String(bad)).toMatchObject({ ok: false, kind: 'CORRUPT' })
+    }
+    // false written out (no app writes it) reads as not linked.
+    const explicit = structuredClone(file)
+    explicit.planItems[0]!.supersetWithAbove = false
+    expect('supersetWithAbove' in decodeOk(JSON.stringify(explicit)).planItems[0]!).toBe(false)
+  })
+
+  it('a link that cannot count is cleared on restore: the first of a day, a third in a row, one exercise twice', async () => {
+    const db = await openDb()
+    await buildSampleDb(db, { bodybuilding: true })
+    const json = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as FileJson
+    const exercise = json.planItems[0]!.exerciseId
+    const other = json.planItems.find((p) => p.exerciseId !== exercise)!.exerciseId
+    const third = json.planItems.map((p) => p.exerciseId).find((id) => id !== exercise && id !== other)!
+    // A day of its own, written by hand as no app would: every item flagged.
+    const item = (id: number, sortOrder: number, exerciseId: number): PlanJson => ({ id, weekday: 4, exerciseId, sets: 3, reps: 8, targetRpe: 8, sortOrder, mode: 'POWERLIFTING', repsHigh: null, supersetWithAbove: true })
+    json.planItems.push(item(901, 0, exercise), item(902, 1, other), item(903, 2, third), item(904, 3, third))
+    const file = decodeOk(JSON.stringify(json))
+    // The file itself is read as written...
+    expect(file.planItems.filter((p) => p.id > 900 && p.supersetWithAbove).map((p) => p.id)).toEqual([901, 902, 903, 904])
+    await restoreBackup(db, file)
+    // ... and stored with only the link that counts: 902 with 901. 901 is first on its day, 903 follows a pair's
+    // second, and 904 is the same exercise as 903.
+    expect((await linkedIn(db)).filter((id) => id > 900)).toEqual([902])
+  })
+
+  /** Android's version 7 backup, written by BackupFixtureTest. */
+  const ANDROID_V7_FIXTURE = resolve(FIXTURES, 'android-v7.json')
+
+  it('restores android-v7.json with its supersets, and the two version 7 fixtures hold the same keys on a plan item', async () => {
+    const android = readJson(ANDROID_V7_FIXTURE) as FileJson
+    const web = readJson(WEB_FIXTURE) as FileJson
+    expect(android.version).toBe(7)
+    expect(android.version).toBe(BACKUP_VERSION)
+    for (const f of [android, web]) {
+      const linked = f.planItems.filter((p) => 'supersetWithAbove' in p)
+      expect(linked.length).toBeGreaterThan(0)
+      expect(linked.every((p) => p.supersetWithAbove === true)).toBe(true)
+      for (const p of f.planItems) expect(Object.keys(p)).toEqual('supersetWithAbove' in p ? [...V6_PLAN_KEYS, 'supersetWithAbove'] : V6_PLAN_KEYS)
+    }
+    const db = await openDb()
+    await ensureSeeded(db)
+    await restoreBackup(db, decodeOk(readFileSync(ANDROID_V7_FIXTURE, 'utf8')))
+    // Every link Android wrote is one that counts: none was cleared on the way in.
+    expect(await linkedIn(db)).toEqual(android.planItems.filter((p) => p.supersetWithAbove === true).map((p) => p.id))
+    const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as FileJson
+    expect(out.planItems).toEqual(android.planItems)
   })
 })
