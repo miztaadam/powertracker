@@ -122,9 +122,9 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       closes and you are still on Exercises.
 - [ ] **10. This release's own change.** 1.23, both apps: the warm-up checklist. On Today, start a session and open
       a barbell lift you have done before, before logging a set. Above the weight it says "WARM-UP · NOT LOGGED" with
-      one or two lighter sets (about half the weight for 12, then about three quarters for 5 on the big lifts), each
-      with its plates per side. Tap a row: it is ticked and struck through. Change the weight: the rows follow. Log
-      your first set: the checklist is gone, and History shows only the set you logged.
+      one or two lighter sets side by side (about half the weight for 12, then about three quarters for 5 on the big
+      lifts), each with its plates per side under it. Tap one: it is ticked and struck through. Change the weight:
+      the sets follow. Log your first set: the checklist is gone, and History shows only the set you logged.
 
 The full list, feature by feature (201 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
 release touched a feature and you want that feature's own checks.
