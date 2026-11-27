@@ -42,6 +42,7 @@ import com.powertracker.ui.today.TodayContent
 import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayState
 import com.powertracker.ui.today.warmUpHint
+import com.powertracker.ui.today.warmUpHintDrawn
 import com.powertracker.ui.today.warmUpSpoken
 import com.powertracker.ui.today.warmUpText
 import kotlinx.datetime.DayOfWeek
@@ -80,6 +81,7 @@ class WarmUpBlockTest {
         unit = unit,
         plateCount = exercise.plateCount,
         lastTime = LastTime(LocalDate(2026, 11, 4), listOf(LoggedSet(exercise.id, kg, 5, 7.0, false, null, false, unit))),
+        warmUpOpen = sets.isEmpty(),
         warmUp = if (sets.isEmpty()) WarmUp.sets(exercise, kg, 5, false) else emptyList(),
     )
 
@@ -130,9 +132,17 @@ class WarmUpBlockTest {
         assertTrue(top("LAST TIME · WED 4 NOV") < top("WARM-UP · NOT LOGGED"))
         assertTrue(top("WARM-UP · NOT LOGGED") < compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top)
         // What is drawn: the set, then its plates.
-        for (text in listOf("75 kg × 12", "25 + 2.5 per side", "112.5 kg × 5", "25 + 20 + 1.25 per side")) {
+        for (text in listOf("75 kg × 12", "25 + 2.5 per\u00A0side", "112.5 kg × 5", "25 + 20 + 1.25 per\u00A0side")) {
             compose.onNodeWithText(text, useUnmergedTree = true).assertExists()
         }
+        // Side by side on a phone this wide, so the card stays short: both start on one line, the second to the right,
+        // inside the screen, and as tall as each other.
+        val a = compose.onNodeWithContentDescription(first).getUnclippedBoundsInRoot()
+        val b = compose.onNodeWithContentDescription(second).getUnclippedBoundsInRoot()
+        assertEquals(a.top, b.top)
+        assertEquals(a.bottom, b.bottom)
+        assertTrue(b.left >= a.right && b.right <= compose.onRoot().getUnclippedBoundsInRoot().right)
+        assertEquals("the two sets' text starts on one line", top("75 kg × 12"), top("112.5 kg × 5"))
         // Each row is one control, read as one sentence, a full touch target high.
         compose.onNodeWithContentDescription(first).assertIsOff().assertHeightIsAtLeast(48.dp)
         compose.onNodeWithContentDescription(second).assertIsOff().assertHeightIsAtLeast(48.dp)
@@ -166,10 +176,12 @@ class WarmUpBlockTest {
     }
 
     @Test
-    fun card_withASetLogged_orNothingToSuggest_hasNoChecklist_andLeavesNoGap() {
-        // The item still carries sets to tick (it should not, once a set is logged): the card shows none.
-        val logged = listOf(StoredSet(1, 1, LoggedSet(squat.id, 150.0, 5, 8.0, false, null, false)))
-        show(card(150.0, logged).copy(warmUp = WarmUp.sets(squat, 150.0, 5, false)))
+    fun card_whoseWarmUpIsOver_hasNoChecklist_evenWithNoSetLeft_andTypingDoesNotBringItBack() {
+        // A set was logged and deleted again: no set on the card, but the item says the warm-up is over.
+        show(card(150.0).copy(warmUpOpen = false, warmUp = emptyList()))
+        compose.onNodeWithTag("warm-up", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithContentDescription("Weight, kilograms").performTextReplacement("100")
+        compose.waitForIdle()
         compose.onNodeWithTag("warm-up", useUnmergedTree = true).assertDoesNotExist()
     }
 
@@ -186,38 +198,58 @@ class WarmUpBlockTest {
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
     @Config(qualifiers = "w320dp-h2400dp-xhdpi")
     fun card_smallPhoneAndLargeFont_theLongestRowsWrapWithoutClipping_tickedOrNot() {
-        // 187.5 kg: 92.5 (25 + 10 + 1.25) and 140 (25 + 25 + 10), then the longest plate list there is at 247.5.
-        for (kg in listOf(187.5, 247.5)) {
-            val sets = WarmUp.sets(squat, kg, 5, false)
-            assertEquals(2, sets.size)
-        }
+        // 247.5 kg: 122.5 kg × 12 (25 + 25 + 1.25) and 185 kg × 5 (25 + 25 + 25 + 5 + 2.5), long rows both.
         val kg = 247.5
         val sets = WarmUp.sets(squat, kg, 5, false)
+        assertEquals(listOf(122.5, 185.0), sets.map { it.weight })
         show(card(kg), fontScale = 1.3f)
-        val screen = compose.onRoot().getUnclippedBoundsInRoot()
-        fun check(state: String) {
-            sets.forEachIndexed { i, set ->
-                val row = compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set))
-                val b = row.getUnclippedBoundsInRoot()
-                assertTrue("row ${i + 1} fits across the screen ($state)", b.left >= screen.left && b.right <= screen.right)
-                val n = row.fetchSemanticsNode()
-                assertEquals("row ${i + 1} is not clipped ($state)", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
-                assertEquals("row ${i + 1} is not cut at the side ($state)", n.size.width.toFloat(), n.boundsInRoot.width, 0.5f)
-                // Every letter of the set and of its plates is on a line that is drawn.
-                for (text in listOf(warmUpText(set), warmUpHint(set)!!)) {
-                    val node = compose.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
-                    val layout = mutableListOf<TextLayoutResult>().also { node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
-                    assertEquals("\"$text\" is whole ($state)", text.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
-                    assertFalse("\"$text\" is cut at the bottom ($state)", layout.didOverflowHeight)
-                    assertEquals("\"$text\" is not clipped ($state)", node.size.width.toFloat(), node.boundsInRoot.width, 0.5f)
-                }
-            }
-            compose.assertTextsFit()
-        }
+        // Too narrow for two side by side at this font: one under the other.
+        val rows = sets.mapIndexed { i, set -> compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set)).getUnclippedBoundsInRoot() }
+        assertTrue("stacked", rows[1].top >= rows[0].bottom)
+        fun check(state: String) = assertRowsWhole(sets, state)
         check("unticked")
         sets.forEachIndexed { i, set -> compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set)).performClick() }
         compose.waitForIdle()
         sets.forEachIndexed { i, set -> compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set)).assertIsOn() }
         check("ticked")
+    }
+
+    /** Every row inside the screen and unclipped, and every letter of its set and its plates on a line that is drawn. */
+    private fun assertRowsWhole(sets: List<WarmUpSet>, state: String) {
+        val screen = compose.onRoot().getUnclippedBoundsInRoot()
+        sets.forEachIndexed { i, set ->
+            val row = compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set))
+            val b = row.getUnclippedBoundsInRoot()
+            assertTrue("row ${i + 1} fits across the screen ($state)", b.left >= screen.left && b.right <= screen.right)
+            row.assertHeightIsAtLeast(48.dp)
+            val n = row.fetchSemanticsNode()
+            assertEquals("row ${i + 1} is not clipped ($state)", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
+            assertEquals("row ${i + 1} is not cut at the side ($state)", n.size.width.toFloat(), n.boundsInRoot.width, 0.5f)
+            for (text in listOf(warmUpText(set), warmUpHintDrawn(set)!!)) {
+                val node = compose.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+                val layout = mutableListOf<TextLayoutResult>().also { node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
+                assertEquals("\"$text\" is whole ($state)", text.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
+                assertFalse("\"$text\" is cut at the bottom ($state)", layout.didOverflowHeight)
+                assertEquals("\"$text\" is not clipped ($state)", node.size.width.toFloat(), node.boundsInRoot.width, 0.5f)
+                // "per side" is never broken in two.
+                assertFalse("\"$text\" breaks inside \"per side\" ($state)", (0 until layout.lineCount).any { text.substring(layout.getLineStart(it), layout.getLineEnd(it)).trim() == "side" })
+            }
+        }
+        compose.assertTextsFit()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun card_at360dp_theLongestRowsSitSideBySide_whole_tickedOrNot() {
+        val sets = WarmUp.sets(squat, 247.5, 5, false)
+        show(card(247.5))
+        val rows = sets.mapIndexed { i, set -> compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set)).getUnclippedBoundsInRoot() }
+        assertEquals("side by side", rows[0].top, rows[1].top)
+        assertTrue(rows[1].left >= rows[0].right)
+        assertRowsWhole(sets, "unticked")
+        sets.forEachIndexed { i, set -> compose.onNodeWithContentDescription(warmUpSpoken(i + 1, set)).performClick() }
+        compose.waitForIdle()
+        assertRowsWhole(sets, "ticked")
     }
 }

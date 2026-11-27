@@ -65,10 +65,13 @@ export type TodayItem = {
   lastTime: LastTime | null
   /**
    * 1.23: the warm-up sets to tick off before the first set, for the weight in the editor (the card works them out
-   * again while another weight is being typed); empty once a set is logged today, and when there is nothing to
-   * suggest. Never logged. `warmUpDone` holds the `warmUpKey` of each one ticked: kept while the app is open, on this
-   * day only, and stored nowhere.
+   * again while another weight is being typed); empty when there is nothing to suggest. Never logged. `warmUpOpen`
+   * says whether the card shows a checklist at all: only while no set is logged for the exercise today, and not again
+   * once one was logged here, even if it is then deleted (the lifter has warmed up, and a block coming back would push
+   * the Log button down under their thumb). `warmUpDone` holds the `warmUpKey` of each set ticked: kept while the app
+   * is open, on this day only, and stored nowhere.
    */
+  warmUpOpen: boolean
   warmUp: WarmUpSet[]
   warmUpDone: readonly string[]
   /**
@@ -248,9 +251,11 @@ type Local = {
   summary: FinishSummary | null
   /** 1.23: the warm-up sets ticked, by exercise id, as `warmUpKey`s. In memory only: a reload starts them afresh. */
   warmUpDone: Record<number, readonly string[]>
+  /** 1.23: the exercises (by the key their set was logged under) that had a set logged here today: no checklist again. */
+  warmUpOver: readonly number[]
 }
 
-const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {} })
+const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {}, warmUpOver: [] })
 
 const NONE_TICKED: readonly string[] = []
 
@@ -568,6 +573,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
           ? { weightKg: applied.weightKg, reps: applied.reps, rpe: applied.rpe, ...unitKey(unit) }
           : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe, ...unitKey(unit) })
     const targetSets = plan ? (applied?.sets ?? plan.sets) : null
+    const warmUpOpen = sets.length === 0 && !l.warmUpOver.includes(exercise.id) && !l.warmUpOver.includes(standInOf.get(exercise.id) ?? exercise.id)
     const open = newest?.status === 'OPEN' ? newest : undefined
     // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged. Under a pain hold the aim is
     // not reset to the low end of the range, so the skips go too.
@@ -585,7 +591,8 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
       lastWeightKg: lastToday?.weightKg ?? top?.weightKg ?? null,
       lastTime: past.get(exercise.id) ?? null,
       // Before the first set only. The plan's reps say whether it is a high-rep exercise; with no plan, the field's.
-      warmUp: sets.length === 0 ? warmUpSets(exercise, editor.weightKg, plan?.reps ?? editor.reps, d.settings.changePlates) : [],
+      warmUpOpen,
+      warmUp: warmUpOpen ? warmUpSets(exercise, editor.weightKg, plan?.reps ?? editor.reps, d.settings.changePlates) : [],
       warmUpDone: l.warmUpDone[exercise.id] ?? l.warmUpDone[standInOf.get(exercise.id) ?? exercise.id] ?? NONE_TICKED,
       ...unitKey(unit),
       ...(offered && plateCount !== 'OFF' ? { plateCount } : {}),
@@ -1010,7 +1017,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz,
         // worked out after the save and beside it: it never holds the set up, and if it fails the set still ticks.
         if (hapticsPossible()) void buzzForSet(db, setId, row, now.date, now.side)
-        update((l) => ({ ...l, pending: null }))
+        // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
+        update((l) => ({ ...l, pending: null, warmUpOver: l.warmUpOver.includes(itemKey) ? l.warmUpOver : [...l.warmUpOver, itemKey] }))
         touch(now.date)
         // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).
         setLogged.current?.(now.side === 'POWERLIFTING' && item?.exercise.category !== 'ACCESSORY')

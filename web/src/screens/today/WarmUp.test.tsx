@@ -79,7 +79,7 @@ describe('the warm-up checklist on the exercise card', () => {
     await ready()
     const before = { sets: await db.sets.count(), meta: (await db.meta.toArray()).length }
     // The row's text ticks the box: the label is the target.
-    await userEvent.click(within(block()!).getByText('25 + 2.5 per side'))
+    await userEvent.click(within(block()!).getByText('25 + 2.5'))
     expect(boxes().map((box) => box.checked)).toEqual([true, false])
     expect(boxes()[0]!.closest('label')).toHaveClass('today-warm-done')
 
@@ -119,6 +119,25 @@ describe('the warm-up checklist on the exercise card', () => {
     expect(block()).not.toBeNull()
     await logSet(db, await sessionToday(), set(squatId, 150))
     await screen.findByText('Set 2 of 5')
+    expect(block()).toBeNull()
+  })
+
+  it('doesNotComeBack_whenTheFirstSetIsDeleted', async () => {
+    show()
+    await ready()
+    expect(block()).not.toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Log set 1' }))
+    await screen.findByText('Set 2 of 5')
+    expect(block()).toBeNull()
+    // Deleted again: the lifter has warmed up, and a block coming back would push the Log button down.
+    await userEvent.click(screen.getByRole('button', { name: /^Set 1: 150 kg/ }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete set' }))
+    await screen.findByRole('button', { name: 'Log set 1' })
+    await waitFor(async () => expect(await setsOn(db, TODAY)).toHaveLength(0))
+    expect(block()).toBeNull()
+    // Typing another weight does not bring it back either.
+    await userEvent.clear(weight())
+    await userEvent.type(weight(), '100')
     expect(block()).toBeNull()
   })
 

@@ -71,6 +71,7 @@ export function guideTodayState(mode: TrainingMode, step: string, shown?: SetEdi
       perSide: editor.weightKg != null ? (grit.platesPerSide(editor.weightKg, false) ?? null) : null,
       lastWeightKg: sets[sets.length - 1]?.weightKg ?? null,
       lastTime: null,
+      warmUpOpen: false,
       warmUp: [],
       warmUpDone: [],
     }
@@ -253,7 +254,8 @@ export function guideTargetsState(mode: TrainingMode, index: number, editor: Set
         lastWeightKg: last,
         // The guide's pictures keep to the coach's box: no "Last time" rows.
         lastTime: null,
-        warmUp: [],
+        warmUpOpen: false,
+      warmUp: [],
         warmUpDone: [],
       },
     ],

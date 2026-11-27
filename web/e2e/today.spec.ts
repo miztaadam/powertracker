@@ -333,7 +333,23 @@ test('the warm-up checklist follows the weight, keeps its ticks while the app is
   // The whole row is the box's target, a full touch target high.
   const rows = warm.locator('label')
   for (const row of await rows.all()) expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(47.5)
-  await warm.getByText('25 + 2.5 per side').click()
+  // Side by side on a phone, so the card stays short; one under the other on a very narrow one. No word reaches past its row.
+  for (const [width, sideBySide] of [[390, true], [375, true], [360, true], [320, false]] as const) {
+    await page.setViewportSize({ width, height: 664 })
+    const laid = await rows.evaluateAll((labels) =>
+      labels.map((label) => {
+        const box = label.getBoundingClientRect()
+        const parts = [...label.querySelectorAll('.today-warm-part')].map((part) => part.getBoundingClientRect())
+        return { top: Math.round(box.top), height: box.height, inside: parts.every((part) => part.left >= box.left - 0.5 && part.right <= box.right + 0.5) }
+      }),
+    )
+    expect(laid[0]!.top === laid[1]!.top, `side by side at ${width} px`).toBe(sideBySide)
+    expect(laid.every((row) => row.inside), `every word inside its row at ${width} px`).toBe(true)
+    expect(laid.every((row) => row.height >= 47.5), `touch targets at ${width} px`).toBe(true)
+    expect(await fitsThePhone(page), `the page at ${width} px`).toBe(true)
+  }
+  await page.setViewportSize({ width: 390, height: 664 })
+  await warm.getByText('25 + 2.5').click()
   await expect(boxes.nth(0)).toBeChecked()
   await expect(boxes.nth(1)).not.toBeChecked()
 

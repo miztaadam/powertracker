@@ -141,7 +141,7 @@ private fun todayItem(
 
 /** The warm-up checklist (1.23) as the view model puts it on a card: before the first set, for the weight in the field. */
 internal fun TodayItem.withWarmUp(): TodayItem =
-    copy(warmUp = if (sets.isEmpty()) WarmUp.sets(exercise, editor.weightKg, planned?.reps ?: editor.reps, changePlates = false) else emptyList())
+    copy(warmUpOpen = sets.isEmpty(), warmUp = if (sets.isEmpty()) WarmUp.sets(exercise, editor.weightKg, planned?.reps ?: editor.reps, changePlates = false) else emptyList())
 
 private fun todayItems(squatSets: List<StoredSet>, suggest: Boolean) = listOf(
     todayItem(

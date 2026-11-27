@@ -36,6 +36,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -320,6 +321,14 @@ class TodayViewModelTest {
         await("first set") { squatCard().logged.size == 1 }
         assertEquals(emptyList<WarmUpSet>(), squatCard().warmUp)
         assertEquals(listOf(100.0), runBlocking { training.setsForSession(sessionId).first() }.map { it.set.weightKg })
+
+        // The set is deleted again: the warm-up is over all the same, so the card does not grow back under the thumb.
+        vm.deleteSet(squatCard().sets.single().id)
+        await("deleted") { squatCard().logged.isEmpty() }
+        assertFalse(squatCard().warmUpOpen)
+        assertEquals(emptyList<WarmUpSet>(), squatCard().warmUp)
+        // The curl had no set logged: its checklist is still open (with nothing in it, at 15 reps).
+        assertTrue(vm.state.value.items[1].warmUpOpen)
 
         // A fresh view model (the app closed and opened) has no ticks.
         vm.tickWarmUp(curl.id, half, true)

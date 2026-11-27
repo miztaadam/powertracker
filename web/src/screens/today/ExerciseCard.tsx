@@ -307,10 +307,10 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   const typed = settle(e, drafts, kinds).editor
   const weight = typed.weightKg
   const perSide = weight == null || unit === 'PLATES' ? null : weight === e.weightKg ? item.perSide : (grit.platesPerSide(weight, changePlates) ?? null)
-  // The warm-up follows the typing too (1.23); before the first set only, as the item's own. An exercise with no plan
+  // The warm-up follows the typing too (1.23), while the item says there is a checklist. An exercise with no plan
   // item is judged a high-rep one by the reps in the field.
   const warmUp =
-    item.sets.length > 0
+    !item.warmUpOpen
       ? []
       : weight === e.weightKg && typed.reps === e.reps
         ? item.warmUp

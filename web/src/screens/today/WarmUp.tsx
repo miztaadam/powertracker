@@ -30,7 +30,8 @@ export type WarmUpProps = {
 
 /**
  * The warm-up checklist (1.23), above the weight entry until the exercise's first set is logged: one or two lighter
- * sets to do first, each with a box to tick. A tick is a note to the lifter and nothing more: no set is logged, so
+ * sets to do first, each with a box to tick. Two sets sit side by side where the card is wide enough, so the card
+ * stays short enough to fit a phone's screen with its Log button; on a narrow screen they stack. A tick is a note to the lifter and nothing more: no set is logged, so
  * nothing reaches History, the charts or the coach, and the ticks are forgotten when the app is closed. The sets follow
  * the weight in the field, as the plates do. Nothing at all, taking no room, when there is nothing to suggest.
  */
@@ -51,9 +52,23 @@ export function WarmUp({ sets, done, onTick }: WarmUpProps) {
               {/* The whole row is the box's target. */}
               <label className={ticked ? 'today-warm-set today-warm-done' : 'today-warm-set'}>
                 <input type="checkbox" checked={ticked} aria-label={warmUpLabel(i + 1, set)} onChange={(event) => onTick(key, event.target.checked)} />
+                {/* The set over how to load it. The weight and "× reps" each stay whole. */}
                 <span className="today-warm-line body-large" aria-hidden="true">
-                  <span className="today-warm-load">{warmUpText(set)}</span>
-                  {hint != null && <span className="today-warm-hint body-medium">{hint}</span>}
+                  <span className="today-warm-load">
+                    <span className="today-warm-part">{formatLoad(set.weight, set.unit)}</span> <span className="today-warm-part">× {set.reps}</span>
+                  </span>
+                  {set.perSide != null && (
+                    <span className="today-warm-hint body-medium">
+                      {set.perSide.length === 0 ? (
+                        hint
+                      ) : (
+                        // The plates stay on one line; "per side" goes under them where the column is too narrow.
+                        <>
+                          <span className="today-warm-part">{platesLabel(set.perSide)}</span> <span className="today-warm-part">per side</span>
+                        </>
+                      )}
+                    </span>
+                  )}
                 </span>
               </label>
             </li>

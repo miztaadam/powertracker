@@ -460,10 +460,10 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         focus = focus.getValue(kind),
     )
 
-    // The warm-up checklist (1.23), until the first set: it follows the typing, as the plates below do. An exercise with
-    // no plan item is judged a high-rep one by the reps in the field.
+    // The warm-up checklist (1.23), while the item says there is one: it follows the typing, as the plates below do. An
+    // exercise with no plan item is judged a high-rep one by the reps in the field.
     val warmUp = when {
-        item.sets.isNotEmpty() -> emptyList()
+        !item.warmUpOpen -> emptyList()
         weight == e.weightKg && typed.reps == e.reps -> item.warmUp
         else -> WarmUp.sets(item.exercise, weight, item.planned?.reps ?: typed.reps, changePlates)
     }

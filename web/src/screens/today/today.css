@@ -165,45 +165,55 @@
   overflow: visible;
 }
 
+/* Two sets side by side where each has 140 px, else one under the other; a single set takes the whole row. */
 .today-warm-sets {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  column-gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.today-warm-set {
+/* Side by side, the two rows are as tall as the taller one, and each is a target all the way down. */
+.today-warm-sets > li {
   display: flex;
-  align-items: center;
+}
+
+/* Box and text from the top, so two sets side by side start on one line whatever the plates under them take. */
+.today-warm-set {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
   gap: var(--space-4);
   min-height: var(--touch);
+  padding: 2px 0;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
 }
 
+/* Level with the first line of text (24 px high). */
 .today-warm-set input {
   flex: none;
   width: 20px;
   height: 20px;
-  margin: 0;
+  margin: 2px 0 0;
   accent-color: var(--accent);
 }
 
-/* The set, then how to load it: each stays whole, and the second goes under the first where the row is too narrow. */
+/* The set, and under it how to load it. */
 .today-warm-line {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: var(--space-4);
+  flex-direction: column;
   min-width: 0;
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
 
-.today-warm-load {
+/* The weight and "× reps" each stay whole; the second goes under the first where the column is too narrow. */
+.today-warm-part {
   white-space: nowrap;
 }
 
