@@ -2073,7 +2073,15 @@ Found by 1.23's first round on merged main (above), put to the owner as a sugges
 
 **Version:** Android 1.23.2 (versionCode 42), web 1.23.2.
 
-**Not published.** Waiting for the owner's "publish".
+**Published 2026-11-27 (owner: "publish"), on main as `5ea330e`** (a `--no-ff` merge of the branch at `8c2ee1e` onto main's `c802f51`; its tree is the branch's). On merged main, one at a time, before the push, with no source change, everything green:
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` 1,000 and `:domain:jsNodeTest` 1,052, 0 failed; `:app:testDebugUnitTest` 1,155, 0 failed, 1 skipped; `:domain:checkWebDomain` passed.
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724; build clean. **Full Playwright run: 532 passed, 12 skipped. The `E2E_UA=android` pass: 264 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.**
+- Live, about two minutes after the push: `/` names `assets/index-Do5e-QwT.js`, which carries 1.23.2 (no 1.23.1) and build id `5ea330e`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 42, versionName 1.23.2, unsigned in this container. **No APK was handed over.**
+- **Still not run on a phone or an emulator.** The owner has not yet said how 1.20 to 1.23.2 look on the phone.
+- Put to the owner as a suggested task, not started here: the cause of `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` failing under load.
+
+**Next: supersets** (owner, 2026-11-27: "just build it"): pairs only, saved in the plan, linked on the Plan tab, the shorter exercise finishing first. Both apps in one release; the plan's stored form and the backup's version change.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
