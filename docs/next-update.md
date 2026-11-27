@@ -2042,7 +2042,16 @@ Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above
 
 **Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
 
-**Owner, 2026-11-27: "publish".** 1.23 was published meanwhile (above, as `10a992e`), so 1.23.1 goes out alone. This branch (`claude/determined-fermat-po8wgi`) was built on 1.23's branch at `d409eec`; that branch's last two commits (the ⋮ menu test's wait, and 1.23's publishing notes) were merged in before the merge into main. The round on merged main and the live check are recorded below once done.
+**Owner, 2026-11-27: "publish".** 1.23 was published meanwhile (above, as `10a992e`), so 1.23.1 goes out alone. This branch (`claude/determined-fermat-po8wgi`) was built on 1.23's branch at `d409eec`; that branch's last two commits (the ⋮ menu test's wait, and 1.23's publishing notes) were merged in before the merge into main. The round on merged main and the live check:
+
+**Published 2026-11-27, on main as `c802f51`** (one `--no-ff` merge of this branch at `9bb9551` onto main's `10a992e`; the merged tree was the branch's). **The round on merged main, at `c802f51`, one at a time, before the push, with no source change, everything green the first time:**
+- Gradle, each made to run (`--rerun`): `:domain:allTests` (JVM 1,000 and JS 1,052, 0 failed); `:app:testDebugUnitTest` 1,155, 0 failed, 1 skipped; `:domain:checkWebDomain` passed.
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724; build clean. **Full Playwright run: 530 passed, 12 skipped. The `E2E_UA=android` pass: 262 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.** `test-results` was copied after each Playwright run this time; nothing failed, so nothing was kept.
+- A hook in the build session asked for main to be pushed as soon as it was merged; it was pushed only after this round, as `CLAUDE.md` says.
+- Live, under a minute after the push (07:28 UTC): `/` names `assets/index-DyklXKGu.js`, which carries 1.23.1 (no 1.23.0) and build id `c802f51`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 41, versionName 1.23.1, unsigned in this container. **No APK was handed over.**
+- **Still not run on a phone or an emulator.**
+- This notes commit is on the branch only, as 1.23's was: it reaches main with the next release.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
