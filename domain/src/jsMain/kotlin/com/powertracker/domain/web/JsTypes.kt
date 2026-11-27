@@ -103,7 +103,17 @@ data class JsPlanItem(
     val mode: String = "POWERLIFTING",
     /** The top of a rep range, with [reps] its low end; null means fixed reps. */
     val repsHigh: Int? = null,
+    /** 1.24: done as a superset with the item directly above it on the same day and side (`Supersets`). */
+    val supersetWithAbove: Boolean = false,
 )
+
+/** A superset (1.24): the ids of its two plan items, the first and the one linked to it. */
+@JsExport
+data class JsSupersetPair(val firstId: Int, val secondId: Int)
+
+/** What follows a set logged in a superset: [open] is "FIRST", "SECOND" or null (the card stays); [rest] whether the rest starts. */
+@JsExport
+data class JsSupersetStep(val open: String?, val rest: Boolean)
 
 @JsExport
 data class JsBaseline(val exerciseId: Int, val e1rmKg: Double, val date: String)
@@ -443,12 +453,12 @@ internal fun JsSession.toDomain() = LoggedSession(
 
 internal fun JsPlanItem.toDomain() = PlanItem(
     id.toLong(), parseWeekday("plan.weekday", weekday), exerciseId.toLong(), sets, reps, targetRpe, order,
-    parseEnum<TrainingMode>("plan.mode", mode), repsHigh,
+    parseEnum<TrainingMode>("plan.mode", mode), repsHigh, supersetWithAbove,
 )
 
 internal fun PlanItem.toJs() = JsPlanItem(
     id.toFacadeId("plan.id"), weekday.isoDayNumber, exerciseId.toFacadeId("plan.exerciseId"), sets, reps, targetRpe, order,
-    mode.name, repsHigh,
+    mode.name, repsHigh, supersetWithAbove,
 )
 
 internal fun JsCheckIn.toDomain(): CheckIn {

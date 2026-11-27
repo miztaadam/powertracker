@@ -68,7 +68,10 @@ class BackupFixtureTest {
 
     // Gradle runs app tests with the module directory as the working directory.
     private val fixtureDir = File("../web/src/backup/__fixtures__")
-    private val androidFixture = File(fixtureDir, "android-v6.json")
+    /** What this app writes now (version 7, supersets). Regenerate with -Pfixtures.update=true. */
+    private val androidFixture = File(fixtureDir, "android-v7.json")
+    /** What 1.17 to 1.23 wrote (version 6): frozen since version 7, and must keep restoring. */
+    private val androidV6Fixture = File(fixtureDir, "android-v6.json")
     private val androidV5Fixture = File(fixtureDir, "android-v5.json")
     private val androidV4Fixture = File(fixtureDir, "android-v4.json")
     private val androidV3Fixture = File(fixtureDir, "android-v3.json")
@@ -80,6 +83,7 @@ class BackupFixtureTest {
     private val webV4Fixture = File(fixtureDir, "web-v4.json")
     private val webV5Fixture = File(fixtureDir, "web-v5.json")
     private val webV6Fixture = File(fixtureDir, "web-v6.json")
+    private val webV7Fixture = File(fixtureDir, "web-v7.json")
 
     @Before
     fun setUp() {
@@ -133,15 +137,17 @@ class BackupFixtureTest {
         db.sets().insert(SetEntity(sessionId = s2, exerciseId = press, weightKg = 65.0, reps = 2, rpe = 10.0, failed = true, missPoint = MissPoint.FLOOR, isTopSet = false))
 
         db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.TUESDAY, exerciseId = squat, sets = 4, reps = 5, targetRpe = 8.0, sortOrder = 0))
-        db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.TUESDAY, exerciseId = pause, sets = 3, reps = 4, targetRpe = 7.5, sortOrder = 1))
+        // Version 7: Tuesday's pause squat is done as a superset with the squat above it.
+        db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.TUESDAY, exerciseId = pause, sets = 3, reps = 4, targetRpe = 7.5, sortOrder = 1, supersetWithAbove = true))
         db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.SATURDAY, exerciseId = bench, sets = 5, reps = 3, targetRpe = 8.5, sortOrder = 0))
 
         // Version 3: the bodybuilding side's plan, a session logged on it, and its advice.
         val curl = exercises.getValue("Curl").id
         db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.MONDAY, exerciseId = curl, sets = 3, reps = 8, targetRpe = 8.0, sortOrder = 0,
             mode = TrainingMode.BODYBUILDING, repsHigh = 12))
+        // Version 7: and on the bodybuilding side, Monday's squat with the curl above it.
         db.plan().upsert(PlanItemEntity(weekday = DayOfWeek.MONDAY, exerciseId = squat, sets = 4, reps = 10, targetRpe = 8.0, sortOrder = 1,
-            mode = TrainingMode.BODYBUILDING, repsHigh = 15))
+            mode = TrainingMode.BODYBUILDING, repsHigh = 15, supersetWithAbove = true))
         val s3 = db.sessions().insert(SessionEntity(date = LocalDate(2026, 11, 2), bodyweightKg = 84.0, readiness = 3, mode = TrainingMode.BODYBUILDING))
         db.sets().insert(SetEntity(sessionId = s3, exerciseId = curl, weightKg = 16.0, reps = 11, rpe = 8.0, failed = false, missPoint = null, isTopSet = false))
         db.sets().insert(SetEntity(sessionId = s3, exerciseId = curl, weightKg = 16.0, reps = 9, rpe = 9.0, failed = false, missPoint = null, isTopSet = false))
@@ -262,7 +268,7 @@ class BackupFixtureTest {
     @Test
     fun androidFixture_holdsBothSides() {
         val root = tree(androidFixture.readText()) as JsonObject
-        assertEquals(JsonPrimitive(6), root.getValue("version"))
+        assertEquals(JsonPrimitive(7), root.getValue("version"))
         for (list in listOf("planItems", "sessions", "advice")) {
             val modes = (root.getValue(list) as JsonArray).map { ((it as JsonObject).getValue("mode") as JsonPrimitive).content }.toSet()
             assertEquals(list, setOf("POWERLIFTING", "BODYBUILDING"), modes)
@@ -326,6 +332,59 @@ class BackupFixtureTest {
             .map { Json.decodeFromString(AdvicePayload.serializer(), (it.getValue("payload") as JsonPrimitive).content) as AdvicePayload.Target }
         assertEquals(1, targets.count { it.unit == LoadUnit.PLATES })
         assertTrue(Backup.decode(androidFixture.readText()) is BackupResult.Ok)
+    }
+
+    /** 1.24: the 1.17 to 1.23 Android backup (version 6) is frozen and restores exactly, with no supersets. */
+    @Test
+    fun androidV6Fixture_restoresWithNoSupersets() = runTest {
+        val fixture = tree(androidV6Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(6), fixture.getValue("version"))
+        val actual = restoreAndExport(androidV6Fixture)
+        assertEquals(withoutExportedAt(JsonObject(fixture + ("version" to JsonPrimitive(Backup.VERSION)))), actual)
+        assertTrue(db.plan().all().isNotEmpty())
+        assertTrue(db.plan().all().none { it.supersetWithAbove })
+        // A version 6 reader turns what this app writes now away as too new.
+        assertEquals(BackupResult.TooNew(7), Backup.decode(androidFixture.readText(), supportedVersion = 6))
+    }
+
+    /** 1.24: the fixture this app writes holds a superset on each side, the flag only on the linked item and as its last key. */
+    @Test
+    fun androidFixture_holdsSupersets_theFlagOnlyWhereLinked() {
+        val items = ((tree(androidFixture.readText()) as JsonObject).getValue("planItems") as JsonArray).map { it as JsonObject }
+        val v6Keys = listOf("id", "weekday", "exerciseId", "sets", "reps", "targetRpe", "sortOrder", "mode", "repsHigh")
+        val linked = items.filter { "supersetWithAbove" in it }
+        assertEquals(setOf("POWERLIFTING", "BODYBUILDING"), linked.map { (it.getValue("mode") as JsonPrimitive).content }.toSet())
+        assertTrue(linked.all { it.getValue("supersetWithAbove") == JsonPrimitive(true) })
+        for (item in items) assertEquals(if (item in linked) v6Keys + "supersetWithAbove" else v6Keys, item.keys.toList())
+    }
+
+    /** 1.24: the web app's version 7 backup restores here with its supersets, and exports again as the web wrote it. */
+    @Test
+    fun webV7Fixture_restoresOnAndroid_withItsSupersets() = runTest {
+        assertTrue("Missing ${webV7Fixture.path}; the web app writes it", webV7Fixture.exists())
+        val fixture = tree(webV7Fixture.readText()) as JsonObject
+        assertEquals(JsonPrimitive(Backup.VERSION), fixture.getValue("version"))
+        val actual = restoreAndExport(webV7Fixture)
+        assertEquals(withoutExportedAt(fixture), actual)
+        val linkedInFile = (fixture.getValue("planItems") as JsonArray).map { it as JsonObject }.filter { "supersetWithAbove" in it }.map { (it.getValue("id") as JsonPrimitive).content.toLong() }
+        assertTrue(linkedInFile.isNotEmpty())
+        // Every link the web wrote is one that counts here too: none was cleared on the way in.
+        assertEquals(linkedInFile, db.plan().all().filter { it.supersetWithAbove }.map { it.id })
+    }
+
+    /** 1.24: a flag that cannot count is cleared on restore: the first of a day, a third in a row, one exercise twice. */
+    @Test
+    fun aLinkThatCannotCount_isClearedOnRestore() = runTest {
+        populate()
+        val file = service.export(EXPORTED_AT)
+        val (a, b, c) = file.exercises.map { it.id }
+        fun item(id: Long, order: Int, exercise: Long) = PlanItemDto(id, 4, exercise, 3, 8, 8.0, order, supersetWithAbove = true)
+        val odd = file.copy(planItems = file.planItems + listOf(item(901, 0, a), item(902, 1, b), item(903, 2, c), item(904, 3, c)))
+        val decoded = Backup.decode(Backup.encode(odd))
+        assertTrue(decoded.toString(), decoded is BackupResult.Ok)
+        service.restore((decoded as BackupResult.Ok).file)
+        // Only 902 with 901: 901 is first on its day, 903 follows a pair's second, and 904 is the same exercise as 903.
+        assertEquals(listOf(902L), db.plan().all().filter { it.id > 900 && it.supersetWithAbove }.map { it.id })
     }
 
     /** 1.17: the 1.16 Android backup (version 5) is frozen and restores exactly, every set in kg and every exercise off. */
@@ -407,11 +466,12 @@ class BackupFixtureTest {
         assertTrue("Missing ${webV6Fixture.path}; the web app writes it", webV6Fixture.exists())
         val fixture = tree(webV6Fixture.readText()) as JsonObject
         assertEquals(JsonPrimitive(6), fixture.getValue("version"))
-        assertEquals(JsonPrimitive(Backup.VERSION), fixture.getValue("version"))
 
         val actual = restoreAndExport(webV6Fixture)
 
-        assertEquals(withoutExportedAt(fixture), actual)
+        // It exports again as the web wrote it, under the version written now (7 since 1.24; the file has no supersets).
+        assertEquals(withoutExportedAt(JsonObject(fixture + ("version" to JsonPrimitive(Backup.VERSION)))), actual)
+        assertTrue(db.plan().all().none { it.supersetWithAbove })
         // The plate sets keep their unit and their 7½, the two machines their setting, and every other row is kg / off.
         val sets = db.sets().all()
         val plates = sets.filter { it.unit == LoadUnit.PLATES }

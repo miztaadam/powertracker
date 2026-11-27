@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { openOnWednesday, seedFlatBench, tap } from './helpers'
+import { NEWER_LOG_VERSION, openOnWednesday, seedFlatBench, tap } from './helpers'
 
 // This spec has its own copy of the build (dist-update, served on 4175; see playwright.config.ts),
 // because it rewrites sw.js to fake a new deploy and specs in other workers must not see that.
@@ -252,9 +252,9 @@ test('older copy: Update and reload switches to the newer version, then settles'
       await navigator.serviceWorker.ready
     })
     await page.evaluate(
-      () =>
+      (version) =>
         new Promise<void>((done, fail) => {
-          const req = indexedDB.open('grit', 70)
+          const req = indexedDB.open('grit', version)
           req.onupgradeneeded = () => {}
           req.onsuccess = () => {
             req.result.close()
@@ -262,6 +262,7 @@ test('older copy: Update and reload switches to the newer version, then settles'
           }
           req.onerror = () => fail(req.error)
         }),
+      NEWER_LOG_VERSION,
     )
     await page.reload()
     await expect(page.getByRole('heading', { name: 'Update Grit to carry on' })).toBeVisible()

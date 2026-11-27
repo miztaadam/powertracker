@@ -15,7 +15,7 @@ import java.util.concurrent.Executor
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
         PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class, CheckInEntity::class, SkipEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -123,6 +123,16 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE logged_set ADD COLUMN unit TEXT NOT NULL DEFAULT 'KG'")
         db.execSQL("ALTER TABLE exercise ADD COLUMN plateCount TEXT NOT NULL DEFAULT 'OFF'")
+    }
+}
+
+/**
+ * Version 7 (1.24): supersets. Each plan item gains the flag that links it to the item above it, as a column with a
+ * default: every item already stored reads as not linked, and nothing stored changes.
+ */
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE plan_item ADD COLUMN supersetWithAbove INTEGER NOT NULL DEFAULT 0")
     }
 }
 

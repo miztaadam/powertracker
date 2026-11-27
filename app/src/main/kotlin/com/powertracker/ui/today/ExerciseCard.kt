@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -32,8 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,6 +67,7 @@ import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.components.CoachSuggestion
 import com.powertracker.ui.components.Eyebrow
+import com.powertracker.ui.plan.supersetTag
 import com.powertracker.ui.components.PastSets
 import com.powertracker.ui.components.Pill
 import com.powertracker.ui.components.PlateStrip
@@ -112,7 +117,6 @@ class NextStep(val label: String, val onClick: () -> Unit)
 
 
 /** RPE from which a set counts as a grind worth asking "where?" about. */
-private const val GRIND_RPE = 9.5
 
 /** "Floor / Mid / Lockout", or "Off the shoulders / …" for a strict press. An accessory has no lift: it gets the plain names. */
 private fun missLabels(lift: MainLift?): List<String> = MissPoint.entries.map { missPointLabel(lift ?: MainLift.SQUAT, it) }
@@ -247,7 +251,16 @@ private fun ColumnScope.CardContent(
             // The name is never cut: where it and the set count do not fit on one line, the count goes under it.
             WrappingPair(Modifier.weight(1f), first = {
                 Column {
-                    Eyebrow("Exercise $position of $count")
+                    // In a superset (1.24) the card says which half it is: A is done first, B straight after it, then
+                    // the rest. The tag takes the count's place, as on the web (the two together are too wide for the
+                    // line beside the pill and the buttons); a screen reader hears both.
+                    val pair = item.superset
+                    if (pair != null) {
+                        val tag = supersetTag(pair.half)
+                        Eyebrow(tag, Modifier.semantics { contentDescription = "Exercise $position of $count · $tag" }, maxLines = Int.MAX_VALUE)
+                    } else {
+                        Eyebrow("Exercise $position of $count")
+                    }
                     Text(item.exercise.name, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
                 }
             }) {
@@ -544,9 +557,44 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         )
     }
 
-    Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-        SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close)
-        PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.weight(1f).tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check)
+    LogRow(
+        missed = { SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close) },
+        log = { PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check) },
+    )
+}
+
+/**
+ * Missed and Log set: side by side, Missed as wide as its label and Log set taking the rest, wherever both labels fit on
+ * one line. Where they do not (a small phone at a large text size), Log set goes above Missed, each the card's width:
+ * a button's label is one line, so squeezed beside Missed it lost its end ("Log" for "Log set 1") without a mark (1.24).
+ */
+@Composable
+private fun LogRow(missed: @Composable () -> Unit, log: @Composable () -> Unit) {
+    Layout(contents = listOf(missed, log)) { (missedButton, logButton), constraints ->
+        val max = constraints.maxWidth
+        val gap = Space.s.roundToPx()
+        val missedWidth = missedButton.maxOfOrNull { it.maxIntrinsicWidth(Constraints.Infinity) } ?: 0
+        val logWidth = logButton.maxOfOrNull { it.maxIntrinsicWidth(Constraints.Infinity) } ?: 0
+        if (missedWidth + gap + logWidth <= max) {
+            val a = missedButton.map { it.measure(Constraints(maxWidth = missedWidth)) }
+            val room = max - missedWidth - gap
+            val b = logButton.map { it.measure(Constraints(minWidth = room, maxWidth = room)) }
+            val height = (a + b).maxOfOrNull { it.height } ?: 0
+            layout(max, height) {
+                a.forEach { it.place(0, (height - it.height) / 2) }
+                b.forEach { it.place(missedWidth + gap, (height - it.height) / 2) }
+            }
+        } else {
+            val whole = Constraints(minWidth = max, maxWidth = max)
+            val b = logButton.map { it.measure(whole) }
+            val a = missedButton.map { it.measure(whole) }
+            val logHeight = b.maxOfOrNull { it.height } ?: 0
+            val missedHeight = a.maxOfOrNull { it.height } ?: 0
+            layout(max, logHeight + gap + missedHeight) {
+                b.forEach { it.place(0, 0) }
+                a.forEach { it.place(0, logHeight + gap) }
+            }
+        }
     }
 }
 
@@ -601,8 +649,15 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                     }
                 }
             }) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                // The plan, a superset's tag (1.24) and the count: on a small phone the three are wider than the row, and
+                // the last then goes to a line of its own instead of being squeezed to nothing.
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                    verticalArrangement = Arrangement.spacedBy(Space.xs),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
                     item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurfaceVariant, maxLines = 1) }
+                    item.superset?.let { Pill(supersetTag(it.half)) }
                     when {
                         item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
                         item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")

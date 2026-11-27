@@ -19,6 +19,8 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.model.liftLabel
+import com.powertracker.domain.plan.SupersetHalf
+import com.powertracker.domain.plan.Supersets
 import com.powertracker.domain.progress.ProgressMath
 import com.powertracker.domain.validation.InputValidator
 import com.powertracker.ui.progress.toHalfKg
@@ -43,7 +45,17 @@ import kotlinx.coroutines.yield
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
-data class PlanRow(val item: PlanItem, val exerciseName: String)
+/**
+ * One plan item on the Plan tab. [superset] is which half of a superset it is (1.24), null when it is in none;
+ * [partnerName] is then the other half's exercise. [canLink] is whether "Superset with the one above" is offered.
+ */
+data class PlanRow(
+    val item: PlanItem,
+    val exerciseName: String,
+    val superset: SupersetHalf? = null,
+    val partnerName: String? = null,
+    val canLink: Boolean = false,
+)
 
 /** The catalogue's strict press as a Known bests row before it has a row of its own: stored nowhere (id 0). */
 internal val CATALOGUE_STRICT_PRESS: Exercise =
@@ -142,9 +154,22 @@ class PlanViewModel(
         val stored = exercises.filter { it.isMainLift }
         // The Progress switch on brings strict press, as the catalogue has it, until it has a row of its own.
         val main = if (s.showStrictPress && stored.none { it.mainLift == MainLift.STRICT_PRESS }) stored + CATALOGUE_STRICT_PRESS else stored
+        // Supersets (1.24): each half names the other, and an item that could be linked to the one above offers it.
+        val name = { id: Long -> names[id] ?: "Unknown exercise" }
+        val halves = buildMap {
+            for (pair in Supersets.pairs(plan)) {
+                put(pair.first.id, SupersetHalf.FIRST to name(pair.second.exerciseId))
+                put(pair.second.id, SupersetHalf.SECOND to name(pair.first.exerciseId))
+            }
+        }
         return PlanUiState(
             sections = days.map { day ->
-                DaySection(day, byDay[day].orEmpty().sortedBy { it.order }.map { PlanRow(it, names[it.exerciseId] ?: "Unknown exercise") })
+                DaySection(
+                    day,
+                    Supersets.ordered(byDay[day].orEmpty()).map {
+                        PlanRow(it, name(it.exerciseId), halves[it.id]?.first, halves[it.id]?.second, Supersets.canLink(plan, it.id))
+                    },
+                )
             },
             exercises = exercises.filter { !it.archived },
             recentIds = recentExerciseIds(history),
@@ -246,7 +271,18 @@ class PlanViewModel(
         write { training.deletePlanItem(item.id) }
     }
 
-    /** Swaps [item] with its neighbour in the given direction (-1 up, +1 down): both orders in one transaction, or neither. */
+    /**
+     * Links [item] to the one above it as a superset, or takes the link off the pair it is the second half of (1.24).
+     * A link that cannot be made (nothing above it, the same exercise, either already in a pair) changes nothing.
+     */
+    fun setSuperset(item: PlanItem, linked: Boolean) {
+        write { training.setSuperset(item.id, linked) }
+    }
+
+    /**
+     * Swaps [item] with its neighbour in the given direction (-1 up, +1 down): both orders in one transaction, or neither.
+     * A superset the move breaks is unlinked (1.24): the moved item's own, and one it was moved into.
+     */
     fun move(item: PlanItem, direction: Int) {
         val rows = state.value.sections.firstOrNull { it.day == item.weekday }?.rows ?: return
         val i = rows.indexOfFirst { it.item.id == item.id }
@@ -254,8 +290,10 @@ class PlanViewModel(
         if (i < 0) return
         write {
             training.inTransaction {
-                training.savePlanItem(item.copy(order = other.order))
-                training.savePlanItem(other.copy(order = item.order))
+                training.keepingLinks(item.mode) {
+                    training.savePlanItem(item.copy(order = other.order))
+                    training.savePlanItem(other.copy(order = item.order))
+                }
             }
         }
     }

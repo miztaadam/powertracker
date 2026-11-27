@@ -48,7 +48,8 @@ fun ScreenHeader(
     ) {
         navigation?.invoke()
         Column(Modifier.weight(1f).padding(start = if (navigation != null) Space.xs else 0.dp)) {
-            if (eyebrow != null) Eyebrow(eyebrow)
+            // Whole at any text size: on a small phone at large text a date or "Weekly template" takes a second line (1.24).
+            if (eyebrow != null) Eyebrow(eyebrow, maxLines = Int.MAX_VALUE)
             if (modeLabel) ModeLabel(Modifier.padding(top = Space.xxs, bottom = Space.xs))
             Text(
                 title,

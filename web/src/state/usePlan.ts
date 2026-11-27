@@ -1,9 +1,10 @@
 import { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { addPlanItem, deletePlanItem, planFor, planItemsOn, resolveCatalogue, updatePlanItem } from '../db/catalogue'
+import { addPlanItem, deletePlanItem, movePlanItem, planFor, planItemsOn, resolveCatalogue, updatePlanItem } from '../db/catalogue'
 import { activeTrainingDays, getSettings, historyOf, type AppSettings, type GritDb } from '../db/db'
-import { exerciseToJs } from '../db/mapping'
+import { exerciseToJs, planItemToJs } from '../db/mapping'
 import { sideOf, type ExerciseRow, type PlanItemRow, type TrainingMode } from '../db/schema'
+import { setSuperset, supersetHalves } from '../db/supersets'
 import { grit, type JsHistory } from '../domain'
 import { toHalfKg } from './useProgress'
 import { slideNextChange } from '../ui/viewTransition'
@@ -12,7 +13,11 @@ import { DEFAULT_SETS, createCustomExercise, defaultReps, recentExerciseIds, typ
 export type PlanItem = PlanItemRow & { id: number }
 export type PlanExercise = ExerciseRow & { id: number }
 
-export type PlanRow = { item: PlanItem; exerciseName: string }
+/**
+ * A plan item with its exercise's name. 1.24: `superset` says which half of a superset it is (null: in none), and
+ * `canLink` whether "Superset with the one above" is offered for it.
+ */
+export type PlanRow = { item: PlanItem; exerciseName: string; superset: 'FIRST' | 'SECOND' | null; canLink: boolean }
 
 /** One weekday (1 = Monday) with its plan items in order. */
 export type DaySection = { weekday: number; rows: PlanRow[] }
@@ -81,6 +86,8 @@ export type PlanActions = {
    */
   save: (existing: PlanItem, exercise: PickerEntry | null, sets: number, reps: number, targetRpe: number, repsHigh?: number) => Promise<void>
   remove: (item: PlanItem) => Promise<void>
+  /** 1.24: links the item to the one above it as a superset, or takes the link off. Resolves to false when refused. */
+  setSuperset: (item: PlanItem, linked: boolean) => Promise<boolean>
   /** Swaps the item with its neighbour: -1 up, +1 down. */
   move: (item: PlanItem, direction: -1 | 1) => Promise<void>
   /** Creates a custom exercise and resolves to it as a picker entry, ready to `add` or `save`. A catalogue name gives the catalogue's entry. */
@@ -164,13 +171,21 @@ function build({ plan, exercises, settings, recentIds, history }: Stored): Omit<
   const names = new Map(exercises.map((e) => [e.id, e.name]))
   const trainingDays = activeTrainingDays(settings)
   const weekdays = [...new Set([...trainingDays, ...plan.map((p) => p.weekday)])].sort((a, b) => a - b)
+  // Supersets (1.24), by the domain's rule: which items pair, and which may be linked to the one above.
+  const halves = supersetHalves(plan)
+  const asJs = plan.map(planItemToJs)
   return {
     sections: weekdays.map((weekday) => ({
       weekday,
       rows: plan
         .filter((p) => p.weekday === weekday)
         .sort((a, b) => a.order - b.order || a.id - b.id)
-        .map((item) => ({ item, exerciseName: names.get(item.exerciseId) ?? 'Unknown exercise' })),
+        .map((item) => ({
+          item,
+          exerciseName: names.get(item.exerciseId) ?? 'Unknown exercise',
+          superset: halves.get(item.id)?.half ?? null,
+          canLink: grit.supersetCanLink(asJs, item.id),
+        })),
     })),
     exercises: exercises.filter((e) => !e.archived),
     recentIds,
@@ -284,21 +299,12 @@ export function usePlan(db: GritDb, today: () => string, { knownBests: withBests
 
   const move = useCallback<PlanActions['move']>(
     (item, direction) =>
-      sliding(slide, () =>
-        db.transaction('rw', db.planItems, async () => {
-          const items = await planItemsOn(db, item.weekday, sideOf(item))
-          const from = items.findIndex((p) => p.id === item.id)
-          const moved = items[from]
-          const neighbour = items[from + direction]
-          if (moved == null || neighbour == null) return
-          items[from + direction] = moved
-          items[from] = neighbour
-          // Renumbered rather than swapped, so two items that share an order still change places.
-          await Promise.all(items.map((p, order) => (p.order === order ? null : db.planItems.update(p.id, { order }))))
-        }),
-      ),
+      sliding(slide, () => movePlanItem(db, item, direction)),
     [db, slide],
   )
+
+  // The pair's two rows keep their places; only how they are drawn changes, so nothing slides.
+  const setSupersetLink = useCallback<PlanActions['setSuperset']>((item, linked) => setSuperset(db, item.id, linked), [db])
 
   const addCustomExercise = useCallback<PlanActions['addCustomExercise']>((exercise) => createCustomExercise(db, exercise), [db])
 
@@ -320,5 +326,5 @@ export function usePlan(db: GritDb, today: () => string, { knownBests: withBests
   )
 
   const state = useMemo(() => (stored ? build(stored) : EMPTY), [stored])
-  return { loading: stored == null, ...state, draft, add, addOnce, save, remove, move, addCustomExercise, setBaseline }
+  return { loading: stored == null, ...state, draft, add, addOnce, save, remove, move, setSuperset: setSupersetLink, addCustomExercise, setBaseline }
 }

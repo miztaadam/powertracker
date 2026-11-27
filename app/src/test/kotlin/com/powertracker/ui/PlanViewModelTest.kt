@@ -8,6 +8,7 @@ import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.library.Kind
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.plan.SupersetHalf
 import com.powertracker.testing.TestDatabase
 import com.powertracker.ui.library.PickerEntry
 import com.powertracker.ui.library.SAVE_FAILED
@@ -176,6 +177,72 @@ class PlanViewModelTest {
         assertEquals(listOf(SAVE_FAILED), messages)
         assertEquals(listOf(squat, bench), stored())
         assertEquals(listOf(0, 1), stored().map { it.order })
+    }
+
+    // --- Supersets (1.24) ---
+
+    private fun rows(vm: PlanViewModel) = vm.state.value.sections.flatMap { it.rows }
+
+    @Test
+    fun superset_linksToTheOneAbove_namesEachHalf_andIsTakenOffAgain() {
+        val squat = planned("Squat", 0)
+        val bench = planned("Bench", 1)
+        val row = planned("Row", 2)
+        val vm = viewModel()
+        vm.await { s -> s.sections.any { it.rows.size == 3 } }
+        // The first has nothing above it; the other two can be linked.
+        assertEquals(listOf(false, true, true), rows(vm).map { it.canLink })
+        assertEquals(listOf(null, null, null), rows(vm).map { it.superset })
+
+        vm.setSuperset(bench, linked = true)
+        vm.await { s -> s.sections.any { d -> d.rows.any { it.superset != null } } }
+
+        assertEquals(listOf(SupersetHalf.FIRST, SupersetHalf.SECOND, null), rows(vm).map { it.superset })
+        assertEquals(listOf("Bench", "Squat", null), rows(vm).map { it.partnerName })
+        // Pairs only: neither half can be linked again, nor the row to the pair above it.
+        assertEquals(listOf(false, false, false), rows(vm).map { it.canLink })
+        assertEquals(listOf(false, true, false), stored().map { it.supersetWithAbove })
+
+        vm.setSuperset(stored().first { it.id == bench.id }, linked = false)
+        vm.await { s -> s.sections.any { d -> d.rows.size == 3 && d.rows.none { it.superset != null } } }
+        assertEquals(listOf(false, false, false), stored().map { it.supersetWithAbove })
+        assertEquals(listOf(squat.id, bench.id, row.id), stored().map { it.id })
+    }
+
+    @Test
+    fun superset_aLinkThatCannotBeMade_changesNothing() {
+        val squat = planned("Squat", 0)
+        planned("Bench", 1)
+        val vm = viewModel()
+        vm.await { s -> s.sections.any { it.rows.size == 2 } }
+
+        // Nothing above the first.
+        vm.setSuperset(squat, linked = true)
+        shadowOf(Looper.getMainLooper()).idle()
+        Thread.sleep(100)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(listOf(false, false), stored().map { it.supersetWithAbove })
+        assertEquals(emptyList<String>(), messages)
+    }
+
+    @Test
+    fun superset_movingAHalfAway_unlinksThePair() {
+        val squat = planned("Squat", 0)
+        val bench = planned("Bench", 1)
+        planned("Row", 2)
+        val vm = viewModel()
+        vm.await { s -> s.sections.any { it.rows.size == 3 } }
+        vm.setSuperset(bench, linked = true)
+        vm.await { s -> s.sections.any { d -> d.rows.any { it.superset != null } } }
+
+        // The bench goes below the row: the squat is no longer the one above it.
+        vm.move(stored().first { it.id == bench.id }, +1)
+        vm.await { s -> s.sections.any { d -> d.rows.map { it.exerciseName } == listOf("Squat", "Row", "Bench") } }
+
+        assertEquals(listOf(null, null, null), rows(vm).map { it.superset })
+        assertEquals(listOf(false, false, false), stored().map { it.supersetWithAbove })
+        assertEquals(squat.id, stored().first().id)
     }
 
     @Test

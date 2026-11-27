@@ -79,6 +79,8 @@ data class PlanItemEntity(
     @ColumnInfo(defaultValue = POWERLIFTING) val mode: TrainingMode = TrainingMode.POWERLIFTING,
     /** Version 3: the top of a rep range, with [reps] its low end; null for fixed reps. */
     val repsHigh: Int? = null,
+    /** Version 7 (1.24): done as a superset with the item directly above it on its day and side (`Supersets`). */
+    @ColumnInfo(defaultValue = "0") val supersetWithAbove: Boolean = false,
 )
 
 @Entity(tableName = "advice")

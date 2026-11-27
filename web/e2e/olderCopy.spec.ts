@@ -1,9 +1,9 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { tabBar } from './helpers'
+import { NEWER_LOG_VERSION, tabBar } from './helpers'
 
-// 1.17: this copy of Grit opened on a log a newer Grit wrote (here: the same stores at IndexedDB version 70) shows
+// 1.17: this copy of Grit opened on a log a newer Grit wrote (here: the same stores at a far later IndexedDB version) shows
 // "Update Grit to carry on" and nothing of the log. A normal run writes the screenshots to test-results/screens/;
 // UPDATE_SCREENSHOTS=1 rewrites the committed PNGs in docs/design/web/screens/.
 const outDir = resolve(process.cwd(), process.env.UPDATE_SCREENSHOTS === '1' ? '../docs/design/web/screens' : 'test-results/screens')
@@ -18,7 +18,7 @@ const TITLE = 'Update Grit to carry on'
 const BODY = "This copy of Grit is older than your log, so it can't open it safely. Nothing has been changed."
 const FAILED = "Couldn't update. Check your connection and try again."
 
-/** Opens Grit once (its database and service worker set up), then moves the database on to version 70, stores unchanged, and reloads. */
+/** Opens Grit once (its database and service worker set up), then moves the database on to a later version, stores unchanged, and reloads. */
 async function openOnANewerLog(page: Page, before?: () => Promise<void>) {
   await page.goto('/#/today')
   await expect(tabBar(page)).toBeVisible()
@@ -26,10 +26,10 @@ async function openOnANewerLog(page: Page, before?: () => Promise<void>) {
     await navigator.serviceWorker.ready
   })
   await page.evaluate(
-    () =>
+    (version) =>
       new Promise<void>((done, fail) => {
         // The open page lets go of its connection when asked (its versionchange handler), so this is not blocked.
-        const req = indexedDB.open('grit', 70)
+        const req = indexedDB.open('grit', version)
         req.onupgradeneeded = () => {}
         req.onsuccess = () => {
           req.result.close()
@@ -37,6 +37,7 @@ async function openOnANewerLog(page: Page, before?: () => Promise<void>) {
         }
         req.onerror = () => fail(req.error)
       }),
+    NEWER_LOG_VERSION,
   )
   await before?.()
   await page.reload()
@@ -73,7 +74,7 @@ for (const scheme of ['dark', 'light'] as const) {
     const [r = 0, g = 0, b = 0] = background.match(/\d+/g)!.map(Number)
     expect((r + g + b) / 3 > 128).toBe(scheme === 'light')
     await shoot(page, `older-copy-${scheme}`)
-    expect(await nativeVersion(page)).toBe(70)
+    expect(await nativeVersion(page)).toBe(NEWER_LOG_VERSION)
   })
 }
 
@@ -84,7 +85,7 @@ test('older copy: no newer version on the server, so it says it could not update
   await expect(page.getByRole('status')).toHaveText(FAILED)
   await expect(button).toBeEnabled()
   await expect(page.getByRole('heading', { level: 1, name: TITLE })).toBeVisible()
-  expect(await nativeVersion(page)).toBe(70)
+  expect(await nativeVersion(page)).toBe(NEWER_LOG_VERSION)
 })
 
 test('older copy: on the bodybuilding side its look is the one remembered from the last visit', async ({ page }) => {

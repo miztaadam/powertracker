@@ -85,10 +85,10 @@ export function sessionFromJs(s: JsSession): SessionRow & { id: number } {
 }
 
 export function planItemToJs(r: PlanItemRow & { id: number }): JsPlanItem {
-  return new JsPlanItem(r.id, r.weekday, r.exerciseId, r.sets, r.reps, r.targetRpe, r.order, sideOf(r), r.repsHigh ?? null)
+  return new JsPlanItem(r.id, r.weekday, r.exerciseId, r.sets, r.reps, r.targetRpe, r.order, sideOf(r), r.repsHigh ?? null, r.supersetWithAbove === true)
 }
 
-/** Fixed reps store no `repsHigh` key, as every row before schema version 3. */
+/** Fixed reps store no `repsHigh` key, as every row before schema version 3; an item that is not linked stores no `supersetWithAbove` key. */
 export function planItemFromJs(p: JsPlanItem): PlanItemRow & { id: number } {
   return {
     id: p.id,
@@ -100,6 +100,7 @@ export function planItemFromJs(p: JsPlanItem): PlanItemRow & { id: number } {
     order: p.order,
     mode: mode(p.mode),
     ...(p.repsHigh != null ? { repsHigh: p.repsHigh } : {}),
+    ...(p.supersetWithAbove ? { supersetWithAbove: true as const } : {}),
   }
 }
 

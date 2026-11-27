@@ -12,6 +12,7 @@ import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 import { warmUpSets, type WarmUpSet } from './warmUp'
+import { supersetHalves } from '../db/supersets'
 
 /**
  * The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one; it is a plate number when
@@ -75,6 +76,13 @@ export type TodayItem = {
   warmUp: WarmUpSet[]
   warmUpDone: readonly string[]
   /**
+   * 1.24: there only on an exercise done today as a superset with another on the list: which half it is (the first
+   * leads, the second is done straight after it), the other exercise, and whose turn it is from the sets logged today
+   * (null once both have their sets). A pair of the plan counts today only while both exercises are on the list: with
+   * one skipped today, the other is an exercise on its own.
+   */
+  superset?: TodaySuperset
+  /**
    * 1.17, each there only when it is not the default: the exercise's current unit (PLATES; absent is kg), which the
    * editor, the targets and the typo check are in; its stored plate setting (WHOLE or HALF; absent is OFF), which the
    * plate sheet marks; and whether it may count plates at all (true; absent is false), which puts the item in its menu.
@@ -91,6 +99,23 @@ export type TodayItem = {
 export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit }
 
 export type InputWarning = 'HIGH_REPS' | 'BIG_JUMP'
+
+/** An exercise's place in a superset today (1.24): see `TodayItem.superset`. */
+export type TodaySuperset = { half: SupersetHalf; partnerId: number; partnerName: string; due: SupersetHalf | null }
+export type SupersetHalf = 'FIRST' | 'SECOND'
+
+/**
+ * From this effort on, a set on the powerlifting side is a grind: its card asks where the rep was hardest, as it does
+ * after a miss. A superset's card then stays open for the answer (1.24) instead of handing over to the other exercise.
+ */
+export const GRIND_RPE = 9.5
+
+/**
+ * For this long after a set that hands a superset over to the other exercise, a tap on that exercise's Log set saves
+ * nothing (1.24): see `logSet`. Long enough for the logged set to slide in and the cards to change places, with a second
+ * quick tap after that; far shorter than doing a set.
+ */
+export const SUPERSET_SWITCH_GUARD_MS = 1000
 
 /** A set held back because it looks like a typo; saved only after the lifter confirms. */
 export type PendingLog = { exerciseId: number; set: SetInput; warnings: InputWarning[]; lastWeightKg: number | null }
@@ -120,6 +145,11 @@ export type TodayState = {
   items: TodayItem[]
   pending: PendingLog | null
   summary: FinishSummary | null
+  /**
+   * 1.24: the card to open now, after a superset's set: the exercise whose turn it is. `n` goes up with each request,
+   * so the screen follows a request only once, also when the same exercise is asked for again. Null until the first.
+   */
+  openRequest: { exerciseId: number; n: number } | null
   /** The lifter's exercises that are not archived, for the picker. */
   exercises: JsExercise[]
   /** Exercise ids, most recently logged first, for the picker's "Your exercises". */
@@ -253,9 +283,11 @@ type Local = {
   warmUpDone: Record<number, readonly string[]>
   /** 1.23: the exercises (by the key their set was logged under) that had a set logged here today: no checklist again. */
   warmUpOver: readonly number[]
+  /** 1.24: see `TodayState.openRequest`. */
+  openRequest: { exerciseId: number; n: number } | null
 }
 
-const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {}, warmUpOver: [] })
+const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {}, warmUpOver: [], openRequest: null })
 
 const NONE_TICKED: readonly string[] = []
 
@@ -610,6 +642,17 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     const exercise = exercises.get(id) ?? (entry ? new JsExercise(id, entry.name, entry.category, entry.parentLift, [...entry.muscles], true, false) : undefined)
     if (exercise) items.push(item(exercise, null))
   }
+  // Supersets (1.24): the plan's pairs, by the domain's rule, that are whole on today's list. A pair with one exercise
+  // skipped today, or merged into an earlier line of the same exercise, is no pair today.
+  const byPlanItem = new Map(items.flatMap((i) => (i.planned != null ? [[i.planned.id, i] as const] : [])))
+  for (const [planItemId, { partnerId, half }] of supersetHalves(d.plan)) {
+    const own = byPlanItem.get(planItemId)
+    const partner = byPlanItem.get(partnerId)
+    if (own == null || partner == null || own.targetSets == null || partner.targetSets == null) continue
+    const [first, second] = half === 'FIRST' ? [own, partner] : [partner, own]
+    const due = grit.supersetDue(first.sets.length, first.targetSets!, second.sets.length, second.targetSets!) as SupersetHalf | null | undefined
+    own.superset = { half, partnerId: partner.exercise.id, partnerName: partner.exercise.name, due: due ?? null }
+  }
   // Only what is still planned today and not on the list: after a swap there is nothing left to bring back.
   const shownIds = new Set(items.map((i) => i.exercise.id))
   const skippedToday = allPlanned.flatMap((p): SkippedToday[] => {
@@ -768,6 +811,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     items: built?.items ?? [],
     pending: local.pending,
     summary: local.summary,
+    openRequest: local.openRequest,
     exercises: built?.exercises ?? [],
     recentIds: built?.recentIds ?? [],
     resolved: built?.resolved ?? {},
@@ -842,6 +886,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   // replace the summary, and no set is saved meanwhile.
   const finishing = useRef(false)
   const starting = useRef(false)
+  // The exercise a superset last handed over to, and until when a tap on its Log set is taken for a slip (1.24).
+  const switched = useRef<{ exerciseId: number; until: number } | null>(null)
   const waiting = useRef<{ setId: number; done: () => void }[]>([])
   const loadWaiting = useRef<(() => void)[]>([])
   const closed = useRef(false)
@@ -974,6 +1020,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       // A fast double tap must not save the set twice. And a tap that lands while Finish is at work saves nothing: its
       // set would be stored behind a summary that did not count it. The numbers stay in the card ("Keep logging").
       if (saving.current || finishing.current) return
+      // A superset has just handed over to this exercise (1.24): a second quick tap, meant for the set just logged, lands
+      // on this card's Log set, in the same place. For a second it saves nothing; the numbers stay in the card.
+      const handedOver = switched.current
+      // Timed by the page's own running clock, never the calendar's: that one can be set, and a guard must run out.
+      if (handedOver != null && handedOver.exerciseId === (latest.current.resolved[itemKey] ?? itemKey) && performance.now() < handedOver.until) return
       let ended!: () => void
       saving.current = new Promise<void>((resolve) => (ended = resolve))
       try {
@@ -1023,13 +1074,31 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz,
         // worked out after the save and beside it: it never holds the set up, and if it fails the set still ticks.
         if (hapticsPossible()) void buzzForSet(db, setId, row, now.date, now.side)
+        // In a superset (1.24) the domain says what follows this set, from the sets logged with it: after the first
+        // exercise the second's card opens and no rest starts; after the second the rest starts and the first's card
+        // opens. A miss or a grind on the powerlifting side keeps the card, which then asks where it stalled.
+        const pair = item?.superset
+        const partner = pair != null ? now.items.find((i) => i.exercise.id === pair.partnerId) : undefined
+        let step: { open: SupersetHalf | null; rest: boolean } = { open: null, rest: true }
+        if (item != null && pair != null && partner != null && item.targetSets != null && partner.targetSets != null) {
+          const own = { done: item.sets.length + 1, target: item.targetSets }
+          const other = { done: partner.sets.length, target: partner.targetSets }
+          const [first, second] = pair.half === 'FIRST' ? [own, other] : [other, own]
+          const keepCard = now.side === 'POWERLIFTING' && (set.failed || (set.rpe ?? 0) >= GRIND_RPE)
+          const next = grit.supersetAfterSet(pair.half, first.done, first.target, second.done, second.target, keepCard)
+          step = { open: (next.open ?? null) as SupersetHalf | null, rest: next.rest }
+        }
+        const handOver = step.open != null && partner != null ? partner.exercise.id : null
+        if (handOver != null) switched.current = { exerciseId: handOver, until: performance.now() + SUPERSET_SWITCH_GUARD_MS }
         // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
         update((l) => ({ ...l, pending: null, warmUpOver: l.warmUpOver.includes(itemKey) ? l.warmUpOver : [...l.warmUpOver, itemKey] }))
         touch(now.date)
-        // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).
-        setLogged.current?.(now.side === 'POWERLIFTING' && item?.exercise.category !== 'ACCESSORY')
+        // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3). None after a superset's first.
+        if (step.rest) setLogged.current?.(now.side === 'POWERLIFTING' && item?.exercise.category !== 'ACCESSORY')
         // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
         await shown(setId)
+        // Only then is the other card asked for: the screen opens it once the logged set has slid into place.
+        if (handOver != null) update((l) => ({ ...l, openRequest: { exerciseId: handOver, n: (l.openRequest?.n ?? 0) + 1 } }))
       } finally {
         saving.current = null
         ended()

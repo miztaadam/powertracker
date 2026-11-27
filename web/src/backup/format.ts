@@ -1,5 +1,5 @@
 /**
- * Android backup format, version 6: mirrors `BackupFile` and its DTOs in
+ * Android backup format, version 7: mirrors `BackupFile` and its DTOs in
  * app/src/main/kotlin/com/powertracker/data/Backup.kt field for field.
  * Dates are epochDay, weekdays 1–7 (Monday = 1), enums are their Kotlin names.
  */
@@ -14,8 +14,12 @@
  * 6: 1.17's counting plates (a set's `unit`, an exercise's `plateCount`, and a unit in a TARGET payload). Each is
  * written only when it is not the default, so a row without it is in kg and off; a version 1 to 5 file restores with
  * every set in kg and every exercise off. An app that reads only version 5 turns a version 6 file away as too new.
+ * 7: 1.24's supersets (a plan item's `supersetWithAbove`). Written only when true, as the item's last key, so an item
+ * without it is not linked; a version 1 to 6 file restores with no supersets. A flag that cannot count (the first item
+ * of a day, the third in a row, the same exercise twice) is cleared on restore, in both apps, by the domain's
+ * `Supersets.stale`. An app that reads only version 6 turns a version 7 file away as too new.
  */
-export const BACKUP_VERSION = 6
+export const BACKUP_VERSION = 7
 
 /** The domain's `TrainingMode` names. */
 export { TRAINING_MODES } from '../db/schema'
@@ -97,6 +101,8 @@ export type PlanItemDto = {
   mode?: string
   /** Version 3: the top of a rep range; null for fixed reps. */
   repsHigh?: number | null
+  /** Version 7: done as a superset with the item above it. Only when true. */
+  supersetWithAbove?: boolean
 }
 
 export type AdviceDto = {

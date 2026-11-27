@@ -95,6 +95,11 @@ data class PlanItem(
     val mode: TrainingMode = TrainingMode.POWERLIFTING,
     /** The top of a rep range, with [reps] its low end; null means fixed reps (every powerlifting item). */
     val repsHigh: Int? = null,
+    /**
+     * 1.24: done as a superset with the item directly above it on the same day and side. It counts only where
+     * `Supersets.pairs` finds a pair (pairs only, two different exercises); a flag left where it cannot count is ignored.
+     */
+    val supersetWithAbove: Boolean = false,
 )
 
 data class Baseline(val exerciseId: Long, val e1rmKg: Double, val date: LocalDate)

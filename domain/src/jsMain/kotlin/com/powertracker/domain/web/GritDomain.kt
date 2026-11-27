@@ -43,6 +43,8 @@ import com.powertracker.domain.model.missPointLabel as domainMissPointLabel
 import com.powertracker.domain.model.repsText as domainRepsText
 import com.powertracker.domain.plan.BuilderAnswers
 import com.powertracker.domain.plan.PlanBuilder
+import com.powertracker.domain.plan.SupersetHalf
+import com.powertracker.domain.plan.Supersets
 import com.powertracker.domain.plan.PlanTemplate
 import com.powertracker.domain.plan.PlanTemplates
 import com.powertracker.domain.plates.PlateLoader
@@ -499,6 +501,36 @@ object GritDomain {
         history.toDomain().lastTimes(parseEnum<TrainingMode>("mode", mode), parseDate("before", before))
             .map { (id, last) -> JsLastTime(id.toFacadeId("lastTime.exerciseId"), last.date.toString(), last.sets.map { it.toJs() }.toTypedArray()) }
             .toTypedArray()
+
+    // ---- Supersets (1.24): `Supersets`, the one place that says which plan items pair and whose turn it is. ----
+
+    /** The pairs in a side's [plan], in the plan's order. */
+    fun supersetPairs(plan: Array<JsPlanItem>): Array<JsSupersetPair> =
+        Supersets.pairs(plan.map { it.toDomain() })
+            .map { JsSupersetPair(it.first.id.toFacadeId("superset.firstId"), it.second.id.toFacadeId("superset.secondId")) }
+            .toTypedArray()
+
+    /** Whether the item with [itemId] can be linked to the one above it in [plan]. */
+    fun supersetCanLink(plan: Array<JsPlanItem>, itemId: Int): Boolean =
+        Supersets.canLink(plan.map { it.toDomain() }, itemId.toLong())
+
+    /** The ids in [plan] whose link counts for nothing: cleared when a plan is read from a backup. */
+    fun supersetStale(plan: Array<JsPlanItem>): Array<Int> =
+        Supersets.stale(plan.map { it.toDomain() }).map { it.toFacadeId("superset.stale") }.toTypedArray()
+
+    /** The ids in [after] that lose their link by a change from [before]: the item above each changed. */
+    fun supersetBroken(before: Array<JsPlanItem>, after: Array<JsPlanItem>): Array<Int> =
+        Supersets.broken(before.map { it.toDomain() }, after.map { it.toDomain() }).map { it.toFacadeId("superset.broken") }.toTypedArray()
+
+    /** Whose turn it is in a pair, from the sets logged today: "FIRST", "SECOND", or null when both have their sets. */
+    fun supersetDue(firstDone: Int, firstTarget: Int, secondDone: Int, secondTarget: Int): String? =
+        Supersets.due(firstDone, firstTarget, secondDone, secondTarget)?.name
+
+    /** What follows a set just logged on the [logged] half ("FIRST" or "SECOND"), the counts being those after it. */
+    fun supersetAfterSet(logged: String, firstDone: Int, firstTarget: Int, secondDone: Int, secondTarget: Int, keepCard: Boolean): JsSupersetStep {
+        val step = Supersets.afterSet(parseEnum<SupersetHalf>("logged", logged), firstDone, firstTarget, secondDone, secondTarget, keepCard)
+        return JsSupersetStep(step.open?.name, step.rest)
+    }
 
     /**
      * The warm-up checklist (1.23): the sets to do before a first set of [exercise] at [working] (kg, or a plate number

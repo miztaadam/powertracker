@@ -47,6 +47,8 @@ import com.powertracker.ui.library.fillCustomExercise
 import com.powertracker.ui.library.checkInfoButtonOpensGuide
 import com.powertracker.ui.plan.ADD_FORM_TAP_WINDOW_MS
 import com.powertracker.ui.plan.PlanScreen
+import com.powertracker.ui.plan.REMOVE_SUPERSET
+import com.powertracker.ui.plan.SUPERSET_WITH_ABOVE
 import com.powertracker.ui.plan.RestoreCheck
 import com.powertracker.ui.plan.SettingsScreen
 import com.powertracker.ui.plan.backupFileName
@@ -105,6 +107,55 @@ class PlanScreenTest {
 
         compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Squat  3 × 5 @ 8").assertExists()
+    }
+
+    // --- Supersets (1.24) ---
+
+    @Test
+    fun superset_isLinkedFromTheSecondRowsMenu_taggedAAndB_andTakenOffFromEitherRow() {
+        runBlocking {
+            val all = training.exercises().first()
+            listOf("Squat", "Bench", "Row").forEachIndexed { i, name ->
+                training.savePlanItem(PlanItem(0, DayOfWeek.MONDAY, all.first { it.name == name }.id, sets = 3, reps = 5, targetRpe = 8.0, order = i))
+            }
+        }
+        compose.setContent { PlanScreen(training, settings, onOpenSettings = {}) }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Row  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
+        fun menu(row: Int) = compose.onAllNodesWithContentDescription("More")[row].performClick()
+        fun linked() = runBlocking { training.plan().first().sortedBy { it.order }.map { it.supersetWithAbove } }
+
+        // The first row has nothing above it: its menu has no superset item.
+        menu(0)
+        compose.onNodeWithText("Edit").assertExists()
+        compose.onNodeWithText(SUPERSET_WITH_ABOVE).assertDoesNotExist()
+        compose.onNodeWithText(REMOVE_SUPERSET).assertDoesNotExist()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithText("Cancel").performClick()
+
+        menu(1)
+        compose.onNodeWithText(REMOVE_SUPERSET).assertDoesNotExist()
+        compose.onNodeWithText(SUPERSET_WITH_ABOVE).performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8, superset with Bench").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Bench  3 × 5 @ 8, superset with Squat").assertExists()
+        compose.onNodeWithText("Row  3 × 5 @ 8").assertExists()
+        assertEquals(listOf(false, true, false), linked())
+        // The tags are drawn (the row's one spoken line replaces them for a screen reader).
+        compose.onNodeWithText("SUPERSET A", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("SUPERSET B", useUnmergedTree = true).assertExists()
+
+        // Pairs only: the row below a pair cannot join it, and a half cannot be linked again.
+        menu(2)
+        compose.onNodeWithText(SUPERSET_WITH_ABOVE).assertDoesNotExist()
+        compose.onNodeWithText("Edit").performClick()
+        compose.onNodeWithText("Cancel").performClick()
+
+        // The first half's menu takes the link off too (it is stored on the second).
+        menu(0)
+        compose.onNodeWithText(SUPERSET_WITH_ABOVE).assertDoesNotExist()
+        compose.onNodeWithText(REMOVE_SUPERSET).performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Squat  3 × 5 @ 8").fetchSemanticsNodes().isNotEmpty() }
+        assertEquals(listOf(false, false, false), linked())
+        compose.onNodeWithText("SUPERSET A", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

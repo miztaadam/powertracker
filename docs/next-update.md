@@ -2073,7 +2073,83 @@ Found by 1.23's first round on merged main (above), put to the owner as a sugges
 
 **Version:** Android 1.23.2 (versionCode 42), web 1.23.2.
 
-**Not published.** Waiting for the owner's "publish".
+**Published 2026-11-27 (owner: "publish"), on main as `5ea330e`** (a `--no-ff` merge of the branch at `8c2ee1e` onto main's `c802f51`; its tree is the branch's). On merged main, one at a time, before the push, with no source change, everything green:
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` 1,000 and `:domain:jsNodeTest` 1,052, 0 failed; `:app:testDebugUnitTest` 1,155, 0 failed, 1 skipped; `:domain:checkWebDomain` passed.
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724; build clean. **Full Playwright run: 532 passed, 12 skipped. The `E2E_UA=android` pass: 264 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.**
+- Live, about two minutes after the push: `/` names `assets/index-Do5e-QwT.js`, which carries 1.23.2 (no 1.23.1) and build id `5ea330e`; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 42, versionName 1.23.2, unsigned in this container. **No APK was handed over.**
+- **Still not run on a phone or an emulator.** The owner has not yet said how 1.20 to 1.23.2 look on the phone.
+- Put to the owner as a suggested task, not started here: the cause of `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` failing under load.
+
+**Next: supersets** (owner, 2026-11-27: "just build it"): pairs only, saved in the plan, linked on the Plan tab, the shorter exercise finishing first. Both apps in one release; the plan's stored form and the backup's version change.
+
+## Done (2026-11-27): why the undo-skip Android test failed under load (a test fault; the app is right)
+Asked by the owner on 2026-11-27 ("Do this task here"), from the failure in 1.23.2's branch round. `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` is one of the two tests listed above as flaky under load since 1.17.
+
+**Cause, shown:** the test waited for the skip's coach card in the database, undid the skip, then waited for "the squat is back in the list" and read the stored skips. But the card is in the database a moment before the squat leaves the list on screen, and until it has left, the list already looks like "the squat is back". Undone in that moment, the wait passed at once, and the skips were read before the undo was stored. The failing line in both recorded failures (CI on `9c9b8a0`, 2026-11-21, and 1.23.2's round) is that read: `assertEquals(emptyList<Skip>(), storedSkips())`, line 191. (This file first wrote that line 191 was the card's check and guessed at a card stored after the undo; that was a misreading of the line number, and the guess is withdrawn.)
+
+**Evidence** (probes not kept): the same steps repeated with a fresh view model each round, beside six busy loops: the skip was still stored at the check in 15 of 120 rounds and 61 of 700; in every such round the list had not yet dropped the squat when undo was called, and a moment later the skip and its card were both gone. With one more wait, for the squat to leave the list before the undo, 0 of 700. A second probe held an undo's transaction open and read from another thread: the reads waited for the commit, so nothing can see a half-finished undo.
+
+**The app is right, and is not changed:** `unskip` deletes the skip's open card and the skip in one transaction; no card is left behind. Nothing in the app waited on the wrong thing; only the test did.
+
+**Changed, test only:** that test waits for the squat to leave the list before undoing. `skip_undo_afterTheCardWasDismissed_keepsTheDismissal` had the same gap (it passed either way, so it never failed, but it could pass without the undo having run): it has the same wait and now also checks the skip is gone. The class, 24 tests, run six times beside six busy loops: 6 of 6. No version bump; it goes to main with the next release.
+
+**Seen on the way, not changed:** after a skip undone within that same moment, the view model's guard against a second Skip tap stays up until its two-second limit (it is released when the row leaves the list, which then never happens), so a Skip of the same exercise in those two seconds is ignored. On a phone the Undo button comes with the snackbar, after the row has left, so this needs a tap the screen does not yet offer. **Still open:** the other two tests named as flaky, `SkipTodayViewModelTest.painSkip_nextTodayTarget_isHeld` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`; neither was looked at.
+
+## 1.24: supersets, two exercises done back to back (both apps)
+Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once on the Plan tab); 2026-11-27: "Start on supersets", then "just build it" (pairs only, the shorter exercise finishing first, both apps in one release).
+
+**What the lifter gets (both apps):**
+- **On the Plan tab, a row's ⋮ menu has "Superset with the one above".** It links the exercise to the one over it on the same day. The two rows are then tagged **SUPERSET A** (done first) and **SUPERSET B** (done straight after it), with no line between them. Either row's menu has **"Remove superset"**.
+- **Pairs only:** two different exercises, next to each other on one day. An exercise in a pair cannot join another, so the menu item is not offered there, nor on the first row of a day.
+- **On Today each exercise keeps its own card, and the app switches between them:**
+  1. A's card opens first. Logging its set **opens B's card and starts no rest**.
+  2. Logging B's set **starts the rest timer and opens A's card again**. And so on, round after round.
+  3. When one of the two has all its sets, the other carries on alone, with a rest after each set, as any exercise.
+- **Whose turn it is comes from the sets logged today**, so closing the app in the middle of a pair and opening it again opens the right card. Tapping the other card by hand is always possible; the next set logged puts the turn right again.
+- **The cards say which half they are:** the open card's small heading reads SUPERSET A or SUPERSET B, and a folded row has a "Superset A" or "Superset B" tag beside its plan.
+- **Nothing else changes:** the sets are logged as any others, so History, the charts and the coach read them as before. The rest after B is the length B's exercise would get on its own.
+
+**The link is taken off by itself** when the pair is no longer the same two rows one above the other: either row is deleted; a row is moved so that the one above B changes; the coach's suggestion swaps one of them for another exercise. A whole new plan (a template or the builder) has no links, and its Undo puts the old plan back with them. Changing a row's own sets, reps or exercise keeps the link.
+
+**Stored data and the backup changed.** Each plan item has one new yes/no ("superset with the one above"). The Android database is version 7 (an added column; nothing else is touched), the web database version 7 (no rows are rewritten), and the **backup is version 7**. A 1.24 app reads every older backup. An older app refuses a 1.24 backup with "This backup is from a newer version of Grit", so **update both phones before moving a backup between them** (README check 8 applies to this release). A link that cannot count (its partner missing, or the same exercise twice) is cleared when a backup is read.
+
+**Decided while building, not asked first, told to the owner with the pictures:**
+1. **Two cards that hand over to each other, not one card holding both exercises.** Each exercise keeps everything its card has (last time, the warm-up checklist, plates, the coach's suggestion, the ⋮ menu) and nothing had to be squeezed.
+2. **On the open card the tag takes the place of "Exercise 1 of 3".** Found by a browser test: with both on the line ("EXERCISE 1 OF 3 · SUPERSET A") the heading no longer fitted beside "Set 1 of 3" and the two buttons, which went to a line of their own and made the card 52 px taller (624 px in the 583 px an iPhone 13 shows in Safari). A screen reader still hears both. The folded rows are unchanged but for the tag.
+3. **A miss, or a set at RPE 9.5 or harder, on the powerlifting side keeps its card open**, because the card then asks where the rep stalled. After such a set on A no rest starts; tap B's row to go on. After such a set on B the rest starts as usual.
+4. **For one second after a hand-over, a tap on the newly opened card's Log set saves nothing.** A second quick tap meant for the set just logged would otherwise log the other exercise's set.
+5. **With one of the pair skipped today ("Skip today"), the other is an exercise on its own that day**, rest after every set. The link in the plan is kept.
+6. **The same exercise twice on one day is one card on Today** (as before), so a pair made with the second of those lines is no pair on Today.
+7. **On a small Android phone a folded row's plan, tag and count can take two lines, and so can the tag itself on a Plan row.** Found by tests at 320 dp: on one line the count was squeezed to nothing, and the Plan row's "SUPERSET A" lost its "A" beside the row's four buttons.
+
+**Limits:**
+- **Pairs only.** No three or more exercises in a round, and no pairing of exercises that are not next to each other on the day (move one first).
+- **An exercise added during the session cannot be in a superset** (the link lives in the plan).
+- **B's warm-up checklist shows when B's card first opens**, which is after A's first working set. To warm up both before starting, tap B's row first, tick its warm-up, and tap A's row again.
+- **The rest timer does not know about the pair** beyond starting after B: its length is B's. A rest still counting when the next A set is logged keeps counting, and can sound during B.
+- **Changing B's exercise to the same one as A** (Edit, Change) leaves no pair: the tags go and neither superset item is in the rows' menus, though the link is still stored. Changing the exercise again brings the pair back; moving the row takes the link off for good.
+- Not run on a real phone, and never in real Safari.
+
+**Also fixed in 1.24, Android app only: texts that lost their end on a narrow phone** (owner, 2026-11-27: "Fix two Android texts cut at large font on a 320 dp phone"; found while testing the superset tags). Each of these was held to one line, and a text that needed two was cut without a mark:
+- **The plate list beside the bar on Today.** The serious one, and not only at large text: on a phone 360 dp wide at the usual text size, five plates ("25 + 25 + 25 + 5 + 1.25", 182.5 kg) showed "25 + 25 + 25 + 5 +", the last plate missing; at 320 dp, "25 + 25 + 25". The list now goes on to a second line, as the web's always has.
+- **The caption under it, "per side · 20 kg bar"** (cut at 320 dp from 1.3× text, at 360 dp at 2×): it wraps.
+- **"Log set 1" beside Missed** (showed "Log" at 320 dp at 1.3× text and at 360 dp at 2×; "L" at 320 dp at 2×): where the two labels do not fit side by side, Log set goes above Missed, each the card's width.
+- **The small caption over a screen's title** ("WEEKLY TEMPLATE" on Plan, the date on Today; cut at 2× text): it wraps.
+- At 412 dp and the usual text size nothing moved: every committed Android screenshot is unchanged.
+- **How it was found and checked:** the fit check most Android tests use (`assertTextsFit`) looks at a line's width and at ellipses, not at a text given fewer lines than it needs, so these passed. `SupersetFitTest` now draws Plan and Today (mid-superset, a five-plate bar) at 320 dp and 360 dp, each at 1×, 1.3× and 2× text, and asks for every text whole (`assertTextsFitInEveryWindow`). Before the fix it failed on each text above.
+- **The web app is not affected:** measured in the test browser at 360 px, 320 px and 320 px with 200 % text, the same five plates wrap whole, and the narrow-screen checker finds nothing wrong.
+- **Limit:** only Plan and Today (a session open) were measured. Other Android screens may hold one-line texts with the same fault at large text; the other tests' weaker check would not have seen them. Not run on a real phone.
+
+**Also in this release (tests only, no change to the app):** the undo-skip Android test no longer fails under load (see the entry above).
+
+**Checked on the branch, 2026-11-27, commit `252a40b`, one round with nothing running beside it, all passing:**
+- Kotlin: shared rules 1020 (JVM) and 1073 (as JavaScript); Android app 1190 (1 skipped, as before); the generated web copy of the shared rules is up to date.
+- Web: type check; 1751 unit tests; the build.
+- Browser tests as an iPhone: 537 passed, 12 skipped (as before), none left unrun. As an Android phone (CI's list, with the superset tests added): 269 passed, 12 skipped. The superset tests passed in both.
+- The timing checks, three runs: 6 of 6 each time.
+- **What the runs before it caught, all in tests, none in the app:** a browser test that still expected backup version 6; the older-copy browser tests, which moved the log on to stored-data version 70, the number 1.24 made this build's own (they use a far later one now, so the next version cannot do the same to them); and my own superset browser test pressing Escape before the menu listened for it.
+- **Not checked:** a real phone; real Safari; an update of an installed 1.23.2 to 1.24 on a phone (the Android database's step from version 6 to 7 is tested on a copy of the stored schema, the web's in a test browser); CI on main (it runs there after a push). CI was started by hand on the branch at `60a6b15`, the first run of the workflow with the superset tests in its Android pass; its result is recorded with the release.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):

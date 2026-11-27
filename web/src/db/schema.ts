@@ -81,6 +81,11 @@ export type PlanItemRow = {
   mode?: TrainingMode
   /** The top of a rep range, `reps` being its bottom. Absent: fixed reps, as on every powerlifting item. */
   repsHigh?: number
+  /**
+   * 1.24: done as a superset with the item directly above it on its day and side. The key is there only when linked.
+   * Which flags count, and which a plan change clears, is the domain's `Supersets` (see `db/supersets.ts`).
+   */
+  supersetWithAbove?: true
 }
 
 export type AdviceRow = {
@@ -190,6 +195,10 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
   // match. What protects 1.16.1 and older is the service worker reloading every window when a new version takes over
   // (public/sw-reload-clients.js); from 1.17 on, also OlderCopyError and its screen.
   { version: 6, stores: {} },
+  // Supersets (1.24): a plan item's `supersetWithAbove`. No new index and no upgrade step: a row without the key is
+  // not linked. Declared, as version 6 was, for the version number and the safety copy: a copy of the app from before
+  // 1.24 is turned away (OlderCopyError) rather than left to edit a plan whose links it does not know.
+  { version: 7, stores: {} },
 ]
 
 /** Schema version 3's upgrade: every plan item, session and advice row without a side is on the powerlifting side. */
