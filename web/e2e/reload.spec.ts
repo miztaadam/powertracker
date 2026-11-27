@@ -51,10 +51,10 @@ test('reloadMidSession_keepsEverything', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Start session' })).toHaveCount(0)
 
   // The two sets are in the log: finishing counts them with the third.
+  // Finish straight after Log set, without waiting for the third set's row: Finish waits for a set still being saved
+  // and counts it (1.23.1). Before, on a busy machine, the summary said 2 with all three stored (seen once in 1.23's
+  // Android pass).
   await tap(page, 'Log set 3')
-  // Finish counts the sets on screen: wait for the third to be there. Tapped in the same instant as Log set (a busy
-  // machine was seen to do it, once, in 1.23's Android pass), the summary says 2 though all three are stored.
-  await expect(page.locator('button.gr-set')).toHaveCount(3)
   await tap(page, 'Finish')
   await expect(page.getByRole('heading', { name: 'Session saved' })).toBeVisible()
   await expect(page.locator('.today-summary-stats')).toContainText('3')
