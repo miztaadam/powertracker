@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { openOnWednesday, tabBar, tap } from './helpers'
+import { menuListening, openOnWednesday, tabBar, tap } from './helpers'
 import { wrongHere } from './narrowChecks'
 
 // 1.24, supersets: two exercises linked on the Plan tab are done back to back on Today. The story: Wednesday's squat,
@@ -76,7 +76,10 @@ test('a superset is linked on the Plan tab, shown as a pair, and unlinked again'
   // The first row has none above it; the second can be linked to it.
   await rows.nth(0).getByRole('button', { name: 'More' }).click()
   await expect(page.getByRole('menuitem')).toHaveText(['Edit', 'Delete'])
+  // The menu takes Escape only once it is listening (helpers.ts): pressed sooner, under load, it would stay open.
+  await menuListening(page.getByRole('menu'))
   await page.keyboard.press('Escape')
+  await expect(page.getByRole('menu')).toHaveCount(0)
   await rows.nth(1).getByRole('button', { name: 'More' }).click()
   await page.getByRole('menuitem', { name: 'Superset with the one above' }).click()
 

@@ -562,7 +562,8 @@ private fun PlanItemRow(
         Text(position.toString(), style = MaterialTheme.typography.titleSmall, color = muted, modifier = Modifier.width(24.dp))
         // Read and found as one line, e.g. "Squat  3 × 5 @ 8", and in a superset "Squat  3 × 5 @ 8, superset with Bench".
         Column(Modifier.weight(1f).padding(vertical = Space.s).clearAndSetSemantics { text = AnnotatedString(planRowText(row)) }) {
-            row.superset?.let { Eyebrow(supersetTag(it)) }
+            // Never cut: beside the row's four buttons a small phone leaves the tag less than its one line, and it wraps.
+            row.superset?.let { Eyebrow(supersetTag(it), maxLines = Int.MAX_VALUE) }
             Text(name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface)
         }

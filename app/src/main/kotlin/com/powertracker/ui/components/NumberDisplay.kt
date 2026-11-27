@@ -15,10 +15,13 @@ import com.powertracker.ui.theme.PowertrackerTheme
 
 enum class NumberSize { HERO, LARGE, MEDIUM }
 
-/** Upper-case caption above a value or a group. */
+/**
+ * Upper-case caption above a value or a group. One line by default, cut where it ends; [maxLines] lets a caption that
+ * must be read whole in a narrow place (a superset's tag on a small phone's Plan row) go on to a second line.
+ */
 @Composable
-fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = PowertrackerTheme.colors.muted) {
-    Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = color, maxLines = 1, modifier = modifier)
+fun Eyebrow(text: String, modifier: Modifier = Modifier, color: Color = PowertrackerTheme.colors.muted, maxLines: Int = 1) {
+    Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = color, maxLines = maxLines, modifier = modifier)
 }
 
 /** A glanceable figure: optional eyebrow label, a big tabular number, and a small unit on the baseline. */

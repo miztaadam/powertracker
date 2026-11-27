@@ -255,7 +255,7 @@ private fun ColumnScope.CardContent(
                     val pair = item.superset
                     if (pair != null) {
                         val tag = supersetTag(pair.half)
-                        Eyebrow(tag, Modifier.semantics { contentDescription = "Exercise $position of $count · $tag" })
+                        Eyebrow(tag, Modifier.semantics { contentDescription = "Exercise $position of $count · $tag" }, maxLines = Int.MAX_VALUE)
                     } else {
                         Eyebrow("Exercise $position of $count")
                     }

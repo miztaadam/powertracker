@@ -2121,7 +2121,7 @@ Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once o
 4. **For one second after a hand-over, a tap on the newly opened card's Log set saves nothing.** A second quick tap meant for the set just logged would otherwise log the other exercise's set.
 5. **With one of the pair skipped today ("Skip today"), the other is an exercise on its own that day**, rest after every set. The link in the plan is kept.
 6. **The same exercise twice on one day is one card on Today** (as before), so a pair made with the second of those lines is no pair on Today.
-7. **On a small Android phone a folded row's plan, tag and count can take two lines.** Found by a test at 320 dp: on one line the count was squeezed to nothing.
+7. **On a small Android phone a folded row's plan, tag and count can take two lines, and so can the tag itself on a Plan row.** Found by tests at 320 dp: on one line the count was squeezed to nothing, and the Plan row's "SUPERSET A" lost its "A" beside the row's four buttons.
 
 **Limits:**
 - **Pairs only.** No three or more exercises in a round, and no pairing of exercises that are not next to each other on the day (move one first).
