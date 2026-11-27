@@ -2020,7 +2020,14 @@ Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above
 - Web, `TodayScreen.test.tsx`: `finishTappedWithLogSet_countsTheSetStillBeingSaved` (Log set 3 and Finish clicked in one tick: "Sets 3", "Exercises 1", three stored, the stored note says 3; it gave "Sets 2" before the fix) and `logSetTappedWhileFinishWorks_isNotSaved_soTheSummaryCountsEverySetStored` (the other order: "Sets 2", two stored, and Log set works again after "Keep logging"; before, a third set was stored). e2e `reload.spec.ts` taps Finish straight after Log set again, without 1.23's wait for the third row.
 - Android, `TodayViewModelTest`: the same two, calling what the two buttons call in one turn of the main thread, and `finishDoubleTap_runsTheCoachOnce`. All three failed before the fix: a summary of 2, a fourth set stored, two notes.
 
-**Checks:** being run on the branch as this is written; the results follow in the next commit.
+**Checks, on the branch (`claude/determined-fermat-po8wgi`), 2026-11-27, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724 (1,722 before, plus two); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 530 passed, 12 skipped, first time. The `E2E_UA=android` pass: 262 passed, 12 skipped.** `reload.spec.ts`, which now taps Finish straight after Log set, ten times over on each path: 20 of 20 as an iPhone, 20 of 20 as an Android phone.
+- **Speed project alone, eight times: 6 of 6 seven times, 5 of 6 once.** The one miss (the second run) was the Exercises tab opening in 105 ms against its 100 ms limit, the check written up below as having no headroom ("the 100 ms speed checks have no headroom": worst opens 96 to 108 ms). Nothing in this release is on that screen's path; the five runs after it all passed. Not looked into further.
+- Gradle, each made to run (`--rerun`): `:domain:allTests` (JVM 1,000 tests, 0 failed; JS 1,052, 0 failed); `:app:testDebugUnitTest`, 1,155 tests, 0 failed, 1 skipped (1,152 before, plus three). `:domain:checkWebDomain` passed. `:app:assembleRelease` builds: versionCode 41, versionName 1.23.1, unsigned in this container.
+- Maven Central answered HTTP 429 on this container's first downloads, also with `--max-workers=1`; each Gradle command was run again until it got its files (five tries for the first). No test was re-run for a failure.
+- **Not run on merged main. Not run on a phone or an emulator.** The Android tests call what the two buttons call, in one turn of the main thread; no test taps the two real Android buttons together.
+
+**Shots:** the six Settings shots of each app (the version line). Five other web shots (guide and form-guide) came out a few bytes different and were put back, as in 1.23.
 
 **Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
 
