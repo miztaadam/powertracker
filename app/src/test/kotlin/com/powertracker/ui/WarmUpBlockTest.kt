@@ -6,7 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -42,7 +46,7 @@ import com.powertracker.ui.today.TodayContent
 import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayState
 import com.powertracker.ui.today.warmUpHint
-import com.powertracker.ui.today.warmUpHintDrawn
+import com.powertracker.ui.today.warmUpPlates
 import com.powertracker.ui.today.warmUpSpoken
 import com.powertracker.ui.today.warmUpText
 import kotlinx.datetime.DayOfWeek
@@ -115,7 +119,9 @@ class WarmUpBlockTest {
     fun wording_isTheWebApps() {
         val (half, threeQuarters) = WarmUp.sets(squat, 100.0, 5, false)
         assertEquals(listOf("50 kg × 12", "15 per side", "Warm-up set 1: 50 kg × 12, 15 per side"), listOf(warmUpText(half), warmUpHint(half), warmUpSpoken(1, half)))
-        assertEquals(listOf("75 kg × 5", "25 + 2.5 per side"), listOf(warmUpText(threeQuarters), warmUpHint(threeQuarters)))
+        assertEquals(listOf("75 kg × 5", "25 + 2.5 per side", "25 + 2.5"), listOf(warmUpText(threeQuarters), warmUpHint(threeQuarters), warmUpPlates(threeQuarters)))
+        assertEquals("empty bar", warmUpPlates(WarmUpSet(20.0, 12, LoadUnit.KG, emptyList())))
+        assertNull(warmUpPlates(WarmUpSet(12.5, 12, LoadUnit.KG)))
         assertEquals("empty bar", warmUpHint(WarmUpSet(20.0, 12, LoadUnit.KG, emptyList())))
         assertNull(warmUpHint(WarmUpSet(12.5, 12, LoadUnit.KG)))
         val plate = WarmUpSet(3.5, 12, LoadUnit.PLATES)
@@ -132,9 +138,12 @@ class WarmUpBlockTest {
         assertTrue(top("LAST TIME · WED 4 NOV") < top("WARM-UP · NOT LOGGED"))
         assertTrue(top("WARM-UP · NOT LOGGED") < compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top)
         // What is drawn: the set, then its plates.
-        for (text in listOf("75 kg × 12", "25 + 2.5 per\u00A0side", "112.5 kg × 5", "25 + 20 + 1.25 per\u00A0side")) {
+        for (text in listOf("75 kg × 12", "25 + 2.5", "112.5 kg × 5", "25 + 20 + 1.25")) {
             compose.onNodeWithText(text, useUnmergedTree = true).assertExists()
         }
+        // "per side" is said once, in the heading (and to TalkBack with each set).
+        compose.onAllNodes(hasText("per side", substring = true, ignoreCase = true) and hasAnyAncestor(hasTestTag("warm-up")), useUnmergedTree = true).assertCountEquals(1)
+        compose.onNodeWithText("PLATES PER SIDE", useUnmergedTree = true).assertExists()
         // Side by side on a phone this wide, so the card stays short: both start on one line, the second to the right,
         // inside the screen, and as tall as each other.
         val a = compose.onNodeWithContentDescription(first).getUnclippedBoundsInRoot()
@@ -173,6 +182,20 @@ class WarmUpBlockTest {
         compose.waitForIdle()
         compose.onNodeWithContentDescription("Warm-up set 1: 20 kg × 12, empty bar").assertExists()
         compose.onAllNodesWithText("Warm-up set 2", substring = true, useUnmergedTree = true).fetchSemanticsNodes().let { assertTrue(it.isEmpty()) }
+    }
+
+    @Test
+    fun card_theWeightEntryKeepsStill_whateverThePlates() {
+        // From one plate a side to five: the checklist is one height, so the − and + under it do not move.
+        show(card(100.0))
+        fun weightTop() = compose.onNodeWithContentDescription("Weight, kilograms").getUnclippedBoundsInRoot().top
+        val top = weightTop()
+        for (kg in listOf("102.5", "105", "117.5", "157.5", "187.5", "247.5")) {
+            compose.onNodeWithContentDescription("Weight, kilograms").performTextReplacement(kg)
+            compose.waitForIdle()
+            compose.onNodeWithTag("warm-up", useUnmergedTree = true).assertExists()
+            assertEquals("the weight field's top at $kg kg", top, weightTop())
+        }
     }
 
     @Test
@@ -225,14 +248,12 @@ class WarmUpBlockTest {
             val n = row.fetchSemanticsNode()
             assertEquals("row ${i + 1} is not clipped ($state)", n.size.height.toFloat(), n.boundsInRoot.height, 0.5f)
             assertEquals("row ${i + 1} is not cut at the side ($state)", n.size.width.toFloat(), n.boundsInRoot.width, 0.5f)
-            for (text in listOf(warmUpText(set), warmUpHintDrawn(set)!!)) {
+            for (text in listOf(warmUpText(set), warmUpPlates(set)!!)) {
                 val node = compose.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
                 val layout = mutableListOf<TextLayoutResult>().also { node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
                 assertEquals("\"$text\" is whole ($state)", text.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
                 assertFalse("\"$text\" is cut at the bottom ($state)", layout.didOverflowHeight)
                 assertEquals("\"$text\" is not clipped ($state)", node.size.width.toFloat(), node.boundsInRoot.width, 0.5f)
-                // "per side" is never broken in two.
-                assertFalse("\"$text\" breaks inside \"per side\" ($state)", (0 until layout.lineCount).any { text.substring(layout.getLineStart(it), layout.getLineEnd(it)).trim() == "side" })
             }
         }
         compose.assertTextsFit()
