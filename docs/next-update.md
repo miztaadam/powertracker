@@ -2096,6 +2096,42 @@ Asked by the owner on 2026-11-27 ("Do this task here"), from the failure in 1.23
 
 **Seen on the way, not changed:** after a skip undone within that same moment, the view model's guard against a second Skip tap stays up until its two-second limit (it is released when the row leaves the list, which then never happens), so a Skip of the same exercise in those two seconds is ignored. On a phone the Undo button comes with the snackbar, after the row has left, so this needs a tap the screen does not yet offer. **Still open:** the other two tests named as flaky, `SkipTodayViewModelTest.painSkip_nextTodayTarget_isHeld` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`; neither was looked at.
 
+## 1.24: supersets, two exercises done back to back (both apps)
+Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once on the Plan tab); 2026-11-27: "Start on supersets", then "just build it" (pairs only, the shorter exercise finishing first, both apps in one release).
+
+**What the lifter gets (both apps):**
+- **On the Plan tab, a row's ⋮ menu has "Superset with the one above".** It links the exercise to the one over it on the same day. The two rows are then tagged **SUPERSET A** (done first) and **SUPERSET B** (done straight after it), with no line between them. Either row's menu has **"Remove superset"**.
+- **Pairs only:** two different exercises, next to each other on one day. An exercise in a pair cannot join another, so the menu item is not offered there, nor on the first row of a day.
+- **On Today each exercise keeps its own card, and the app switches between them:**
+  1. A's card opens first. Logging its set **opens B's card and starts no rest**.
+  2. Logging B's set **starts the rest timer and opens A's card again**. And so on, round after round.
+  3. When one of the two has all its sets, the other carries on alone, with a rest after each set, as any exercise.
+- **Whose turn it is comes from the sets logged today**, so closing the app in the middle of a pair and opening it again opens the right card. Tapping the other card by hand is always possible; the next set logged puts the turn right again.
+- **The cards say which half they are:** the open card's small heading reads SUPERSET A or SUPERSET B, and a folded row has a "Superset A" or "Superset B" tag beside its plan.
+- **Nothing else changes:** the sets are logged as any others, so History, the charts and the coach read them as before. The rest after B is the length B's exercise would get on its own.
+
+**The link is taken off by itself** when the pair is no longer the same two rows one above the other: either row is deleted; a row is moved so that the one above B changes; the coach's suggestion swaps one of them for another exercise. A whole new plan (a template or the builder) has no links, and its Undo puts the old plan back with them. Changing a row's own sets, reps or exercise keeps the link.
+
+**Stored data and the backup changed.** Each plan item has one new yes/no ("superset with the one above"). The Android database is version 7 (an added column; nothing else is touched), the web database version 7 (no rows are rewritten), and the **backup is version 7**. A 1.24 app reads every older backup. An older app refuses a 1.24 backup with "This backup is from a newer version of Grit", so **update both phones before moving a backup between them** (README check 8 applies to this release). A link that cannot count (its partner missing, or the same exercise twice) is cleared when a backup is read.
+
+**Decided while building, not asked first, told to the owner with the pictures:**
+1. **Two cards that hand over to each other, not one card holding both exercises.** Each exercise keeps everything its card has (last time, the warm-up checklist, plates, the coach's suggestion, the ⋮ menu) and nothing had to be squeezed.
+2. **On the open card the tag takes the place of "Exercise 1 of 3".** Found by a browser test: with both on the line ("EXERCISE 1 OF 3 · SUPERSET A") the heading no longer fitted beside "Set 1 of 3" and the two buttons, which went to a line of their own and made the card 52 px taller (624 px in the 583 px an iPhone 13 shows in Safari). A screen reader still hears both. The folded rows are unchanged but for the tag.
+3. **A miss, or a set at RPE 9.5 or harder, on the powerlifting side keeps its card open**, because the card then asks where the rep stalled. After such a set on A no rest starts; tap B's row to go on. After such a set on B the rest starts as usual.
+4. **For one second after a hand-over, a tap on the newly opened card's Log set saves nothing.** A second quick tap meant for the set just logged would otherwise log the other exercise's set.
+5. **With one of the pair skipped today ("Skip today"), the other is an exercise on its own that day**, rest after every set. The link in the plan is kept.
+6. **The same exercise twice on one day is one card on Today** (as before), so a pair made with the second of those lines is no pair on Today.
+7. **On a small Android phone a folded row's plan, tag and count can take two lines.** Found by a test at 320 dp: on one line the count was squeezed to nothing.
+
+**Limits:**
+- **Pairs only.** No three or more exercises in a round, and no pairing of exercises that are not next to each other on the day (move one first).
+- **An exercise added during the session cannot be in a superset** (the link lives in the plan).
+- **B's warm-up checklist shows when B's card first opens**, which is after A's first working set. To warm up both before starting, tap B's row first, tick its warm-up, and tap A's row again.
+- **The rest timer does not know about the pair** beyond starting after B: its length is B's.
+- Not run on a real phone, and never in real Safari.
+
+**Also in this release (tests only, no change to the app):** the undo-skip Android test no longer fails under load (see the entry above).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
