@@ -2083,6 +2083,19 @@ Found by 1.23's first round on merged main (above), put to the owner as a sugges
 
 **Next: supersets** (owner, 2026-11-27: "just build it"): pairs only, saved in the plan, linked on the Plan tab, the shorter exercise finishing first. Both apps in one release; the plan's stored form and the backup's version change.
 
+## Done (2026-11-27): why the undo-skip Android test failed under load (a test fault; the app is right)
+Asked by the owner on 2026-11-27 ("Do this task here"), from the failure in 1.23.2's branch round. `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` is one of the two tests listed above as flaky under load since 1.17.
+
+**Cause, shown:** the test waited for the skip's coach card in the database, undid the skip, then waited for "the squat is back in the list" and read the stored skips. But the card is in the database a moment before the squat leaves the list on screen, and until it has left, the list already looks like "the squat is back". Undone in that moment, the wait passed at once, and the skips were read before the undo was stored. The failing line in both recorded failures (CI on `9c9b8a0`, 2026-11-21, and 1.23.2's round) is that read: `assertEquals(emptyList<Skip>(), storedSkips())`, line 191. (This file first wrote that line 191 was the card's check and guessed at a card stored after the undo; that was a misreading of the line number, and the guess is withdrawn.)
+
+**Evidence** (probes not kept): the same steps repeated with a fresh view model each round, beside six busy loops: the skip was still stored at the check in 15 of 120 rounds and 61 of 700; in every such round the list had not yet dropped the squat when undo was called, and a moment later the skip and its card were both gone. With one more wait, for the squat to leave the list before the undo, 0 of 700. A second probe held an undo's transaction open and read from another thread: the reads waited for the commit, so nothing can see a half-finished undo.
+
+**The app is right, and is not changed:** `unskip` deletes the skip's open card and the skip in one transaction; no card is left behind. Nothing in the app waited on the wrong thing; only the test did.
+
+**Changed, test only:** that test waits for the squat to leave the list before undoing. `skip_undo_afterTheCardWasDismissed_keepsTheDismissal` had the same gap (it passed either way, so it never failed, but it could pass without the undo having run): it has the same wait and now also checks the skip is gone. The class, 24 tests, run six times beside six busy loops: 6 of 6. No version bump; it goes to main with the next release.
+
+**Seen on the way, not changed:** after a skip undone within that same moment, the view model's guard against a second Skip tap stays up until its two-second limit (it is released when the row leaves the list, which then never happens), so a Skip of the same exercise in those two seconds is ignored. On a phone the Undo button comes with the snackbar, after the row has left, so this needs a tap the screen does not yet offer. **Still open:** the other two tests named as flaky, `SkipTodayViewModelTest.painSkip_nextTodayTarget_isHeld` and `ModeSwitchOverlayTest.framesKeepTime_dropAndPump`; neither was looked at.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

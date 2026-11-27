@@ -180,6 +180,11 @@ class SkipTodayViewModelTest {
         // A pain skip of a main lift always gives its card.
         vm.skip(squat.id, items[0], SkipReason.PAIN)
         await("card") { runBlocking { advice.all() }.any { it.type == AdviceType.SKIP } }
+        // The screen has taken the skip in before it is undone. The card is in the database a moment before the squat
+        // leaves the list, and "the squat is back", below, is also what the list looks like until it has left: undone
+        // in that moment, the wait below passed at once and the skip was read before the undo was stored (the test
+        // failed that way on busy machines from 1.17 on; 61 of 700 rounds under load, none of 700 with this wait).
+        await("squat leaves") { ids(vm) == listOf(bench.id, row.id) }
         val skipId = storedSkips().single().id
         val card = runBlocking { advice.all() }.single { it.type == AdviceType.SKIP }
         assertEquals(skipId, (card.payload as AdvicePayload.Skipped).skipId)
@@ -202,10 +207,13 @@ class SkipTodayViewModelTest {
         await("card") { runBlocking { advice.all() }.any { it.type == AdviceType.SKIP } }
         val card = runBlocking { advice.all() }.single { it.type == AdviceType.SKIP }
         runBlocking { advice.setStatus(card.id, AdviceStatus.DISMISSED) }
+        // As above: without this the wait for the squat's return is true before the undo has run.
+        await("squat leaves") { ids(vm) == listOf(bench.id, row.id) }
 
         vm.undoSkip(storedSkips().single().id)
 
         await("squat back") { ids(vm).size == 3 }
+        assertEquals(emptyList<Skip>(), storedSkips())
         assertEquals(listOf(AdviceStatus.DISMISSED), runBlocking { advice.all() }.filter { it.type == AdviceType.SKIP }.map { it.status })
     }
 
