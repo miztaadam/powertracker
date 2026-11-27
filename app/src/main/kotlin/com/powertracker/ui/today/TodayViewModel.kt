@@ -1,5 +1,6 @@
 package com.powertracker.ui.today
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -39,6 +40,9 @@ import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.plan.SupersetHalf
+import com.powertracker.domain.plan.SupersetStep
+import com.powertracker.domain.plan.Supersets
 import com.powertracker.domain.model.forSide
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.domain.validation.InputValidator
@@ -111,10 +115,40 @@ data class TodayItem(
     val warmUpOpen: Boolean = false,
     val warmUp: List<WarmUpSet> = emptyList(),
     val warmUpDone: Set<WarmUpSet> = emptySet(),
+    /**
+     * 1.24: there only on an exercise done today as a superset with another on the list (both halves of a pair in the
+     * plan are on today's list, each as its own card): which half it is, the other half, and whose turn it is.
+     */
+    val superset: TodaySuperset? = null,
 ) {
     val logged: List<LoggedSet> get() = sets.map { it.set }
     val isComplete: Boolean get() = targetSets != null && sets.size >= targetSets
 }
+
+/**
+ * An exercise's place in a superset today (1.24). [half]: FIRST is done first, SECOND straight after it, then the rest.
+ * [partnerId] and [partnerName] are the other half's exercise. [due] is the half whose set comes next by the sets
+ * logged today ([Supersets.due]); null once both are done.
+ */
+data class TodaySuperset(val half: SupersetHalf, val partnerId: Long, val partnerName: String, val due: SupersetHalf?)
+
+/**
+ * The card to open now (1.24): after a superset's set, the exercise whose turn it is. [n] goes up with each request, so
+ * the screen can tell a new one from the one it has followed.
+ */
+data class OpenRequest(val exerciseId: Long, val n: Int)
+
+/**
+ * From this effort on, a set on the powerlifting side is a grind: its card asks where the rep was hardest, as it does
+ * after a miss. A superset's card then stays open for the answer (1.24) instead of handing over to the other exercise.
+ */
+const val GRIND_RPE = 9.5
+
+/**
+ * For this long after a set that hands a superset over to the other exercise, a tap on that exercise's Log set saves
+ * nothing (1.24): a second quick tap meant for the set just logged must not log the other exercise's.
+ */
+const val SUPERSET_SWITCH_GUARD_MS = 1000L
 
 /** A set held back because it looks like a typo; saved only after the lifter confirms. */
 data class PendingLog(val planItemId: Long?, val exerciseId: Long, val set: LoggedSet, val warnings: List<InputWarning>)
@@ -153,6 +187,8 @@ data class TodayState(
     val skippedToday: List<SkippedToday> = emptyList(),
     /** True while a plate setting chosen in the plate sheet is being stored (1.17): the sheet marks the tapped choice. */
     val plateSaving: Boolean = false,
+    /** 1.24: the card to open after a superset's set; null until one was asked for. Not kept when the app is closed. */
+    val openRequest: OpenRequest? = null,
 ) {
     val pendingWarning: InputWarning? get() = pending?.warnings?.firstOrNull()
 
@@ -172,7 +208,7 @@ enum class TodayAdd {
 }
 
 sealed interface TodayEvent {
-    /** A set was saved; the rest timer starts from this. */
+    /** A set was saved and a rest follows it; the rest timer starts from this. Not sent after a superset's first exercise (1.24). */
     data class SetLogged(val isMainOrVariation: Boolean) : TodayEvent
 
     /**
@@ -196,10 +232,18 @@ class TodayViewModel(
     private val training: TrainingRepository,
     private val advice: AdviceRepository,
     private val settings: SettingsRepository,
+    /**
+     * A clock that only runs forward, in milliseconds, for [SUPERSET_SWITCH_GUARD_MS]: never the calendar's, which can
+     * be set. Before [today], which tests pass last.
+     */
+    private val elapsedMs: () -> Long = SystemClock::elapsedRealtime,
     private val today: () -> LocalDate = ::systemToday,
 ) : ViewModel() {
 
     private val date: LocalDate = today()
+
+    /** The exercise a superset last handed over to, and until when ([elapsedMs]) a tap on its Log set is taken for a slip. */
+    private var switched: Pair<Long, Long>? = null
 
     /** What only this screen knows: edited numbers, exercises added but not yet logged, open prompts. */
     private data class Local(
@@ -215,6 +259,8 @@ class TodayViewModel(
         val warmUpDone: Map<Long, Set<WarmUpSet>> = emptyMap(),
         /** The exercises (by the id their set was logged under) that had a set logged here (1.23): no checklist again. */
         val warmUpOver: Set<Long> = emptySet(),
+        /** 1.24: see [TodayState.openRequest]. */
+        val openRequest: OpenRequest? = null,
     )
 
     private data class Stored(
@@ -419,8 +465,22 @@ class TodayViewModel(
             )
         }
 
-        val items = planned.mapNotNull { p -> d.history.exercises[p.exerciseId]?.let { item(it, p) } } +
+        val listed = planned.mapNotNull { p -> d.history.exercises[p.exerciseId]?.let { item(it, p) } } +
             addedIds.mapNotNull { id -> (d.history.exercises[id] ?: catalogueEntry(id)?.standIn(id))?.let { item(it, null) } }
+        // Supersets (1.24): the plan's pairs, by the domain's rule over the whole side's plan, that are whole on today's
+        // list. A pair with one exercise skipped today, or merged into an earlier line of the same exercise, is no pair
+        // today. The sets to do are each card's own (an applied coach target can change them).
+        val byPlanItem = listed.mapNotNull { i -> i.planned?.let { it.id to i } }.toMap()
+        val supersets = buildMap {
+            for (pair in Supersets.pairs(d.plan)) {
+                val first = byPlanItem[pair.first.id] ?: continue
+                val second = byPlanItem[pair.second.id] ?: continue
+                val due = Supersets.due(first.sets.size, first.targetSets ?: continue, second.sets.size, second.targetSets ?: continue)
+                put(first.exercise.id, TodaySuperset(SupersetHalf.FIRST, second.exercise.id, second.exercise.name, due))
+                put(second.exercise.id, TodaySuperset(SupersetHalf.SECOND, first.exercise.id, first.exercise.name, due))
+            }
+        }
+        val items = if (supersets.isEmpty()) listed else listed.map { i -> supersets[i.exercise.id]?.let { i.copy(superset = it) } ?: i }
         // Only what is still planned today and not on the list: after a swap there is nothing left to bring back.
         val shownIds = items.map { it.exercise.id }.toSet()
         val skippedToday = allPlanned.mapNotNull { p ->
@@ -448,6 +508,7 @@ class TodayViewModel(
             ),
             skippedToday = skippedToday,
             plateSaving = l.plateSaves > 0,
+            openRequest = l.openRequest,
         )
     }
 
@@ -497,6 +558,9 @@ class TodayViewModel(
         // A tap that lands while Finish is at work saves nothing: its set would be stored behind a summary that did not
         // count it. The numbers stay in the card ("Keep logging").
         if (finishing.value) return
+        // A superset has just handed over to this exercise (1.24): a second quick tap, meant for the set just logged,
+        // lands on this card's Log set. For a second it saves nothing; the numbers stay in the card.
+        switched?.let { (handedTo, until) -> if (!confirmed && handedTo == exerciseId && elapsedMs() < until) return }
         // A fast double tap must not save the set twice.
         if (!saving.compareAndSet(expect = false, update = true)) return
         viewModelScope.launch {
@@ -532,13 +596,35 @@ class TodayViewModel(
                 val setId = training.logSet(sessionId, stored, catalogueName = catalogueEntry(exerciseId)?.name)
                 // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
                 local.update { it.copy(pending = null, warmUpOver = it.warmUpOver + exerciseId) }
+                // In a superset (1.24) the domain says what follows this set, from the sets logged with it: after the
+                // first exercise the second's card opens and no rest starts; after the second the rest starts and the
+                // first's card opens. A miss or a grind on the powerlifting side keeps the card, which then asks where
+                // it stalled.
+                val pair = item?.superset
+                val partner = pair?.let { p -> now.items.firstOrNull { it.exercise.id == p.partnerId } }
+                val ownTarget = item?.targetSets
+                val otherTarget = partner?.targetSets
+                val step = if (item != null && pair != null && partner != null && ownTarget != null && otherTarget != null) {
+                    val own = item.sets.size + 1 to ownTarget
+                    val other = partner.sets.size to otherTarget
+                    val (first, second) = if (pair.half == SupersetHalf.FIRST) own to other else other to own
+                    val keepCard = now.mode == TrainingMode.POWERLIFTING && (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE)
+                    Supersets.afterSet(pair.half, first.first, first.second, second.first, second.second, keepCard)
+                } else {
+                    SupersetStep(open = null, rest = true)
+                }
+                val handOver = if (step.open != null) partner?.exercise?.id else null
+                if (handOver != null) switched = handOver to elapsedMs() + SUPERSET_SWITCH_GUARD_MS
                 // Every exercise on the bodybuilding side takes the accessory rest (bodybuilding mode spec §5.3).
+                // None after a superset's first exercise: its second follows straight away.
                 val mainRest = now.mode == TrainingMode.POWERLIFTING && item?.exercise?.category != Category.ACCESSORY
-                _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))
+                if (step.rest) _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))
                 // The buzz is worked out after the save, beside it: it never holds the set up, and if it fails it ticks.
                 viewModelScope.launch { _events.emit(TodayEvent.SetBuzz(isNewBest(setId, stored, now.mode))) }
                 // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
                 withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { i -> i.sets.any { it.id == setId } } } }
+                // Only then is the other card asked for: the screen opens it with the logged set already in its row.
+                if (handOver != null) local.update { it.copy(openRequest = OpenRequest(handOver, (it.openRequest?.n ?: 0) + 1)) }
             } finally {
                 saving.value = false
             }
@@ -898,6 +984,6 @@ class TodayViewModel(
             advice: AdviceRepository,
             settings: SettingsRepository,
             today: () -> LocalDate = ::systemToday,
-        ): ViewModelProvider.Factory = viewModelFactory { initializer { TodayViewModel(training, advice, settings, today) } }
+        ): ViewModelProvider.Factory = viewModelFactory { initializer { TodayViewModel(training, advice, settings, today = today) } }
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,6 +65,7 @@ import com.powertracker.domain.stack.PlateStack
 import com.powertracker.ui.components.formatLoad
 import com.powertracker.ui.components.CoachSuggestion
 import com.powertracker.ui.components.Eyebrow
+import com.powertracker.ui.plan.supersetTag
 import com.powertracker.ui.components.PastSets
 import com.powertracker.ui.components.Pill
 import com.powertracker.ui.components.PlateStrip
@@ -112,7 +115,6 @@ class NextStep(val label: String, val onClick: () -> Unit)
 
 
 /** RPE from which a set counts as a grind worth asking "where?" about. */
-private const val GRIND_RPE = 9.5
 
 /** "Floor / Mid / Lockout", or "Off the shoulders / …" for a strict press. An accessory has no lift: it gets the plain names. */
 private fun missLabels(lift: MainLift?): List<String> = MissPoint.entries.map { missPointLabel(lift ?: MainLift.SQUAT, it) }
@@ -247,7 +249,16 @@ private fun ColumnScope.CardContent(
             // The name is never cut: where it and the set count do not fit on one line, the count goes under it.
             WrappingPair(Modifier.weight(1f), first = {
                 Column {
-                    Eyebrow("Exercise $position of $count")
+                    // In a superset (1.24) the card says which half it is: A is done first, B straight after it, then
+                    // the rest. The tag takes the count's place, as on the web (the two together are too wide for the
+                    // line beside the pill and the buttons); a screen reader hears both.
+                    val pair = item.superset
+                    if (pair != null) {
+                        val tag = supersetTag(pair.half)
+                        Eyebrow(tag, Modifier.semantics { contentDescription = "Exercise $position of $count · $tag" })
+                    } else {
+                        Eyebrow("Exercise $position of $count")
+                    }
                     Text(item.exercise.name, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
                 }
             }) {
@@ -601,8 +612,15 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                     }
                 }
             }) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Space.m)) {
+                // The plan, a superset's tag (1.24) and the count: on a small phone the three are wider than the row, and
+                // the last then goes to a line of its own instead of being squeezed to nothing.
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                    verticalArrangement = Arrangement.spacedBy(Space.xs),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
                     item.planned?.let { Text(planText(it), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurfaceVariant, maxLines = 1) }
+                    item.superset?.let { Pill(supersetTag(it.half)) }
                     when {
                         item.isComplete -> Pill("Done", tone = Tone.SUCCESS, icon = Icons.Filled.Check)
                         item.sets.isNotEmpty() && item.targetSets != null -> Pill("${item.sets.size} of ${item.targetSets}")

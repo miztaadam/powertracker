@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -269,9 +270,27 @@ fun TodayContent(
     LaunchedEffect(chosenId) { if (chosenId != activeId) activeId = chosenId }
 
     // The exercise being logged: the one the lifter chose, else the first with sets left to do.
-    val active = items.firstOrNull { it.exercise.id == chosenId } ?: items.firstOrNull { it.hasWorkLeft() } ?: items.lastOrNull()
+    // In a superset (1.24) the card to open is the exercise whose turn it is, from the sets logged today.
+    fun turnOf(item: TodayItem?): TodayItem? {
+        val pair = item?.superset ?: return item
+        if (pair.due == null || pair.due == pair.half) return item
+        return items.firstOrNull { it.exercise.id == pair.partnerId } ?: item
+    }
+    val active = items.firstOrNull { it.exercise.id == chosenId } ?: turnOf(items.firstOrNull { it.hasWorkLeft() }) ?: items.lastOrNull()
     // Pin it once chosen, so finishing its last set does not whisk the card (and its "where did it stall?") away.
     LaunchedEffect(active?.exercise?.id) { if (activeId == null) activeId = active?.exercise?.id }
+
+    // A superset's set was logged and it is the other exercise's turn (1.24): its card opens. A request made before this
+    // screen was drawn (another tab meanwhile, or a turn of the phone) is not followed again. Not saved: the view
+    // model's count starts afresh with the app, and a saved one could match a new request and swallow it.
+    val openRequest = state.openRequest
+    var followed by remember { mutableIntStateOf(openRequest?.n ?: 0) }
+    LaunchedEffect(openRequest?.n) {
+        if (openRequest != null && openRequest.n != followed) {
+            followed = openRequest.n
+            activeId = openRequest.exerciseId
+        }
+    }
 
     // With motion on, a catalogue exercise keeps its stand-in's key once its row is saved, so its card stays put
     // instead of fading out and in again. With motion off the key is the id, as before.
@@ -388,7 +407,7 @@ fun TodayContent(
                                     )
                                 },
                                 card = { content ->
-                                    val upNext = (items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() }
+                                    val upNext = turnOf((items.drop(i + 1) + items.take(i)).firstOrNull { it.hasWorkLeft() })
                                     val next = if (upNext != null) {
                                         NextStep("Next: ${upNext.exercise.name}") { activeId = upNext.exercise.id }
                                     } else {
