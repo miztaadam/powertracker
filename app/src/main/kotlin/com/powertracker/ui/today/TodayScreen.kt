@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.powertracker.data.AdviceRepository
 import com.powertracker.data.SettingsRepository
 import com.powertracker.data.TrainingRepository
+import com.powertracker.domain.coach.WarmUpSet
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.MainLift
@@ -84,6 +85,8 @@ data class RestTimerUi(
 class TodayActions(
     val onStartSession: (bodyweightKg: Double?, readiness: Int?) -> Unit = { _, _ -> },
     val onEdit: (exerciseId: Long, SetEditor) -> Unit = { _, _ -> },
+    /** Ticks or unticks a warm-up set (1.23). Nothing is logged. */
+    val onTickWarmUp: (exerciseId: Long, WarmUpSet, done: Boolean) -> Unit = { _, _, _ -> },
     /** Log the editor's numbers for this exercise, as done or as a missed rep. */
     val onLogSet: (TodayItem, failed: Boolean) -> Unit = { _, _ -> },
     val onConfirmPending: () -> Unit = {},
@@ -168,6 +171,7 @@ fun TodayScreen(
         TodayActions(
             onStartSession = viewModel::startSession,
             onEdit = viewModel::edit,
+            onTickWarmUp = viewModel::tickWarmUp,
             onLogSet = { item, failed ->
                 val weight = item.editor.weightKg
                 if (weight != null) {

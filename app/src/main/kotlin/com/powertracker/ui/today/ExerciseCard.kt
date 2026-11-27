@@ -45,6 +45,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import java.time.format.DateTimeFormatter
 import com.powertracker.data.StoredSet
+import com.powertracker.domain.coach.WarmUp
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.Advice
 import com.powertracker.domain.model.AdvicePayload
@@ -458,6 +459,15 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         label = label,
         focus = focus.getValue(kind),
     )
+
+    // The warm-up checklist (1.23), until the first set: it follows the typing, as the plates below do. An exercise with
+    // no plan item is judged a high-rep one by the reps in the field.
+    val warmUp = when {
+        item.sets.isNotEmpty() -> emptyList()
+        weight == e.weightKg && typed.reps == e.reps -> item.warmUp
+        else -> WarmUp.sets(item.exercise, weight, item.planned?.reps ?: typed.reps, changePlates)
+    }
+    if (warmUp.isNotEmpty()) WarmUpBlock(warmUp, item.warmUpDone) { set, done -> actions.onTickWarmUp(id, set, done) }
 
     Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
         if (weightKind == EntryKind.KG) {

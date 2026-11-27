@@ -9,6 +9,9 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -1491,5 +1494,30 @@ class TodayScreenTest {
         waitFor { compose.onAllNodes(hasTestTag("exercise-search")).fetchSemanticsNodes().isEmpty() }
         settled()
         assertEquals(0, haptics.calls.size)
+    }
+
+    // ---- 1.23: the warm-up checklist ----
+
+    @Test
+    fun warmUp_tickedOnTheRealScreen_staysTicked_logsNothing_andGoesWithTheFirstSet() {
+        startSession()
+        show()
+        waitForText("Log set 1")
+        val first = "Warm-up set 1: 75 kg × 12, 25 + 2.5 per side"
+        val second = "Warm-up set 2: 112.5 kg × 5, 25 + 20 + 1.25 per side"
+        compose.onNodeWithContentDescription(first).assertIsOff().performClick()
+        waitFor { runCatching { compose.onNodeWithContentDescription(first).assertIsOn() }.isSuccess }
+        compose.onNodeWithContentDescription(second).assertIsOff()
+        // A tick is not a set.
+        settled()
+        assertEquals(emptyList<LoggedSet>(), loggedToday())
+
+        // The sets follow the typing; the first real set ends the checklist and is the only set stored.
+        weight.type("100")
+        waitFor { compose.onAllNodes(hasContentDescription("Warm-up set 1: 50 kg × 12, 15 per side")).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Log set 1").performClick()
+        waitForSets(1)
+        waitFor { compose.onAllNodes(hasTestTag("warm-up"), useUnmergedTree = true).fetchSemanticsNodes().isEmpty() }
+        assertEquals(listOf(100.0), loggedToday().map { it.weightKg })
     }
 }

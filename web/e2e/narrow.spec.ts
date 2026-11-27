@@ -523,7 +523,11 @@ test.describe('Today at 320 px and 200 % text', () => {
 
         await tap(page, 'Start session')
         await expect(page.locator('.gr-suggestion')).toBeVisible()
+        // The warm-up checklist (1.23) is on the card until the first set, and is measured with it.
+        await expect(page.getByRole('region', { name: 'Warm-up' }).getByRole('checkbox').first()).toBeVisible()
         expect(await wrong(page), 'with the chip').toEqual([])
+        await page.getByRole('region', { name: 'Warm-up' }).getByRole('checkbox').first().check()
+        expect(await wrong(page), 'a warm-up set ticked').toEqual([])
         // The header reads as before: the title, then the side's label, then Finish (in that order in the page).
         const order = await page.locator('.gr-screen-header').evaluate((header) =>
           [...header.querySelectorAll('h1, .gr-mode-label, button')].map((el) => (el.matches('h1') ? 'title' : el.matches('button') ? el.textContent : 'side')),

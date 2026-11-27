@@ -14,6 +14,8 @@ import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.AdviceStatus
 import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Baseline
+import com.powertracker.domain.coach.WarmUpSet
+import com.powertracker.domain.model.LoadUnit
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
 import com.powertracker.domain.model.PlanItem
@@ -34,6 +36,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -274,6 +277,55 @@ class TodayViewModelTest {
         await("let go") { vm.state.value.pending == null }
         vm.logSet(null, squat.id, set(squat, 170.0).copy(reps = 13))
         await("held back for its reps") { vm.state.value.pending != null }
+    }
+
+    @Test
+    fun warmUp_isOnTheCardUntilTheFirstSet_ticksAreKeptInMemory_andNothingIsLogged() {
+        val sessionId = runBlocking {
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
+            // A curl planned for 15 reps: a high-rep exercise has no warm-up.
+            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, curl.id, sets = 3, reps = 15, targetRpe = 8.0, order = 1))
+            val lastWeek = training.startSession(today.minus(7, DateTimeUnit.DAY), null, null)
+            training.logSet(lastWeek, set(squat, 150.0))
+            training.logSet(lastWeek, set(curl, 20.0))
+            training.startSession(today, null, null)
+        }
+        val vm = viewModel()
+        await("both cards") { !vm.state.value.loading && vm.state.value.items.size == 2 }
+        fun squatCard() = vm.state.value.items[0]
+
+        // 150 in the field, from last week's top set: half for 12, three quarters for 5, with the plates.
+        val half = WarmUpSet(75.0, 12, LoadUnit.KG, listOf(25.0, 2.5))
+        val threeQuarters = WarmUpSet(112.5, 5, LoadUnit.KG, listOf(25.0, 20.0, 1.25))
+        assertEquals(listOf(half, threeQuarters), squatCard().warmUp)
+        assertEquals(emptySet<WarmUpSet>(), squatCard().warmUpDone)
+        assertEquals(20.0, vm.state.value.items[1].editor.weightKg)
+        assertEquals(emptyList<WarmUpSet>(), vm.state.value.items[1].warmUp)
+
+        // A tick, a second one, and one taken back: held by the view model, for this exercise only.
+        vm.tickWarmUp(squat.id, half, true)
+        vm.tickWarmUp(squat.id, threeQuarters, true)
+        vm.tickWarmUp(squat.id, half, false)
+        await("ticked") { squatCard().warmUpDone == setOf(threeQuarters) }
+        assertEquals(emptySet<WarmUpSet>(), vm.state.value.items[1].warmUpDone)
+
+        // The sets follow the weight in the editor; a tick stays with its own numbers.
+        vm.edit(squat.id, squatCard().editor.copy(weightKg = 100.0))
+        await("re-worked") { squatCard().warmUp.map { it.weight } == listOf(50.0, 75.0) }
+        assertEquals(setOf(threeQuarters), squatCard().warmUpDone)
+
+        // Nothing was logged by ticking; the first real set ends the checklist.
+        assertEquals(0, runBlocking { training.setsForSession(sessionId).first() }.size)
+        vm.logSet(null, squat.id, set(squat, 100.0))
+        await("first set") { squatCard().logged.size == 1 }
+        assertEquals(emptyList<WarmUpSet>(), squatCard().warmUp)
+        assertEquals(listOf(100.0), runBlocking { training.setsForSession(sessionId).first() }.map { it.set.weightKg })
+
+        // A fresh view model (the app closed and opened) has no ticks.
+        vm.tickWarmUp(curl.id, half, true)
+        val restarted = viewModel()
+        await("restarted") { !restarted.state.value.loading && restarted.state.value.items.size == 2 }
+        assertTrue(restarted.state.value.items.all { it.warmUpDone.isEmpty() })
     }
 
     private fun planSquatWithHistory() = runBlocking {

@@ -14,6 +14,8 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.coach.WarmUp
+import com.powertracker.domain.coach.WarmUpSet
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.history.lastTimes
 import com.powertracker.domain.library.Library
@@ -98,6 +100,13 @@ data class TodayItem(
      * changed, when the coach reads only the sets in the new unit.
      */
     val lastTime: LastTime? = null,
+    /**
+     * The warm-up sets to tick off before the first set (1.23), for the weight in the editor (the card works them out
+     * again while another weight is being typed); empty once a set is logged today, and when there is nothing to
+     * suggest. Never logged. [warmUpDone] holds the ones ticked: kept while the app is open and stored nowhere.
+     */
+    val warmUp: List<WarmUpSet> = emptyList(),
+    val warmUpDone: Set<WarmUpSet> = emptySet(),
 ) {
     val logged: List<LoggedSet> get() = sets.map { it.set }
     val isComplete: Boolean get() = targetSets != null && sets.size >= targetSets
@@ -198,6 +207,8 @@ class TodayViewModel(
         val plateSaves: Int = 0,
         /** False until it has been read whether this day's session was finished before the app was last closed. */
         val restored: Boolean = false,
+        /** The warm-up sets ticked (1.23), by exercise id. In memory only: closing the app starts them afresh. */
+        val warmUpDone: Map<Long, Set<WarmUpSet>> = emptyMap(),
     )
 
     private data class Stored(
@@ -388,6 +399,9 @@ class TodayViewModel(
                 plateCount = exercise.plateCount,
                 plateOffered = PlateStack.offered(exercise),
                 lastTime = past[exercise.id],
+                // Before the first set only. The plan's reps say whether it is a high-rep exercise; with no plan, the field's.
+                warmUp = if (sets.isEmpty()) WarmUp.sets(exercise, editor.weightKg, plan?.reps ?: editor.reps, d.settings.changePlates) else emptyList(),
+                warmUpDone = l.warmUpDone[exercise.id] ?: l.warmUpDone[standInOf[exercise.id]] ?: emptySet(),
             )
         }
 
@@ -445,6 +459,14 @@ class TodayViewModel(
             } finally {
                 starting.value = false
             }
+        }
+    }
+
+    /** Ticks (or unticks) a warm-up set of [exerciseId] (1.23). Nothing is saved or logged. */
+    fun tickWarmUp(exerciseId: Long, set: WarmUpSet, done: Boolean) {
+        local.update {
+            val before = it.warmUpDone[exerciseId].orEmpty()
+            it.copy(warmUpDone = it.warmUpDone + (exerciseId to if (done) before + set else before - set))
         }
     }
 

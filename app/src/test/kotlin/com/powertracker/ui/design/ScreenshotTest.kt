@@ -97,6 +97,10 @@ class ScreenshotTest {
     @Test
     fun today() = render("today", Tab.TODAY) { TodayShowcase() }
 
+    // 1.23: the warm-up checklist, before the first set of an exercise.
+    @Test
+    fun todayWarmUp() = render("today-warm-up", Tab.TODAY) { TodayWarmUpShowcase() }
+
     @Test
     fun todayStart() = render("today-start", Tab.TODAY) { TodayStartShowcase() }
 

@@ -369,3 +369,22 @@ test('the warm-up checklist follows the weight, keeps its ticks while the app is
   await expect(warm).toHaveCount(0)
   expect(await loggedSets(page)).toEqual([[100, 5, 8]])
 })
+
+for (const scheme of ['dark', 'light'] as const) {
+  test(`today with the warm-up checklist, before the first set (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openWithSampleData(page)
+    await tap(page, 'Start session')
+    const warm = page.getByRole('region', { name: 'Warm-up' })
+    await warm.getByRole('checkbox').first().check()
+    await expect(warm.locator('label').first()).toHaveClass(/today-warm-done/)
+    expect(await smallTargets(page)).toEqual([])
+    expect(await fitsThePhone(page)).toBe(true)
+
+    await page.setViewportSize({ width: 390, height: 1100 })
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
+    await page.evaluate(() => document.fonts.ready)
+    mkdirSync(outDir, { recursive: true })
+    await page.screenshot({ path: resolve(outDir, `today-warm-up-${scheme}.png`), fullPage: true, animations: 'disabled' })
+  })
+}

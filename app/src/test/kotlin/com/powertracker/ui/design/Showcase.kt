@@ -42,6 +42,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.coach.WarmUp
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -163,6 +164,18 @@ fun TodayShowcase() {
         TodayActions(),
         restTimer = RestTimerUi(108, 180, {}, {}, {}),
     )
+}
+
+/**
+ * Today with the session just started (1.23): no squat set logged yet, so the warm-up checklist is on the card, worked
+ * out from the 155 kg in the field, its first set ticked.
+ */
+@Composable
+fun TodayWarmUpShowcase() {
+    val items = todayItems(emptyList(), suggest = false).toMutableList()
+    val warmUp = WarmUp.sets(items[0].exercise, items[0].editor.weightKg, 5, changePlates = false)
+    items[0] = items[0].copy(warmUp = warmUp, warmUpDone = setOf(warmUp.first()))
+    TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
 }
 
 /** Before the session: the plan for the day and the optional check-in. */
