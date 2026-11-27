@@ -71,6 +71,8 @@ export function guideTodayState(mode: TrainingMode, step: string, shown?: SetEdi
       perSide: editor.weightKg != null ? (grit.platesPerSide(editor.weightKg, false) ?? null) : null,
       lastWeightKg: sets[sets.length - 1]?.weightKg ?? null,
       lastTime: null,
+      warmUp: [],
+      warmUpDone: [],
     }
   }
 
@@ -113,6 +115,7 @@ export const NO_TODAY_ACTIONS: TodayActions = {
   createExercise: () => Promise.resolve(null),
   addToOpenSession: () => Promise.resolve(null),
   removeExercise: () => {},
+  tickWarmUp: () => {},
   skip: () => Promise.resolve(null),
   undoSkip: nothing,
   bringBack: nothing,
@@ -250,6 +253,8 @@ export function guideTargetsState(mode: TrainingMode, index: number, editor: Set
         lastWeightKg: last,
         // The guide's pictures keep to the coach's box: no "Last time" rows.
         lastTime: null,
+        warmUp: [],
+        warmUpDone: [],
       },
     ],
     pending: null,

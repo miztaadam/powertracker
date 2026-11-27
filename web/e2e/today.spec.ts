@@ -311,3 +311,61 @@ test('a logged set starts the rest timer, and it survives a reload', async ({ pa
   await tap(page, 'Skip')
   await expect(page.getByRole('timer')).toHaveCount(0)
 })
+
+test('the warm-up checklist follows the weight, keeps its ticks while the app is open, and is never logged', async ({ page }) => {
+  await openWithSampleData(page)
+  await tap(page, 'Start session')
+  // Squat, 150 kg in the field (last week's top set): half for 12, three quarters for 5, each with its plates.
+  const warm = page.getByRole('region', { name: 'Warm-up' })
+  await expect(warm.getByText('Warm-up · not logged', { exact: true })).toBeVisible()
+  const boxes = warm.getByRole('checkbox')
+  await expect(boxes).toHaveCount(2)
+  await expect(boxes.nth(0)).toHaveAccessibleName('Warm-up set 1: 75 kg × 12, 25 + 2.5 per side')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 112.5 kg × 5, 25 + 20 + 1.25 per side')
+  await expect(warm.locator('.today-warm-line').first()).toHaveText('75 kg × 1225 + 2.5 per side')
+  // Above the weight entry, under the coach's box.
+  const order = await page.evaluate(() => {
+    const top = (selector: string) => document.querySelector(selector)!.getBoundingClientRect().top
+    return top('.today-warm') < top('.today-steppers')
+  })
+  expect(order).toBe(true)
+
+  // The whole row is the box's target, a full touch target high.
+  const rows = warm.locator('label')
+  for (const row of await rows.all()) expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(47.5)
+  await warm.getByText('25 + 2.5 per side').click()
+  await expect(boxes.nth(0)).toBeChecked()
+  await expect(boxes.nth(1)).not.toBeChecked()
+
+  // The tick is kept while the app is open: another tab and back.
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Progress' }).click()
+  await expect(page.getByRole('heading', { name: 'Progress', level: 1 })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Today' }).click()
+  await expect(boxes.nth(0)).toBeChecked()
+
+  // The sets follow the typing, before the field is left: 100 kg gives 50 and 75. Other numbers, so no tick.
+  await typeInto(page, weightField(page), '100')
+  await expect(boxes.nth(0)).toHaveAccessibleName('Warm-up set 1: 50 kg × 12, 15 per side')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
+  await expect(boxes.nth(0)).not.toBeChecked()
+  await expect(boxes.nth(1)).not.toBeChecked()
+  // ... and stay once the field is left.
+  await page.keyboard.press('Enter')
+  await expect(weightField(page)).not.toBeFocused()
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
+  // The empty bar has nothing lighter: no checklist at all.
+  await typeInto(page, weightField(page), '20')
+  await expect(warm).toHaveCount(0)
+  await page.keyboard.press('Enter')
+  await expect(warm).toHaveCount(0)
+  await typeInto(page, weightField(page), '100')
+  await page.keyboard.press('Enter')
+  await boxes.nth(0).check()
+  await boxes.nth(1).check()
+
+  // Nothing ticked was logged: the first real set is the only set stored, and the checklist goes with it.
+  await tap(page, 'Log set 1')
+  await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+  await expect(warm).toHaveCount(0)
+  expect(await loggedSets(page)).toEqual([[100, 5, 8]])
+})

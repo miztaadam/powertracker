@@ -76,7 +76,7 @@ describe('the plate item and the sheet', () => {
   })
 
   it('theStartSessionCard_withDefaultActions_hasNoPlateItem', () => {
-    const item = { exercise: grit.seedExercises()[0]!, planned: null, suggestion: null, sets: [], editor: { weightKg: null, reps: 8, rpe: 8 }, targetSets: null, isComplete: false, perSide: null, lastWeightKg: null, lastTime: null, plateOffered: true } as TodayItem
+    const item = { exercise: grit.seedExercises()[0]!, planned: null, suggestion: null, sets: [], editor: { weightKg: null, reps: 8, rpe: 8 }, targetSets: null, isComplete: false, perSide: null, lastWeightKg: null, lastTime: null, warmUp: [], warmUpDone: [], plateOffered: true } as TodayItem
     render(<StartSessionCard items={[item]} dayName="Wednesday" onStart={() => {}} />)
     expect(screen.queryByRole('button', { name: /^Options for/ })).toBeNull()
   })

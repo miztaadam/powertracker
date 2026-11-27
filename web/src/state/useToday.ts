@@ -11,6 +11,7 @@ import type { PastSet } from '../ui/components/PastSets'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
+import { warmUpSets, type WarmUpSet } from './warmUp'
 
 /**
  * The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one; it is a plate number when
@@ -62,6 +63,14 @@ export type TodayItem = {
    * session, except just after the exercise's plate setting changed (the coach then reads only the sets in the new unit).
    */
   lastTime: LastTime | null
+  /**
+   * 1.23: the warm-up sets to tick off before the first set, for the weight in the editor (the card works them out
+   * again while another weight is being typed); empty once a set is logged today, and when there is nothing to
+   * suggest. Never logged. `warmUpDone` holds the `warmUpKey` of each one ticked: kept while the app is open, on this
+   * day only, and stored nowhere.
+   */
+  warmUp: WarmUpSet[]
+  warmUpDone: readonly string[]
   /**
    * 1.17, each there only when it is not the default: the exercise's current unit (PLATES; absent is kg), which the
    * editor, the targets and the typo check are in; its stored plate setting (WHOLE or HALF; absent is OFF), which the
@@ -138,6 +147,8 @@ export type TodayActions = {
   startSession: (bodyweightKg: number | null, readiness: number | null) => Promise<void>
   /** Changes the numbers for the next set of an exercise. No set is saved. */
   edit: (exerciseId: number, editor: SetEditor) => void
+  /** 1.23: ticks (or unticks) a warm-up set of an exercise, by its `warmUpKey`. Nothing is saved or logged. */
+  tickWarmUp: (exerciseId: number, key: string, done: boolean) => void
   /**
    * Saves `set` for the item with this key (its exercise id). Unless `confirmed`, a set that looks
    * like a typo is held in `pending` instead. Rejects when the write fails or there is no session.
@@ -235,9 +246,13 @@ type Local = {
   added: number[]
   pending: PendingLog | null
   summary: FinishSummary | null
+  /** 1.23: the warm-up sets ticked, by exercise id, as `warmUpKey`s. In memory only: a reload starts them afresh. */
+  warmUpDone: Record<number, readonly string[]>
 }
 
-const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null })
+const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {} })
+
+const NONE_TICKED: readonly string[] = []
 
 const editorKey = (date: string, exerciseId: number) => `editor:${date}:${exerciseId}`
 
@@ -569,6 +584,9 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
       perSide: editor.weightKg != null && unit === 'KG' ? (grit.platesPerSide(editor.weightKg, d.settings.changePlates) ?? null) : null,
       lastWeightKg: lastToday?.weightKg ?? top?.weightKg ?? null,
       lastTime: past.get(exercise.id) ?? null,
+      // Before the first set only. The plan's reps say whether it is a high-rep exercise; with no plan, the field's.
+      warmUp: sets.length === 0 ? warmUpSets(exercise, editor.weightKg, plan?.reps ?? editor.reps, d.settings.changePlates) : [],
+      warmUpDone: l.warmUpDone[exercise.id] ?? l.warmUpDone[standInOf.get(exercise.id) ?? exercise.id] ?? NONE_TICKED,
       ...unitKey(unit),
       ...(offered && plateCount !== 'OFF' ? { plateCount } : {}),
       ...(offered ? { plateOffered: true } : {}),
@@ -895,6 +913,16 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         waiting.current.push({ setId, done })
       }),
     [],
+  )
+
+  const tickWarmUp = useCallback(
+    (exerciseId: number, key: string, done: boolean) =>
+      update((l) => {
+        const before = l.warmUpDone[exerciseId] ?? NONE_TICKED
+        if (before.includes(key) === done) return l
+        return { ...l, warmUpDone: { ...l.warmUpDone, [exerciseId]: done ? [...before, key] : before.filter((k) => k !== key) } }
+      }),
+    [update],
   )
 
   const edit = useCallback(
@@ -1265,6 +1293,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     addToOpenSession,
     createExercise,
     removeExercise,
+    tickWarmUp,
     setPlateCount,
     skip,
     undoSkip,
