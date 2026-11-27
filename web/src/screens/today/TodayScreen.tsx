@@ -148,13 +148,29 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
   // Its card keeps the key it was added under, so it is the same card before and after: no jump, no lost state.
   const keyOf = (item: TodayItem) => Object.keys(resolved).find((standIn) => resolved[Number(standIn)] === item.exercise.id) ?? item.exercise.id
 
+  /** In a superset (1.24) the card to open is the exercise whose turn it is, from the sets logged today. */
+  const turnOf = (item: TodayItem | undefined): TodayItem | undefined => {
+    const pair = item?.superset
+    if (item == null || pair == null || pair.due == null || pair.due === pair.half) return item
+    return items.find((i) => i.exercise.id === pair.partnerId) ?? item
+  }
   // The exercise being logged: the one the lifter chose, else the first with sets left to do.
-  const active = items.find((i) => i.exercise.id === chosenId) ?? items.find(hasWorkLeft) ?? items[items.length - 1]
+  const active = items.find((i) => i.exercise.id === chosenId) ?? turnOf(items.find(hasWorkLeft)) ?? items[items.length - 1]
   const activeExerciseId = active?.exercise.id ?? null
   // Pin it once chosen, so finishing its last set does not whisk the card (and its "where did it stall?") away.
   useEffect(() => {
     if (activeId == null && activeExerciseId != null) setActiveId(activeExerciseId)
   }, [activeId, activeExerciseId])
+
+  // A superset's set was logged and it is the other exercise's turn (1.24): its card opens, once the logged set has slid
+  // into place. A request made before this screen was drawn (another tab meanwhile) is not followed again.
+  const openRequest = state.openRequest
+  const followed = useRef(openRequest?.n ?? 0)
+  useEffect(() => {
+    if (openRequest == null || openRequest.n === followed.current) return
+    followed.current = openRequest.n
+    afterTransition(() => withTransition(() => setActiveId(openRequest.exerciseId)))
+  }, [openRequest])
 
   const activeCard = useRef<HTMLDivElement>(null)
   useEffect(() => {
@@ -195,7 +211,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
   const skippedLine = state.skippedToday.length > 0 && <SkippedTodayLine skipped={state.skippedToday} onBringBack={(id) => void actions.bringBack(id)} />
 
   function nextStep(index: number): NextStep {
-    const upNext = [...items.slice(index + 1), ...items.slice(0, index)].find(hasWorkLeft)
+    const upNext = turnOf([...items.slice(index + 1), ...items.slice(0, index)].find(hasWorkLeft))
     return upNext ? { label: `Next: ${upNext.exercise.name}`, onClick: () => withTransition(() => setActiveId(upNext.exercise.id)) } : { label: 'Finish session', onClick: () => void actions.finishSession() }
   }
 

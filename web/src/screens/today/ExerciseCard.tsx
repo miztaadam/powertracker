@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { grit, todayIso } from '../../domain'
 import { setUnit, type LoadUnit, type TrainingMode } from '../../db/schema'
-import type { MissPoint, PlannedItem, SetEditor, StoredSet, Suggestion, Target, TodayActions, TodayItem } from '../../state/useToday'
+import { GRIND_RPE, type MissPoint, type PlannedItem, type SetEditor, type StoredSet, type Suggestion, type SupersetHalf, type Target, type TodayActions, type TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { CoachSuggestion } from '../../ui/components/CoachSuggestion'
@@ -31,7 +31,6 @@ export type NextStep = { label: string; onClick: () => void }
 const BAR_KG = 20
 
 /** RPE from which a set counts as a grind worth asking "where?" about. */
-const GRIND_RPE = 9.5
 
 const MISS_POINTS: readonly MissPoint[] = ['FLOOR', 'MID', 'LOCKOUT']
 
@@ -108,6 +107,9 @@ export type ExerciseCardProps = {
   onCountPlates?: () => void
 }
 
+/** A superset's tag on Today, as on the Plan tab (1.24): "Superset A" on the first exercise, "Superset B" on the one done straight after it. */
+export const supersetTag = (half: SupersetHalf): string => (half === 'FIRST' ? 'Superset A' : 'Superset B')
+
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
 export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', today = todayIso(), onSkipToday, onCountPlates }: ExerciseCardProps) {
   const id = item.exercise.id
@@ -129,7 +131,8 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
     <Card spacing={8}>
       <div className="today-card-head">
         <div className="today-card-title">
-          <Eyebrow text={`Exercise ${position} of ${count}`} />
+          {/* In a superset (1.24) the card says which half it is: A is done first, B straight after it, then the rest. */}
+          <Eyebrow text={item.superset ? `Exercise ${position} of ${count} · ${supersetTag(item.superset.half)}` : `Exercise ${position} of ${count}`} />
           <h2 className="today-name headline-medium">{item.exercise.name}</h2>
         </div>
         {item.planned == null && item.sets.length === 0 ? (
@@ -452,6 +455,7 @@ export function ExerciseRow({ item, onClick, onSkipToday, onCountPlates }: { ite
           </span>
           <span className="today-pair-second today-pair-row">
             {item.planned && <span className="today-row-plan headline-small">{planText(item.planned)}</span>}
+            {item.superset && <Pill text={supersetTag(item.superset.half)} />}
             {item.isComplete ? (
               <Pill text="Done" tone="success" icon={<CheckIcon />} />
             ) : item.sets.length > 0 && item.targetSets != null ? (
