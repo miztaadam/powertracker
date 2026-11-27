@@ -173,3 +173,10 @@ export function readAllTables(page: Page) {
     return out
   })
 }
+
+/**
+ * An IndexedDB version of a log written by a newer Grit, for the older-copy tests: far ahead of this build's own (its
+ * Dexie version times ten: 70 since 1.24), so that adding a version to the app does not make these tests open a log
+ * that is no longer newer (which 1.24 did to the 70 they used to pin).
+ */
+export const NEWER_LOG_VERSION = 1000
