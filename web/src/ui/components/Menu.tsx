@@ -6,7 +6,7 @@ import { cx } from './format'
 import { MoreVertIcon } from './icons'
 import './Button.css'
 import './Menu.css'
-import { MENU_MARGIN, buttonSpot, menuRoom, placeMenu, type MenuPlacement } from './menuPlacement'
+import { MENU_MARGIN, menuRoom, menuSpot, placeMenu, type MenuPlacement } from './menuPlacement'
 
 export type MenuItem = {
   text: string
@@ -48,7 +48,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   // height (the focus stays where it is). Kept with the placement it set, so that nothing is scrolled or focused until
   // that placement is on the page.
   const reveal = useRef<{ why: 'first' | 'again'; placement: MenuPlacement } | null>(null)
-  // Where the button was on its screen (`buttonSpot`) at the last placing.
+  // Where the menu's own box (the button's, and what the list hangs from) was on its screen at the last placing (`menuSpot`).
   const placedAt = useRef<{ left: number; top: number } | null>(null)
 
   /** Measures the menu's own size and the button's place now, and places it (`placeMenu`). */
@@ -56,7 +56,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     const button = trigger.current?.getBoundingClientRect()
     const menu = list.current
     if (!button || !menu) return
-    placedAt.current = buttonSpot(trigger.current!)
+    placedAt.current = root.current ? menuSpot(root.current) : null
     const style = getComputedStyle(menu)
     const borders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0)
     // Its whole height even while capped (scrollHeight holds the padding, not the border). The cap is on the whole box:
@@ -133,14 +133,15 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   // above it, and a menu opened in that moment went down with its button, out of its room (its bottom at 786 px of 583).
   // While it is open, each frame looks where the button is on its screen; when that is not where the menu was placed
   // for, it is placed again, and that placing is on the page in the same frame, so no frame shows it out of its room.
-  // The lifter's own scrolling moves the button in the window but not on its screen, so it places nothing.
+  // The lifter's own scrolling moves the button in the window but not on its screen, so it places nothing. Neither does
+  // the button sinking and springing back under the finger (press.css): the box read is the one around it, which keeps still.
   useEffect(() => {
     if (!open) return
     let frame = requestAnimationFrame(function look() {
       frame = requestAnimationFrame(look)
       const was = placedAt.current
-      if (!trigger.current || !was) return
-      const now = buttonSpot(trigger.current)
+      if (!root.current || !was) return
+      const now = menuSpot(root.current)
       // A whole px or more: scrolling can leave a fraction of one between the two numbers a spot is made of.
       if (Math.abs(now.left - was.left) >= 1 || Math.abs(now.top - was.top) >= 1) flushSync(() => place('again'))
     })

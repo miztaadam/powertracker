@@ -166,8 +166,9 @@ describe('Menu follows its button when the page under it shifts', () => {
     const at = { top }
     const realRect = HTMLElement.prototype.getBoundingClientRect
     const reads = { button: 0 }
+    // The ⋮ and the box around it (`.gr-menu`), which is the one looked at each frame.
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      if (this.getAttribute('aria-haspopup') !== 'menu') return realRect.call(this)
+      if (this.getAttribute('aria-haspopup') !== 'menu' && !this.classList.contains('gr-menu')) return realRect.call(this)
       reads.button++
       return { left: 300, right: 348, top: at.top, bottom: at.top + 48, width: 48, height: 48, x: 300, y: at.top, toJSON: () => ({}) } as DOMRect
     })

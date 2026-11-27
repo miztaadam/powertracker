@@ -65,12 +65,12 @@ export function menuRoom(from: Element): Box {
 }
 
 /**
- * Where a menu's button is on the screen it scrolls in (1.23.2): its place in the window plus how far that screen is
- * scrolled (outside the app shell, the page). Scrolling leaves it as it is; anything drawn or taken away before the
- * button, or a change of its row's layout, changes it.
+ * Where a menu's own box (`.gr-menu`: it wraps the button, and the list hangs from it) is on the screen it scrolls in
+ * (1.23.2): its place in the window plus how far that screen is scrolled (outside the app shell, the page). Scrolling
+ * leaves it as it is; anything drawn or taken away before it, or a change of its row's layout, changes it.
  */
-export function buttonSpot(button: Element): { left: number; top: number } {
-  const box = button.getBoundingClientRect()
-  const screen = button.closest('.shell-main')
-  return { left: box.left + (screen ? screen.scrollLeft : window.scrollX), top: box.top + (screen ? screen.scrollTop : window.scrollY) }
+export function menuSpot(box: Element): { left: number; top: number } {
+  const at = box.getBoundingClientRect()
+  const screen = box.closest('.shell-main')
+  return { left: at.left + (screen ? screen.scrollLeft : window.scrollX), top: at.top + (screen ? screen.scrollTop : window.scrollY) }
 }
