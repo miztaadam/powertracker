@@ -59,7 +59,7 @@ private fun platesItem(id: Long, name: String, mode: TrainingMode, weight: Doubl
         unit = unit,
         plateCount = count,
         plateOffered = true,
-    )
+    ).withWarmUp()
 }
 
 private fun plateSet(id: Long, exerciseId: Long, plate: Double, reps: Int) =

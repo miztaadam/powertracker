@@ -1930,6 +1930,54 @@ Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the 
 
 **Next (owner, 2026-11-27): warm-up sets, "don't add warm ups to the log"**: a checklist to tick off that is not saved, so no stored data or backup changes. The numbers (how many warm-up sets, at what share of the working weight, for how many reps) need a published source, as the coach's other numbers have (`CoachSources.kt`). A web search on 2026-11-27 pointed to ExRx's "Types of Warm-ups" page (exrx.net/ExInfo/WarmUp) and to Baechle and Earle's warm-up ladder as excerpted by Human Kinetics; **neither page could be opened from this session** (the session's network does not allow those hosts), so nothing is taken from them yet. Then supersets (owner decided: saved in the plan; both apps together).
 
+## Done: 1.23, a warm-up checklist on the Today card (both apps)
+Picked by the owner on 2026-11-26 from the list of ideas ("warm up sets"); on 2026-11-27: "don't add warm ups to the log"; design sent the same day, owner: "Go".
+
+**What the lifter gets (both apps), on the Today card, above the weight entry, until the exercise's first set is logged:**
+- **"WARM-UP · NOT LOGGED"** over one or two rows, each a box to tick: **half the weight in the field for 12 reps**, and on a squat, bench, deadlift, strict press or a variation of one, **three quarters of it for 5**.
+- **Each weight is one that can be loaded:** on a barbell lift the plates' grid, never under the empty bar, with the plates per side written beside it ("25 + 2.5 per side", "empty bar"); on an accessory the working weight's own grid (a 25 kg dumbbell gives 12.5); on a machine that counts plates, a plate number rounded down ("plate 3½ × 12").
+- **The rows follow the weight in the field,** as the plates do, also while it is being typed.
+- **A tap anywhere on a row ticks it** (struck through and greyed); a second tap unticks it.
+- **Nothing is logged.** A tick is a note to the lifter: no set is stored, so History, the charts, the coach and the backup are as before. The ticks are kept while the app is open (another tab, another exercise and back) and are gone when it is closed.
+- **No checklist** once a set is logged for the exercise today; with no weight in the field (or 0, a bodyweight set); when the plan asks for 15 reps or more; and where nothing lighter can be loaded (the empty bar).
+
+**Where the numbers come from** (`CoachSources.WARM_UP`, `WARM_UP_LOG`, `WARM_UP_SECOND`): ExRx.net. Its warm-up page: a warm-up set is typically 12 to 15 reps of a light resistance, about half the workout weight; a second, moderate one may be done on heavy movements; none is typically needed for high-repetition exercises. Its log shorthand: "50% of workout weight · 12 reps". Its workload calculator: the second set at about 75%, naming squats and deadlifts. **Found with web searches restricted to exrx.net on 2026-11-27; the pages themselves could not be opened from the build session**, so the wording above is the search summaries', not read off the pages.
+
+**Not from the source:**
+- In the design the owner approved: the second set's 5 reps; "high repetition" as 15 reps or more; the heavy lifts as the four main lifts and their variations; none for a bodyweight exercise; rounding to a loadable weight. (The design called the second set's 75% my choice; the later search found it in the source.)
+- **Decided while building, not in the design, told to the owner with the pictures:**
+  1. An exercise with "assisted" in its name has no checklist: more weight is easier there.
+  2. A catalogue exercise done with bodyweight first has none even with weight added (weighted pull-up, weighted chin-up, weighted push-up, weighted back extension, dips; also curtsy lunge and single-leg calf raise, which the catalogue lists bodyweight first). The weight typed there is added weight, and half of it is not half the effort.
+  3. A rep range (bodybuilding side) is judged by its low end: 12 to 15 has a warm-up, 15 to 20 has none. An exercise with no plan item is judged by the reps in the field.
+  4. A tick belongs to its row's numbers: when the weight in the field changes the rows, a ticked row with other numbers is unticked.
+  5. The block sits under "Last time", above the weight, with the heading "Warm-up · not logged".
+  6. The design's example row read "50 kg × 12 · 25 per side". That was wrong: 50 kg on a 20 kg bar is 15 per side, which is what the app writes.
+
+**Limits:**
+- The rule knows a barbell lift by its category (a main lift or a variation at 20 kg or more), as the plate strip and the coach do: a safety-bar squat or trap-bar deadlift is given a 20 kg bar, and a variation done on a machine would be too.
+- A lifter who logs their own ramp-up sets as sets (as in the sample story) sees the checklist before the first of them, worked out from that set's weight.
+- The guide's pictures do not show the checklist (their sample cards carry none), on both apps.
+- The source's rest between the warm-up and the first set (30 seconds to 3 minutes) is not shown.
+
+**How:**
+- `domain`: `coach/WarmUp.kt` (`WarmUp.sets(exercise, working, reps, changePlates)`, returning `WarmUpSet(weight, reps, unit, perSide)`), exposed as `GritDomain.warmUp`; the generated web code is regenerated. Both apps call the one rule, so they cannot suggest different sets.
+- Web: `state/warmUp.ts`; `TodayItem.warmUp` and `warmUpDone`, the ticks in `useToday`'s in-memory `Local` (by exercise, as `warmUpKey`s) with the action `tickWarmUp`; `screens/today/WarmUp.tsx`, drawn by the card's editor, which works the sets out again while another weight is typed (as it does the plates).
+- Android: `ui/today/WarmUpBlock.kt`; the same two fields on `TodayItem`, the ticks in `TodayViewModel`'s `Local`, `TodayActions.onTickWarmUp`.
+- No database or backup change.
+
+**Tests:**
+- Domain: `WarmUpTest` (12): the two sets and their plates; rounding (a tie goes lighter; change plates); just above the bar, at the bar, under the bar; accessories on their own grid and too light to halve; plate numbers; 15 reps; no weight; bodyweight and assisted exercises; and for every weight from 0.5 to 300 kg that each set is lighter than the working weight, heavier than the one before and loadable. `GritDomainTest.warmUp_…`; `GuideTest.noLineNamesASource` lists the three new sources.
+- Web: `WarmUp.test.tsx` (10): the rows, their order on the card, the typing, a tick kept while another exercise is open and writing nothing, a tick not passing to other numbers, gone with the first set, an accessory, 15 reps, a range's low end, a plate-counted machine, the wording. e2e `today.spec.ts`: the whole flow on the real app (rows at least 48 px high, the tick kept across tabs, only the real set stored) and the two screenshots; `narrow.spec.ts`: the checklist on screen, unticked and ticked, at 320 px and 200% text on both sides, in kg and in plates.
+- Android: `WarmUpBlockTest` (6): the wording (the web's, word for word), the rows between Last time and the weight and each at least 48 dp high, the typing, none with a set logged, plate numbers, and the longest rows whole at 320 dp and font scale 1.3, ticked and unticked. `TodayViewModelTest.warmUp_…` (the ticks in memory, per exercise, gone in a fresh view model; nothing logged). `TodayScreenTest.warmUp_…` (the real screen and database).
+
+CHECKS_PLACEHOLDER
+
+**Version:** Android 1.23 (versionCode 40), web 1.23.0 (shown as 1.23).
+
+**Not published.** Waiting for the owner's "publish".
+
+**Next: supersets** (owner, 2026-11-26: saved in the plan, linked once on the Plan tab). They change the stored plan and the backup, so both apps ship together.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

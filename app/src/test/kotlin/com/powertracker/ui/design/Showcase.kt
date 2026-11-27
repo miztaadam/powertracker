@@ -137,7 +137,11 @@ private fun todayItem(
     targetSets = sets,
     perSide = PlateLoader.perSide(weightKg, changePlates = false),
     lastWeightKg = weightKg,
-)
+).withWarmUp()
+
+/** The warm-up checklist (1.23) as the view model puts it on a card: before the first set, for the weight in the field. */
+internal fun TodayItem.withWarmUp(): TodayItem =
+    copy(warmUp = if (sets.isEmpty()) WarmUp.sets(exercise, editor.weightKg, planned?.reps ?: editor.reps, changePlates = false) else emptyList())
 
 private fun todayItems(squatSets: List<StoredSet>, suggest: Boolean) = listOf(
     todayItem(
@@ -173,8 +177,7 @@ fun TodayShowcase() {
 @Composable
 fun TodayWarmUpShowcase() {
     val items = todayItems(emptyList(), suggest = false).toMutableList()
-    val warmUp = WarmUp.sets(items[0].exercise, items[0].editor.weightKg, 5, changePlates = false)
-    items[0] = items[0].copy(warmUp = warmUp, warmUpDone = setOf(warmUp.first()))
+    items[0] = items[0].copy(warmUpDone = setOf(items[0].warmUp.first()))
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
 }
 

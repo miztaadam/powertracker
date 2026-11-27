@@ -363,15 +363,20 @@ object CoachSources {
      * before the workout set; a second warm-up with a moderate resistance may be done on heavy movements or where the
      * muscles and joints involved may be more open to injury; and no warm-up set is typically needed for high
      * repetition exercises. Its training-log shorthand ([WARM_UP_LOG]) writes the warm-up as "50% of workout weight ·
-     * 12 reps", and its workload calculator and variable-resistance article ([WARM_UP_SECOND]) give the second set as
-     * about 75% of the actual resistance, naming squats and deadlifts.
+     * 12 reps", and its workload calculator ([WARM_UP_SECOND]) gives the second set as about 75% of the actual
+     * resistance, naming squats and deadlifts.
      *
-     * From the source: 50%, 12 reps, 75% for the second set, and no warm-up on a high-rep exercise. Not from the
-     * source, the builder's choices, shown to the owner with the design and approved on 2026-11-27: the second set's
-     * 5 reps; "high repetition" read as 15 reps or more; "heavy movements" read as the four main lifts and their
-     * variations (the source names squats and deadlifts); no warm-up for a bodyweight or assisted exercise; and
-     * rounding each weight to one that can be loaded. The source's rest between the warm-up and the first set is not
-     * shown in the app.
+     * From the source: 50%, 12 reps, 75% for the second set, and no warm-up on a high-rep exercise.
+     *
+     * Not from the source. In the design the owner saw and approved ("Go", 2026-11-27): the second set's 5 reps (the
+     * design also called its 75% the builder's choice; the search of the same day found it in the source); "high
+     * repetition" read as 15 reps or more; "heavy movements" read as the four main lifts and their variations (the
+     * source names squats and deadlifts); no warm-up for a bodyweight exercise; each weight rounded to one that can
+     * be loaded, never under the empty bar. Decided while building, and told to the owner with the pictures before
+     * publishing, not in the design: an assisted exercise has none (more weight is easier there); a catalogue
+     * exercise done with bodyweight first has none even with weight added (a weighted pull-up); a rep range is
+     * judged by its low end; an exercise with no plan item by the reps in the field. The source's rest between the
+     * warm-up and the first set is not shown in the app.
      *
      * The sets are a checklist only: they are never logged, so no other rule reads them (the owner's call).
      *
@@ -393,7 +398,11 @@ object CoachSources {
         accessed = "2026-11-27",
     )
 
-    /** The second warm-up set's "approximately 75% of actual resistance", beside [WARM_UP]. From the search summary; not opened. */
+    /**
+     * The second warm-up set's "approximately 75% of actual resistance", beside [WARM_UP]. The same search returned
+     * ExRx.net's variable-resistance article (https://exrx.net/WeightTraining/LightHeavy) with the same figure for
+     * squats and deadlifts. From the search summary; neither page was opened.
+     */
     val WARM_UP_SECOND = Source(
         title = "Workload Adjustment / Rep Performance Calculator",
         publisher = "ExRx.net",

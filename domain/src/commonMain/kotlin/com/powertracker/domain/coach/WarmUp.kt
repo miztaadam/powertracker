@@ -19,10 +19,10 @@ data class WarmUpSet(val weight: Double, val reps: Int, val unit: LoadUnit, val 
  * to tick off and nothing more: the sets are never logged, so they are in no history, no chart and no coach rule
  * (the owner's call, 2026-11-27).
  *
- * Sources: [CoachSources.WARM_UP]. From the source: one set at half the working weight for [FIRST_REPS] reps; a second
- * at about three quarters of it on heavy lifts; none for a high-rep exercise. Not from the source, the builder's
- * choices the owner approved with the design: [SECOND_REPS], [HIGH_REPS], and which lifts count as heavy (the four
- * main lifts and their variations).
+ * Sources: [CoachSources.WARM_UP], which also says which of these the owner saw in the design and which were decided
+ * while building. From the source: one set at half the working weight for [FIRST_REPS] reps; a second at about three
+ * quarters of it on heavy lifts; none for a high-rep exercise. Not from the source: [SECOND_REPS], [HIGH_REPS], which
+ * lifts count as heavy (the four main lifts and their variations), and which exercises have none.
  */
 object WarmUp {
     /** The first set's share of the working weight. */
