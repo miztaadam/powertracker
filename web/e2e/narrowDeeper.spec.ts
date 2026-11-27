@@ -168,6 +168,10 @@ test.describe('the deeper screens and dialogs at 320 px and 200 % text', () => {
       await openOnWednesday(page)
       await seedStory(page, story())
       await page.goto('/#/progress')
+      // Until the stored side is read, Progress draws the powerlifting side's screen; on the bodybuilding side that screen,
+      // and its History button, is then replaced by another. A button held while that happens is gone (seen once, on a
+      // busy machine, 1.23.2's run), so wait for the side's own heading line first.
+      await expect(page.getByText(side === 'bodybuilding' ? 'Best set per session' : 'Estimated 1RM', { exact: true })).toBeVisible()
       const history = page.getByRole('button', { name: 'History', exact: true })
       await expect(history).toBeVisible()
       await holds(page, `Progress with its History button, ${side}`, history)
