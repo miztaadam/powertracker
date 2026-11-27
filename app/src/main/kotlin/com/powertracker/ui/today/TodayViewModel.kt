@@ -233,8 +233,14 @@ class TodayViewModel(
     private val local = MutableStateFlow(Local())
     private val starting = MutableStateFlow(false)
 
-    /** True while a set is being saved; further log taps are ignored until the screen shows it. */
+    /** True while a set is being saved; further log taps are ignored until the screen shows it. [finishSession] waits for it. */
     private val saving = MutableStateFlow(false)
+
+    /**
+     * True from the Finish tap until its summary is up (or it gave up): a second tap meanwhile must not run the coach
+     * again (its notes would be stored twice), and no set is saved meanwhile.
+     */
+    private val finishing = MutableStateFlow(false)
 
     /** True while [addToOpenSession] is working; further calls are ignored until it has answered. */
     private val addingToSession = MutableStateFlow(false)
@@ -488,6 +494,9 @@ class TodayViewModel(
      * reps, or a jump of more than 30% from the last weight) is held in [TodayState.pending] instead.
      */
     fun logSet(planItemId: Long?, exerciseId: Long, set: LoggedSet, confirmed: Boolean = false) {
+        // A tap that lands while Finish is at work saves nothing: its set would be stored behind a summary that did not
+        // count it. The numbers stay in the card ("Keep logging").
+        if (finishing.value) return
         // A fast double tap must not save the set twice.
         if (!saving.compareAndSet(expect = false, update = true)) return
         viewModelScope.launch {
@@ -730,37 +739,50 @@ class TodayViewModel(
         local.update { it.copy(added = it.added - exerciseId - listOfNotNull(standIn).toSet(), editors = it.editors - exerciseId - listOfNotNull(standIn).toSet()) }
     }
 
-    /** Runs the coach over the history including today and stores what is new. */
+    /**
+     * Runs the coach over the history including today and stores what is new. A set whose save is under way belongs to
+     * the session being finished (Log set and Finish tapped together, or a slow phone): Finish waits until it is stored
+     * and on screen, so the coach reads it and the summary counts it. A second call while one is at work does nothing.
+     */
     fun finishSession() {
+        if (!finishing.compareAndSet(expect = false, update = true)) return
         viewModelScope.launch {
-            val now = loaded()
-            if (now.sessionId == null) return@launch
-            // The session's own side: its plan and its advice (deloads and easing back in count on both).
-            val fresh = Coaching.evaluate(
-                now.mode,
-                training.history().first(),
-                training.plan(now.mode).first(),
-                settings.settings.first().coach(),
-                date,
-                advice.all(),
-                // The latest check-in's growing-well body parts keep their exercises out of the swaps (stage 3).
-                training.checkIns().first(),
-            )
-            if (fresh.isNotEmpty()) advice.insert(fresh)
-            val done = now.items.filter { it.sets.isNotEmpty() }
-            val skipped = todaysSkips(training.skips().first(), now.mode).size
-            val summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size, skipped)
-            // Stored before it is shown, so the summary on screen means the session stays finished when the app is
-            // closed and opened. A failed write only costs that: the session is finished on screen all the same.
             try {
-                settings.setFinishedSession(FinishedSession(now.sessionId, date, summary.setCount, summary.exerciseCount, summary.newNotes, summary.skipped))
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                // Nothing to undo.
+                saving.first { !it }
+                finish(loaded())
+            } finally {
+                finishing.value = false
             }
-            local.update { it.copy(summary = summary) }
         }
+    }
+
+    private suspend fun finish(now: TodayState) {
+        if (now.sessionId == null) return
+        // The session's own side: its plan and its advice (deloads and easing back in count on both).
+        val fresh = Coaching.evaluate(
+            now.mode,
+            training.history().first(),
+            training.plan(now.mode).first(),
+            settings.settings.first().coach(),
+            date,
+            advice.all(),
+            // The latest check-in's growing-well body parts keep their exercises out of the swaps (stage 3).
+            training.checkIns().first(),
+        )
+        if (fresh.isNotEmpty()) advice.insert(fresh)
+        val done = now.items.filter { it.sets.isNotEmpty() }
+        val skipped = todaysSkips(training.skips().first(), now.mode).size
+        val summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size, skipped)
+        // Stored before it is shown, so the summary on screen means the session stays finished when the app is
+        // closed and opened. A failed write only costs that: the session is finished on screen all the same.
+        try {
+            settings.setFinishedSession(FinishedSession(now.sessionId, date, summary.setCount, summary.exerciseCount, summary.newNotes, summary.skipped))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // Nothing to undo.
+        }
+        local.update { it.copy(summary = summary) }
     }
 
     /**
