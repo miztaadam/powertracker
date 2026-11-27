@@ -1998,6 +1998,44 @@ Picked by the owner on 2026-11-26 from the list of ideas ("warm up sets"); on 20
 
 **Next: supersets** (owner, 2026-11-26: saved in the plan, linked once on the Plan tab). They change the stored plan and the backup, so both apps ship together.
 
+## Done: 1.23.1, Finish counts a set that is still being saved (both apps)
+Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above, the `E2E_UA=android` pass of its second round).
+
+**What was wrong:** "Session saved" counted the sets that were on screen at the moment Finish was tapped. A set tapped a split second before, still on its way into the log, was stored but not counted, and the coach, which runs at Finish, had not read it either. Seen once on a busy test machine; on a phone it needs Log set and Finish within the moment a save takes.
+
+**What changes for the lifter (both apps):**
+- **Log set, then Finish, however fast:** Finish waits for the set to be stored and shown, then runs the coach and counts. The summary, the note kept for the next time the app is opened, and the coach all have that set.
+- **Finish, then Log set, within the moment Finish takes (the other order, found while fixing the first):** before, that set was stored behind a summary that did not count it. Now that tap does nothing; its numbers stay in the card, and "Keep logging" brings the card back to log it.
+- **Android app only: Finish tapped twice quickly** ran the coach twice and stored each new coach note twice (the new test showed two "easing back in" notes). The Android app had no guard there; the web app has had one all along. Now the second tap does nothing while the first is at work. Finish again after "Keep logging" still runs the coach again, as before.
+- The double-tap guards are kept: Log set twice still saves one set, on both apps.
+
+**Limits, left as they are:**
+- Finish waits for the set to be on screen for at most two seconds (the wait Log set itself has had since it got its guard). If the screen has not shown the set by then, the summary counts what the screen has.
+- A set held back by the "Did you mean …?" question is not being saved, so Finish does not wait for an answer. If Log set (held for that question) and Finish are tapped in the same instant, the question is on top of the summary, and "Confirm" then stores a set the summary did not count. Three things at once; not changed.
+- Android: while Finish waits or runs, "Add to today" on the Exercises tab is not refused (the web app refuses it). It only adds a card, no set.
+
+**How:**
+- Web, `state/useToday.ts`: `saving` is now the promise of the save under way (null when there is none), ended in `logSet`'s `finally` however the save ends; `finishSession` sets its guard, awaits it, waits for the screen's data and only then reads the screen. `logSet` returns at once while `finishing` is set.
+- Android, `ui/today/TodayViewModel.kt`: a new `finishing` flag; `finishSession` takes it (compare-and-set), waits for `saving` to be false, then reads the state; `logSet` returns at once while it is set.
+- No database or backup change.
+
+**Tests:**
+- Web, `TodayScreen.test.tsx`: `finishTappedWithLogSet_countsTheSetStillBeingSaved` (Log set 3 and Finish clicked in one tick: "Sets 3", "Exercises 1", three stored, the stored note says 3; it gave "Sets 2" before the fix) and `logSetTappedWhileFinishWorks_isNotSaved_soTheSummaryCountsEverySetStored` (the other order: "Sets 2", two stored, and Log set works again after "Keep logging"; before, a third set was stored). e2e `reload.spec.ts` taps Finish straight after Log set again, without 1.23's wait for the third row.
+- Android, `TodayViewModelTest`: the same two, calling what the two buttons call in one turn of the main thread, and `finishDoubleTap_runsTheCoachOnce`. All three failed before the fix: a summary of 2, a fourth set stored, two notes.
+
+**Checks, on the branch (`claude/determined-fermat-po8wgi`), 2026-11-27, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724 (1,722 before, plus two); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 530 passed, 12 skipped, first time. The `E2E_UA=android` pass: 262 passed, 12 skipped.** `reload.spec.ts`, which now taps Finish straight after Log set, ten times over on each path: 20 of 20 as an iPhone, 20 of 20 as an Android phone.
+- **Speed project alone, eight times: 6 of 6 seven times, 5 of 6 once.** The one miss (the second run) was the Exercises tab opening in 105 ms against its 100 ms limit, the check written up below as having no headroom ("the 100 ms speed checks have no headroom": worst opens 96 to 108 ms). Nothing in this release is on that screen's path; the five runs after it all passed. Not looked into further.
+- Gradle, each made to run (`--rerun`): `:domain:allTests` (JVM 1,000 tests, 0 failed; JS 1,052, 0 failed); `:app:testDebugUnitTest`, 1,155 tests, 0 failed, 1 skipped (1,152 before, plus three). `:domain:checkWebDomain` passed. `:app:assembleRelease` builds: versionCode 41, versionName 1.23.1, unsigned in this container.
+- Maven Central answered HTTP 429 on this container's first downloads, also with `--max-workers=1`; each Gradle command was run again until it got its files (five tries for the first). No test was re-run for a failure.
+- **Not run on merged main. Not run on a phone or an emulator.** The Android tests call what the two buttons call, in one turn of the main thread; no test taps the two real Android buttons together.
+
+**Shots:** the six Settings shots of each app (the version line). Five other web shots (guide and form-guide) came out a few bytes different and were put back, as in 1.23.
+
+**Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
+
+**Not published.** Waiting for the owner's "publish". This branch (`claude/determined-fermat-po8wgi`) is built on 1.23's branch, which is not published either, so publishing it publishes 1.23 with it.
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
