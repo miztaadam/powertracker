@@ -47,6 +47,7 @@ import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
+import com.powertracker.domain.plan.SupersetHalf
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.ui.PtBottomBar
@@ -83,6 +84,7 @@ import com.powertracker.ui.today.TodayActions
 import com.powertracker.ui.today.TodayContent
 import com.powertracker.ui.today.TodayItem
 import com.powertracker.ui.today.TodayState
+import com.powertracker.ui.today.TodaySuperset
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -178,6 +180,18 @@ fun TodayShowcase() {
 fun TodayWarmUpShowcase() {
     val items = todayItems(emptyList(), suggest = false).toMutableList()
     items[0] = items[0].copy(warmUpDone = setOf(items[0].warmUp.first()))
+    TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
+}
+
+/**
+ * Today in a superset (1.24): the squat and the bench are linked on the Plan tab. The squat's first set is logged, so
+ * its card has folded and the bench's is open for its first, with no rest between the two.
+ */
+@Composable
+fun TodaySupersetShowcase() {
+    val items = todayItems(listOf(logged(1, 155.0, 5, 8.0)), suggest = false).toMutableList()
+    items[0] = items[0].copy(superset = TodaySuperset(SupersetHalf.FIRST, 2, "Bench", due = SupersetHalf.SECOND))
+    items[1] = items[1].copy(superset = TodaySuperset(SupersetHalf.SECOND, 1, "Squat", due = SupersetHalf.SECOND))
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
 }
 
@@ -310,6 +324,20 @@ fun PlanShowcase(knownBests: Boolean = false) {
             mainExercises = main,
         )
     }
+    PlanContent(state, onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {})
+}
+
+/** The Plan tab with a superset (1.24): Monday's bench linked to the squat above it, the two tagged A and B. */
+@Composable
+fun PlanSupersetShowcase() {
+    val monday = day(DayOfWeek.MONDAY, Triple("Squat", 5 to 5, 8.0), Triple("Bench", 4 to 6, 7.5), Triple("Barbell row", 3 to 8, 8.0))
+    val rows = monday.rows.toMutableList()
+    rows[0] = rows[0].copy(superset = SupersetHalf.FIRST, partnerName = "Bench")
+    rows[1] = rows[1].copy(superset = SupersetHalf.SECOND, partnerName = "Squat")
+    val state = PlanUiState(
+        sections = listOf(monday.copy(rows = rows), day(DayOfWeek.WEDNESDAY, Triple("Deadlift", 3 to 3, 8.0), Triple("Close-grip bench", 3 to 5, 8.0))),
+        mainExercises = listOf(exercise(1, "Squat", Category.SQUAT), exercise(2, "Bench", Category.BENCH), exercise(3, "Deadlift", Category.DEADLIFT)),
+    )
     PlanContent(state, onOpenSettings = {}, onAdd = {}, onEdit = {}, onMove = { _, _ -> }, onDelete = {}, onSetBaseline = {})
 }
 

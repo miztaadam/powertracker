@@ -101,6 +101,14 @@ class ScreenshotTest {
     @Test
     fun todayWarmUp() = render("today-warm-up", Tab.TODAY) { TodayWarmUpShowcase() }
 
+    // 1.24: a superset mid-pair, the first exercise's set logged and the second's card open.
+    @Test
+    fun todaySuperset() = render("today-superset", Tab.TODAY) { TodaySupersetShowcase() }
+
+    // 1.24: the linked pair on the Plan tab.
+    @Test
+    fun planSuperset() = render("plan-superset", Tab.PLAN) { PlanSupersetShowcase() }
+
     @Test
     fun todayStart() = render("today-start", Tab.TODAY) { TodayStartShowcase() }
 
