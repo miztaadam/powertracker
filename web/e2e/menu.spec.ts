@@ -40,9 +40,9 @@ async function seed(page: Page, plates: boolean) {
   await page.reload()
   await expect(tabBar(page)).toBeVisible()
   // The "Install Grit" card is drawn a moment after the plan, above it (it reads whether it was dismissed first). A menu
-  // opened before it arrives is pushed down with the plan and is not placed again: at 306 px its bottom was seen at 786
-  // of a 583 px room, once, on a busy machine (1.23's run on merged main). The tests here open a menu on a screen that
-  // has settled, so they wait for the card.
+  // opened before it arrived was pushed down with the plan and was not placed again: at 306 px its bottom was seen at
+  // 786 of a 583 px room, once, on a busy machine (1.23's run on merged main). Since 1.23.2 the menu is placed again
+  // (its own test below holds the card back). The other tests measure a screen that has settled, so they wait for the card.
   await expect(page.locator('.install-card')).toBeVisible()
 }
 
