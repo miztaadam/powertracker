@@ -2042,7 +2042,7 @@ Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above
 
 **Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
 
-**Not published.** Waiting for the owner's "publish". This branch (`claude/determined-fermat-po8wgi`) is built on 1.23's branch, which is not published either, so publishing it publishes 1.23 with it.
+**Owner, 2026-11-27: "publish".** 1.23 was published meanwhile (above, as `10a992e`), so 1.23.1 goes out alone. This branch (`claude/determined-fermat-po8wgi`) was built on 1.23's branch at `d409eec`; that branch's last two commits (the ⋮ menu test's wait, and 1.23's publishing notes) were merged in before the merge into main. The round on merged main and the live check are recorded below once done.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
