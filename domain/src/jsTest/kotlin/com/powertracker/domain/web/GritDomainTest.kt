@@ -315,6 +315,31 @@ class GritDomainTest {
     }
 
     @Test
+    fun supersets_pairsLinksAndTurns_throughTheBridge() {
+        fun item(id: Int, order: Int, linked: Boolean = false, exercise: Int = id * 10) = JsPlanItem(id, 3, exercise, 3, 8, 8.0, order, "POWERLIFTING", null, linked)
+        val plan = arrayOf(item(1, 0), item(2, 1, linked = true), item(3, 2), item(4, 3, linked = true), item(5, 4, linked = true))
+        assertEquals(listOf(1 to 2, 3 to 4), GritDomain.supersetPairs(plan).map { it.firstId to it.secondId })
+        assertEquals(listOf(5), GritDomain.supersetStale(plan).toList())
+        assertTrue(GritDomain.supersetCanLink(arrayOf(item(1, 0), item(2, 1)), 2))
+        assertTrue(!GritDomain.supersetCanLink(plan, 3))
+        // The first pair's first deleted: its second loses the link.
+        assertEquals(listOf(2), GritDomain.supersetBroken(plan, plan.drop(1).toTypedArray()).toList())
+        // The flag goes through the bridge both ways (the coach's plan changes hand items back).
+        assertTrue(plan[1].supersetWithAbove && !plan[0].supersetWithAbove)
+
+        assertEquals("FIRST", GritDomain.supersetDue(0, 3, 0, 3))
+        assertEquals("SECOND", GritDomain.supersetDue(1, 3, 0, 3))
+        assertNull(GritDomain.supersetDue(3, 3, 3, 3))
+        val afterFirst = GritDomain.supersetAfterSet("FIRST", 1, 3, 0, 3, false)
+        assertEquals("SECOND" to false, afterFirst.open to afterFirst.rest)
+        val afterSecond = GritDomain.supersetAfterSet("SECOND", 1, 3, 1, 3, false)
+        assertEquals("FIRST" to true, afterSecond.open to afterSecond.rest)
+        val kept = GritDomain.supersetAfterSet("FIRST", 1, 3, 0, 3, true)
+        assertEquals(null to false, kept.open to kept.rest)
+        assertFailsWith<IllegalArgumentException> { GritDomain.supersetAfterSet("THIRD", 1, 3, 0, 3, false) }
+    }
+
+    @Test
     fun weeksInARow_countsBackFromThisWeek_aWeekInProgressDoesNotBreakTheRun() {
         // Wednesday 11 November 2026: this week has none yet, last week and the one before have one each.
         assertEquals(2, GritDomain.weeksInARow(arrayOf("2026-11-05", "2026-10-27"), "2026-11-11"))

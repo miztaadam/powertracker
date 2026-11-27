@@ -76,6 +76,12 @@ export declare namespace GritDomain {
             isMainLift(exercise: JsExercise): boolean;
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
             lastTimes(history: JsHistory, mode: string, before: string): Array<JsLastTime>;
+            supersetPairs(plan: Array<JsPlanItem>): Array<JsSupersetPair>;
+            supersetCanLink(plan: Array<JsPlanItem>, itemId: number): boolean;
+            supersetStale(plan: Array<JsPlanItem>): Array<number>;
+            supersetBroken(before: Array<JsPlanItem>, after: Array<JsPlanItem>): Array<number>;
+            supersetDue(firstDone: number, firstTarget: number, secondDone: number, secondTarget: number): Nullable<string>;
+            supersetAfterSet(logged: string, firstDone: number, firstTarget: number, secondDone: number, secondTarget: number, keepCard: boolean): JsSupersetStep;
             warmUp(exercise: JsExercise, working: number, reps: number, changePlates: boolean): Array<JsWarmUpSet>;
             weeksInARow(workoutDays: Array<string>, today: string): number;
             openAdviceExpired(type: string, createdAt: string, today: string): boolean;
@@ -815,7 +821,7 @@ export declare namespace JsSession {
     }
 }
 export declare class JsPlanItem {
-    constructor(id: number, weekday: number, exerciseId: number, sets: number, reps: number, targetRpe: number, order: number, mode?: string, repsHigh?: Nullable<number>);
+    constructor(id: number, weekday: number, exerciseId: number, sets: number, reps: number, targetRpe: number, order: number, mode?: string, repsHigh?: Nullable<number>, supersetWithAbove?: boolean);
     get id(): number;
     get weekday(): number;
     get exerciseId(): number;
@@ -825,7 +831,8 @@ export declare class JsPlanItem {
     get order(): number;
     get mode(): string;
     get repsHigh(): Nullable<number>;
-    copy(id?: number, weekday?: number, exerciseId?: number, sets?: number, reps?: number, targetRpe?: number, order?: number, mode?: string, repsHigh?: Nullable<number>): JsPlanItem;
+    get supersetWithAbove(): boolean;
+    copy(id?: number, weekday?: number, exerciseId?: number, sets?: number, reps?: number, targetRpe?: number, order?: number, mode?: string, repsHigh?: Nullable<number>, supersetWithAbove?: boolean): JsPlanItem;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -834,6 +841,36 @@ export declare namespace JsPlanItem {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsPlanItem;
+    }
+}
+export declare class JsSupersetPair {
+    constructor(firstId: number, secondId: number);
+    get firstId(): number;
+    get secondId(): number;
+    copy(firstId?: number, secondId?: number): JsSupersetPair;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSupersetPair {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSupersetPair;
+    }
+}
+export declare class JsSupersetStep {
+    constructor(open: Nullable<string>, rest: boolean);
+    get open(): Nullable<string>;
+    get rest(): boolean;
+    copy(open?: Nullable<string>, rest?: boolean): JsSupersetStep;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSupersetStep {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSupersetStep;
     }
 }
 export declare class JsBaseline {
