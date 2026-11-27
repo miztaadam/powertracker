@@ -2063,6 +2063,19 @@ Asked by the owner on 2026-11-27, from the fault 1.23's first round on merged ma
 
 **Not done, left for the owner to decide:** the three cards on Today still arrive a moment after the plan and push it down. A tap aimed at the plan in that moment (Start session, a ⋮) can land on what has moved under the finger. Not seen by hand; the moment is the few milliseconds of a read of the stored data. Holding the cards' place or their order of drawing is option 2 above.
 
+**Checks, on the branch (`claude/affectionate-fermi-r1rqq0`), 2026-11-27, on the final app code:**
+- Web: `npm run typecheck` clean; unit tests 1,728 of 1,728 (1,724 before, plus four); build clean.
+- **A first full Playwright run, made while Gradle was re-shooting the Android shots beside it: 526 passed, 12 skipped, 1 failed, 6 not run** (the timing checks, which wait for the rest): `narrowDeeper.spec.ts`, "workout history, bodybuilding side's log, fits, and the History button on Progress fits": "Element is not attached to the DOM" while scrolling to the History button on Progress. **Cause found and shown, and it is not this release's:** until the stored side has been read, Progress draws the powerlifting side's screen (`useProgress.ts`: `stored?.side ?? 'POWERLIFTING'`); on the bodybuilding side that screen and its History button are then replaced by the bodybuilding one. A probe (not kept) that watched the page saw two History buttons in turn, the first under "Estimated 1RM", the second under "Best set per session". The test held the first as it was replaced. **Changed, test only:** it waits for its side's own heading line before it takes the button; then 10 of 10 as an iPhone and 10 of 10 as an Android phone. The app is unchanged there: see "Found on the way".
+- **The second full Playwright run, alone on the machine, on the same app code (iPhone path, with `UPDATE_SCREENSHOTS=1`): 533 passed, 12 skipped, first time** (530 before, plus three). **Speed project alone, three times: 6 of 6 each.**
+- **The `E2E_UA=android` pass: 265 passed, 12 skipped** (262 before, plus three). Run before the test-only change above, which is in a file this pass does not run.
+- `menu.spec.ts` alone, on the final code: 29 of 29 as an iPhone and 29 of 29 as an Android phone.
+- Gradle: results to follow in the next commit.
+- **Not run on merged main. Not run on a phone or an emulator, and not in Safari:** the menu's new behaviour was seen in Chromium made to look like an iPhone and like an Android phone, with motion off as in every browser test. With motion on, the ⋮ sinks and springs back under the finger; the look reads the box around it so that this is not taken for a move, which was reasoned from the styles (`press.css`), not run.
+
+**Found on the way, left as it is:** on the bodybuilding side, the web app's Progress tab shows the powerlifting side's heading line ("Estimated 1RM") for the moment before the stored side is read, then swaps to "Best set per session". A flash of a few milliseconds; a follow-up if the owner wants it (draw neither side until the side is known).
+
+**Shots:** the six Settings shots of each app (the version line). Android: only those six changed. Web: eight other shots (guide and form-guide) came out a few bytes different over the two runs and were put back, as in 1.23 and 1.23.1.
+
 **Version:** Android 1.23.2 (versionCode 42), web 1.23.2. Built on 1.23.1's branch and 1.23's (with its test-only commit `9386fd5`), neither published yet, so publishing this publishes 1.23 and 1.23.1 with it.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
