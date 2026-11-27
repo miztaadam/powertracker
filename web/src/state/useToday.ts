@@ -835,8 +835,12 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     }
   }, [db, date, planKey])
 
-  // True while a set is being saved; further log taps are ignored until the screen shows it.
-  const saving = useRef(false)
+  // Set while a set is being saved; further log taps are ignored until the screen shows it. The promise ends with the
+  // save, however it ends (stored and shown, held for the typo dialog, refused, failed): Finish waits for it.
+  const saving = useRef<Promise<void> | null>(null)
+  // True from the Finish tap until its summary is up (or it gave up): a second tap must not run the coach again and
+  // replace the summary, and no set is saved meanwhile.
+  const finishing = useRef(false)
   const starting = useRef(false)
   const waiting = useRef<{ setId: number; done: () => void }[]>([])
   const loadWaiting = useRef<(() => void)[]>([])
@@ -967,9 +971,11 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
 
   const logSet = useCallback(
     async (itemKey: number, set: SetInput, confirmed = false) => {
-      // A fast double tap must not save the set twice.
-      if (saving.current) return
-      saving.current = true
+      // A fast double tap must not save the set twice. And a tap that lands while Finish is at work saves nothing: its
+      // set would be stored behind a summary that did not count it. The numbers stay in the card ("Keep logging").
+      if (saving.current || finishing.current) return
+      let ended!: () => void
+      saving.current = new Promise<void>((resolve) => (ended = resolve))
       try {
         // A set goes into the open session, also after midnight: the session belongs to the day it was started.
         // A tap is never dropped: it waits for the screen's data, and without a session it fails out loud.
@@ -1025,7 +1031,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
         await shown(setId)
       } finally {
-        saving.current = false
+        saving.current = null
+        ended()
       }
     },
     [db, update, shown, loaded, touch, slide],
@@ -1112,8 +1119,6 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [addExercise],
   )
 
-  // True while the coach runs for Finish; a second tap must not run it again and replace the summary.
-  const finishing = useRef(false)
   // True while `addToOpenSession` is at work; further calls are ignored until it has answered.
   const addingToSession = useRef(false)
   const addToOpenSession = useCallback<TodayActions['addToOpenSession']>(
@@ -1194,10 +1199,16 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   )
 
   const finishSession = useCallback(async () => {
-    const now = latest.current
-    if (finishing.current || now.summary != null || now.loading || now.sessionId == null) return
+    const tapped = latest.current
+    if (finishing.current || tapped.summary != null || tapped.loading || tapped.sessionId == null) return
     finishing.current = true
     try {
+      // A set whose save is under way belongs to the session being finished (Log set and Finish tapped together, or a
+      // slow phone): wait until it is stored and on screen, so the coach reads it and the summary counts it.
+      await saving.current
+      if (!(await loaded())) return
+      const now = latest.current
+      if (now.summary != null || now.sessionId !== tapped.sessionId) return
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
       const [newNotes, skipped] = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns, db.skips], async () => {
@@ -1227,7 +1238,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     } finally {
       finishing.current = false
     }
-  }, [db, update])
+  }, [db, update, loaded])
 
   // True while a skip is being stored; a second Skip today meanwhile (a double tap) is ignored.
   const skipping = useRef(false)
