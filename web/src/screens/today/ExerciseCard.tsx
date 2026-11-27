@@ -20,6 +20,8 @@ import { InfoButton } from '../library/InfoButton'
 import { RpeInfoButton } from '../library/RpeSheet'
 import { MAX_KG, MAX_REPS, MAX_RPE, MIN_RPE, entryMessage, parseEntry, weightKind, type EntryKind } from './entry'
 import { LastTime } from './LastTime'
+import { WarmUp } from './WarmUp'
+import { warmUpSets } from '../../state/warmUp'
 import { SkipMenu } from './SkipToday'
 import './today.css'
 
@@ -305,6 +307,14 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   const typed = settle(e, drafts, kinds).editor
   const weight = typed.weightKg
   const perSide = weight == null || unit === 'PLATES' ? null : weight === e.weightKg ? item.perSide : (grit.platesPerSide(weight, changePlates) ?? null)
+  // The warm-up follows the typing too (1.23), while the item says there is a checklist. An exercise with no plan
+  // item is judged a high-rep one by the reps in the field.
+  const warmUp =
+    !item.warmUpOpen
+      ? []
+      : weight === e.weightKg && typed.reps === e.reps
+        ? item.warmUp
+        : warmUpSets(item.exercise, weight, item.planned?.reps ?? typed.reps, changePlates)
 
   /** Leaving a field commits what was typed into it. */
   const commit = (kind: EntryKind) => {
@@ -350,6 +360,7 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
 
   return (
     <>
+      <WarmUp sets={warmUp} done={item.warmUpDone} onTick={(key, done) => actions.tickWarmUp(id, key, done)} />
       <div className="today-steppers" ref={fields}>
         {weightField === 'kg' ? (
           <StepperField

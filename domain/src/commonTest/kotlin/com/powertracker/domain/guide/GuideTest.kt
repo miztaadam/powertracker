@@ -170,6 +170,7 @@ class GuideTest {
             CoachSources.TEMPLATE_STRENGTH_PHASE, CoachSources.TEMPLATE_NSCA_TABLE, CoachSources.TEMPLATE_STRENGTH_FLOOR,
             CoachSources.TEMPLATE_LOAD_CHART, CoachSources.TEMPLATE_ACCESSORY_RANGE, CoachSources.TEMPLATE_SPLIT_ADVANCED,
             CoachSources.TEMPLATE_SPLIT_BODYBUILDERS,
+            CoachSources.WARM_UP, CoachSources.WARM_UP_LOG, CoachSources.WARM_UP_SECOND,
         )
         // "American College of Sports Medicine (ACSM)" -> the full name and "ACSM"; "ExRx.net" -> "ExRx".
         val names = sources.flatMap { s ->

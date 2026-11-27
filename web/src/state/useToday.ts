@@ -11,6 +11,7 @@ import type { PastSet } from '../ui/components/PastSets'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
 import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
+import { warmUpSets, type WarmUpSet } from './warmUp'
 
 /**
  * The numbers in the steppers for the next set. `weightKg` is null until the lifter enters one; it is a plate number when
@@ -62,6 +63,17 @@ export type TodayItem = {
    * session, except just after the exercise's plate setting changed (the coach then reads only the sets in the new unit).
    */
   lastTime: LastTime | null
+  /**
+   * 1.23: the warm-up sets to tick off before the first set, for the weight in the editor (the card works them out
+   * again while another weight is being typed); empty when there is nothing to suggest. Never logged. `warmUpOpen`
+   * says whether the card shows a checklist at all: only while no set is logged for the exercise today, and not again
+   * once one was logged here, even if it is then deleted (the lifter has warmed up, and a block coming back would push
+   * the Log button down under their thumb). `warmUpDone` holds the `warmUpKey` of each set ticked: kept while the app
+   * is open, on this day only, and stored nowhere.
+   */
+  warmUpOpen: boolean
+  warmUp: WarmUpSet[]
+  warmUpDone: readonly string[]
   /**
    * 1.17, each there only when it is not the default: the exercise's current unit (PLATES; absent is kg), which the
    * editor, the targets and the typo check are in; its stored plate setting (WHOLE or HALF; absent is OFF), which the
@@ -138,6 +150,8 @@ export type TodayActions = {
   startSession: (bodyweightKg: number | null, readiness: number | null) => Promise<void>
   /** Changes the numbers for the next set of an exercise. No set is saved. */
   edit: (exerciseId: number, editor: SetEditor) => void
+  /** 1.23: ticks (or unticks) a warm-up set of an exercise, by its `warmUpKey`. Nothing is saved or logged. */
+  tickWarmUp: (exerciseId: number, key: string, done: boolean) => void
   /**
    * Saves `set` for the item with this key (its exercise id). Unless `confirmed`, a set that looks
    * like a typo is held in `pending` instead. Rejects when the write fails or there is no session.
@@ -235,9 +249,15 @@ type Local = {
   added: number[]
   pending: PendingLog | null
   summary: FinishSummary | null
+  /** 1.23: the warm-up sets ticked, by exercise id, as `warmUpKey`s. In memory only: a reload starts them afresh. */
+  warmUpDone: Record<number, readonly string[]>
+  /** 1.23: the exercises (by the key their set was logged under) that had a set logged here today: no checklist again. */
+  warmUpOver: readonly number[]
 }
 
-const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null })
+const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {}, warmUpOver: [] })
+
+const NONE_TICKED: readonly string[] = []
 
 const editorKey = (date: string, exerciseId: number) => `editor:${date}:${exerciseId}`
 
@@ -553,6 +573,7 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
           ? { weightKg: applied.weightKg, reps: applied.reps, rpe: applied.rpe, ...unitKey(unit) }
           : { weightKg: top?.weightKg ?? null, reps: plan?.reps ?? top?.reps ?? DEFAULT_REPS, rpe, ...unitKey(unit) })
     const targetSets = plan ? (applied?.sets ?? plan.sets) : null
+    const warmUpOpen = sets.length === 0 && !l.warmUpOver.includes(exercise.id) && !l.warmUpOver.includes(standInOf.get(exercise.id) ?? exercise.id)
     const open = newest?.status === 'OPEN' ? newest : undefined
     // On the bodybuilding side Apply fills in the reps to beat for the set about to be logged. Under a pain hold the aim is
     // not reset to the low end of the range, so the skips go too.
@@ -569,6 +590,10 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
       perSide: editor.weightKg != null && unit === 'KG' ? (grit.platesPerSide(editor.weightKg, d.settings.changePlates) ?? null) : null,
       lastWeightKg: lastToday?.weightKg ?? top?.weightKg ?? null,
       lastTime: past.get(exercise.id) ?? null,
+      // Before the first set only. The plan's reps say whether it is a high-rep exercise; with no plan, the field's.
+      warmUpOpen,
+      warmUp: warmUpOpen ? warmUpSets(exercise, editor.weightKg, plan?.reps ?? editor.reps, d.settings.changePlates) : [],
+      warmUpDone: l.warmUpDone[exercise.id] ?? l.warmUpDone[standInOf.get(exercise.id) ?? exercise.id] ?? NONE_TICKED,
       ...unitKey(unit),
       ...(offered && plateCount !== 'OFF' ? { plateCount } : {}),
       ...(offered ? { plateOffered: true } : {}),
@@ -897,6 +922,16 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [],
   )
 
+  const tickWarmUp = useCallback(
+    (exerciseId: number, key: string, done: boolean) =>
+      update((l) => {
+        const before = l.warmUpDone[exerciseId] ?? NONE_TICKED
+        if (before.includes(key) === done) return l
+        return { ...l, warmUpDone: { ...l.warmUpDone, [exerciseId]: done ? [...before, key] : before.filter((k) => k !== key) } }
+      }),
+    [update],
+  )
+
   const edit = useCallback(
     (exerciseId: number, editor: SetEditor) => {
       update((l) => ({ ...l, editors: { ...l.editors, [exerciseId]: editor } }))
@@ -982,7 +1017,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz,
         // worked out after the save and beside it: it never holds the set up, and if it fails the set still ticks.
         if (hapticsPossible()) void buzzForSet(db, setId, row, now.date, now.side)
-        update((l) => ({ ...l, pending: null }))
+        // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
+        update((l) => ({ ...l, pending: null, warmUpOver: l.warmUpOver.includes(itemKey) ? l.warmUpOver : [...l.warmUpOver, itemKey] }))
         touch(now.date)
         // Every exercise on the bodybuilding side takes the accessory rest (spec §5.3).
         setLogged.current?.(now.side === 'POWERLIFTING' && item?.exercise.category !== 'ACCESSORY')
@@ -1265,6 +1301,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     addToOpenSession,
     createExercise,
     removeExercise,
+    tickWarmUp,
     setPlateCount,
     skip,
     undoSkip,

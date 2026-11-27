@@ -14,6 +14,8 @@ import com.powertracker.data.TrainingRepository
 import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.history.HistoryStats
+import com.powertracker.domain.coach.WarmUp
+import com.powertracker.domain.coach.WarmUpSet
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.history.lastTimes
 import com.powertracker.domain.library.Library
@@ -98,6 +100,17 @@ data class TodayItem(
      * changed, when the coach reads only the sets in the new unit.
      */
     val lastTime: LastTime? = null,
+    /**
+     * The warm-up sets to tick off before the first set (1.23), for the weight in the editor (the card works them out
+     * again while another weight is being typed); empty when there is nothing to suggest. Never logged. [warmUpOpen]
+     * says whether the card shows a checklist at all: only while no set is logged for the exercise today, and not again
+     * once one was logged here, even if it is then deleted (the lifter has warmed up, and a block coming back would
+     * push the Log button down under their thumb). [warmUpDone] holds the sets ticked: kept while the app is open and
+     * stored nowhere.
+     */
+    val warmUpOpen: Boolean = false,
+    val warmUp: List<WarmUpSet> = emptyList(),
+    val warmUpDone: Set<WarmUpSet> = emptySet(),
 ) {
     val logged: List<LoggedSet> get() = sets.map { it.set }
     val isComplete: Boolean get() = targetSets != null && sets.size >= targetSets
@@ -198,6 +211,10 @@ class TodayViewModel(
         val plateSaves: Int = 0,
         /** False until it has been read whether this day's session was finished before the app was last closed. */
         val restored: Boolean = false,
+        /** The warm-up sets ticked (1.23), by exercise id. In memory only: closing the app starts them afresh. */
+        val warmUpDone: Map<Long, Set<WarmUpSet>> = emptyMap(),
+        /** The exercises (by the id their set was logged under) that had a set logged here (1.23): no checklist again. */
+        val warmUpOver: Set<Long> = emptySet(),
     )
 
     private data class Stored(
@@ -375,6 +392,7 @@ class TodayViewModel(
                 applied != null -> SetEditor(applied.weightKg, appliedReps(applied, plan, d.history, sets.size + 1, d.skips), applied.rpe, unit)
                 else -> SetEditor(top?.weightKg, plan?.reps ?: top?.reps ?: DEFAULT_REPS, rpe, unit)
             }
+            val warmUpOpen = sets.isEmpty() && exercise.id !in l.warmUpOver && standInOf[exercise.id]?.let { it in l.warmUpOver } != true
             return TodayItem(
                 exercise = exercise,
                 planned = plan,
@@ -388,6 +406,10 @@ class TodayViewModel(
                 plateCount = exercise.plateCount,
                 plateOffered = PlateStack.offered(exercise),
                 lastTime = past[exercise.id],
+                // Before the first set only. The plan's reps say whether it is a high-rep exercise; with no plan, the field's.
+                warmUpOpen = warmUpOpen,
+                warmUp = if (warmUpOpen) WarmUp.sets(exercise, editor.weightKg, plan?.reps ?: editor.reps, d.settings.changePlates) else emptyList(),
+                warmUpDone = l.warmUpDone[exercise.id] ?: l.warmUpDone[standInOf[exercise.id]] ?: emptySet(),
             )
         }
 
@@ -448,6 +470,14 @@ class TodayViewModel(
         }
     }
 
+    /** Ticks (or unticks) a warm-up set of [exerciseId] (1.23). Nothing is saved or logged. */
+    fun tickWarmUp(exerciseId: Long, set: WarmUpSet, done: Boolean) {
+        local.update {
+            val before = it.warmUpDone[exerciseId].orEmpty()
+            it.copy(warmUpDone = it.warmUpDone + (exerciseId to if (done) before + set else before - set))
+        }
+    }
+
     /** Changes the numbers for the next set of [exerciseId]. Nothing is saved. */
     fun edit(exerciseId: Long, editor: SetEditor) {
         local.update { it.copy(editors = it.editors + (exerciseId to editor)) }
@@ -491,7 +521,8 @@ class TodayViewModel(
                 // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
                 // A stand-in id means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
                 val setId = training.logSet(sessionId, stored, catalogueName = catalogueEntry(exerciseId)?.name)
-                local.update { it.copy(pending = null) }
+                // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
+                local.update { it.copy(pending = null, warmUpOver = it.warmUpOver + exerciseId) }
                 // Every exercise on the bodybuilding side takes the accessory rest (bodybuilding mode spec §5.3).
                 val mainRest = now.mode == TrainingMode.POWERLIFTING && item?.exercise?.category != Category.ACCESSORY
                 _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))

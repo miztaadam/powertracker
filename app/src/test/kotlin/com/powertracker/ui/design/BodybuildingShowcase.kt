@@ -55,7 +55,7 @@ private fun bbToday(id: Long, name: String, weightKg: Double, done: List<StoredS
     targetSets = 3,
     perSide = null,
     lastWeightKg = weightKg,
-)
+).withWarmUp()
 
 /** Today mid-session, as the mockup: the incline press's third set, the coach's range target, two sets logged. */
 @Composable

@@ -149,6 +149,102 @@
   padding-top: var(--space-2);
 }
 
+/*
+ * The warm-up checklist (1.23), above the weight entry until the first set is logged. Each row is a label around its
+ * box, a full touch target high, so the whole row ticks it.
+ */
+.today-warm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* "Warm-up · not logged" at the left, "Plates per side" at the right; the second goes under the first where it must. */
+.today-warm > .today-warm-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: var(--space-4);
+  color: var(--accent-text);
+  white-space: normal;
+  overflow: visible;
+}
+
+.today-warm-note {
+  color: var(--text-muted);
+}
+
+/* Two sets side by side where each has 140 px, else one under the other; a single set takes the whole row. */
+.today-warm-sets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  column-gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Side by side, the two rows are as tall as the taller one, and each is a target all the way down. */
+.today-warm-sets > li {
+  display: flex;
+}
+
+/* Box and text from the top, so two sets side by side start on one line whatever the plates under them take. */
+.today-warm-set {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-height: var(--touch);
+  padding: 2px 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Level with the first line of text (24 px high). */
+.today-warm-set input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+/* The set, and under it how to load it. */
+.today-warm-line {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The weight and "× reps" each stay whole; the second goes under the first where the column is too narrow. */
+.today-warm-part {
+  white-space: nowrap;
+}
+
+/*
+ * The plates, in room for two lines whatever their number (40 px where `lh` is not known): a longer list wraps into the
+ * second line and the block keeps its height, so the − and + below do not move while the weight is stepped.
+ */
+.today-warm-hint {
+  min-height: 40px;
+  min-height: 2lh;
+  color: var(--text-muted);
+}
+
+/* Done: quieter, and struck through, so what is left to do stands out. */
+.today-warm-done .today-warm-line {
+  color: var(--text-muted);
+}
+
+.today-warm-done .today-warm-load {
+  text-decoration: line-through;
+}
+
 .today-miss {
   display: flex;
   align-items: center;
