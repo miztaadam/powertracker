@@ -76,6 +76,7 @@ export declare namespace GritDomain {
             isMainLift(exercise: JsExercise): boolean;
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
             lastTimes(history: JsHistory, mode: string, before: string): Array<JsLastTime>;
+            warmUp(exercise: JsExercise, working: number, reps: number, changePlates: boolean): Array<JsWarmUpSet>;
             weeksInARow(workoutDays: Array<string>, today: string): number;
             openAdviceExpired(type: string, createdAt: string, today: string): boolean;
             advicePayload(payloadJson: string): Nullable<JsAdvicePayload>;
@@ -922,6 +923,23 @@ export declare namespace JsLastTime {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsLastTime;
+    }
+}
+export declare class JsWarmUpSet {
+    constructor(weight: number, reps: number, unit: string, perSide: Nullable<Array<number>>);
+    get weight(): number;
+    get reps(): number;
+    get unit(): string;
+    get perSide(): Nullable<Array<number>>;
+    copy(weight?: number, reps?: number, unit?: string, perSide?: Nullable<Array<number>>): JsWarmUpSet;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsWarmUpSet {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsWarmUpSet;
     }
 }
 export declare class JsBestSet {

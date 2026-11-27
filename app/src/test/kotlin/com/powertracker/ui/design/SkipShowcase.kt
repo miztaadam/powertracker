@@ -58,7 +58,7 @@ private fun skipItem(id: Long, name: String, category: Category, mode: TrainingM
         targetSets = 3,
         perSide = null,
         lastWeightKg = weightKg,
-    )
+    ).withWarmUp()
 }
 
 private fun done(id: Long, exerciseId: Long, kg: Double, reps: Int) = StoredSet(id, 1, LoggedSet(exerciseId, kg, reps, 8.0, failed = false, missPoint = null, isTopSet = false))

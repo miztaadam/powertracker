@@ -7,6 +7,7 @@ import com.powertracker.domain.coach.BodybuildingCoach
 import com.powertracker.domain.coach.Coach
 import com.powertracker.domain.coach.Coaching
 import com.powertracker.domain.coach.PhysiqueCoach
+import com.powertracker.domain.coach.WarmUp
 import com.powertracker.domain.model.AdvicePayload
 import com.powertracker.domain.model.forSide
 import com.powertracker.domain.progress.MuscleProgress
@@ -497,6 +498,15 @@ object GritDomain {
     fun lastTimes(history: JsHistory, mode: String, before: String): Array<JsLastTime> =
         history.toDomain().lastTimes(parseEnum<TrainingMode>("mode", mode), parseDate("before", before))
             .map { (id, last) -> JsLastTime(id.toFacadeId("lastTime.exerciseId"), last.date.toString(), last.sets.map { it.toJs() }.toTypedArray()) }
+            .toTypedArray()
+
+    /**
+     * The warm-up checklist (1.23): the sets to do before a first set of [exercise] at [working] (kg, or a plate number
+     * when the exercise counts plates) for [reps], lightest first; empty when there is nothing to suggest. `WarmUp.sets`.
+     */
+    fun warmUp(exercise: JsExercise, working: Double, reps: Int, changePlates: Boolean): Array<JsWarmUpSet> =
+        WarmUp.sets(exercise.toDomain(), working, reps, changePlates)
+            .map { JsWarmUpSet(it.weight, it.reps, it.unit.name, it.perSide?.toTypedArray()) }
             .toTypedArray()
 
     /**

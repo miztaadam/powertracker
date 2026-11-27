@@ -311,3 +311,131 @@ test('a logged set starts the rest timer, and it survives a reload', async ({ pa
   await tap(page, 'Skip')
   await expect(page.getByRole('timer')).toHaveCount(0)
 })
+
+test('the warm-up checklist follows the weight, keeps its ticks while the app is open, and is never logged', async ({ page }) => {
+  await openWithSampleData(page)
+  await tap(page, 'Start session')
+  // Squat, 150 kg in the field (last week's top set): half for 12, three quarters for 5, each with its plates.
+  const warm = page.getByRole('region', { name: 'Warm-up' })
+  await expect(warm.getByText('Warm-up · not logged', { exact: true })).toBeVisible()
+  const boxes = warm.getByRole('checkbox')
+  await expect(boxes).toHaveCount(2)
+  await expect(boxes.nth(0)).toHaveAccessibleName('Warm-up set 1: 75 kg × 12, 25 + 2.5 per side')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 112.5 kg × 5, 25 + 20 + 1.25 per side')
+  await expect(warm.locator('.today-warm-line').first()).toHaveText('75 kg × 1225 + 2.5')
+  await expect(warm.getByText('Plates per side', { exact: true })).toBeVisible()
+  // Above the weight entry, under the coach's box.
+  const order = await page.evaluate(() => {
+    const top = (selector: string) => document.querySelector(selector)!.getBoundingClientRect().top
+    return top('.today-warm') < top('.today-steppers')
+  })
+  expect(order).toBe(true)
+
+  // The whole row is the box's target, a full touch target high.
+  const rows = warm.locator('label')
+  for (const row of await rows.all()) expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(47.5)
+  // Side by side on a phone, so the card stays short; one under the other on a very narrow one. No word reaches past its row.
+  for (const [width, sideBySide] of [[390, true], [375, true], [360, true], [320, false]] as const) {
+    await page.setViewportSize({ width, height: 664 })
+    const laid = await rows.evaluateAll((labels) =>
+      labels.map((label) => {
+        const box = label.getBoundingClientRect()
+        const parts = [...label.querySelectorAll('.today-warm-part, .today-warm-hint')].map((part) => part.getBoundingClientRect())
+        return { top: Math.round(box.top), height: box.height, inside: parts.every((part) => part.left >= box.left - 0.5 && part.right <= box.right + 0.5) }
+      }),
+    )
+    expect(laid[0]!.top === laid[1]!.top, `side by side at ${width} px`).toBe(sideBySide)
+    expect(laid.every((row) => row.inside), `every word inside its row at ${width} px`).toBe(true)
+    expect(laid.every((row) => row.height >= 47.5), `touch targets at ${width} px`).toBe(true)
+    expect(await fitsThePhone(page), `the page at ${width} px`).toBe(true)
+  }
+  await page.setViewportSize({ width: 390, height: 664 })
+  await warm.getByText('25 + 2.5').click()
+  await expect(boxes.nth(0)).toBeChecked()
+  await expect(boxes.nth(1)).not.toBeChecked()
+
+  // The tick is kept while the app is open: another tab and back.
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Progress' }).click()
+  await expect(page.getByRole('heading', { name: 'Progress', level: 1 })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Today' }).click()
+  await expect(boxes.nth(0)).toBeChecked()
+
+  // The sets follow the typing, before the field is left: 100 kg gives 50 and 75. Other numbers, so no tick.
+  await typeInto(page, weightField(page), '100')
+  await expect(boxes.nth(0)).toHaveAccessibleName('Warm-up set 1: 50 kg × 12, 15 per side')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
+  await expect(boxes.nth(0)).not.toBeChecked()
+  await expect(boxes.nth(1)).not.toBeChecked()
+  // The heaviest plate lists wrap inside their set: nothing reaches past it, at any of the phone widths.
+  await page.keyboard.press('Enter')
+  await typeInto(page, weightField(page), '247.5')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 185 kg × 5, 25 + 25 + 25 + 5 + 2.5 per side')
+  for (const width of [390, 375, 360]) {
+    await page.setViewportSize({ width, height: 664 })
+    const inside = await rows.evaluateAll((labels) =>
+      labels.every((label) => {
+        const box = label.getBoundingClientRect()
+        return [...label.querySelectorAll('.today-warm-part, .today-warm-hint')].every((part) => {
+          const r = part.getBoundingClientRect()
+          return r.left >= box.left - 0.5 && r.right <= box.right + 0.5 && (part as HTMLElement).scrollWidth <= (part as HTMLElement).clientWidth + 1
+        })
+      }),
+    )
+    expect(inside, `the longest plate lists inside their sets at ${width} px`).toBe(true)
+    expect(await fitsThePhone(page)).toBe(true)
+  }
+  await page.setViewportSize({ width: 390, height: 664 })
+  await page.keyboard.press('Enter')
+  await typeInto(page, weightField(page), '100')
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
+  // ... and stay once the field is left.
+  await page.keyboard.press('Enter')
+  await expect(weightField(page)).not.toBeFocused()
+  await expect(boxes.nth(1)).toHaveAccessibleName('Warm-up set 2: 75 kg × 5, 25 + 2.5 per side')
+  // The empty bar has nothing lighter: no checklist at all.
+  await typeInto(page, weightField(page), '20')
+  await expect(warm).toHaveCount(0)
+  await page.keyboard.press('Enter')
+  await expect(warm).toHaveCount(0)
+  await typeInto(page, weightField(page), '100')
+  await page.keyboard.press('Enter')
+  await boxes.nth(0).check()
+  await boxes.nth(1).check()
+
+  // The − and + under the checklist keep still while the weight is stepped: the block is one height whatever the plates.
+  const steppersTop = () => page.evaluate(() => document.querySelector('.today-steppers')!.getBoundingClientRect().top + document.querySelector('.shell-main')!.scrollTop)
+  const tops = [await steppersTop()]
+  for (let i = 0; i < 12; i++) {
+    await tap(page, 'Increase Weight')
+    tops.push(await steppersTop())
+  }
+  await expect(weightField(page)).toHaveValue('130')
+  expect(new Set(tops.map((top) => Math.round(top))).size, `the steppers' top over 100 to 130 kg: ${tops.join(', ')}`).toBe(1)
+  await tap(page, 'Decrease Weight', 12)
+  await expect(weightField(page)).toHaveValue('100')
+
+  // Nothing ticked was logged: the first real set is the only set stored, and the checklist goes with it.
+  await tap(page, 'Log set 1')
+  await expect(page.getByRole('button', { name: 'Log set 2' })).toBeVisible()
+  await expect(warm).toHaveCount(0)
+  expect(await loggedSets(page)).toEqual([[100, 5, 8]])
+})
+
+for (const scheme of ['dark', 'light'] as const) {
+  test(`today with the warm-up checklist, before the first set (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme })
+    await openWithSampleData(page)
+    await tap(page, 'Start session')
+    const warm = page.getByRole('region', { name: 'Warm-up' })
+    await warm.getByRole('checkbox').first().check()
+    await expect(warm.locator('label').first()).toHaveClass(/today-warm-done/)
+    expect(await smallTargets(page)).toEqual([])
+    expect(await fitsThePhone(page)).toBe(true)
+
+    await page.setViewportSize({ width: 390, height: 1100 })
+    await page.locator('.shell-main').evaluate((el) => el.scrollTo(0, 0))
+    await page.evaluate(() => document.fonts.ready)
+    mkdirSync(outDir, { recursive: true })
+    await page.screenshot({ path: resolve(outDir, `today-warm-up-${scheme}.png`), fullPage: true, animations: 'disabled' })
+  })
+}

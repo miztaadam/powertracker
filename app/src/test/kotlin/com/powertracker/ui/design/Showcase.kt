@@ -42,6 +42,7 @@ import com.powertracker.domain.model.AdviceType
 import com.powertracker.domain.model.Category
 import com.powertracker.domain.model.Exercise
 import com.powertracker.domain.model.LoggedSet
+import com.powertracker.domain.coach.WarmUp
 import com.powertracker.domain.history.LastTime
 import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
@@ -136,7 +137,11 @@ private fun todayItem(
     targetSets = sets,
     perSide = PlateLoader.perSide(weightKg, changePlates = false),
     lastWeightKg = weightKg,
-)
+).withWarmUp()
+
+/** The warm-up checklist (1.23) as the view model puts it on a card: before the first set, for the weight in the field. */
+internal fun TodayItem.withWarmUp(): TodayItem =
+    copy(warmUpOpen = sets.isEmpty(), warmUp = if (sets.isEmpty()) WarmUp.sets(exercise, editor.weightKg, planned?.reps ?: editor.reps, changePlates = false) else emptyList())
 
 private fun todayItems(squatSets: List<StoredSet>, suggest: Boolean) = listOf(
     todayItem(
@@ -165,6 +170,17 @@ fun TodayShowcase() {
     )
 }
 
+/**
+ * Today with the session just started (1.23): no squat set logged yet, so the warm-up checklist is on the card, worked
+ * out from the 155 kg in the field, its first set ticked.
+ */
+@Composable
+fun TodayWarmUpShowcase() {
+    val items = todayItems(emptyList(), suggest = false).toMutableList()
+    items[0] = items[0].copy(warmUpDone = setOf(items[0].warmUp.first()))
+    TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
+}
+
 /** Before the session: the plan for the day and the optional check-in. */
 @Composable
 fun TodayStartShowcase() {
@@ -176,7 +192,8 @@ fun TodayStartShowcase() {
 fun TodayNextShowcase() {
     val squatSets = listOf(logged(1, 150.0, 5, 7.5), logged(2, 155.0, 5, 8.0), logged(3, 155.0, 5, 8.5), logged(4, 155.0, 5, 9.0), logged(5, 155.0, 5, 9.5))
     val items = todayItems(squatSets, suggest = false).toMutableList()
-    items[1] = items[1].copy(sets = listOf(logged(6, 100.0, 6, 7.5)))
+    // With a set logged the bench has no warm-up checklist, as the view model has it.
+    items[1] = items[1].copy(sets = listOf(logged(6, 100.0, 6, 7.5))).withWarmUp()
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
 }
 

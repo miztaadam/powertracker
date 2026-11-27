@@ -146,6 +146,13 @@ data class JsHistory(
 @JsExport
 data class JsLastTime(val exerciseId: Int, val date: String, val sets: Array<JsSet>)
 
+/**
+ * One warm-up set to tick off: [weight] in [unit] ("KG", or "PLATES" for a plate number) for [reps]. [perSide] is the
+ * plates on each side of the bar, there only for a barbell lift the plates can make (empty: the bar alone).
+ */
+@JsExport
+data class JsWarmUpSet(val weight: Double, val reps: Int, val unit: String, val perSide: Array<Double>?)
+
 /** One session's best set on the bodybuilding Progress screen. */
 @JsExport
 data class JsBestSet(val date: String, val set: JsSet)
