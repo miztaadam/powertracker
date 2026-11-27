@@ -20,7 +20,7 @@ import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.plan.SupersetHalf
 import com.powertracker.domain.plates.PlateLoader
 import com.powertracker.data.StoredSet
-import com.powertracker.ui.design.assertTextsFit
+import com.powertracker.ui.design.assertTextsFitInEveryWindow
 import com.powertracker.ui.plan.DaySection
 import com.powertracker.ui.plan.PlanContent
 import com.powertracker.ui.plan.PlanRow
@@ -45,8 +45,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * The superset tags (1.24) on a small phone and at large text: on the Plan tab's rows, on Today's open card and on its
- * folded rows, each tag is drawn whole. A tag is one line by rule ([com.powertracker.ui.components.Eyebrow]), so one
+ * Plan and Today on a small phone and at large text (1.24): every text is drawn whole. First the superset tags: on the
+ * Plan tab's rows, on Today's open card and on its folded rows. A tag is one line by rule ([com.powertracker.ui.components.Eyebrow]), so one
  * that did not fit would lose its "A" or "B" without being ellipsised: [whole] asks for that by name.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -96,6 +96,15 @@ class SupersetFitTest {
         )
     }
 
+    /** The same at 360 dp, the width of many Android phones: there the five plates lost their last at the usual text size. */
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun plan_at360dp() = plan_theTagsAreWhole_at320dp_atEveryTextSize()
+
+    @Test
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun today_at360dp() = today_theTagsAreWhole_at320dp_atEveryTextSize()
+
     @Test
     fun plan_theTagsAreWhole_at320dp_atEveryTextSize() {
         var scale by androidx.compose.runtime.mutableFloatStateOf(1f)
@@ -112,9 +121,7 @@ class SupersetFitTest {
             assertEquals("Plan at $s: one B", 1, whole("SUPERSET B", "Plan at $s"))
             // The pair's own lines too: the tag above them takes nothing from them.
             for (text in listOf("Bulgarian split squat", "Close-grip bench")) assertEquals("Plan at $s: $text", 1, whole(text, "Plan at $s"))
-            // Not every text on the screen: at large text this width cuts the header's "WEEKLY TEMPLATE", which is older
-            // than supersets and not theirs to answer for here.
-            compose.assertTextsFit()
+            compose.assertTextsFitInEveryWindow(compose.onRoot().fetchSemanticsNode().boundsInRoot.width)
         }
     }
 
@@ -125,9 +132,9 @@ class SupersetFitTest {
             planned = PlanItem(id, DayOfWeek.WEDNESDAY, id, 3, 5, 8.0, id.toInt()),
             suggestion = null,
             sets = List(done) { StoredSet(100 * id + it, 1, LoggedSet(id, 100.0, 5, 8.0, failed = false, missPoint = null, isTopSet = false)) },
-            editor = SetEditor(100.0, 5, 8.0),
+            editor = SetEditor(182.5, 5, 8.0),
             targetSets = 3,
-            perSide = PlateLoader.perSide(100.0, changePlates = false),
+            perSide = PlateLoader.perSide(182.5, changePlates = false),
             lastWeightKg = 100.0,
             superset = superset,
         )
@@ -160,9 +167,11 @@ class SupersetFitTest {
             assertEquals("Today at $s: the folded row's tag", 1, whole("Superset A", "Today at $s"))
             assertEquals("Today at $s: the folded row's count", 1, whole("1 of 3", "Today at $s"))
             assertEquals("Today at $s: the open card's set count", 1, whole("Set 1 of 3", "Today at $s"))
-            // Not every text on the card: at this width the plate strip's "per side · 20 kg bar" loses its last word,
-            // which is older than supersets and not theirs to answer for here.
-            compose.assertTextsFit()
+            // And every other text on the screen (1.24): the five plates of 182.5 kg beside the bar, the plate strip's
+            // caption, "Log set 1" beside Missed and the date over the title were each cut at some width and text size.
+            assertEquals("Today at $s: the plates", 1, whole("25 + 25 + 25 + 5 + 1.25", "Today at $s"))
+            assertEquals("Today at $s: Log set", 1, whole("Log set 1", "Today at $s"))
+            compose.assertTextsFitInEveryWindow(compose.onRoot().fetchSemanticsNode().boundsInRoot.width)
         }
     }
 }

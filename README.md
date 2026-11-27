@@ -125,7 +125,8 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       moving the pair to today), start a session: A's card is open. Log a set: B's card opens and no rest timer
       starts. Log B's set: the rest timer starts and A's card is open again. Close Grit after an A set and open it:
       B's card is open. On Plan, "Remove superset" takes the tags off. **The backup changed:** update both phones
-      before moving a backup between them (check 8).
+      before moving a backup between them (check 8). **Android app also:** set a barbell lift to 182.5 kg on Today:
+      the plate list beside the bar reads "25 + 25 + 25 + 5 + 1.25", all five plates.
       **And the three before it, if you have not checked them yet. 1.23.2, the web app in a browser tab:** reload
       Today before a session and tap an exercise's ⋮ the moment the plan appears: when the "Install Grit" card arrives
       above it, the menu is still whole on screen. **1.23.1, both apps:** with two sets logged, tap Log set and then
@@ -133,7 +134,7 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       open a barbell lift you have done before, before logging a set: above the weight it says "WARM-UP · NOT LOGGED"
       with one or two lighter sets to tick; log your first set and the checklist is gone.
 
-The full list, feature by feature (209 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
+The full list, feature by feature (210 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
 release touched a feature and you want that feature's own checks.
 
 ## Where things are

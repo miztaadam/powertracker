@@ -33,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
@@ -555,9 +557,44 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         )
     }
 
-    Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
-        SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close)
-        PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.weight(1f).tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check)
+    LogRow(
+        missed = { SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close) },
+        log = { PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check) },
+    )
+}
+
+/**
+ * Missed and Log set: side by side, Missed as wide as its label and Log set taking the rest, wherever both labels fit on
+ * one line. Where they do not (a small phone at a large text size), Log set goes above Missed, each the card's width:
+ * a button's label is one line, so squeezed beside Missed it lost its end ("Log" for "Log set 1") without a mark (1.24).
+ */
+@Composable
+private fun LogRow(missed: @Composable () -> Unit, log: @Composable () -> Unit) {
+    Layout(contents = listOf(missed, log)) { (missedButton, logButton), constraints ->
+        val max = constraints.maxWidth
+        val gap = Space.s.roundToPx()
+        val missedWidth = missedButton.maxOfOrNull { it.maxIntrinsicWidth(Constraints.Infinity) } ?: 0
+        val logWidth = logButton.maxOfOrNull { it.maxIntrinsicWidth(Constraints.Infinity) } ?: 0
+        if (missedWidth + gap + logWidth <= max) {
+            val a = missedButton.map { it.measure(Constraints(maxWidth = missedWidth)) }
+            val room = max - missedWidth - gap
+            val b = logButton.map { it.measure(Constraints(minWidth = room, maxWidth = room)) }
+            val height = (a + b).maxOfOrNull { it.height } ?: 0
+            layout(max, height) {
+                a.forEach { it.place(0, (height - it.height) / 2) }
+                b.forEach { it.place(missedWidth + gap, (height - it.height) / 2) }
+            }
+        } else {
+            val whole = Constraints(minWidth = max, maxWidth = max)
+            val b = logButton.map { it.measure(whole) }
+            val a = missedButton.map { it.measure(whole) }
+            val logHeight = b.maxOfOrNull { it.height } ?: 0
+            val missedHeight = a.maxOfOrNull { it.height } ?: 0
+            layout(max, logHeight + gap + missedHeight) {
+                b.forEach { it.place(0, 0) }
+                a.forEach { it.place(0, logHeight + gap) }
+            }
+        }
     }
 }
 

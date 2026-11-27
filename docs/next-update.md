@@ -2130,6 +2130,16 @@ Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once o
 - **The rest timer does not know about the pair** beyond starting after B: its length is B's.
 - Not run on a real phone, and never in real Safari.
 
+**Also fixed in 1.24, Android app only: texts that lost their end on a narrow phone** (owner, 2026-11-27: "Fix two Android texts cut at large font on a 320 dp phone"; found while testing the superset tags). Each of these was held to one line, and a text that needed two was cut without a mark:
+- **The plate list beside the bar on Today.** The serious one, and not only at large text: on a phone 360 dp wide at the usual text size, five plates ("25 + 25 + 25 + 5 + 1.25", 182.5 kg) showed "25 + 25 + 25 + 5 +", the last plate missing; at 320 dp, "25 + 25 + 25". The list now goes on to a second line, as the web's always has.
+- **The caption under it, "per side · 20 kg bar"** (cut at 320 dp from 1.3× text, at 360 dp at 2×): it wraps.
+- **"Log set 1" beside Missed** (showed "Log" at 320 dp at 1.3× text and at 360 dp at 2×; "L" at 320 dp at 2×): where the two labels do not fit side by side, Log set goes above Missed, each the card's width.
+- **The small caption over a screen's title** ("WEEKLY TEMPLATE" on Plan, the date on Today; cut at 2× text): it wraps.
+- At 412 dp and the usual text size nothing moved: every committed Android screenshot is unchanged.
+- **How it was found and checked:** the fit check most Android tests use (`assertTextsFit`) looks at a line's width and at ellipses, not at a text given fewer lines than it needs, so these passed. `SupersetFitTest` now draws Plan and Today (mid-superset, a five-plate bar) at 320 dp and 360 dp, each at 1×, 1.3× and 2× text, and asks for every text whole (`assertTextsFitInEveryWindow`). Before the fix it failed on each text above.
+- **The web app is not affected:** measured in the test browser at 360 px, 320 px and 320 px with 200 % text, the same five plates wrap whole, and the narrow-screen checker finds nothing wrong.
+- **Limit:** only Plan and Today (a session open) were measured. Other Android screens may hold one-line texts with the same fault at large text; the other tests' weaker check would not have seen them. Not run on a real phone.
+
 **Also in this release (tests only, no change to the app):** the undo-skip Android test no longer fails under load (see the entry above).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab

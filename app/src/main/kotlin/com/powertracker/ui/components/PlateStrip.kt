@@ -83,9 +83,12 @@ fun PlateStrip(perSide: List<Double>, modifier: Modifier = Modifier, caption: St
                 x += plate.width + 2.dp.toPx()
             }
         }
+        // The label is the list the lifter loads from: where it does not fit beside the bar (five plates on a phone 360 dp
+        // wide; fewer at a large text size) it goes on to a second line rather than lose a plate, as the web's does. The
+        // caption wraps for the same reason. Both were one line, cut without a mark, until 1.24.
         Column {
-            Text(platesLabel(perSide), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface, maxLines = 1)
-            Text(caption, style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted, maxLines = 1)
+            Text(platesLabel(perSide), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface)
+            Text(caption, style = MaterialTheme.typography.bodySmall, color = PowertrackerTheme.colors.muted)
         }
     }
 }
