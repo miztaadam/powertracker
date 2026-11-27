@@ -2127,7 +2127,8 @@ Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once o
 - **Pairs only.** No three or more exercises in a round, and no pairing of exercises that are not next to each other on the day (move one first).
 - **An exercise added during the session cannot be in a superset** (the link lives in the plan).
 - **B's warm-up checklist shows when B's card first opens**, which is after A's first working set. To warm up both before starting, tap B's row first, tick its warm-up, and tap A's row again.
-- **The rest timer does not know about the pair** beyond starting after B: its length is B's.
+- **The rest timer does not know about the pair** beyond starting after B: its length is B's. A rest still counting when the next A set is logged keeps counting, and can sound during B.
+- **Changing B's exercise to the same one as A** (Edit, Change) leaves no pair: the tags go and neither superset item is in the rows' menus, though the link is still stored. Changing the exercise again brings the pair back; moving the row takes the link off for good.
 - Not run on a real phone, and never in real Safari.
 
 **Also fixed in 1.24, Android app only: texts that lost their end on a narrow phone** (owner, 2026-11-27: "Fix two Android texts cut at large font on a 320 dp phone"; found while testing the superset tags). Each of these was held to one line, and a text that needed two was cut without a mark:
@@ -2148,7 +2149,7 @@ Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once o
 - Browser tests as an iPhone: 537 passed, 12 skipped (as before), none left unrun. As an Android phone (CI's list, with the superset tests added): 269 passed, 12 skipped. The superset tests passed in both.
 - The timing checks, three runs: 6 of 6 each time.
 - **What the runs before it caught, all in tests, none in the app:** a browser test that still expected backup version 6; the older-copy browser tests, which moved the log on to stored-data version 70, the number 1.24 made this build's own (they use a far later one now, so the next version cannot do the same to them); and my own superset browser test pressing Escape before the menu listened for it.
-- **Not checked:** a real phone; real Safari; an update of an installed 1.23.2 to 1.24 on a phone (the Android database's step from version 6 to 7 is tested on a copy of the stored schema, the web's in a test browser); CI (it runs on main after a push).
+- **Not checked:** a real phone; real Safari; an update of an installed 1.23.2 to 1.24 on a phone (the Android database's step from version 6 to 7 is tested on a copy of the stored schema, the web's in a test browser); CI on main (it runs there after a push). CI was started by hand on the branch at `60a6b15`, the first run of the workflow with the superset tests in its Android pass; its result is recorded with the release.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
