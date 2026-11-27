@@ -10,7 +10,7 @@ import { dayName } from '../../state/weekdayNames'
 import { IconButton, PrimaryButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
 import { formatKg, formatRpe } from '../../ui/components/format'
-import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, ReplayIcon, SettingsIcon, ViewAgendaIcon } from '../../ui/components/icons'
+import { AddIcon, DeleteIcon, EditIcon, KeyboardArrowDownIcon, KeyboardArrowUpIcon, LinkIcon, LinkOffIcon, ReplayIcon, SettingsIcon, ViewAgendaIcon } from '../../ui/components/icons'
 import { Menu } from '../../ui/components/Menu'
 import { ScreenHeader, SectionHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
@@ -190,6 +190,7 @@ export function PlanContent({ state, actions, onOpenSettings, onBuildPlan, onCho
             onEdit={(row) => setDialog({ kind: 'edit', item: row.item, exerciseName: row.exerciseName })}
             onMove={(item, direction) => reported(actions.move(item, direction))}
             onDelete={(item) => reported(actions.remove(item))}
+            onSuperset={(item, linked) => reported(actions.setSuperset(item, linked))}
           />
         ))}
         {/* The squat, bench and deadlift baselines belong to the powerlifting side. */}
@@ -317,9 +318,11 @@ type DayCardProps = {
   onEdit: (row: PlanRow) => void
   onMove: (item: PlanItem, direction: -1 | 1) => void
   onDelete: (item: PlanItem) => void
+  /** 1.24: links `item` to the one above it as a superset, or takes the link off. */
+  onSuperset: (item: PlanItem, linked: boolean) => void
 }
 
-function DayCard({ section, onAdd, onEdit, onMove, onDelete }: DayCardProps) {
+function DayCard({ section, onAdd, onEdit, onMove, onDelete, onSuperset }: DayCardProps) {
   const { rows } = section
   const name = dayName(section.weekday)
   const sets = rows.reduce((sum, row) => sum + row.item.sets, 0)
@@ -336,18 +339,26 @@ function DayCard({ section, onAdd, onEdit, onMove, onDelete }: DayCardProps) {
         </div>
         {rows.length > 0 && (
           <ol className="plan-rows">
-            {rows.map((row, i) => (
-              <PlanItemRow
-                key={row.item.id}
-                position={i + 1}
-                row={row}
-                canMoveUp={i > 0}
-                canMoveDown={i < rows.length - 1}
-                onMove={(direction) => onMove(row.item, direction)}
-                onEdit={() => onEdit(row)}
-                onDelete={() => onDelete(row.item)}
-              />
-            ))}
+            {rows.map((row, i) => {
+              // A pair's two rows are next to each other (1.24): the first names the second and the second the first, and
+              // either one's menu takes the link off. The link itself is on the second.
+              const partner = row.superset === 'FIRST' ? rows[i + 1] : row.superset === 'SECOND' ? rows[i - 1] : undefined
+              const second = row.superset === 'FIRST' ? partner : row
+              return (
+                <PlanItemRow
+                  key={row.item.id}
+                  position={i + 1}
+                  row={row}
+                  partnerName={partner?.exerciseName ?? null}
+                  canMoveUp={i > 0}
+                  canMoveDown={i < rows.length - 1}
+                  onMove={(direction) => onMove(row.item, direction)}
+                  onEdit={() => onEdit(row)}
+                  onDelete={() => onDelete(row.item)}
+                  onSuperset={(linked) => onSuperset(linked ? row.item : (second ?? row).item, linked)}
+                />
+              )
+            })}
           </ol>
         )}
       </Card>
@@ -363,16 +374,26 @@ type PlanItemRowProps = {
   onMove: (direction: -1 | 1) => void
   onEdit: () => void
   onDelete: () => void
+  /** The other exercise of this row's superset (1.24); null when it is in none. */
+  partnerName: string | null
+  /** True: link this row to the one above it. False: take its superset's link off. */
+  onSuperset: (linked: boolean) => void
 }
 
-function PlanItemRow({ position, row, canMoveUp, canMoveDown, onMove, onEdit, onDelete }: PlanItemRowProps) {
-  const { item, exerciseName } = row
+/** A superset row's tag: "Superset A" on the first exercise, "Superset B" on the one done straight after it. */
+export const supersetTag = (half: 'FIRST' | 'SECOND'): string => (half === 'FIRST' ? 'Superset A' : 'Superset B')
+
+function PlanItemRow({ position, row, canMoveUp, canMoveDown, onMove, onEdit, onDelete, partnerName, onSuperset }: PlanItemRowProps) {
+  const { item, exerciseName, superset } = row
+  // Read with the row: "Squat  3 × 5 @ 8, superset with Row".
+  const label = superset != null && partnerName != null ? `${planItemText(exerciseName, item)}, superset with ${partnerName}` : planItemText(exerciseName, item)
   return (
-    <li className="plan-row" aria-label={planItemText(exerciseName, item)} {...slideName(`plan-${item.id}`)}>
+    <li className={superset === 'SECOND' ? 'plan-row plan-row-second' : 'plan-row'} aria-label={label} {...slideName(`plan-${item.id}`)}>
       <span className="plan-row-position title-small" aria-hidden="true">
         {position}
       </span>
       <div className="plan-grow plan-row-text" aria-hidden="true">
+        {superset != null && <p className="plan-row-superset eyebrow">{supersetTag(superset)}</p>}
         <p className="plan-row-name title-medium">{exerciseName}</p>
         <p className="plan-row-dose headline-small">
           {item.sets} × {repsOf(item)}
@@ -387,6 +408,9 @@ function PlanItemRow({ position, row, canMoveUp, canMoveDown, onMove, onEdit, on
         label="More"
         items={[
           { text: 'Edit', icon: <EditIcon />, onSelect: onEdit },
+          // 1.24: offered where the rule allows it (one above it, another exercise, neither in a pair already).
+          ...(row.canLink ? [{ text: 'Superset with the one above', icon: <LinkIcon />, onSelect: () => onSuperset(true) }] : []),
+          ...(superset != null ? [{ text: 'Remove superset', icon: <LinkOffIcon />, onSelect: () => onSuperset(false) }] : []),
           { text: 'Delete', icon: <DeleteIcon />, danger: true, onSelect: onDelete },
         ]}
       />

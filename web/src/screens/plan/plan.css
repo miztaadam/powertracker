@@ -54,6 +54,15 @@
   padding: var(--space-3) 0;
 }
 
+/* A superset's two rows (1.24): each tagged over its name, and no line between them, so they read as one block. */
+.plan-row-superset {
+  color: var(--accent-text);
+}
+
+.plan-row-second {
+  border-top-color: transparent;
+}
+
 /* Four 48 px controls leave the text a narrow column on a small phone: the name wraps, the numbers never do. */
 .plan-row-name {
   overflow-wrap: anywhere;

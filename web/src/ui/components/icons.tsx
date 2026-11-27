@@ -26,6 +26,9 @@ function icon(...paths: string[]): IconComponent {
 
 export const AddIcon = icon('M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z')
 export const RemoveIcon = icon('M19 13H5v-2h14v2z')
+/** Material's link and link_off: a superset linked and unlinked on the Plan tab (1.24). */
+export const LinkIcon = icon('M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z')
+export const LinkOffIcon = icon('M17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1 0 1.43-.98 2.63-2.31 2.98l1.46 1.46C20.88 15.61 22 13.95 22 12c0-2.76-2.24-5-5-5zm-1 4h-2.19l2 2H16zM2 4.27l3.11 3.11C3.29 8.12 2 9.91 2 12c0 2.76 2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1 0-1.59 1.21-2.9 2.76-3.07L8.73 11H8v2h2.73L13 15.27V17h1.73l4.01 4L20 19.74 3.27 3 2 4.27z')
 export const CheckIcon = icon('M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z')
 export const CloseIcon = icon('M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z')
 export const ChevronRightIcon = icon('M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z')
