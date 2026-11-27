@@ -191,6 +191,105 @@
   justify-content: center;
 }
 
+/*
+ * History's calendar (1.22). It reaches a little past the screen's side padding so that seven columns are each a full
+ * touch target on a phone (375 px: 52 px a column; 360 px: 50; 320 px: 45). A day is 48 px tall. Only a day with a
+ * workout is a button: its number is brighter, with a dot under it. Today has a ring.
+ */
+.workout-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-inline: calc(var(--space-2) - var(--space-5));
+}
+
+.workout-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.workout-calendar-month {
+  margin: 0;
+  min-width: 0;
+  text-align: center;
+  color: var(--text);
+}
+
+.workout-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.workout-calendar-grid > .workout-calendar-weekday {
+  padding-bottom: var(--space-2);
+  text-align: center;
+  /* One letter, whole in its column at any width; an eyebrow elsewhere is cut with dots. */
+  overflow: visible;
+  text-overflow: clip;
+  letter-spacing: 0;
+}
+
+.workout-day {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--touch);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  font-feature-settings: 'tnum';
+}
+
+button.workout-day {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button.workout-day:active {
+  background: var(--container);
+}
+
+/* Two classes, so the heavier weight wins over the type class's own, wherever that sits in the stylesheet. */
+.workout-day.workout-day-trained {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* The number in a ring, whether or not the day has a workout. */
+.workout-day-today > .workout-day-number {
+  min-width: 30px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1.5px var(--outline);
+  line-height: 30px;
+  text-align: center;
+}
+
+.workout-day-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-text);
+}
+
+.workout-calendar-summary {
+  margin: 0;
+  padding-inline: calc(var(--space-5) - var(--space-2));
+  color: var(--text-secondary);
+}
+
+/* A workout brought up from the calendar: its date has the focus, shown by the card's place at the top, not a ring. */
+.history-date:focus {
+  outline: none;
+}
+
 /* The bodybuilding side's list: one row per exercise of the plan, its best sets oldest first, and its trend. */
 .bb-rows {
   margin: 0;

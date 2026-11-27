@@ -499,6 +499,14 @@ object GritDomain {
             .map { (id, last) -> JsLastTime(id.toFacadeId("lastTime.exerciseId"), last.date.toString(), last.sets.map { it.toJs() }.toTypedArray()) }
             .toTypedArray()
 
+    /**
+     * History's "6 weeks in a row" (1.22): how many weeks (Monday to Sunday) in a row had a workout, counting back from
+     * [today]'s week; a week in progress with none yet does not break the run. [workoutDays] are ISO dates, in any
+     * order: the days of the workouts History lists.
+     */
+    fun weeksInARow(workoutDays: Array<String>, today: String): Int =
+        com.powertracker.domain.history.weeksInARow(workoutDays.map { parseDate("workoutDays", it) }, parseDate("today", today))
+
     /** True once open advice of [type] created on [createdAt] no longer counts on [today] (a deload or re-entry after 14 days). */
     fun openAdviceExpired(type: String, createdAt: String, today: String): Boolean =
         Coach.openExpired(parseEnum<AdviceType>("type", type), parseDate("createdAt", createdAt), parseDate("today", today))

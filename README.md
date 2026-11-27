@@ -120,13 +120,13 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       replaces everything on that phone: restore the other phone's file and check the data matches.
 - [ ] **9. Back closes what is open.** On Exercises, open a form guide and go Back (button or edge swipe): the guide
       closes and you are still on Exercises.
-- [ ] **10. This release's own change.** 1.21, both apps: "Use set N" under Last time. On Today, open an exercise
-      you did before on this side, with more than one set that day. One row of "Last time" is highlighted: the one
-      with the number of the set you are about to log. Under the rows a button says "Use set N: …" with that row's
-      weight and reps. Tap it: the weight and reps fields change to those numbers, the RPE stays, and nothing is
-      logged. Log the set: the highlight and the button move to the next row.
+- [ ] **10. This release's own change.** 1.22, both apps: the calendar in History. On Progress, tap History. At the
+      top is this month, Monday to Sunday, with a dot under every day you trained and a ring around today; under it,
+      how many workouts the month has and how many weeks in a row you have trained. Tap a day with a dot: the list
+      below jumps to that day's workout. Tap the left arrow: last month, with its own dots. Press Back: you are on
+      Progress.
 
-The full list, feature by feature (195 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
+The full list, feature by feature (198 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
 release touched a feature and you want that feature's own checks.
 
 ## Where things are

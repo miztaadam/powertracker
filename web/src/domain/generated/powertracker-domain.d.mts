@@ -76,6 +76,7 @@ export declare namespace GritDomain {
             isMainLift(exercise: JsExercise): boolean;
             lastTopSet(history: JsHistory, exerciseId: number, before: string): Nullable<JsSet>;
             lastTimes(history: JsHistory, mode: string, before: string): Array<JsLastTime>;
+            weeksInARow(workoutDays: Array<string>, today: string): number;
             openAdviceExpired(type: string, createdAt: string, today: string): boolean;
             advicePayload(payloadJson: string): Nullable<JsAdvicePayload>;
             library(): Array<JsLibraryExercise>;

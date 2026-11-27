@@ -5,6 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -38,6 +40,11 @@ import com.powertracker.ui.progress.WorkoutExercise
 import com.powertracker.ui.progress.WorkoutHistoryContent
 import com.powertracker.ui.progress.WorkoutHistoryScreen
 import com.powertracker.ui.progress.WorkoutHistoryState
+import com.powertracker.ui.progress.calendarSummary
+import com.powertracker.ui.progress.firstOfMonth
+import com.powertracker.ui.progress.monthGrid
+import com.powertracker.ui.progress.monthIndex
+import com.powertracker.ui.progress.monthTitle
 import com.powertracker.ui.theme.PowertrackerTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -106,7 +113,7 @@ class WorkoutHistoryScreenTest {
                     composable(Tab.PROGRESS.route) {
                         ProgressScreen(training, settings, onOpenLift = {}, today = { today }, onOpenHistory = { nav.navigate(Routes.WORKOUT_HISTORY) { launchSingleTop = true } })
                     }
-                    composable(Routes.WORKOUT_HISTORY) { WorkoutHistoryScreen(training, onBack = { nav.popBackStack() }) }
+                    composable(Routes.WORKOUT_HISTORY) { WorkoutHistoryScreen(training, onBack = { nav.popBackStack() }, today = { today }) }
                 }
             }
         }
@@ -179,7 +186,7 @@ class WorkoutHistoryScreenTest {
 
     @Test
     fun aLongLog_isOneLazyList_theCountIsOfTheWholeLog_andTheOldestCanBeReached() {
-        compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts(45)), onBack = {}) } }
+        compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts(45)), onBack = {}, today = today) } }
         compose.onNodeWithText("45 WORKOUTS", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("workout-45", useUnmergedTree = true).assertExists()
         // Lazy: the oldest workout is not drawn until it is scrolled to.
@@ -189,18 +196,172 @@ class WorkoutHistoryScreenTest {
         compose.onNodeWithText("Mon 28 Sep 2026", useUnmergedTree = true).assertExists()
     }
 
+    // ---- 1.22: the calendar over the list ----
+
+    /** A workout on each of [days] (ISO), one squat set each, newest first as History lists them. */
+    private fun workoutsOn(vararg days: String) = days.sortedDescending().mapIndexed { i, day ->
+        Workout((days.size - i).toLong(), LocalDate.parse(day), TrainingMode.POWERLIFTING, null, listOf(WorkoutExercise(1, "Squat", listOf(set(1, 100.0, 5, 8.0)))), 1)
+    }
+
+    private fun showHistory(workouts: List<Workout>) = compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts), onBack = {}, today = today) } }
+
+    private fun exists(tag: String) = compose.onAllNodesWithTag(tag, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+
+    @Test
+    fun calendar_opensOnThisMonth_withAButtonOnEachWorkoutDay_aRingOnToday_andTheCounts() {
+        // Wednesday 11 November: this week (Mon 9), last week (Tue 3, Fri 6) and the week before (Wed 28 Oct), then a gap.
+        showHistory(workoutsOn("2026-11-09", "2026-11-06", "2026-11-03", "2026-10-28", "2026-10-07"))
+        compose.onNodeWithText("November 2026").assertExists()
+        for (day in listOf("2026-11-03", "2026-11-06", "2026-11-09")) compose.onNodeWithTag("workout-day-$day", useUnmergedTree = true).assertExists()
+        compose.onNodeWithContentDescription("Tue 3 Nov 2026: Powerlifting · 1 exercise · 1 set. Show it").assertExists()
+        // The other days are numbers only, today among them, in its ring.
+        assertTrue(exists("day-2026-11-11"))
+        assertTrue(!exists("workout-day-2026-11-11"))
+        compose.onAllNodesWithTag("workout-day-today", useUnmergedTree = true).assertCountEquals(1)
+        assertTrue(exists("day-2026-11-01") && exists("day-2026-11-30") && !exists("day-2026-10-31") && !exists("day-2026-12-01"))
+        compose.onNodeWithText("3 workouts in November · 3 weeks in a row", useUnmergedTree = true).assertExists()
+        // This month is as far forward as it goes.
+        compose.onNodeWithContentDescription("Next month").assertIsNotEnabled()
+        compose.onNodeWithContentDescription("Previous month").assertIsEnabled()
+    }
+
+    @Test
+    fun calendar_todayWithAWorkout_isAButtonWithTheRing() {
+        // The usual sight: train, then open History.
+        showHistory(workoutsOn(today.toString(), "2026-11-09"))
+        compose.onNodeWithTag("workout-day-$today", useUnmergedTree = true).assertExists()
+        compose.onNodeWithContentDescription("Wed 11 Nov 2026: Powerlifting · 1 exercise · 1 set. Show it").assertExists()
+        compose.onAllNodesWithTag("workout-day-today", useUnmergedTree = true).assertCountEquals(1)
+        assertTrue(!exists("day-$today"))
+        compose.onNodeWithText("2 workouts in November · 1 week in a row", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun calendar_arrows_goBackToTheFirstWorkoutsMonth_andForwardToThisMonth_only() {
+        showHistory(workoutsOn("2026-11-09", "2026-10-28", "2026-09-30"))
+        compose.onNodeWithContentDescription("Previous month").performClick()
+        compose.onNodeWithText("October 2026").assertExists()
+        // The count is the month on screen's; the weeks in a row are counted from today whatever month shows.
+        compose.onNodeWithText("1 workout in October · 1 week in a row", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("workout-day-2026-10-28", useUnmergedTree = true).assertExists()
+        // No day is ringed in a month that is not this one.
+        compose.onAllNodesWithTag("workout-day-today", useUnmergedTree = true).assertCountEquals(0)
+        compose.onNodeWithContentDescription("Previous month").performClick()
+        compose.onNodeWithText("September 2026").assertExists()
+        compose.onNodeWithContentDescription("Previous month").assertIsNotEnabled()
+        compose.onNodeWithContentDescription("Next month").performClick()
+        compose.onNodeWithContentDescription("Next month").performClick()
+        compose.onNodeWithText("November 2026").assertExists()
+        compose.onNodeWithContentDescription("Next month").assertIsNotEnabled()
+    }
+
+    @Test
+    fun calendar_tapADay_bringsItsWorkoutToTheTop_alsoOneFarDownTheLog() {
+        // Sixty days in a row back from yesterday: most are far below what the lazy list has drawn.
+        showHistory(workoutsOn(*(1..60).map { today.minus(it, DateTimeUnit.DAY).toString() }.toTypedArray()))
+        // Session ids count up with the date: 12 October is the 30th workout down, id 31.
+        compose.onNodeWithTag("workout-31", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithContentDescription("Previous month").performClick()
+        compose.onNodeWithText("October 2026").assertExists()
+        compose.onNodeWithContentDescription("Mon 12 Oct 2026: Powerlifting · 1 exercise · 1 set. Show it").performClick()
+        compose.waitForIdle()
+        // Its card is drawn, at the top of the list (thirty more below it fill this tall test screen).
+        val card = compose.onNodeWithTag("workout-31", useUnmergedTree = true)
+        card.assertExists()
+        val list = compose.onNodeWithTag("workout-list").getUnclippedBoundsInRoot()
+        assertEquals(list.top.value, card.getUnclippedBoundsInRoot().top.value, 1f)
+        compose.onNodeWithText("Mon 12 Oct 2026", useUnmergedTree = true).assertExists()
+        // The calendar scrolled away with the list's top: back at the top it is still on October.
+        compose.onNodeWithTag("workout-list").performScrollToNode(hasTestTag("workout-calendar"))
+        compose.onNodeWithText("October 2026").assertExists()
+        // Near the end of the log there is not a screenful below a workout: it is brought as far up as the list goes.
+        compose.onNodeWithContentDescription("Previous month").performClick()
+        compose.onNodeWithContentDescription("Tue 22 Sep 2026: Powerlifting · 1 exercise · 1 set. Show it").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("workout-11", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun calendar_monthMaths_andWords() {
+        // November 2026 starts on a Sunday and has 30 days: six blanks, then the 1st; six rows.
+        val november = monthGrid(LocalDate(2026, 11, 1))
+        assertEquals(6, november.size)
+        assertEquals(listOf(null, null, null, null, null, null, LocalDate(2026, 11, 1)), november.first())
+        assertEquals(listOf(LocalDate(2026, 11, 30), null, null, null, null, null, null), november.last())
+        // February 2027 starts on a Monday and has 28 days: exactly four rows, no blanks. A leap February has 29.
+        assertEquals((1..28).map { LocalDate(2027, 2, it) }, monthGrid(LocalDate(2027, 2, 1)).flatten())
+        assertEquals(29, monthGrid(LocalDate(2028, 2, 1)).flatten().count { it != null })
+        // December follows November; January follows December.
+        assertEquals(LocalDate(2027, 1, 1), firstOfMonth(monthIndex(LocalDate(2026, 12, 15)) + 1))
+        assertEquals(LocalDate(2026, 12, 1), firstOfMonth(monthIndex(LocalDate(2027, 1, 7)) - 1))
+        assertEquals("January 2027", monthTitle(LocalDate(2027, 1, 1)))
+        assertEquals("1 workout in November", calendarSummary(1, LocalDate(2026, 11, 1), 0))
+        assertEquals("12 workouts in January · 1 week in a row", calendarSummary(12, LocalDate(2027, 1, 1), 1))
+        assertEquals("0 workouts in November · 2 weeks in a row", calendarSummary(0, LocalDate(2026, 11, 1), 2))
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "w360dp-h2400dp-xhdpi")
+    fun calendar_on360dp_everyDayAndArrowIsAFullTarget_insideTheScreen() {
+        showHistory(workoutsOn("2026-11-02", "2026-11-10", "2026-11-29", "2026-11-30"))
+        val screen = compose.onRoot().getUnclippedBoundsInRoot()
+        val days = listOf("workout-day-2026-11-02", "workout-day-2026-11-10", "workout-day-2026-11-29", "workout-day-2026-11-30").map { compose.onNodeWithTag(it, useUnmergedTree = true).getUnclippedBoundsInRoot() }
+        for (b in days) {
+            assertTrue("a day is at least 48 dp wide (${b.right - b.left})", b.right - b.left >= androidx.compose.ui.unit.Dp(47.5f))
+            assertTrue("a day is at least 48 dp tall (${b.bottom - b.top})", b.bottom - b.top >= androidx.compose.ui.unit.Dp(47.5f))
+            assertTrue("a day is inside the screen", b.left >= screen.left && b.right <= screen.right)
+        }
+        // Sunday's column ends inside the screen and Monday's starts inside it.
+        assertTrue(days[0].left >= screen.left && days[2].right <= screen.right)
+        compose.assertTextsFit()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Config(qualifiers = "w320dp-h2400dp-xhdpi")
+    fun calendar_smallPhoneAndLargeFont_isWhole() {
+        compose.setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1.3f)) {
+                PowertrackerTheme {
+                    WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workoutsOn("2026-11-02", "2026-11-10", "2026-11-29", "2026-11-30", "2026-09-01")), onBack = {}, today = today)
+                }
+            }
+        }
+        compose.waitForIdle()
+        val screen = compose.onRoot().getUnclippedBoundsInRoot()
+        for (tag in listOf("workout-day-2026-11-02", "workout-day-2026-11-30", "day-2026-11-28", "day-2026-11-11")) {
+            val b = compose.onNodeWithTag(tag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertTrue("$tag is inside the screen", b.left >= screen.left && b.right <= screen.right)
+            // On the narrowest phone a day is 44 dp wide (seven columns in 312 dp), and still 48 dp tall.
+            assertTrue("$tag is at least 44 dp wide (${b.right - b.left})", b.right - b.left >= androidx.compose.ui.unit.Dp(44f))
+            assertTrue("$tag is at least 48 dp tall (${b.bottom - b.top})", b.bottom - b.top >= androidx.compose.ui.unit.Dp(47.5f))
+        }
+        // The month's name and the line under the grid are whole: every letter on a line that is drawn.
+        for (text in listOf("November 2026", "4 workouts in November · 2 weeks in a row")) {
+            val node = compose.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+            val layout = mutableListOf<androidx.compose.ui.text.TextLayoutResult>().also { node.config[androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult].action?.invoke(it) }.single()
+            assertEquals("\"$text\" is whole", text.length, layout.getLineEnd(layout.lineCount - 1, visibleEnd = true))
+            assertTrue("\"$text\" is not cut at the bottom", !layout.didOverflowHeight)
+        }
+        compose.assertTextsFit()
+    }
+
     @Test
     fun oneWorkout_isCountedInTheSingular_andLoadingShowsNeitherACountNorTheEmptyState() {
-        compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts(1)), onBack = {}) } }
+        compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts(1)), onBack = {}, today = today) } }
         compose.onNodeWithText("1 WORKOUT", useUnmergedTree = true).assertExists()
     }
 
     @Test
     fun whileLoading_thereIsNeitherACountNorTheEmptyState() {
-        compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(), onBack = {}) } }
+        compose.setContent { PowertrackerTheme { WorkoutHistoryContent(WorkoutHistoryState(), onBack = {}, today = today) } }
         compose.onNodeWithText("History").assertIsDisplayed()
         compose.onAllNodesWithText("WORKOUT", substring = true, useUnmergedTree = true).assertCountEquals(0)
         compose.onAllNodesWithText("No workouts yet").assertCountEquals(0)
+        // Nothing to mark yet: no calendar, as with an empty log.
+        compose.onAllNodesWithTag("workout-calendar", useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
@@ -215,7 +376,7 @@ class WorkoutHistoryScreenTest {
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1.3f)) {
                 val (mode, onHistory) = shown.value
                 PowertrackerTheme(mode = mode) {
-                    if (onHistory) WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts(3)), onBack = {})
+                    if (onHistory) WorkoutHistoryContent(WorkoutHistoryState(loading = false, workouts = workouts(3)), onBack = {}, today = today)
                     else ProgressContent(ProgressState(loading = false, mode = mode), onRange = {}, onOpenLift = {}, onOpenHistory = {})
                 }
             }

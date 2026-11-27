@@ -104,7 +104,7 @@ fun ProgressShowcase(strictPress: Boolean = false) {
 /** History (1.20): every workout of the sample log, newest first. */
 @Composable
 fun WorkoutHistoryShowcase() {
-    WorkoutHistoryContent(WorkoutHistoryViewModel.build(SAMPLE_HISTORY), onBack = {})
+    WorkoutHistoryContent(WorkoutHistoryViewModel.build(SAMPLE_HISTORY), onBack = {}, today = SHOWCASE_DATE)
 }
 
 @Composable

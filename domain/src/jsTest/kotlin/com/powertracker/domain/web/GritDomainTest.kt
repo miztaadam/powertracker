@@ -298,6 +298,17 @@ class GritDomainTest {
     }
 
     @Test
+    fun weeksInARow_countsBackFromThisWeek_aWeekInProgressDoesNotBreakTheRun() {
+        // Wednesday 11 November 2026: this week has none yet, last week and the one before have one each.
+        assertEquals(2, GritDomain.weeksInARow(arrayOf("2026-11-05", "2026-10-27"), "2026-11-11"))
+        assertEquals(3, GritDomain.weeksInARow(arrayOf("2026-11-10", "2026-11-05", "2026-10-27"), "2026-11-11"))
+        assertEquals(0, GritDomain.weeksInARow(emptyArray(), "2026-11-11"))
+        assertEquals(0, GritDomain.weeksInARow(arrayOf("2026-10-27"), "2026-11-11"))
+        assertFailsWith<IllegalArgumentException> { GritDomain.weeksInARow(arrayOf("soon"), "2026-11-11") }
+        assertFailsWith<IllegalArgumentException> { GritDomain.weeksInARow(arrayOf("2026-11-05"), "today") }
+    }
+
+    @Test
     fun openAdviceExpired_after14Days() {
         // Created 2026-03-01: day 14 is 2026-03-14, the last day it counts.
         for (type in listOf("DELOAD", "RE_ENTRY")) {

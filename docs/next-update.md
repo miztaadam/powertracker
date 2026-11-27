@@ -1826,7 +1826,7 @@ The owner, 2026-11-25, after installing the Android app: "its missing the update
 
 **Agreed next, in this order (owner, 2026-11-26):** (1) "Last time" you can act on: the row for the set about to be done highlighted, and a "Use set N" button that fills weight and reps (design sent, not yet confirmed); (2) a calendar in History; (3) warm-up sets; (4) supersets. Supersets change the stored log and the backup, so both apps ship together; warm-ups too if they are saved in the log.
 
-## Built, not published: 1.21, "Use set N" under Last time (both apps)
+## Done: 1.21, "Use set N" under Last time (both apps)
 Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" something you act on). The idea as listed had a tap on a row copy it into the fields; the design sent instead was one button, and the owner did not object after being asked twice, so the button was built. **If the owner wants tappable rows after all, that is a change to make.**
 
 **What the lifter gets (both apps):**
@@ -1863,6 +1863,61 @@ Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" so
 **Shots:** web, from the full run: the six Settings shots (the version line); `today-bodybuilding-*` and `today-plates-bodybuilding-*` (the marked row, "NEXT" and the button); and `today-rest-*`, the same in two runs: the card is taller with the button under one row, so the shot is scrolled further down. Eight others were put back as drift of a few bytes. Android: `today-*` and `today-bodybuilding-*` (the powerlifting sample now has five sets last time, so its fourth row is marked) and the six Settings shots.
 
 **Version:** Android 1.21 (versionCode 38), web 1.21.0 (shown as 1.21).
+
+**Published 2026-11-26 (owner: "publish"), on main as `f654b48`** (a `--no-ff` merge of the branch at `c66674e` onto main's `678747c`; its tree is the branch's). On merged main, one at a time, before the push, with no source change:
+- Web: `npm run typecheck` clean; unit tests 1,705 of 1,705; build clean. **Full Playwright run: 521 passed, 12 skipped, first time.** The `E2E_UA=android` pass: 259 passed, 12 skipped. **Speed project alone, three times: 6 of 6 each** (the Exercises tab check that missed once on the branch passed all three).
+- Gradle, each made to run (`--rerun`), not answered from the branch's results: `:domain:jvmTest` and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,134 tests, 0 failed, 1 skipped. `:domain:checkWebDomain` passed.
+- Live, about two minutes after the push: `/` names `assets/index-DjhOoHrI.js`, which carries 1.21.0 (no 1.20.0), build id `f654b48` and the words "Use set "; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 38, versionName 1.21, unsigned in this container. **No APK was handed over:** the signed release is built on the owner's PC.
+- **Still not run on a phone or an emulator.** The owner did not say how 1.20 looked on the phone before saying "publish". The owner's check is item 10 of README's "Phone checks after a release".
+
+**Next, agreed (owner, 2026-11-26), both apps together each time:** a calendar in History; warm-up sets (ask first: saved in the log, or a checklist that is not saved); supersets (owner decided: saved in the plan, linked once on the Plan tab; this changes the stored plan and the backup, so both apps ship together).
+
+## Built, not published: 1.22, a calendar in History (both apps)
+Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the same day, owner: "Go".
+
+**What the lifter gets (both apps), at the top of History, over the list:**
+- **One month at a time, Monday to Sunday,** opening on this month: **a dot under every day with a workout,** today in a ring, the other days in grey.
+- **A day with a dot is a button:** it brings that day's workout to the top of the list below. The list itself is as before: every workout, newest first.
+- **Arrows** go back as far as the month of the first workout, and forward to this month.
+- **Under the grid: "5 workouts in November · 12 weeks in a row".** The count is of the month on screen. The weeks in a row are calendar weeks (Monday to Sunday) with at least one workout, counted back from this week; a week in progress with none yet does not break the run (it is then counted back from last week). With no run, only the month's count shows.
+- No calendar on an empty log (the empty state shows instead). Nothing new is stored.
+
+**My calls** (the design the owner saw, except 3 to 7):
+1. The list stays whole; a tap on a day jumps to its workout (the alternative offered, the list showing only the month on screen, was not asked for).
+2. The streak counts weeks, not days: nobody lifts every day.
+3. The weekday names are single letters (M T W T F S S), so seven columns fit any phone.
+4. Only a day with a workout is a button; the others are numbers for the eye, hidden from a screen reader. A workout day reads "Tue 10 Nov 2026: Powerlifting · 1 exercise · 2 sets. Show it".
+5. The jump is at once, with no animation, and adds no history entry: Back still leaves for Progress.
+6. The dots are one colour for both sides (the workout's card says which side).
+7. A workout dated after today (a wrong clock) is listed but opens no month ahead of this one.
+
+**Limits, said to the owner in the report before publishing:**
+- **Web: a tap on a day months back draws every workout down to it** (whole pages of 20, as "Show older workouts" would), which is what the pages were there to avoid; the calendar is then a long scroll above. The Android list is lazy and has neither cost.
+- The calendar is tall: six rows of 48 px in a month like November 2026, before the first workout's card.
+- Day buttons are 48 px tall everywhere. Their width is the screen's: 50 px or more from a 360 px phone up, 45 px on a 320 px phone, and 34 px on a 320 px phone at 130% zoom (measured on the web). Android, asserted in its tests: at least 48 dp wide at 360 dp, at least 44 dp at 320 dp.
+- At 320 px and 200% text (about 160 px) the web calendar keeps inside the screen with its month name over the arrows and smaller figures; its columns are then about 20 px wide.
+
+**How:**
+- `domain`: `weeksInARow(workoutDays, today)` in `history/TrainingWeeks.kt`, exposed as `GritDomain.weeksInARow`; the generated web code is regenerated. Each app passes the dates of the workouts History lists, so the dots, the month's count and the run cannot disagree.
+- Web: `screens/progress/WorkoutCalendar.tsx` (the month maths in UTC on the ISO strings, as `dates.ts`); `WorkoutHistoryContent` takes a required `today`, holds the pages shown and the picked workout, and after the render scrolls its card into view and puts the focus on its date. `workoutSummary` moved to its own file. Narrow rules in `narrowDeeper.css`.
+- Android: `ui/progress/WorkoutCalendar.kt`, the first item of History's lazy list; a tap scrolls the list to the workout's item. `WorkoutHistoryContent` takes a required `today`. The list's side padding moved onto its items, so the calendar can reach closer to the screen's edge than the cards.
+- No database or backup change.
+
+**Tests:**
+- Domain: `TrainingWeeksTest` (8): none; a run of three however many workouts a week has; this week empty does not break the run; this week and last both empty is zero; a missed week ends it; Monday to Sunday; across New Year; a day after today is not counted. `GritDomainTest.weeksInARow_…`.
+- Web, `WorkoutHistoryScreen.test.tsx` (11, five new): the month, a button on each workout day, the ring, the counts; the arrows' limits; no run says only the month's count; a tap brings a workout up, also the 50th down the log, and again on a second tap; the month maths (a month starting on a Sunday, on a Monday, a leap February, across a year). e2e `progress.spec.ts`: the calendar at 375 px (30 day cells, all at least 47.5 px wide and inside the screen), a month back and a tap (the card at the top and focused), the first month and a tap past the first twenty (35 drawn), the address unchanged. `narrowDeeper.spec.ts`'s History tests hold the calendar at 160 px.
+- Android, `WorkoutHistoryScreenTest` (18, six new): the same cases; a tap brings the 30th workout to the top of the lazy list; every day at least 48 dp each way and inside the screen at 360 dp; whole at 320 dp and font scale 1.3.
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-26, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,711 of 1,711 (1,705 before, plus six); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 521 passed, 12 skipped, first time,** with no source change while it ran. The `E2E_UA=android` pass: 259 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` (988 tests, 0 failed) and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,141 tests, 0 failed, 1 skipped (1,134 before, plus seven). `:domain:checkWebDomain` passed. `:app:assembleRelease` builds: versionCode 39, versionName 1.22, unsigned in this container.
+- Looked at, in scratch tests not kept: the web calendar's sizes at 390, 360, 320, 246 and 240 px (nothing cut, the page never wider than the screen); the light theme with today as a workout day (a button with the ring and the dot).
+- **Not run on merged main. Not run on a phone or an emulator.** The month's name and the weekday letters come from the phone's own language data, which the tests here (English) do not prove for another language.
+
+**Shots:** web, from the full run: `history-*` (the calendar), `showcase-*` (the icon list has the new left arrow) and the six Settings shots; five others were put back as drift of a few bytes. Android: `history-*` and the six Settings shots.
+
+**Version:** Android 1.22 (versionCode 39), web 1.22.0 (shown as 1.22).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
