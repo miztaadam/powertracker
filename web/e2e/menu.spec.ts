@@ -39,10 +39,10 @@ async function seed(page: Page, plates: boolean) {
   )
   await page.reload()
   await expect(tabBar(page)).toBeVisible()
-  // The "Install Grit" card is drawn a moment after the plan, above it (it reads whether it was dismissed first). A menu
-  // opened before it arrives is pushed down with the plan and is not placed again: at 306 px its bottom was seen at 786
-  // of a 583 px room, once, on a busy machine (1.23's run on merged main). The tests here open a menu on a screen that
-  // has settled, so they wait for the card.
+  // The "Install Grit" card is drawn a moment after the plan, above it (it reads whether it was dismissed first), and
+  // moves the plan down. The tests that use this set-up are about a menu on a screen that has settled, so they wait for
+  // the card. A menu opened before the card arrives is the last test's: it is placed again (1.23.1; before that it was
+  // pushed off the screen, seen once on a busy machine in 1.23's run on merged main).
   await expect(page.locator('.install-card')).toBeVisible()
 }
 
@@ -412,3 +412,63 @@ test.describe('the ⋮ menu, more cases', () => {
     }
   })
 })
+
+// 1.23.1: the "Install Grit" card is drawn a moment after the plan, above it. A menu opened before it arrives was pushed
+// down with the plan and never placed again: at 306 px its bottom ended at 786 of a 583 px room. Now a menu is placed
+// again when the page under it shifts.
+for (const [width, height] of [
+  [306, 664],
+  [390, 844],
+] as const) {
+  test.describe(`a card arriving above an open ⋮ menu, ${width} px`, () => {
+    test.use({ viewport: { width, height } })
+
+    test('the menu is placed again, inside the screen, and still works', async ({ page }) => {
+      await openOnWednesday(page)
+      await seed(page, false)
+      // As if the card had not arrived yet.
+      const hide = await page.addStyleTag({ content: '.install-card { display: none !important }' })
+      const more = page.locator('.today-plan').getByRole('button', { name: 'Options for Cable chest press' })
+      await more.click()
+      const menu = page.getByRole('menu', { name: 'Options for Cable chest press' })
+      await expect(menu).toBeVisible()
+      await expect(menu.getByRole('menuitem').first()).toBeFocused()
+      const top = async () => (await more.boundingBox())!.y
+      const before = await top()
+
+      // The card arrives: the plan, its ⋮ and the open menu go down by the card's height.
+      await hide.evaluate((el) => (el as Element).remove())
+      await expect(page.locator('.install-card')).toBeVisible()
+      await expect.poll(top).toBeGreaterThan(before + 100)
+
+      // Inside the screen again, every action whole, the focus where it was.
+      await expect(menu.getByRole('menuitem').first()).toBeFocused()
+      // The placing follows the shift by a frame or two: wait for it, then read the menu once it is still.
+      await expect
+        .poll(async () => {
+          const box = await settled(page, 'Cable chest press')
+          return box.y >= box.roomTop && box.y + box.height <= box.roomBottom
+        }, { message: 'the menu is back inside its room' })
+        .toBe(true)
+
+      // Scrolling alone places nothing: the screen stays where the lifter put it, and the menu goes with its ⋮.
+      const gap = async () => (await menu.boundingBox())!.y - (await more.boundingBox())!.y
+      const main = page.locator('.shell-main')
+      const gapBefore = await gap()
+      const scrolled = await main.evaluate(async (el) => {
+        const from = el.scrollTop
+        el.scrollTop = from >= 40 ? from - 40 : from + 40
+        const to = el.scrollTop
+        for (let i = 0; i < 4; i++) await new Promise((done) => requestAnimationFrame(done))
+        return { moved: to !== from, kept: el.scrollTop === to }
+      })
+      expect(scrolled, 'the screen scrolls and is left where it was put').toEqual({ moved: true, kept: true })
+      expect(Math.abs((await gap()) - gapBefore), 'the menu keeps its place by its ⋮').toBeLessThan(1)
+
+      // ... and it still opens its sheet.
+      await menu.getByRole('menuitem', { name: 'Count plates on this machine' }).click()
+      const sheet = page.getByRole('dialog', { name: 'Count plates on Cable chest press' })
+      await expect(sheet).toBeVisible()
+    })
+  })
+}

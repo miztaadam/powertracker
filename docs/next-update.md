@@ -2044,6 +2044,37 @@ Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above
 
 **Owner, 2026-11-27: "publish".** 1.23 was published meanwhile (above, as `10a992e`), so 1.23.1 goes out alone. This branch (`claude/determined-fermat-po8wgi`) was built on 1.23's branch at `d409eec`; that branch's last two commits (the ⋮ menu test's wait, and 1.23's publishing notes) were merged in before the merge into main. The round on merged main and the live check are recorded below once done.
 
+**Seen from the session that built 1.23 (branch `ccr-2f9842b5-owq43n`), 2026-11-27, not done by it:** 1.23.1 is on main as `c802f51` and live: `/` names `assets/index-DyklXKGu.js`, which carries 1.23.1 (no 1.23.0) and build id `c802f51`. Its checks on merged main are not recorded in this file.
+
+## 1.23.2 (2026-11-27): an open ⋮ menu stays on screen when a card arrives above it (web)
+Found by 1.23's first round on merged main (above), put to the owner as a suggested task, and asked for by the owner on 2026-11-27 ("Do this task here").
+
+**Two sessions, one fix twice (for whoever reads this next):** the owner asked this session (1.23's) to do the Finish fix "here" as well, while the session started from its suggested-task card was already building it. This session built its own Finish fix, the ⋮ menu fix on top of it, and called the pair 1.23.1, with every check passing on its branch; it then found main already at 1.23.1 with the other session's Finish fix, published. **Main's Finish fix was kept as it is** (it is live, and it also guards Android's double tap on Finish, which this session had only noted); **this session's duplicate was dropped** in the merge of main into the branch (its commits stay in the branch's history: `834af63`, `9521d39`, `ede96e8`, `a2de404`). What is left on top of main is the menu fix alone, renumbered 1.23.2.
+
+**The fault:** on Today before a session, in a browser tab, the "Install Grit" card is drawn a moment after the plan, above it (it first reads whether it was dismissed). A ⋮ menu opened in that moment went down with its ⋮ by the card's height (442 px at 306 px wide) and stayed there: its bottom at 786 of a 583 px room.
+
+**Cause:** a menu was placed once, when it opened, and again only when the window's size changed.
+
+**Fix:** `web/src/ui/components/Menu.tsx` places the menu again when the page shifts under it while it is open: it watches the sizes of what the screen holds (`ResizeObserver`), and pieces added to the screen (`MutationObserver`), and acts only when the ⋮ is no longer where it was in the page. Scrolling alone changes nothing (the ⋮'s place in the page is the same). Placed anew, the menu opens above the ⋮ if that is where the room is, or the screen scrolls to it, as when it first opens; the focus stays where it was.
+
+**My call:** the menu follows the shift; the Install card is left as it is (it still arrives a moment late and moves the plan down). Making the card not move the plan would have meant deciding it before Today's first paint, a bigger change to the start screen.
+
+**Tests:** `menu.spec.ts`, "a card arriving above an open ⋮ menu" at 306 and 390 px: the card is held back, the menu opened, the card let in; the menu is then back inside its room (the placing follows the shift by a frame or two, so the test waits for it), its focus kept; scrolling the screen 40 px with the menu open leaves the screen where it was put and the menu by its ⋮; and its sheet still opens. At 306 px it failed before the fix with the same 786. Repeated 15 times at both widths: 30 of 30. The set-up's wait for the Install card (added in 1.23 for the other 26 tests) stays: those tests are about a settled screen.
+
+**Android:** not changed. The Android app has no Install card, and its ⋮ menus are Material `DropdownMenu`s (`SkipToday.kt`), each drawn in its own window and placed by the framework against its button. **Not checked:** whether a card that arrives late on its start screen (the welcome-back card) can move an open menu off screen there.
+
+**Checks, on the branch (`ccr-2f9842b5-owq43n`, which is main at `c802f51` plus this fix), 2026-11-27, one at a time, with no source change while they ran:**
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724 (as main's; this fix adds none); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 532 passed, 12 skipped** (530 on main, plus the two new). **The `E2E_UA=android` pass: 264 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.**
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` 1,000 and `:domain:jsNodeTest` 1,052, 0 failed; `:domain:checkWebDomain` passed. **`:app:testDebugUnitTest`: the first run was 1,155 tests, 1 failed, 1 skipped; a second run was 1,155, 0 failed, 1 skipped.** The one failure was `SkipTodayViewModelTest.skip_undo_removesSkipAndOpenCard` (line 191: a SKIP coach card was still there after the undo), in a run that took 9 min 53 s where 6 to 8 is usual. **It is one of the two tests listed above as flaky under load since 1.17, with its cause still not found**; the Android code here is main's, byte for byte, and this fix touches no Android code. Alone, it then passed 5 of 5. What the failure suggests, not shown: `unskip` deletes the skip and its card in one transaction, so a card present afterwards would have been stored by something still running with the skip in hand; if so it could happen in the app when Undo follows a skip within that moment. Put to the owner as a follow-up.
+- An earlier round, on this session's own version of 1.23.1 (the two fixes together, before the other session's was found on main), was green throughout: 1,723 web unit tests, 532 and 264 Playwright, speed 6 of 6 three times, Android 1,153.
+- **Not run on a phone or an emulator.** The menu fix was seen in Chromium only; Safari has the observers the fix uses, but was not run.
+
+**Shots:** the six Settings shots of each app (the version). Six web guide and form-guide shots were put back as drift of a few bytes.
+
+**Version:** Android 1.23.2 (versionCode 42), web 1.23.2.
+
+**Not published.** Waiting for the owner's "publish".
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

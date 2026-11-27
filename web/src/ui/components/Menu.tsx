@@ -48,11 +48,22 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
   // that placement is on the page.
   const reveal = useRef<{ why: 'first' | 'again'; placement: MenuPlacement } | null>(null)
 
+  // Where the button was in the page (not on the screen: scrolling does not change it) when the menu was last placed.
+  const placedAt = useRef<{ left: number; top: number } | null>(null)
+  /** The button's place in the page it scrolls with: the same however far the screen is scrolled. */
+  const buttonInPage = useCallback(() => {
+    const button = trigger.current?.getBoundingClientRect()
+    if (!button) return null
+    const screen = trigger.current?.closest('.shell-main')
+    return { left: button.left + (screen ? screen.scrollLeft : window.scrollX), top: button.top + (screen ? screen.scrollTop : window.scrollY) }
+  }, [])
+
   /** Measures the menu's own size and the button's place now, and places it (`placeMenu`). */
   const place = useCallback((why: 'first' | 'again') => {
     const button = trigger.current?.getBoundingClientRect()
     const menu = list.current
     if (!button || !menu) return
+    placedAt.current = buttonInPage()
     const style = getComputedStyle(menu)
     const borders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0)
     // Its whole height even while capped (scrollHeight holds the padding, not the border). The cap is on the whole box:
@@ -60,7 +71,7 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
     const placement = placeMenu(button, { width: menu.offsetWidth, height: menu.scrollHeight + borders }, menuRoom(menu))
     reveal.current = { why, placement }
     setPlacement(placement)
-  }, [])
+  }, [buttonInPage])
 
   // Placed before it is drawn: measured where it would open as before, then moved only if it leaves the screen.
   useLayoutEffect(() => {
@@ -124,6 +135,35 @@ export function Menu({ label, items, icon = <MoreVertIcon />, className }: MenuP
       viewport?.removeEventListener('resize', onResize)
     }
   }, [open, place])
+
+  // 1.23.1: placed again when the page shifts under it while it is open. On Today in a browser tab the "Install Grit"
+  // card is drawn a moment after the plan, above it: a menu opened before it arrived went down with its button by the
+  // card's height, off the bottom of the screen, and stayed there. Now, when what the screen holds changes size or a
+  // piece is added to it, and the button is no longer where it was in the page, the menu is placed anew (above the
+  // button if that is where the room is now, the screen scrolled to it if there is none). Scrolling alone moves nothing:
+  // the button's place in the page is the same.
+  useEffect(() => {
+    if (!open || typeof ResizeObserver === 'undefined') return
+    const screen = trigger.current?.closest('.shell-main') ?? null
+    let frame = 0
+    const check = () => {
+      const now = buttonInPage()
+      const was = placedAt.current
+      if (now == null || was == null || (Math.abs(now.left - was.left) < 1 && Math.abs(now.top - was.top) < 1)) return
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => place('again'))
+    }
+    const sizes = new ResizeObserver(check)
+    for (const piece of screen ? Array.from(screen.children) : [document.body]) sizes.observe(piece)
+    // A piece added beside the others changes no observed size.
+    const pieces = typeof MutationObserver === 'undefined' ? null : new MutationObserver(check)
+    if (screen) pieces?.observe(screen, { childList: true })
+    return () => {
+      cancelAnimationFrame(frame)
+      sizes.disconnect()
+      pieces?.disconnect()
+    }
+  }, [open, place, buttonInPage])
 
   // 1.17.4: where the browser has CloseWatcher, Back on a phone, and Escape (itself a close request there, so the key is
   // not handled below as well), close it and give the focus back to its button, through the app's one close watcher.
