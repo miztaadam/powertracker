@@ -9,6 +9,7 @@ import com.powertracker.data.db.MIGRATION_2_3
 import com.powertracker.data.db.MIGRATION_3_4
 import com.powertracker.data.db.MIGRATION_4_5
 import com.powertracker.data.db.MIGRATION_5_6
+import com.powertracker.data.db.MIGRATION_6_7
 import com.powertracker.data.db.StrictPressUpgrade
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -316,7 +317,7 @@ class MigrationTest {
         val app = AppDatabase.build(context)
         try {
             val db = app.openHelper.writableDatabase
-            assertEquals(6, db.version)
+            assertEquals(7, db.version)
             assertEquals(listOf(1L to 1L), sets(db))
             assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
         } finally {
@@ -380,17 +381,47 @@ class MigrationTest {
         db.close()
     }
 
-    /** A version 1 database reaches version 6 through every upgrade in turn, in the helper and in the app's own database. */
+    /**
+     * 1.24, version 7: supersets. Every plan item gains the flag that links it to the item above it, and every item
+     * already stored reads as not linked. Nothing stored changes.
+     */
     @Test
-    fun allMigrations_1to6_openInTheApp() {
+    fun migrate6to7_addsTheColumn_andEveryStoredPlanItemIsNotLinked() {
+        helper.createDatabase(name, 6).use { db ->
+            exercise(db, 1, "Squat", "SQUAT", builtIn = true)
+            exercise(db, 2, "Lat pulldown", "ACCESSORY", builtIn = true)
+            db.execSQL("INSERT INTO plan_item (id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh) VALUES (1, 3, 1, 5, 5, 8.0, 0, 'POWERLIFTING', NULL)")
+            db.execSQL("INSERT INTO plan_item (id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh) VALUES (2, 3, 2, 3, 8, 8.0, 1, 'BODYBUILDING', 12)")
+        }
+
+        val db = helper.runMigrationsAndValidate(name, 7, true, MIGRATION_6_7)
+
+        assertEquals(listOf("0", "0"), strings(db, "SELECT supersetWithAbove FROM plan_item ORDER BY id"))
+        // Every other column is as it was.
+        db.query("SELECT id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh FROM plan_item ORDER BY id").use { c ->
+            val rows = buildList { while (c.moveToNext()) add((0..8).map { i -> if (c.isNull(i)) null else c.getString(i) }) }
+            assertEquals(listOf(listOf("1", "3", "1", "5", "5", "8", "0", "POWERLIFTING", null), listOf("2", "3", "2", "3", "8", "8", "1", "BODYBUILDING", "12")), rows.map { r -> r.map { it?.removeSuffix(".0") } })
+        }
+        // An item written after the upgrade without the new column is not linked, from the column's default.
+        db.execSQL("INSERT INTO plan_item (id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh) VALUES (3, 5, 1, 3, 5, 8.0, 0, 'POWERLIFTING', NULL)")
+        assertEquals(listOf("0"), strings(db, "SELECT supersetWithAbove FROM plan_item WHERE id = 3"))
+        db.close()
+    }
+
+    /** A version 1 database reaches version 7 through every upgrade in turn, in the helper and in the app's own database. */
+    @Test
+    fun allMigrations_1to7_openInTheApp() {
         helper.createDatabase(name, 1).use { db ->
             seedMainLifts(db)
             session(db, 1, 20_400)
             set(db, 1, 1, 1, 140.0)
         }
-        val migrated = helper.runMigrationsAndValidate(name, 6, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+        val migrated = helper.runMigrationsAndValidate(name, 7, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
         assertEquals(listOf(1L to 1L), sets(migrated))
         assertEquals(listOf("KG"), strings(migrated, "SELECT unit FROM logged_set"))
+        // The plan table has version 7's column.
+        migrated.execSQL("INSERT INTO plan_item (id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh) VALUES (1, 3, 1, 5, 5, 8.0, 0, 'POWERLIFTING', NULL)")
+        assertEquals(listOf("0"), strings(migrated, "SELECT supersetWithAbove FROM plan_item"))
         migrated.close()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -403,7 +434,7 @@ class MigrationTest {
         val app = AppDatabase.build(context)
         try {
             val db = app.openHelper.writableDatabase
-            assertEquals(6, db.version)
+            assertEquals(7, db.version)
             assertEquals(listOf(1L to 1L), sets(db))
             assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
             assertEquals(listOf("KG"), strings(db, "SELECT unit FROM logged_set"))

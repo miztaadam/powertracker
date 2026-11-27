@@ -25,6 +25,7 @@ import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.plan.Supersets
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -143,12 +144,44 @@ open class TrainingRepository(private val db: AppDatabase) {
      */
     open suspend fun savePlanItem(item: PlanItem, catalogueName: String? = null): Long {
         fun entity(exerciseId: Long) =
-            PlanItemEntity(item.id, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order, item.mode, item.repsHigh)
+            PlanItemEntity(item.id, item.weekday, exerciseId, item.sets, item.reps, item.targetRpe, item.order, item.mode, item.repsHigh, item.supersetWithAbove)
         if (catalogueName == null) return db.plan().upsert(entity(item.exerciseId))
         return db.withTransaction { db.plan().upsert(entity(catalogue.resolve(catalogueName))) }
     }
 
-    suspend fun deletePlanItem(id: Long) = db.plan().delete(id)
+    /** Deletes a plan item. The item under it, if linked to it as a superset, is unlinked (1.24). */
+    suspend fun deletePlanItem(id: Long) = db.withTransaction {
+        val item = db.plan().byId(id) ?: return@withTransaction
+        keepingLinks(item.mode) { db.plan().delete(id) }
+    }
+
+    /**
+     * Runs [change], a write to [mode]'s side's plan, and then takes the link off every item whose item above changed by
+     * it (1.24; the rule is the domain's [Supersets.broken]): the one above was deleted, moved, or swapped for another
+     * exercise by the coach, or something was moved in between. Call it inside a transaction ([inTransaction]). Every
+     * write that can change what is above an item goes through here: delete, move, and the coach's plan changes. Adding
+     * at the end of a day, and editing an item's own numbers or exercise, change nothing above anyone.
+     */
+    suspend fun <T> keepingLinks(mode: TrainingMode, change: suspend () -> T): T {
+        suspend fun side() = db.plan().all().filter { it.mode == mode }.map { it.toDomain() }
+        val before = side()
+        val result = change()
+        val broken = Supersets.broken(before, side())
+        if (broken.isNotEmpty()) db.plan().setSuperset(broken, false)
+        return result
+    }
+
+    /**
+     * Links the plan item [id] to the one above it, or takes its link off (1.24). Linking is refused, changing nothing
+     * and returning false, where [Supersets.canLink] says no: nothing above it on its day, the same exercise, or one of
+     * the two already in a pair. Unlinking always goes through.
+     */
+    suspend fun setSuperset(id: Long, linked: Boolean): Boolean = db.withTransaction {
+        val item = db.plan().byId(id) ?: return@withTransaction false
+        if (linked && !Supersets.canLink(db.plan().all().filter { it.mode == item.mode }.map { it.toDomain() }, id)) return@withTransaction false
+        db.plan().setSuperset(listOf(id), linked)
+        true
+    }
 
     /**
      * Replaces [mode]'s whole plan with [items], in one transaction: that side's items are deleted, each item's catalogue
@@ -203,7 +236,8 @@ open class TrainingRepository(private val db: AppDatabase) {
         db.plan().clearSide(mode)
         // A plain insert: an id already taken fails the whole undo rather than overwriting that row.
         db.plan().insertAll(
-            snapshot.items.map { PlanItemEntity(it.id, it.weekday, it.exerciseId, it.sets, it.reps, it.targetRpe, it.order, mode, it.repsHigh) },
+            // Its superset links come back with it (1.24): the same ids in the same places.
+            snapshot.items.map { PlanItemEntity(it.id, it.weekday, it.exerciseId, it.sets, it.reps, it.targetRpe, it.order, mode, it.repsHigh, it.supersetWithAbove) },
         )
         for ((skipId, itemId) in snapshot.skipLinks) {
             val skip = db.skips().byId(skipId) ?: continue
@@ -254,9 +288,18 @@ open class TrainingRepository(private val db: AppDatabase) {
      * inserted as [savePlanItem] does). If anything fails, the plan and the exercise rows are left as they were.
      */
     suspend fun applyPlanChange(change: PlanChange) = db.withTransaction {
-        for (item in change.updated) savePlanItem(item)
-        for (item in change.removed) db.plan().delete(item.id)
-        for ((item, name) in change.added) savePlanItem(item.copy(id = 0), name)
+        suspend fun write() {
+            for (item in change.updated) savePlanItem(item)
+            for (item in change.removed) db.plan().delete(item.id)
+            for ((item, name) in change.added) savePlanItem(item.copy(id = 0), name)
+        }
+        // A swap deletes an item and adds another in its place: a superset it was in is unlinked (1.24), on each side touched.
+        val sides = (change.updated + change.removed + change.added.map { it.first }).map { it.mode }.distinct()
+        when (sides.size) {
+            0 -> write()
+            1 -> keepingLinks(sides[0]) { write() }
+            else -> keepingLinks(sides[0]) { keepingLinks(sides[1]) { write() } }
+        }
     }
 
     /** Every stored skip, both sides', oldest first. */
@@ -340,7 +383,7 @@ private fun SkipEntity.toDomain() = Skip(id, date, mode, exerciseId, planItemId,
 
 private fun com.powertracker.data.db.AdviceEntity.decoded(): AdvicePayload = Json.decodeFromString(AdvicePayload.serializer(), payload)
 
-private fun PlanItemEntity.toDomain() = PlanItem(id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh)
+internal fun PlanItemEntity.toDomain() = PlanItem(id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh, supersetWithAbove)
 
 /** The stored form of a check-in's groups: Kotlin names, comma-separated, in [MuscleGroup] order. */
 internal fun groupsToDb(groups: Set<MuscleGroup>): String = MuscleGroup.entries.filter { it in groups }.joinToString(",") { it.name }

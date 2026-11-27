@@ -22,6 +22,7 @@ import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
 import com.powertracker.domain.model.TrainingMode
+import com.powertracker.domain.plan.Supersets
 import com.powertracker.domain.stack.PlateCheck
 import com.powertracker.domain.stack.PlateStack
 import kotlinx.coroutines.flow.first
@@ -125,8 +126,10 @@ data class PlanItemDto(
     val mode: String = TrainingMode.POWERLIFTING.name,
     /** Version 3: the top of a rep range; null for fixed reps. */
     val repsHigh: Int? = null,
+    /** Version 7: done as a superset with the item above it. Written only when true, as the item's last key. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val supersetWithAbove: Boolean = false,
 ) {
-    fun toEntity() = PlanItemEntity(id, DayOfWeek(weekday), exerciseId, sets, reps, targetRpe, sortOrder, TrainingMode.valueOf(mode), repsHigh)
+    fun toEntity() = PlanItemEntity(id, DayOfWeek(weekday), exerciseId, sets, reps, targetRpe, sortOrder, TrainingMode.valueOf(mode), repsHigh, supersetWithAbove)
 }
 
 @Serializable
@@ -214,8 +217,12 @@ object Backup {
      * plates exports as version 5 did but for the version. A version 5 or older file restores with every set in kg and
      * every exercise off; an app that reads only version 5 turns a version 6 file away as too new. A plate set that is
      * not a whole or half plate from plate 1 to 50 is a corrupt file (1.17.1; 1.17 refused only one below plate 1).
+     * 7: 1.24's supersets (`supersetWithAbove` on plan items, written only when true, so a plan with no supersets
+     * exports as version 6 did but for the version). A version 6 or older file restores with no supersets; a flag that
+     * cannot count (the first item of a day, the third in a row, one exercise twice) is cleared on restore, in both
+     * apps, by the domain's `Supersets.stale`. An app that reads only version 6 turns a version 7 file away as too new.
      */
-    const val VERSION = 6
+    const val VERSION = 7
 
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
@@ -303,7 +310,7 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
                     SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet, it.unit.name)
                 },
                 planItems = db.plan().all().map {
-                    PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder, it.mode.name, it.repsHigh)
+                    PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder, it.mode.name, it.repsHigh, it.supersetWithAbove)
                 },
                 advice = db.advice().all().map {
                     AdviceDto(
@@ -334,7 +341,11 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
         val exercises = if (file.version < 2) StrictPressUpgrade.apply(rows) else rows
         val sessions = file.sessions.map { it.toEntity() }
         val sets = file.sets.map { it.toEntity() }
-        val planItems = file.planItems.map { it.toEntity() }
+        // A superset flag that cannot count (the first item of a day, the third in a row, one exercise twice) is cleared,
+        // as the web app clears it, so the plan restored holds only links the Plan tab could have made (version 7).
+        val linked = file.planItems.map { it.toEntity() }
+        val stale = Supersets.stale(linked.map { it.toDomain() }).toSet()
+        val planItems = linked.map { if (it.id in stale) it.copy(supersetWithAbove = false) else it }
         val advice = file.advice.map { it.toEntity() }
         val baselines = file.baselines.map { it.toEntity() }
         val checkIns = file.checkIns.map { it.toEntity() }

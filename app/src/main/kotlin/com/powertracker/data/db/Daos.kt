@@ -75,6 +75,9 @@ interface PlanDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insertOrIgnore(p: PlanItemEntity): Long
     @Update suspend fun update(p: PlanItemEntity)
     @Query("DELETE FROM plan_item WHERE id = :id") suspend fun delete(id: Long)
+    @Query("SELECT * FROM plan_item WHERE id = :id") suspend fun byId(id: Long): PlanItemEntity?
+    /** Links the item to the one above it as a superset, or takes the link off (1.24). */
+    @Query("UPDATE plan_item SET supersetWithAbove = :linked WHERE id IN (:ids)") suspend fun setSuperset(ids: List<Long>, linked: Boolean)
     @Query("SELECT * FROM plan_item ORDER BY id") suspend fun all(): List<PlanItemEntity>
     @Insert suspend fun insertAll(p: List<PlanItemEntity>)
     @Query("DELETE FROM plan_item") suspend fun clear()

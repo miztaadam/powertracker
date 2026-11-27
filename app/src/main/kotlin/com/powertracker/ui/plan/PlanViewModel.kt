@@ -246,7 +246,10 @@ class PlanViewModel(
         write { training.deletePlanItem(item.id) }
     }
 
-    /** Swaps [item] with its neighbour in the given direction (-1 up, +1 down): both orders in one transaction, or neither. */
+    /**
+     * Swaps [item] with its neighbour in the given direction (-1 up, +1 down): both orders in one transaction, or neither.
+     * A superset the move breaks is unlinked (1.24): the moved item's own, and one it was moved into.
+     */
     fun move(item: PlanItem, direction: Int) {
         val rows = state.value.sections.firstOrNull { it.day == item.weekday }?.rows ?: return
         val i = rows.indexOfFirst { it.item.id == item.id }
@@ -254,8 +257,10 @@ class PlanViewModel(
         if (i < 0) return
         write {
             training.inTransaction {
-                training.savePlanItem(item.copy(order = other.order))
-                training.savePlanItem(other.copy(order = item.order))
+                training.keepingLinks(item.mode) {
+                    training.savePlanItem(item.copy(order = other.order))
+                    training.savePlanItem(other.copy(order = item.order))
+                }
             }
         }
     }

@@ -481,8 +481,8 @@ class BackupTest {
     fun v6File_isTooNew() = runTest {
         seedSkips()
         val root = Json.parseToJsonElement(Backup.encode(service.export(1L))).jsonObject
-        val v6 = JsonObject(root + ("version" to JsonPrimitive(7)))
-        assertEquals(BackupResult.TooNew(7), Backup.decode(v6.toString()))
+        val newer = JsonObject(root + ("version" to JsonPrimitive(Backup.VERSION + 1)))
+        assertEquals(BackupResult.TooNew(Backup.VERSION + 1), Backup.decode(newer.toString()))
     }
 
     /** Three skips: today's pain skip of curl on the bodybuilding side (with its card), and two on the powerlifting side. */
@@ -645,7 +645,8 @@ class BackupTest {
         val (pulldown, _) = seedPlates()
         val exported = service.export(1L)
         val text = Backup.encode(exported)
-        assertEquals(6, Json.parseToJsonElement(text).jsonObject.getValue("version").jsonPrimitive.int)
+        // The version written now (7 since 1.24); the unit and the plate setting came with version 6.
+        assertEquals(Backup.VERSION, Json.parseToJsonElement(text).jsonObject.getValue("version").jsonPrimitive.int)
 
         db.sets().clear()
         db.sessions().clear()
@@ -705,7 +706,8 @@ class BackupTest {
     @Test
     fun aVersion6File_isTooNewForAVersion5Reader() = runTest {
         seedPlates()
-        assertEquals(BackupResult.TooNew(6), Backup.decode(Backup.encode(service.export(1L)), supportedVersion = 5))
+        // What the app writes now is version 7: still too new for a version 5 reader, as a version 6 file was.
+        assertEquals(BackupResult.TooNew(Backup.VERSION), Backup.decode(Backup.encode(service.export(1L)), supportedVersion = 5))
     }
 
     @Test
