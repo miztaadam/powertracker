@@ -2142,6 +2142,14 @@ Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once o
 
 **Also in this release (tests only, no change to the app):** the undo-skip Android test no longer fails under load (see the entry above).
 
+**Checked on the branch, 2026-11-27, commit `252a40b`, one round with nothing running beside it, all passing:**
+- Kotlin: shared rules 1020 (JVM) and 1073 (as JavaScript); Android app 1190 (1 skipped, as before); the generated web copy of the shared rules is up to date.
+- Web: type check; 1751 unit tests; the build.
+- Browser tests as an iPhone: 537 passed, 12 skipped (as before), none left unrun. As an Android phone (CI's list, with the superset tests added): 269 passed, 12 skipped. The superset tests passed in both.
+- The timing checks, three runs: 6 of 6 each time.
+- **What the runs before it caught, all in tests, none in the app:** a browser test that still expected backup version 6; the older-copy browser tests, which moved the log on to stored-data version 70, the number 1.24 made this build's own (they use a far later one now, so the next version cannot do the same to them); and my own superset browser test pressing Escape before the menu listened for it.
+- **Not checked:** a real phone; real Safari; an update of an installed 1.23.2 to 1.24 on a phone (the Android database's step from version 6 to 7 is tested on a copy of the stored schema, the web's in a test browser); CI (it runs on main after a push).
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;
