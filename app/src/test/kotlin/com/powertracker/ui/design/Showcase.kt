@@ -192,7 +192,8 @@ fun TodayStartShowcase() {
 fun TodayNextShowcase() {
     val squatSets = listOf(logged(1, 150.0, 5, 7.5), logged(2, 155.0, 5, 8.0), logged(3, 155.0, 5, 8.5), logged(4, 155.0, 5, 9.0), logged(5, 155.0, 5, 9.5))
     val items = todayItems(squatSets, suggest = false).toMutableList()
-    items[1] = items[1].copy(sets = listOf(logged(6, 100.0, 6, 7.5)))
+    // With a set logged the bench has no warm-up checklist, as the view model has it.
+    items[1] = items[1].copy(sets = listOf(logged(6, 100.0, 6, 7.5))).withWarmUp()
     TodayContent(TodayState(SHOWCASE_DATE, loading = false, sessionId = 1, items = items), TodayActions())
 }
 
