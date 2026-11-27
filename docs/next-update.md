@@ -1873,7 +1873,7 @@ Picked by the owner on 2026-11-26 from a list of ideas ("1": make "Last time" so
 
 **Next, agreed (owner, 2026-11-26), both apps together each time:** a calendar in History; warm-up sets (ask first: saved in the log, or a checklist that is not saved); supersets (owner decided: saved in the plan, linked once on the Plan tab; this changes the stored plan and the backup, so both apps ship together).
 
-## Built, not published: 1.22, a calendar in History (both apps)
+## Done: 1.22, a calendar in History (both apps)
 Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the same day, owner: "Go".
 
 **What the lifter gets (both apps), at the top of History, over the list:**
@@ -1918,6 +1918,17 @@ Picked by the owner on 2026-11-26 from the list of ideas ("2"), design sent the 
 **Shots:** web, from the full run: `history-*` (the calendar), `showcase-*` (the icon list has the new left arrow) and the six Settings shots; five others were put back as drift of a few bytes. Android: `history-*` and the six Settings shots.
 
 **Version:** Android 1.22 (versionCode 39), web 1.22.0 (shown as 1.22).
+
+**Published 2026-11-27 (owner: "Publish"), on main as `3d526b0`** (a `--no-ff` merge of the branch at `57e9146` onto main's `f654b48`; its tree is the branch's). On merged main, one at a time, before the push, with no source change:
+- Web: `npm run typecheck` clean; unit tests 1,711 of 1,711; build clean.
+- **Full Playwright run: the first was 520 passed, 12 skipped, 1 failed; a second full run was 521 passed, 12 skipped.** The one failure was `guide.spec.ts`, "guide_plan_ringsEachTap_onItsControl, just before its result (bodybuilding)", with motion on: at the first tap, "CHOOSE_TEMPLATE is in view" was false (the ringed button's box was not wholly inside the guide picture's box). **Its cause was not found.** What was tried: the test alone 12 times each side (24 of 24 passed); the same with six busy loops loading the processor (24 of 24); the same with the fonts held back 2.5 s, with and without the service worker (12 of 12; by the time the test measures, the fonts are in). It had passed in every full run of this session before, on the branch too. Nothing under the guide, Plan or the templates changed in 1.22: the guide's code is what was already live. So the push went ahead on the second, all-green run. **Open:** this test can miss once in many runs for a reason not yet known; if it does again, keep what the failed run left (`test-results/…/error-context.md`) before rerunning anything, which this time overwrote it.
+- The `E2E_UA=android` pass: 259 passed, 12 skipped (the guide spec is in its list and passed). Speed project alone, three times: 6 of 6 each.
+- Gradle, each made to run (`--rerun`): `:domain:jvmTest` (988 tests, 0 failed) and `:domain:jsNodeTest` passed; `:app:testDebugUnitTest` passed, 1,141 tests, 0 failed, 1 skipped. `:domain:checkWebDomain` passed.
+- Live, about two minutes after the push: `/` names `assets/index-Cgy2tAOR.js`, which carries 1.22.0 (no 1.21.0), build id `3d526b0` and the words "in a row"; `sw.js` lists it, imports `sw-reload-clients.js?v=18e47dd61b2c` (unchanged) and is served `cache-control: no-cache`.
+- Android: `:app:assembleRelease` gives versionCode 39, versionName 1.22, unsigned in this container. **No APK was handed over.**
+- **Still not run on a phone or an emulator.** The owner has not yet said how 1.20, 1.21 or 1.22 look on the phone.
+
+**Next (owner, 2026-11-27): warm-up sets, "don't add warm ups to the log"**: a checklist to tick off that is not saved, so no stored data or backup changes. The numbers (how many warm-up sets, at what share of the working weight, for how many reps) need a published source, as the coach's other numbers have (`CoachSources.kt`). A web search on 2026-11-27 pointed to ExRx's "Types of Warm-ups" page (exrx.net/ExInfo/WarmUp) and to Baechle and Earle's warm-up ladder as excerpted by Human Kinetics; **neither page could be opened from this session** (the session's network does not allow those hosts), so nothing is taken from them yet. Then supersets (owner decided: saved in the plan; both apps together).
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
