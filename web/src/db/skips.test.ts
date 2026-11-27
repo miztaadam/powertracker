@@ -90,7 +90,7 @@ describe('schema version 5', () => {
 
     const db = await openDb()
 
-    expect(await installedVersion(name)).toBe(6)
+    expect(await installedVersion(name)).toBe(7)
     for (const t of tables) expect(await db.table(t).toArray(), t).toEqual(before[t])
     expect(await db.skips.toArray()).toEqual([])
     // The upgrade wrote a safety copy of the version 4 data first.

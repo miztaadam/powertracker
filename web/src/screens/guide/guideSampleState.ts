@@ -146,7 +146,7 @@ export function guidePlanState(mode: TrainingMode, items: readonly JsPlanItem[],
       rows: plan
         .filter((p) => p.weekday === weekday)
         .sort((a, b) => a.order - b.order || a.id - b.id)
-        .map((item) => ({ item, exerciseName: names.get(item.exerciseId) ?? '' })),
+        .map((item) => ({ item, exerciseName: names.get(item.exerciseId) ?? '', superset: null, canLink: false })),
     })),
     exercises: rows.filter((e) => !e.archived),
     recentIds: [],
@@ -167,6 +167,7 @@ export const NO_PLAN_ACTIONS: PlanActions = {
   save: nothing,
   remove: nothing,
   move: nothing,
+  setSuperset: () => Promise.resolve(false),
   addCustomExercise: () => Promise.reject(new Error('the guide stores nothing')),
   setBaseline: nothing,
 }

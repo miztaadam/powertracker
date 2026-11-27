@@ -4,6 +4,7 @@ import { planItemFromJs } from './mapping'
 import { sideOf, type ExerciseRow, type PlateCount, type PlanItemRow, type SetRow, type TrainingMode } from './schema'
 import { getSettings, updateSettings } from './settings'
 import { forgetPlanItems } from './skips'
+import { keepingLinks } from './supersets'
 
 /**
  * The id of the exercise row for the catalogue exercise `name` (a name or an alias). Nothing is
@@ -105,8 +106,35 @@ export function updatePlanItem(db: GritDb, id: number, change: Unresolved<Pick<P
 /** Deletes a plan item; its skips stay, with no plan item (as Android's SET NULL). Joins the caller's transaction when it has these tables. */
 export function deletePlanItem(db: GritDb, id: number): Promise<void> {
   return db.transaction('rw', db.planItems, db.skips, async () => {
-    await forgetPlanItems(db, [id])
-    await db.planItems.delete(id)
+    const item = await db.planItems.get(id)
+    if (item == null) return
+    // The item under it, if linked to it as a superset, is unlinked (1.24).
+    await keepingLinks(db, sideOf(item), async () => {
+      await forgetPlanItems(db, [id])
+      await db.planItems.delete(id)
+    })
+  })
+}
+
+/**
+ * Moves a plan item one place up (-1) or down (1) on its day, as stored now; nothing when it is already at that end.
+ * The day is renumbered rather than two orders swapped, so two items that share an order still change places. A
+ * superset the move breaks is unlinked (1.24): the moved item's own, and one it was moved into.
+ */
+export function movePlanItem(db: GritDb, item: PlanItemRow & { id: number }, direction: -1 | 1): Promise<void> {
+  // The scope is itself an async function: Dexie follows the awaits of one, and not of a plain function that hands
+  // back a promise (a move that changed nothing then failed with PrematureCommitError).
+  return db.transaction('rw', db.planItems, async () => {
+    await keepingLinks(db, sideOf(item), async () => {
+      const items = await planItemsOn(db, item.weekday, sideOf(item))
+      const from = items.findIndex((p) => p.id === item.id)
+      const moved = items[from]
+      const neighbour = items[from + direction]
+      if (moved == null || neighbour == null) return
+      items[from + direction] = moved
+      items[from] = neighbour
+      await Promise.all(items.map((p, order) => (p.order === order ? null : db.planItems.update(p.id, { order }))))
+    })
   })
 }
 
@@ -215,15 +243,23 @@ export function addSet(db: GritDb, set: Unresolved<Omit<SetRow, 'id'>>, catalogu
  */
 export function applyPlanChange(db: GritDb, change: JsPlanChange): Promise<void> {
   return db.transaction('rw', db.exercises, db.planItems, db.skips, async () => {
-    // Updated in place, so an item keeps its id and its skips keep pointing at it.
-    for (const item of change.updated) await db.planItems.put(planItemFromJs(item))
-    if (change.removed.length > 0) {
-      await forgetPlanItems(db, change.removed.map((p) => p.id))
-      await db.planItems.bulkDelete(change.removed.map((p) => p.id))
+    const write = async () => {
+      // Updated in place, so an item keeps its id and its skips keep pointing at it.
+      for (const item of change.updated) await db.planItems.put(planItemFromJs(item))
+      if (change.removed.length > 0) {
+        await forgetPlanItems(db, change.removed.map((p) => p.id))
+        await db.planItems.bulkDelete(change.removed.map((p) => p.id))
+      }
+      for (const { item, name } of change.added) {
+        const { id: _new, ...row } = planItemFromJs(item)
+        await db.planItems.add({ ...row, exerciseId: await resolveCatalogue(db, name) })
+      }
     }
-    for (const { item, name } of change.added) {
-      const { id: _new, ...row } = planItemFromJs(item)
-      await db.planItems.add({ ...row, exerciseId: await resolveCatalogue(db, name) })
-    }
+    // A swap deletes an item and adds another in its place: a superset it was in is unlinked (1.24), on each side touched.
+    const sides = [...new Set([...change.updated, ...change.removed, ...change.added.map((a) => a.item)].map((p) => sideOf(planItemFromJs(p))))]
+    const [first, second] = sides
+    if (first == null) await write()
+    else if (second == null) await keepingLinks(db, first, write)
+    else await keepingLinks(db, first, () => keepingLinks(db, second, write))
   })
 }
