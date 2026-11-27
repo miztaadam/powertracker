@@ -2006,34 +2006,66 @@ Picked by the owner on 2026-11-26 from the list of ideas ("warm up sets"); on 20
 
 **Next: supersets** (owner, 2026-11-26: saved in the plan, linked once on the Plan tab; 2026-11-27: "Start on supersets"). They change the stored plan and the backup, so both apps ship together. Design first: the owner was asked which exercises they pair, whether ever three or more, and what happens with uneven sets; nothing is built until the design is approved.
 
-## 1.23.1 (2026-11-27): Finish counts a set still being saved (both apps); an open ⋮ menu stays on screen when a card arrives above it (web)
-Both were found by 1.23's check rounds, put to the owner as suggested tasks, and asked for by the owner on 2026-11-27 ("Do this task here", twice).
+## Done: 1.23.1, Finish counts a set that is still being saved (both apps)
+Asked by the owner on 2026-11-27, from the fault 1.23's check round found (above, the `E2E_UA=android` pass of its second round).
 
-**1. Finish counted one set too few when tapped in the same instant as Log set (both apps).**
-- **The fault:** the "Session saved" summary counted the sets on screen when Finish was tapped. A set whose save was still under way was stored but not counted: "Sets 2" with three stored. The count kept for the next time the app opens was the same wrong one.
-- **Cause:** Finish read the screen's state at once; Log set holds its guard until the new set is on screen, and nothing made Finish wait for that.
-- **Fix:** Finish waits for a save under way and counts what is on screen then. Web: `useToday.ts`, a promise (`saved`) that `logSet` settles when its guard is released, awaited by `finishSession`. Android: `TodayViewModel.finishSession` waits for `saving` to clear.
-- **Tests, each failing before the fix:** web `TodayScreen.test.tsx`, `finish_tappedInTheSameInstantAsLogSet_countsThatSet` ("Sets2Exercises1" before, "Sets3Exercises1" after, also after the screen is opened again); Android `TodayViewModelTest.finishSession_calledWhileASetIsStillBeingSaved_countsThatSet` (failed before the fix; passes after, and a fresh view model shows the same count).
-- Not changed: a set held for the "is this a typo?" question is not saved, so Finish does not wait for the answer, as before.
-- **In a real browser too:** `reload.spec.ts` ("reloadMidSession_keepsEverything", the test that failed once in 1.23's Android pass) again taps Log set 3 and Finish with nothing between them; the wait added in 1.23 is gone. Repeated: 20 of 20 as an iPhone, 20 of 20 as an Android phone, and 20 of 20 as an Android phone with four busy loops beside it.
-- **Seen in the code, not tested, not changed:** on Android, Finish has no guard against a second tap while the first is still at work (the web has one, `finishing`), so two fast taps on Finish can run the coach's end-of-session step twice. It was so before this fix, which lengthens that moment only by the wait for a set being saved.
+**What was wrong:** "Session saved" counted the sets that were on screen at the moment Finish was tapped. A set tapped a split second before, still on its way into the log, was stored but not counted, and the coach, which runs at Finish, had not read it either. Seen once on a busy test machine; on a phone it needs Log set and Finish within the moment a save takes.
 
-**2. A ⋮ menu opened before the "Install Grit" card arrived was pushed off the bottom of the screen (web).**
-- **The fault:** on Today before a session, in a browser tab, the Install card is drawn a moment after the plan, above it. A menu opened in that moment went down with its ⋮ by the card's height (442 px at 306 px wide) and stayed there: its bottom at 786 of a 583 px room.
-- **Cause:** a menu was placed once, when it opened, and again only when the window's size changed.
-- **Fix:** `Menu.tsx` places the menu again when the page shifts under it while it is open: it watches the sizes of what the screen holds, and pieces added to the screen, and acts only when the ⋮ is no longer where it was in the page. Scrolling alone changes nothing (the ⋮'s place in the page is the same). Placed anew, the menu opens above the ⋮ if that is where the room is, or the screen scrolls to it, as when it first opens; the focus stays where it was.
-- **My call:** the menu follows the shift; the Install card is left as it is (it still arrives a moment late and moves the plan down). Making the card not move the plan would have meant deciding it before Today's first paint, a bigger change to the start screen.
-- **Tests:** `menu.spec.ts`, "a card arriving above an open ⋮ menu" at 306 and 390 px: the card is held back, the menu opened, the card let in; the menu is then back inside its room (the placing follows the shift by a frame or two, so the test waits for it), its focus kept; scrolling the screen 40 px with the menu open leaves the screen where it was put and the menu by its ⋮; and its sheet still opens. At 306 px it failed before the fix with the same 786. Repeated 15 times at both widths: 30 of 30. The set-up's wait for the Install card (added in 1.23 for the other 26 tests) stays: those tests are about a settled screen.
-- **Android:** not changed. The Android app has no Install card, and its ⋮ menus are Material `DropdownMenu`s (`SkipToday.kt`), each drawn in its own window and placed by the framework against its button. **Not checked:** whether a card that arrives late on its start screen (the welcome-back card) can move an open menu off screen there.
+**What changes for the lifter (both apps):**
+- **Log set, then Finish, however fast:** Finish waits for the set to be stored and shown, then runs the coach and counts. The summary, the note kept for the next time the app is opened, and the coach all have that set.
+- **Finish, then Log set, within the moment Finish takes (the other order, found while fixing the first):** before, that set was stored behind a summary that did not count it. Now that tap does nothing; its numbers stay in the card, and "Keep logging" brings the card back to log it.
+- **Android app only: Finish tapped twice quickly** ran the coach twice and stored each new coach note twice (the new test showed two "easing back in" notes). The Android app had no guard there; the web app has had one all along. Now the second tap does nothing while the first is at work. Finish again after "Keep logging" still runs the coach again, as before.
+- The double-tap guards are kept: Log set twice still saves one set, on both apps.
 
-**Checks, on the branch (`ccr-2f9842b5-owq43n`), 2026-11-27, one at a time, on the final code, with no source change while they ran, everything green:**
-- Web: `npm run typecheck` clean; unit tests 1,723 of 1,723 (1,722 before, plus one); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 532 passed, 12 skipped** (530 before, plus two). **The `E2E_UA=android` pass: 264 passed, 12 skipped. Speed project alone, three times: 6 of 6 each.**
-- Gradle, each made to run (`--rerun`): `:domain:jvmTest` 1,000 and `:domain:jsNodeTest` 1,052, 0 failed; `:app:testDebugUnitTest` 1,153, 0 failed, 1 skipped (1,152 before, plus one). `:domain:checkWebDomain` passed.
-- **Not run on merged main. Not run on a phone or an emulator.** The menu fix was seen in Chromium only; Safari has the same observers the fix uses, but was not run.
+**Limits, left as they are:**
+- Finish waits for the set to be on screen for at most two seconds (the wait Log set itself has had since it got its guard). If the screen has not shown the set by then, the summary counts what the screen has.
+- A set held back by the "Did you mean …?" question is not being saved, so Finish does not wait for an answer. If Log set (held for that question) and Finish are tapped in the same instant, the question is on top of the summary, and "Confirm" then stores a set the summary did not count. Three things at once; not changed.
+- Android: while Finish waits or runs, "Add to today" on the Exercises tab is not refused (the web app refuses it). It only adds a card, no set.
 
-**Shots:** the six Settings shots of each app (the version). Seven web guide shots were put back as drift of a few bytes.
+**How:**
+- Web, `state/useToday.ts`: `saving` is now the promise of the save under way (null when there is none), ended in `logSet`'s `finally` however the save ends; `finishSession` sets its guard, awaits it, waits for the screen's data and only then reads the screen. `logSet` returns at once while `finishing` is set.
+- Android, `ui/today/TodayViewModel.kt`: a new `finishing` flag; `finishSession` takes it (compare-and-set), waits for `saving` to be false, then reads the state; `logSet` returns at once while it is set.
+- No database or backup change.
+
+**Tests:**
+- Web, `TodayScreen.test.tsx`: `finishTappedWithLogSet_countsTheSetStillBeingSaved` (Log set 3 and Finish clicked in one tick: "Sets 3", "Exercises 1", three stored, the stored note says 3; it gave "Sets 2" before the fix) and `logSetTappedWhileFinishWorks_isNotSaved_soTheSummaryCountsEverySetStored` (the other order: "Sets 2", two stored, and Log set works again after "Keep logging"; before, a third set was stored). e2e `reload.spec.ts` taps Finish straight after Log set again, without 1.23's wait for the third row.
+- Android, `TodayViewModelTest`: the same two, calling what the two buttons call in one turn of the main thread, and `finishDoubleTap_runsTheCoachOnce`. All three failed before the fix: a summary of 2, a fourth set stored, two notes.
+
+**Checks, on the branch (`claude/determined-fermat-po8wgi`), 2026-11-27, one at a time, on the final code:**
+- Web: `npm run typecheck` clean; unit tests 1,724 of 1,724 (1,722 before, plus two); build clean. **Full Playwright run (iPhone path, with `UPDATE_SCREENSHOTS=1`): 530 passed, 12 skipped, first time. The `E2E_UA=android` pass: 262 passed, 12 skipped.** `reload.spec.ts`, which now taps Finish straight after Log set, ten times over on each path: 20 of 20 as an iPhone, 20 of 20 as an Android phone.
+- **Speed project alone, eight times: 6 of 6 seven times, 5 of 6 once.** The one miss (the second run) was the Exercises tab opening in 105 ms against its 100 ms limit, the check written up below as having no headroom ("the 100 ms speed checks have no headroom": worst opens 96 to 108 ms). Nothing in this release is on that screen's path; the five runs after it all passed. Not looked into further.
+- Gradle, each made to run (`--rerun`): `:domain:allTests` (JVM 1,000 tests, 0 failed; JS 1,052, 0 failed); `:app:testDebugUnitTest`, 1,155 tests, 0 failed, 1 skipped (1,152 before, plus three). `:domain:checkWebDomain` passed. `:app:assembleRelease` builds: versionCode 41, versionName 1.23.1, unsigned in this container.
+- Maven Central answered HTTP 429 on this container's first downloads, also with `--max-workers=1`; each Gradle command was run again until it got its files (five tries for the first). No test was re-run for a failure.
+- **Not run on merged main. Not run on a phone or an emulator.** The Android tests call what the two buttons call, in one turn of the main thread; no test taps the two real Android buttons together.
+
+**Shots:** the six Settings shots of each app (the version line). Five other web shots (guide and form-guide) came out a few bytes different and were put back, as in 1.23.
 
 **Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
+
+**Owner, 2026-11-27: "publish".** 1.23 was published meanwhile (above, as `10a992e`), so 1.23.1 goes out alone. This branch (`claude/determined-fermat-po8wgi`) was built on 1.23's branch at `d409eec`; that branch's last two commits (the ⋮ menu test's wait, and 1.23's publishing notes) were merged in before the merge into main. The round on merged main and the live check are recorded below once done.
+
+**Seen from the session that built 1.23 (branch `ccr-2f9842b5-owq43n`), 2026-11-27, not done by it:** 1.23.1 is on main as `c802f51` and live: `/` names `assets/index-DyklXKGu.js`, which carries 1.23.1 (no 1.23.0) and build id `c802f51`. Its checks on merged main are not recorded in this file.
+
+## 1.23.2 (2026-11-27): an open ⋮ menu stays on screen when a card arrives above it (web)
+Found by 1.23's first round on merged main (above), put to the owner as a suggested task, and asked for by the owner on 2026-11-27 ("Do this task here").
+
+**Two sessions, one fix twice (for whoever reads this next):** the owner asked this session (1.23's) to do the Finish fix "here" as well, while the session started from its suggested-task card was already building it. This session built its own Finish fix, the ⋮ menu fix on top of it, and called the pair 1.23.1, with every check passing on its branch; it then found main already at 1.23.1 with the other session's Finish fix, published. **Main's Finish fix was kept as it is** (it is live, and it also guards Android's double tap on Finish, which this session had only noted); **this session's duplicate was dropped** in the merge of main into the branch (its commits stay in the branch's history: `834af63`, `9521d39`, `ede96e8`, `a2de404`). What is left on top of main is the menu fix alone, renumbered 1.23.2.
+
+**The fault:** on Today before a session, in a browser tab, the "Install Grit" card is drawn a moment after the plan, above it (it first reads whether it was dismissed). A ⋮ menu opened in that moment went down with its ⋮ by the card's height (442 px at 306 px wide) and stayed there: its bottom at 786 of a 583 px room.
+
+**Cause:** a menu was placed once, when it opened, and again only when the window's size changed.
+
+**Fix:** `web/src/ui/components/Menu.tsx` places the menu again when the page shifts under it while it is open: it watches the sizes of what the screen holds (`ResizeObserver`), and pieces added to the screen (`MutationObserver`), and acts only when the ⋮ is no longer where it was in the page. Scrolling alone changes nothing (the ⋮'s place in the page is the same). Placed anew, the menu opens above the ⋮ if that is where the room is, or the screen scrolls to it, as when it first opens; the focus stays where it was.
+
+**My call:** the menu follows the shift; the Install card is left as it is (it still arrives a moment late and moves the plan down). Making the card not move the plan would have meant deciding it before Today's first paint, a bigger change to the start screen.
+
+**Tests:** `menu.spec.ts`, "a card arriving above an open ⋮ menu" at 306 and 390 px: the card is held back, the menu opened, the card let in; the menu is then back inside its room (the placing follows the shift by a frame or two, so the test waits for it), its focus kept; scrolling the screen 40 px with the menu open leaves the screen where it was put and the menu by its ⋮; and its sheet still opens. At 306 px it failed before the fix with the same 786. Repeated 15 times at both widths: 30 of 30. The set-up's wait for the Install card (added in 1.23 for the other 26 tests) stays: those tests are about a settled screen.
+
+**Android:** not changed. The Android app has no Install card, and its ⋮ menus are Material `DropdownMenu`s (`SkipToday.kt`), each drawn in its own window and placed by the framework against its button. **Not checked:** whether a card that arrives late on its start screen (the welcome-back card) can move an open menu off screen there.
+
+CHECKS_1232
+
+**Version:** Android 1.23.2 (versionCode 42), web 1.23.2.
 
 **Not published.** Waiting for the owner's "publish".
 

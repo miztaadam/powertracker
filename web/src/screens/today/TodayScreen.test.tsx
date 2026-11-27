@@ -8,6 +8,7 @@ import { checkInfoButtonOpensGuide } from '../../test/guideChecks'
 import { DELOAD_ADVICE, TODAY, addDays, baseline, exerciseNamed, logSet, plan, set, setsOn, startSession, targets, todayFixture } from '../../test/todayFixture'
 import { setTapHaptics } from '../../platform/haptics'
 import { grit } from '../../domain'
+import { FINISHED_KEY } from '../../state/useToday'
 import { TodayScreen } from './TodayScreen'
 import { createYourOwn } from '../../test/wholeList'
 
@@ -351,6 +352,46 @@ describe('TodayScreen', () => {
     expect(onOpenCoach).toHaveBeenCalledOnce()
     await tap('Keep logging')
     await findButton('Add another set')
+  })
+
+  it('finishTappedWithLogSet_countsTheSetStillBeingSaved', async () => {
+    await startSession(db, TODAY)
+    show()
+    await tapWhenShown('Log set 1')
+    await tapWhenShown('Log set 2')
+    await findButton('Log set 3')
+
+    // Both taps in one tick: the third set's save has only begun when Finish is tapped.
+    fireEvent.click(button('Log set 3'))
+    fireEvent.click(button('Finish'))
+
+    expect(await screen.findByRole('heading', { name: 'Session saved' })).toBeInTheDocument()
+    expect(await setsOn(db, TODAY)).toHaveLength(3)
+    // The summary counts what is stored, the set that was on its way included: on screen and in the note a reload reads.
+    expect(screen.getByText('Sets').closest('.gr-stat')).toHaveTextContent('3')
+    expect(screen.getByText('Exercises').closest('.gr-stat')).toHaveTextContent('1')
+    expect((await db.meta.get(FINISHED_KEY))?.value).toMatchObject({ summary: { setCount: 3, exerciseCount: 1 } })
+  })
+
+  it('logSetTappedWhileFinishWorks_isNotSaved_soTheSummaryCountsEverySetStored', async () => {
+    await startSession(db, TODAY)
+    show()
+    await tapWhenShown('Log set 1')
+    await tapWhenShown('Log set 2')
+    await findButton('Log set 3')
+
+    // The other order, again in one tick: Finish is already at work when Log set is tapped.
+    fireEvent.click(button('Finish'))
+    fireEvent.click(button('Log set 3'))
+
+    expect(await screen.findByRole('heading', { name: 'Session saved' })).toBeInTheDocument()
+    expect(screen.getByText('Sets').closest('.gr-stat')).toHaveTextContent('2')
+    // The late tap stored nothing behind the summary's back; its numbers are still in the card.
+    await tap('Keep logging')
+    await findButton('Log set 3')
+    expect(await setsOn(db, TODAY)).toHaveLength(2)
+    await tap('Log set 3')
+    await waitForSets(3)
   })
 
   it('addExercise_picksFromTheLibrary_andCanBeRemoved', async () => {
@@ -800,24 +841,4 @@ describe('TodayScreen haptics', () => {
     await waitForSets(1)
     expect(vibrate).not.toHaveBeenCalled()
   })
-})
-
-it('finish_tappedInTheSameInstantAsLogSet_countsThatSet', async () => {
-  // Two sets logged already; the third is tapped, and Finish at once, before its row is on screen.
-  const today = await startSession(db, TODAY)
-  await logSet(db, today, set(squatId, 150))
-  await logSet(db, today, set(squatId, 150))
-  show()
-  const log = await findButton('Log set 3')
-  fireEvent.click(log)
-  fireEvent.click(button('Finish'))
-  await screen.findByRole('heading', { name: 'Session saved' })
-  // The set is stored, and the summary counts it.
-  await waitForSets(3)
-  expect(document.querySelector('.today-summary-stats')).toHaveTextContent('Sets3Exercises1')
-  // ... and still does when the screen is opened again.
-  cleanup()
-  show()
-  await screen.findByRole('heading', { name: 'Session saved' })
-  expect(document.querySelector('.today-summary-stats')).toHaveTextContent('Sets3Exercises1')
 })

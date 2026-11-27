@@ -337,29 +337,6 @@ class TodayViewModelTest {
         assertTrue(restarted.state.value.items.all { it.warmUpDone.isEmpty() })
     }
 
-    @Test
-    fun finishSession_calledWhileASetIsStillBeingSaved_countsThatSet() {
-        runBlocking {
-            training.savePlanItem(PlanItem(0, DayOfWeek.WEDNESDAY, squat.id, sets = 5, reps = 5, targetRpe = 8.0, order = 0))
-            val today = training.startSession(today, null, null)
-            training.logSet(today, set(squat, 150.0))
-            training.logSet(today, set(squat, 150.0))
-        }
-        val vm = viewModel()
-        await("two sets") { !vm.state.value.loading && vm.state.value.items.singleOrNull()?.logged?.size == 2 }
-
-        // The third set and Finish in the same instant, as a thumb on Log set and then on Finish before the row is drawn.
-        vm.logSet(null, squat.id, set(squat, 150.0))
-        vm.finishSession()
-        await("summary") { vm.state.value.summary != null }
-        assertEquals(3, vm.state.value.summary?.setCount)
-        assertEquals(1, vm.state.value.summary?.exerciseCount)
-        // ... and what is kept for the next time the app opens says the same.
-        val restarted = viewModel()
-        await("restarted") { restarted.state.value.summary != null }
-        assertEquals(3, restarted.state.value.summary?.setCount)
-    }
-
     private fun planSquatWithHistory() = runBlocking {
         training.setBaseline(Baseline(squat.id, 190.0, today.minus(30, DateTimeUnit.DAY)))
         training.logSet(training.startSession(today.minus(7, DateTimeUnit.DAY), null, null), set(squat, 150.0).copy(rpe = 7.0))
@@ -422,6 +399,71 @@ class TodayViewModelTest {
         // Once the first set is on screen the button works again.
         vm.logSet(null, squat.id, set(squat, 100.0))
         await("second set") { vm.state.value.items.single().logged.size == 2 }
+    }
+
+    @Test
+    fun finishTappedWithLogSet_countsTheSetStillBeingSaved() {
+        val sessionId = runBlocking {
+            training.startSession(today, null, null).also { id -> repeat(2) { training.logSet(id, set(squat, 100.0)) } }
+        }
+        val vm = viewModel()
+        await("state") { !vm.state.value.loading && vm.state.value.items.singleOrNull()?.sets?.size == 2 }
+
+        // Both taps before anything else runs: the third set's save has only begun when Finish is tapped.
+        vm.logSet(null, squat.id, set(squat, 100.0))
+        vm.finishSession()
+
+        await("summary") { vm.state.value.summary != null }
+        assertEquals(3, runBlocking { training.setsForSession(sessionId).first() }.size)
+        // The summary counts what is stored, the set that was on its way included: on screen and in the note kept for
+        // the next time the app is opened.
+        assertEquals(3, vm.state.value.summary?.setCount)
+        assertEquals(1, vm.state.value.summary?.exerciseCount)
+        assertEquals(3, runBlocking { settings.finishedSession.first() }?.setCount)
+    }
+
+    @Test
+    fun logSetTappedWhileFinishWorks_isNotSaved_soTheSummaryCountsEverySetStored() {
+        val sessionId = runBlocking {
+            training.startSession(today, null, null).also { id -> repeat(2) { training.logSet(id, set(squat, 100.0)) } }
+        }
+        val vm = viewModel()
+        await("state") { !vm.state.value.loading && vm.state.value.items.singleOrNull()?.sets?.size == 2 }
+
+        // The other order: Finish is already at work when Log set is tapped.
+        vm.finishSession()
+        vm.logSet(null, squat.id, set(squat, 105.0))
+
+        await("summary") { vm.state.value.summary != null }
+        assertEquals(2, vm.state.value.summary?.setCount)
+        // The late tap stored nothing behind the summary's back. "Keep logging" and a tap after it saves as ever: were
+        // the late set still on its way, this one would be the ignored second tap and never arrive.
+        vm.dismissSummary()
+        vm.logSet(null, squat.id, set(squat, 110.0))
+        await("the set tapped after the summary") { vm.state.value.items.single().logged.any { it.weightKg == 110.0 } }
+        assertEquals(listOf(100.0, 100.0, 110.0), runBlocking { training.setsForSession(sessionId).first() }.map { it.set.weightKg })
+    }
+
+    @Test
+    fun finishDoubleTap_runsTheCoachOnce() {
+        // Back after a 30-day gap: finishing stores one re-entry note, however fast Finish is tapped twice.
+        runBlocking {
+            training.logSet(training.startSession(today.minus(30, DateTimeUnit.DAY), null, null), set(squat, 150.0))
+            training.logSet(training.startSession(today, null, null), set(squat, 140.0))
+        }
+        val vm = viewModel()
+        await("state") { !vm.state.value.loading }
+
+        vm.finishSession()
+        vm.finishSession()
+
+        await("summary") { vm.state.value.summary != null }
+        repeat(20) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+        assertEquals(listOf(AdviceType.RE_ENTRY), runBlocking { advice.all() }.map { it.type })
+        assertEquals(1, vm.state.value.summary?.newNotes)
     }
 
     @Test
