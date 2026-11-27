@@ -55,8 +55,8 @@ const waitForSets = (count: number) => waitFor(async () => expect(await setsOn(d
 const opens = (name: string) => waitFor(() => expect(openCard().name).toBe(name))
 /** Lets the time in which a tap on the other card is taken for a slip go by. */
 function pastTheGuard() {
-  const now = Date.now()
-  vi.spyOn(Date, 'now').mockReturnValue(now + SUPERSET_SWITCH_GUARD_MS + 1)
+  const now = performance.now()
+  vi.spyOn(performance, 'now').mockReturnValue(now + SUPERSET_SWITCH_GUARD_MS + 1)
 }
 
 describe('a superset on Today', () => {

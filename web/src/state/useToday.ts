@@ -1023,7 +1023,8 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       // A superset has just handed over to this exercise (1.24): a second quick tap, meant for the set just logged, lands
       // on this card's Log set, in the same place. For a second it saves nothing; the numbers stay in the card.
       const handedOver = switched.current
-      if (handedOver != null && handedOver.exerciseId === (latest.current.resolved[itemKey] ?? itemKey) && Date.now() < handedOver.until) return
+      // Timed by the page's own running clock, never the calendar's: that one can be set, and a guard must run out.
+      if (handedOver != null && handedOver.exerciseId === (latest.current.resolved[itemKey] ?? itemKey) && performance.now() < handedOver.until) return
       let ended!: () => void
       saving.current = new Promise<void>((resolve) => (ended = resolve))
       try {
@@ -1088,7 +1089,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
           step = { open: (next.open ?? null) as SupersetHalf | null, rest: next.rest }
         }
         const handOver = step.open != null && partner != null ? partner.exercise.id : null
-        if (handOver != null) switched.current = { exerciseId: handOver, until: Date.now() + SUPERSET_SWITCH_GUARD_MS }
+        if (handOver != null) switched.current = { exerciseId: handOver, until: performance.now() + SUPERSET_SWITCH_GUARD_MS }
         // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
         update((l) => ({ ...l, pending: null, warmUpOver: l.warmUpOver.includes(itemKey) ? l.warmUpOver : [...l.warmUpOver, itemKey] }))
         touch(now.date)

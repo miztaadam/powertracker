@@ -131,8 +131,19 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
     <Card spacing={8}>
       <div className="today-card-head">
         <div className="today-card-title">
-          {/* In a superset (1.24) the card says which half it is: A is done first, B straight after it, then the rest. */}
-          <Eyebrow text={item.superset ? `Exercise ${position} of ${count} · ${supersetTag(item.superset.half)}` : `Exercise ${position} of ${count}`} />
+          {/*
+            In a superset (1.24) the card says which half it is: A is done first, B straight after it, then the rest.
+            The tag takes the count's place on screen (a screen reader still hears both): the two together are wider
+            than the room beside the pill and the buttons, and would push those onto a line of their own, 52 px taller.
+          */}
+          {item.superset ? (
+            <p className="eyebrow">
+              <span className="sr-only">{`Exercise ${position} of ${count} · `}</span>
+              {supersetTag(item.superset.half)}
+            </p>
+          ) : (
+            <Eyebrow text={`Exercise ${position} of ${count}`} />
+          )}
           <h2 className="today-name headline-medium">{item.exercise.name}</h2>
         </div>
         {item.planned == null && item.sets.length === 0 ? (
