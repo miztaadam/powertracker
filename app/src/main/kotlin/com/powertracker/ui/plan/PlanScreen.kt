@@ -29,6 +29,9 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.LinkOff
+import com.powertracker.domain.plan.SupersetHalf
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -120,6 +123,19 @@ import com.powertracker.ui.components.PtDropdownMenuItem
 
 /** The text shown for one plan item, e.g. "Squat  3 × 5 @ 8", or "Curl  3 × 8–12 @ 8" for a rep range. */
 fun planItemText(name: String, item: PlanItem): String = "$name  ${item.sets} × ${repsText(item.reps, item.repsHigh)} @ ${formatRpe(item.targetRpe)}"
+
+/** A Plan row as it is read out: [planItemText], and for a superset's half (1.24) the exercise it is paired with. */
+fun planRowText(row: PlanRow): String =
+    planItemText(row.exerciseName, row.item) + (row.partnerName?.takeIf { row.superset != null }?.let { ", superset with $it" } ?: "")
+
+/** A superset's tag (1.24): "Superset A" on the first exercise, "Superset B" on the one done straight after it. */
+fun supersetTag(half: SupersetHalf): String = if (half == SupersetHalf.FIRST) "Superset A" else "Superset B"
+
+/** A Plan row's menu (1.24): links the exercise to the one above it, to be done back to back on Today. */
+const val SUPERSET_WITH_ABOVE = "Superset with the one above"
+
+/** A Plan row's menu, on either half of a superset: takes the link off. */
+const val REMOVE_SUPERSET = "Remove superset"
 
 /** The line an empty bodybuilding plan shows, over its "Build my plan" button (bodybuilding mode spec §7.3, stage 2). */
 const val EMPTY_BODYBUILDING_PLAN = "Your bodybuilding plan is empty. Add exercises to each training day."
@@ -260,6 +276,7 @@ fun PlanScreen(
         onEdit = { item -> dialog = PlanDialog.Edit(item) },
         onMove = viewModel::move,
         onDelete = viewModel::delete,
+        onSuperset = viewModel::setSuperset,
         onSetBaseline = { lift -> dialog = PlanDialog.Baseline(lift) },
         onBuild = onOpenBuilder,
         onTemplates = { onOpenTemplates(state.mode) },
@@ -370,6 +387,8 @@ fun PlanContent(
     onMove: (PlanItem, Int) -> Unit,
     onDelete: (PlanItem) -> Unit,
     onSetBaseline: (Exercise) -> Unit,
+    /** 1.24: links the item to the one above it as a superset, or takes the link off. */
+    onSuperset: (PlanItem, Boolean) -> Unit = { _, _ -> },
     /** The bodybuilding side's plan builder: the empty plan's button and the menu's "Rebuild my plan". */
     onBuild: () -> Unit = {},
     /** The side's templates: the empty plan's button and the menu's "Choose a template", on both sides. */
@@ -435,7 +454,7 @@ fun PlanContent(
                 }
             }
             items(state.sections, key = { it.day }) { section ->
-                DayCard(section, onAdd = { onAdd(section.day) }, onEdit = onEdit, onMove = onMove, onDelete = onDelete)
+                DayCard(section, onAdd = { onAdd(section.day) }, onEdit = onEdit, onMove = onMove, onDelete = onDelete, onSuperset = onSuperset)
             }
             // Known bests are the powerlifting side's baselines for squat, bench and deadlift.
             if (state.mode == TrainingMode.POWERLIFTING) item(key = "bests") {
@@ -475,6 +494,7 @@ private fun DayCard(
     onEdit: (PlanItem) -> Unit,
     onMove: (PlanItem, Int) -> Unit,
     onDelete: (PlanItem) -> Unit,
+    onSuperset: (PlanItem, Boolean) -> Unit,
 ) {
     val rows = section.rows
     val summary = if (rows.isEmpty()) {
@@ -497,16 +517,21 @@ private fun DayCard(
         // With motion on, a new row slides in, a deleted one slides out, and Move up and Move down slide two rows past
         // each other.
         SlidingColumnItems(rows, key = { it.item.id }, reorder = true) { i, row ->
-            SoftDivider(Modifier.padding(end = Space.s))
+            // A superset's two rows are one block (1.24): no line between them.
+            if (row.superset != SupersetHalf.SECOND) SoftDivider(Modifier.padding(end = Space.s))
             PlanItemRow(
                 position = i + 1,
-                name = row.exerciseName,
-                item = row.item,
+                row = row,
                 canMoveUp = i > 0,
                 canMoveDown = i < rows.lastIndex,
                 onMove = { onMove(row.item, it) },
                 onEdit = { onEdit(row.item) },
                 onDelete = { onDelete(row.item) },
+                // The link is on the pair's second item: either row's menu takes it off there.
+                onSuperset = { linked ->
+                    val second = if (row.superset == SupersetHalf.FIRST) rows.getOrNull(i + 1)?.item else row.item
+                    onSuperset(if (linked) row.item else second ?: row.item, linked)
+                },
             )
         }
     }
@@ -515,14 +540,16 @@ private fun DayCard(
 @Composable
 private fun PlanItemRow(
     position: Int,
-    name: String,
-    item: PlanItem,
+    row: PlanRow,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onMove: (Int) -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onSuperset: (Boolean) -> Unit,
 ) {
+    val name = row.exerciseName
+    val item = row.item
     val scheme = MaterialTheme.colorScheme
     val muted = PowertrackerTheme.colors.muted
     var menuOpen by remember { mutableStateOf(false) }
@@ -533,8 +560,9 @@ private fun PlanItemRow(
     }
     Row(Modifier.fillMaxWidth().heightIn(min = 64.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(position.toString(), style = MaterialTheme.typography.titleSmall, color = muted, modifier = Modifier.width(24.dp))
-        // Read and found as one line, e.g. "Squat  3 × 5 @ 8".
-        Column(Modifier.weight(1f).padding(vertical = Space.s).clearAndSetSemantics { text = AnnotatedString(planItemText(name, item)) }) {
+        // Read and found as one line, e.g. "Squat  3 × 5 @ 8", and in a superset "Squat  3 × 5 @ 8, superset with Bench".
+        Column(Modifier.weight(1f).padding(vertical = Space.s).clearAndSetSemantics { text = AnnotatedString(planRowText(row)) }) {
+            row.superset?.let { Eyebrow(supersetTag(it)) }
             Text(name, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             Text(prescription, style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface)
         }
@@ -552,6 +580,26 @@ private fun PlanItemRow(
                         onEdit()
                     },
                 )
+                if (row.canLink) {
+                    PtDropdownMenuItem(
+                        text = { Text(SUPERSET_WITH_ABOVE) },
+                        leadingIcon = { Icon(Icons.Filled.Link, null) },
+                        onClick = {
+                            menuOpen = false
+                            onSuperset(true)
+                        },
+                    )
+                }
+                if (row.superset != null) {
+                    PtDropdownMenuItem(
+                        text = { Text(REMOVE_SUPERSET) },
+                        leadingIcon = { Icon(Icons.Filled.LinkOff, null) },
+                        onClick = {
+                            menuOpen = false
+                            onSuperset(false)
+                        },
+                    )
+                }
                 PtDropdownMenuItem(
                     text = { Text("Delete", color = scheme.error) },
                     leadingIcon = { Icon(Icons.Filled.Delete, null, tint = scheme.error) },
