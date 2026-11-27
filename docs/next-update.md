@@ -2006,6 +2006,30 @@ Picked by the owner on 2026-11-26 from the list of ideas ("warm up sets"); on 20
 
 **Next: supersets** (owner, 2026-11-26: saved in the plan, linked once on the Plan tab; 2026-11-27: "Start on supersets"). They change the stored plan and the backup, so both apps ship together. Design first: the owner was asked which exercises they pair, whether ever three or more, and what happens with uneven sets; nothing is built until the design is approved.
 
+## 1.23.1 (2026-11-27): Finish counts a set still being saved (both apps); an open ⋮ menu stays on screen when a card arrives above it (web)
+Both were found by 1.23's check rounds, put to the owner as suggested tasks, and asked for by the owner on 2026-11-27 ("Do this task here", twice).
+
+**1. Finish counted one set too few when tapped in the same instant as Log set (both apps).**
+- **The fault:** the "Session saved" summary counted the sets on screen when Finish was tapped. A set whose save was still under way was stored but not counted: "Sets 2" with three stored. The count kept for the next time the app opens was the same wrong one.
+- **Cause:** Finish read the screen's state at once; Log set holds its guard until the new set is on screen, and nothing made Finish wait for that.
+- **Fix:** Finish waits for a save under way and counts what is on screen then. Web: `useToday.ts`, a promise (`saved`) that `logSet` settles when its guard is released, awaited by `finishSession`. Android: `TodayViewModel.finishSession` waits for `saving` to clear.
+- **Tests, each failing before the fix:** web `TodayScreen.test.tsx`, `finish_tappedInTheSameInstantAsLogSet_countsThatSet` ("Sets2Exercises1" before, "Sets3Exercises1" after, also after the screen is opened again); Android `TodayViewModelTest.finishSession_calledWhileASetIsStillBeingSaved_countsThatSet` (failed before the fix; passes after, and a fresh view model shows the same count).
+- Not changed: a set held for the "is this a typo?" question is not saved, so Finish does not wait for the answer, as before.
+
+**2. A ⋮ menu opened before the "Install Grit" card arrived was pushed off the bottom of the screen (web).**
+- **The fault:** on Today before a session, in a browser tab, the Install card is drawn a moment after the plan, above it. A menu opened in that moment went down with its ⋮ by the card's height (442 px at 306 px wide) and stayed there: its bottom at 786 of a 583 px room.
+- **Cause:** a menu was placed once, when it opened, and again only when the window's size changed.
+- **Fix:** `Menu.tsx` places the menu again when the page shifts under it while it is open: it watches the sizes of what the screen holds, and pieces added to the screen, and acts only when the ⋮ is no longer where it was in the page. Scrolling alone changes nothing (the ⋮'s place in the page is the same). Placed anew, the menu opens above the ⋮ if that is where the room is, or the screen scrolls to it, as when it first opens; the focus stays where it was.
+- **My call:** the menu follows the shift; the Install card is left as it is (it still arrives a moment late and moves the plan down). Making the card not move the plan would have meant deciding it before Today's first paint, a bigger change to the start screen.
+- **Tests:** `menu.spec.ts`, "a card arriving above an open ⋮ menu" at 306 and 390 px: the card is held back, the menu opened, the card let in; the menu is then whole inside its room, its focus kept, and its sheet still opens. At 306 px it failed before the fix with the same 786. The set-up's wait for the Install card (added in 1.23 for the other 26 tests) stays: those tests are about a settled screen.
+- **Android:** not changed and not affected: the Android app has no Install card, and its menus are separate windows anchored to their button.
+
+CHECKS_1231
+
+**Version:** Android 1.23.1 (versionCode 41), web 1.23.1.
+
+**Not published.** Waiting for the owner's "publish".
+
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
   - simple line drawings in one consistent style, two poses per exercise (start and end), working in dark and light;

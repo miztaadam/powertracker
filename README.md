@@ -120,14 +120,19 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       replaces everything on that phone: restore the other phone's file and check the data matches.
 - [ ] **9. Back closes what is open.** On Exercises, open a form guide and go Back (button or edge swipe): the guide
       closes and you are still on Exercises.
-- [ ] **10. This release's own change.** 1.23, both apps: the warm-up checklist. On Today, start a session and open
-      a barbell lift you have done before, before logging a set. Above the weight it says "WARM-UP · NOT LOGGED" with
-      one or two lighter sets side by side (about half the weight for 12, then about three quarters for 5 on the big
-      lifts), each with its plates per side under it. Tap one: it is ticked and struck through. Tap + on the weight:
-      the sets follow and the buttons stay where they are. Log your first set: the checklist is gone, and History
-      shows only the set you logged.
+- [ ] **10. This release's own changes.** 1.23 and 1.23.1, both apps.
+      **Warm-up checklist (1.23):** on Today, start a session and open a barbell lift you have done before, before
+      logging a set. Above the weight it says "WARM-UP · NOT LOGGED" with one or two lighter sets side by side (about
+      half the weight for 12, then about three quarters for 5 on the big lifts), each with its plates per side under
+      it. Tap one: it is ticked and struck through. Tap + on the weight: the sets follow and the buttons stay where
+      they are. Log your first set: the checklist is gone, and History shows only the set you logged.
+      **Finish counts the last set (1.23.1):** tap Log set and then Finish as fast as you can: "Session saved" counts
+      that set too.
+      **The ⋮ menu stays on screen (1.23.1, the web app in a browser tab):** reload Today before a session and tap an
+      exercise's ⋮ the moment the plan appears: when the "Install Grit" card arrives above it, the menu is still
+      whole on screen.
 
-The full list, feature by feature (201 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
+The full list, feature by feature (206 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
 release touched a feature and you want that feature's own checks.
 
 ## Where things are
