@@ -87,6 +87,8 @@ data class ProgressState(
     val muscles: List<MuscleRow> = emptyList(),
     /** The bodybuilding side: at least one check-in has been saved. */
     val checkedIn: Boolean = false,
+    /** Left vs. Right balance across recent sessions for single-sided exercises. */
+    val sideBalances: List<com.powertracker.domain.unilateral.SideBalanceRow> = emptyList(),
 )
 
 /** An estimate is not worth more than half a kilo of precision. */
@@ -144,6 +146,7 @@ class ProgressViewModel(
                 trends = trends,
                 muscles = MuscleProgress.rows(history, plan, checkIns, today),
                 checkedIn = checkIns.any { it.date <= today },
+                sideBalances = com.powertracker.domain.unilateral.SideBalance.rows(history),
             )
         }
 
@@ -219,6 +222,7 @@ class ProgressViewModel(
                 volumeFrom = volumeWeeks.first(),
                 volume = volume,
                 ratios = ratios,
+                sideBalances = com.powertracker.domain.unilateral.SideBalance.rows(history),
             )
         }
 

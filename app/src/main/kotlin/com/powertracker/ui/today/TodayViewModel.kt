@@ -160,7 +160,15 @@ const val SUPERSET_SWITCH_GUARD_MS = 1000L
 data class PendingLog(val planItemId: Long?, val exerciseId: Long, val set: LoggedSet, val warnings: List<InputWarning>)
 
 /** [skipped] is how many exercises were skipped today on the session's side ("Skip today"). */
-data class FinishSummary(val setCount: Int, val exerciseCount: Int, val newNotes: Int, val skipped: Int = 0)
+data class FinishSummary(
+    val setCount: Int,
+    val exerciseCount: Int,
+    val newNotes: Int,
+    val skipped: Int = 0,
+    val tonnageKg: Double = 0.0,
+    val prCount: Int = 0,
+    val durationMin: Int? = null,
+)
 
 /** A planned exercise skipped today on the side shown, for the "Skipped today" line and its Bring back. */
 data class SkippedToday(val exerciseId: Long, val name: String, val skipId: Long)
@@ -195,6 +203,8 @@ data class TodayState(
     val plateSaving: Boolean = false,
     /** 1.24: the card to open after a superset's set; null until one was asked for. Not kept when the app is closed. */
     val openRequest: OpenRequest? = null,
+    /** Set ids logged during this view that achieved a new personal record. */
+    val prSetIds: Set<Long> = emptySet(),
 ) {
     val pendingWarning: InputWarning? get() = pending?.warnings?.firstOrNull()
 
@@ -269,7 +279,11 @@ class TodayViewModel(
         val openRequest: OpenRequest? = null,
         /** 1.25: right-side halves logged while waiting for the left side, by exercise id (or stand-in id). */
         val pendingRights: Map<Long, com.powertracker.domain.model.SideLog> = emptyMap(),
+        /** Set ids logged during this view that achieved a new personal record. */
+        val prSetIds: Set<Long> = emptySet(),
     )
+
+    private var sessionStartedMs: Long? = null
 
     private data class Stored(
         val sessionId: Long?,
@@ -367,8 +381,35 @@ class TodayViewModel(
                 // A failed read must not keep the screen empty: the session shows as open, as it did before 1.17.5.
                 null
             }
+            val restoredSummary = finished?.let { f ->
+                val recap = try {
+                    val history = training.history().first()
+                    val session = history.sessions.firstOrNull { it.id == f.sessionId }
+                    if (session != null) {
+                        val priorHistory = history.copy(sessions = history.sessions.filter { it.id != f.sessionId })
+                        com.powertracker.domain.progress.SessionRecapMath.of(
+                            historyBeforeToday = priorHistory,
+                            todaysSets = session.sets,
+                            today = date,
+                            mode = session.mode,
+                        )
+                    } else null
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    null
+                }
+                FinishSummary(
+                    setCount = f.setCount,
+                    exerciseCount = f.exerciseCount,
+                    newNotes = f.newNotes,
+                    skipped = f.skipped,
+                    tonnageKg = recap?.tonnageKg ?: 0.0,
+                    prCount = recap?.prCount ?: 0,
+                )
+            }
             local.update { l ->
-                l.copy(restored = true, summary = l.summary ?: finished?.let { FinishSummary(it.setCount, it.exerciseCount, it.newNotes, it.skipped) })
+                l.copy(restored = true, summary = l.summary ?: restoredSummary)
             }
         }
         // Ask the coach for today's targets when the screen opens and again if the plan changes, or a skip is stored or
@@ -520,6 +561,7 @@ class TodayViewModel(
             skippedToday = skippedToday,
             plateSaving = l.plateSaves > 0,
             openRequest = l.openRequest,
+            prSetIds = l.prSetIds,
         )
     }
 
@@ -541,7 +583,10 @@ class TodayViewModel(
             try {
                 val now = loaded()
                 // With no session yet, Today is on the side the app is on: the session is stamped with it.
-                if (now.sessionId == null) training.startSession(date, bodyweightKg, readiness, now.mode)
+                if (now.sessionId == null) {
+                    training.startSession(date, bodyweightKg, readiness, now.mode)
+                    sessionStartedMs = elapsedMs()
+                }
             } finally {
                 starting.value = false
             }
@@ -632,7 +677,24 @@ class TodayViewModel(
                 val mainRest = now.mode == TrainingMode.POWERLIFTING && item?.exercise?.category != Category.ACCESSORY
                 if (step.rest) _events.emit(TodayEvent.SetLogged(isMainOrVariation = mainRest))
                 // The buzz is worked out after the save, beside it: it never holds the set up, and if it fails it ticks.
-                viewModelScope.launch { _events.emit(TodayEvent.SetBuzz(isNewBest(setId, stored, now.mode))) }
+                viewModelScope.launch {
+                    val best = try {
+                        ProgressMath.isNewPr(training.historyWithout(setId), stored, date, now.mode)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        false
+                    }
+                    if (best) local.update { it.copy(prSetIds = it.prSetIds + setId) }
+                    val vibrate = try {
+                        settings.settings.first().vibrateOnTaps
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        false
+                    }
+                    _events.emit(TodayEvent.SetBuzz(vibrate && best))
+                }
                 // Hold the guard until the new set is on screen, so the button the lifter sees is never stale.
                 withTimeoutOrNull(SHOWN_TIMEOUT_MS) { state.first { s -> s.items.any { i -> i.sets.any { it.id == setId } } } }
                 // Only then is the other card asked for: the screen opens it with the logged set already in its row.
@@ -641,18 +703,6 @@ class TodayViewModel(
                 saving.value = false
             }
         }
-    }
-
-    /**
-     * Whether the set just saved as [setId] is a new best, asked of the history without it, under the rule Progress uses
-     * for its records. False (a tick) when the history cannot be read; not asked at all while nothing would buzz.
-     */
-    private suspend fun isNewBest(setId: Long, set: LoggedSet, mode: TrainingMode): Boolean = try {
-        settings.settings.first().vibrateOnTaps && ProgressMath.isNewPr(training.historyWithout(setId), set, date, mode)
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        false
     }
 
     /** Back to the editor without saving the held set. */
@@ -665,6 +715,14 @@ class TodayViewModel(
         viewModelScope.launch {
             val stored = loaded().items.flatMap { it.sets }.firstOrNull { it.id == setId } ?: return@launch
             training.updateSet(setId, stored.set.copy(missPoint = point))
+        }
+    }
+
+    /** Quick-edits weight, reps, and RPE of a logged set in place. */
+    fun updateSet(setId: Long, weightKg: Double, reps: Int, rpe: Double?) {
+        viewModelScope.launch {
+            val stored = loaded().items.flatMap { it.sets }.firstOrNull { it.id == setId } ?: return@launch
+            training.updateSet(setId, stored.set.copy(weightKg = weightKg, reps = reps, rpe = rpe))
         }
     }
 
@@ -909,9 +967,10 @@ class TodayViewModel(
     private suspend fun finish(now: TodayState) {
         if (now.sessionId == null) return
         // The session's own side: its plan and its advice (deloads and easing back in count on both).
+        val history = training.history().first()
         val fresh = Coaching.evaluate(
             now.mode,
-            training.history().first(),
+            history,
             training.plan(now.mode).first(),
             settings.settings.first().coach(),
             date,
@@ -922,7 +981,26 @@ class TodayViewModel(
         if (fresh.isNotEmpty()) advice.insert(fresh)
         val done = now.items.filter { it.sets.isNotEmpty() }
         val skipped = todaysSkips(training.skips().first(), now.mode).size
-        val summary = FinishSummary(done.sumOf { i -> i.sets.size }, done.size, fresh.size, skipped)
+        val priorHistory = history.copy(sessions = history.sessions.filter { it.id != now.sessionId })
+        val recap = com.powertracker.domain.progress.SessionRecapMath.of(
+            historyBeforeToday = priorHistory,
+            todaysSets = done.flatMap { it.logged },
+            today = date,
+            mode = now.mode,
+        )
+        val durationMin = sessionStartedMs?.let { started ->
+            val mins = ((elapsedMs() - started) / 60_000L).toInt()
+            if (mins in 1..360) mins else null
+        }
+        val summary = FinishSummary(
+            setCount = done.sumOf { i -> i.sets.size },
+            exerciseCount = done.size,
+            newNotes = fresh.size,
+            skipped = skipped,
+            tonnageKg = recap.tonnageKg,
+            prCount = recap.prCount,
+            durationMin = durationMin,
+        )
         // Stored before it is shown, so the summary on screen means the session stays finished when the app is
         // closed and opened. A failed write only costs that: the session is finished on screen all the same.
         try {

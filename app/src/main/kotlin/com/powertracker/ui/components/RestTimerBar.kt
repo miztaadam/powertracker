@@ -38,9 +38,18 @@ fun RestTimerBar(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val accent = PowertrackerTheme.colors.accentText
+    val pt = PowertrackerTheme.colors
+    val accent = pt.accentText
     val track = scheme.surfaceContainerHighest
     val fraction = if (totalSec > 0) (remainingSec.toFloat() / totalSec).coerceIn(0f, 1f) else 0f
+    val finalTen = remainingSec in 1..10
+    val ready = remainingSec <= 0 && totalSec > 0
+    val barColor = if (ready) pt.success else accent
+    val clockColor = when {
+        ready -> pt.success
+        finalTen -> accent
+        else -> scheme.onSurface
+    }
     val shape = MaterialTheme.shapes.large
     // Its own layer over the card it docks on: the card shadow and highlight, no border.
     Surface(modifier.fillMaxWidth().cardShadow(shape), color = scheme.surfaceContainerHigh, shape = shape) {
@@ -50,15 +59,15 @@ fun RestTimerBar(
                 .drawBehind {
                     val h = 4.dp.toPx()
                     drawRect(track, Offset.Zero, Size(size.width, h))
-                    drawRect(accent, Offset.Zero, Size(size.width * fraction, h))
+                    drawRect(barColor, Offset.Zero, Size(size.width * (if (ready) 1f else fraction), h))
                 }
                 .padding(start = Space.l, end = Space.s, top = Space.m, bottom = Space.s),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Space.xs),
         ) {
             Column(Modifier.weight(1f).clearAndSetSemantics { contentDescription = "Rest, ${formatClock(remainingSec)} left" }) {
-                Eyebrow("Rest")
-                Text(formatClock(remainingSec), style = MaterialTheme.typography.displaySmall, color = scheme.onSurface, maxLines = 1)
+                Eyebrow(if (ready) "Ready" else if (finalTen) "Almost up" else "Rest")
+                Text(formatClock(remainingSec), style = MaterialTheme.typography.displaySmall, color = clockColor, maxLines = 1)
             }
             SecondaryButton("−30 s", onSubtractThirty, compact = true)
             SecondaryButton("+30 s", onAddThirty, compact = true)

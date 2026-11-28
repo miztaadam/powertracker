@@ -918,6 +918,30 @@ object GritDomain {
     fun singleSidedSummary(split: JsSplitSides, unit: String = "KG"): String =
         com.powertracker.domain.unilateral.SingleSided.summaryText(split.toDomain(), parseEnum<LoadUnit>("unit", unit))
 
+    /** Left vs. Right balance across recent sessions for exercises logged one side at a time. */
+    fun sideBalances(history: JsHistory): Array<JsSideBalanceRow> =
+        com.powertracker.domain.unilateral.SideBalance.rows(history.toDomain()).map { row ->
+            JsSideBalanceRow(
+                exerciseId = row.exerciseId.toFacadeId("sideBalance.exerciseId"),
+                name = row.name,
+                weakerSide = row.weakerSide?.name,
+                avgRepGap = row.avgRepGap,
+                sessionCount = row.sessionCount,
+                summary = row.summary,
+            )
+        }.toTypedArray()
+
+    /** Post-workout recap stats (total kg moved and PRs hit) for Finish summary. */
+    fun sessionRecap(historyBeforeToday: JsHistory, todaysSets: Array<JsSet>, today: String, mode: String): JsSessionRecap {
+        val recap = com.powertracker.domain.progress.SessionRecapMath.of(
+            historyBeforeToday = historyBeforeToday.toDomain(),
+            todaysSets = todaysSets.map { it.toDomain() },
+            today = parseDate("today", today),
+            mode = parseEnum<TrainingMode>("mode", mode),
+        )
+        return JsSessionRecap(recap.tonnageKg, recap.prCount)
+    }
+
     private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
         JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)
 }

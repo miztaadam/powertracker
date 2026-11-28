@@ -6,7 +6,7 @@ import { EmptyState } from '../../ui/components/EmptyState'
 import { InsightsIcon } from '../../ui/components/icons'
 import { ScreenHeader } from '../../ui/components/ScreenHeader'
 import { ModeLabel } from '../../ui/components/ModeLabel'
-import { BodybuildingProgressContent } from './BodybuildingProgress'
+import { BodybuildingProgressContent, SideBalanceSection } from './BodybuildingProgress'
 import { HistoryButton } from './HistoryButton'
 import { BodyweightSection, RatioSection, RecordsSection, SummaryCard, TrendCard, VolumeSection } from './ProgressSections'
 import './progress.css'
@@ -57,6 +57,7 @@ export function ProgressContent({ state, onRange, onOpenLift, onOpenHistory }: P
             {state.prs.length > 0 && <RecordsSection prs={state.prs} />}
             <VolumeSection state={state} />
             {state.ratios.length > 0 && <RatioSection ratios={state.ratios} />}
+            {state.sideBalances && state.sideBalances.length > 0 && <SideBalanceSection rows={state.sideBalances} />}
             {/* Keyed on the range, as the trend line is: a new range draws the line in again. */}
             {state.bodyweight.length > 0 && <BodyweightSection key={state.range} points={state.bodyweight} />}
           </>

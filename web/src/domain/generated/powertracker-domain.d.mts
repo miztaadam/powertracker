@@ -174,6 +174,8 @@ export declare namespace GritDomain {
             singleSidedActive(exercise: JsExercise): boolean;
             singleSidedWeaker(right: JsSideLog, left: JsSideLog): JsSideLog;
             singleSidedSummary(split: JsSplitSides, unit?: string): string;
+            sideBalances(history: JsHistory): Array<JsSideBalanceRow>;
+            sessionRecap(historyBeforeToday: JsHistory, todaysSets: Array<JsSet>, today: string, mode: string): JsSessionRecap;
             private constructor();
         }
     }
@@ -1096,6 +1098,40 @@ export declare namespace JsPr {
     /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
     namespace $metadata$ {
         const constructor: abstract new () => JsPr;
+    }
+}
+export declare class JsSideBalanceRow {
+    constructor(exerciseId: number, name: string, weakerSide: Nullable<string>, avgRepGap: number, sessionCount: number, summary: string);
+    get exerciseId(): number;
+    get name(): string;
+    get weakerSide(): Nullable<string>;
+    get avgRepGap(): number;
+    get sessionCount(): number;
+    get summary(): string;
+    copy(exerciseId?: number, name?: string, weakerSide?: Nullable<string>, avgRepGap?: number, sessionCount?: number, summary?: string): JsSideBalanceRow;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSideBalanceRow {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSideBalanceRow;
+    }
+}
+export declare class JsSessionRecap {
+    constructor(tonnageKg: number, prCount: number);
+    get tonnageKg(): number;
+    get prCount(): number;
+    copy(tonnageKg?: number, prCount?: number): JsSessionRecap;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSessionRecap {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSessionRecap;
     }
 }
 export declare class JsAccessoryOption {

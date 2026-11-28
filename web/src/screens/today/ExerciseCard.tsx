@@ -108,16 +108,27 @@ export type ExerciseCardProps = {
   onCountPlates?: () => void
   /** Toggles single-sided ("one side at a time") tracking in the row menu. */
   onToggleSingleSided?: () => void
+  /** Set ids logged during this view that achieved a new PR (triggers PR badge + molten shimmer). */
+  prSetIds?: readonly number[]
 }
 
 /** A superset's tag on Today, as on the Plan tab (1.24): "Superset A" on the first exercise, "Superset B" on the one done straight after it. */
 export const supersetTag = (half: SupersetHalf): string => (half === 'FIRST' ? 'Superset A' : 'Superset B')
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', today = todayIso(), onSkipToday, onCountPlates, onToggleSingleSided }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', today = todayIso(), onSkipToday, onCountPlates, onToggleSingleSided, prSetIds }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
+  const [editWeight, setEditWeight] = useState('')
+  const [editReps, setEditReps] = useState('')
+  const [editRpe, setEditRpe] = useState('')
+  const openSetDialog = (number: number, set: StoredSet) => {
+    setEditWeight(String(set.weightKg))
+    setEditReps(String(set.reps))
+    setEditRpe(set.rpe != null ? String(set.rpe) : '')
+    setSelected({ number, set })
+  }
   const powerlifting = side === 'POWERLIFTING'
   const top = powerlifting ? topSetIndex(item.sets, setUnit(item)) : null
   const nextNumber = item.sets.length + 1
@@ -175,23 +186,28 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
 
       {item.sets.length > 0 && (
         <div>
-          {item.sets.map((set, i) => (
-            <div key={set.id} {...slideName(`set-${set.id}`)}>
-              <SetRow
-                index={i + 1}
-                weightKg={set.weightKg}
-                reps={set.reps}
-                rpe={set.rpe}
-                state={set.failed ? 'failed' : 'done'}
-                isTopSet={i === top}
-                onClick={() => setSelected({ number: i + 1, set })}
-                // Each set in its own unit, whatever the exercise's setting is now.
-                unit={set.unit}
-                splitText={set.splitSides ? grit.singleSidedSummary(splitSidesToJs(set.splitSides), setUnit(set)) : undefined}
-              />
-              {powerlifting && (set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
-            </div>
-          ))}
+          {item.sets.map((set, i) => {
+            const isPr = prSetIds?.includes(set.id) === true
+            return (
+              <div key={set.id} {...slideName(`set-${set.id}`)}>
+                <SetRow
+                  index={i + 1}
+                  weightKg={set.weightKg}
+                  reps={set.reps}
+                  rpe={set.rpe}
+                  state={set.failed ? 'failed' : 'done'}
+                  isTopSet={i === top}
+                  isPr={isPr}
+                  celebratePr={isPr}
+                  onClick={() => openSetDialog(i + 1, set)}
+                  // Each set in its own unit, whatever the exercise's setting is now.
+                  unit={set.unit}
+                  splitText={set.splitSides ? grit.singleSidedSummary(splitSidesToJs(set.splitSides), setUnit(set)) : undefined}
+                />
+                {powerlifting && (set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -219,33 +235,95 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         </>
       )}
 
-      {selected && (
-        <Dialog
-          open
-          title={`Set ${selected.number}`}
-          onDismiss={() => setSelected(null)}
-          actions={
-            <>
-              <QuietButton text="Keep" onClick={() => setSelected(null)} />
-              <QuietButton
-                className="today-danger"
-                text="Delete set"
-                onClick={() => {
-                  void actions.deleteSet(selected.set.id)
-                  setSelected(null)
-                }}
-              />
-            </>
-          }
-        >
-          <p className="today-dose headline-small">{doseText(selected.set.weightKg, selected.set.reps, selected.set.rpe, setUnit(selected.set)) + (selected.set.failed ? ' · failed' : '')}</p>
-          {selected.set.splitSides && (
-            <p className="body-medium" style={{ color: 'var(--text-secondary)', marginTop: 6 }}>
-              {`Right: ${doseText(selected.set.splitSides.right.weightKg, selected.set.splitSides.right.reps, selected.set.splitSides.right.rpe, setUnit(selected.set))}${selected.set.splitSides.right.failed ? ' (missed)' : ''} · Left: ${doseText(selected.set.splitSides.left.weightKg, selected.set.splitSides.left.reps, selected.set.splitSides.left.rpe, setUnit(selected.set))}${selected.set.splitSides.left.failed ? ' (missed)' : ''}`}
-            </p>
-          )}
-        </Dialog>
-      )}
+      {selected && (() => {
+        const canQuickEdit = actions.updateSet != null && selected.set.splitSides == null
+        const parsedWeight = Number(editWeight.replace(',', '.'))
+        const parsedReps = Number(editReps)
+        const parsedRpe = editRpe.trim() === '' ? null : Number(editRpe.replace(',', '.'))
+        const unit = setUnit(selected.set)
+        const weightValid =
+          Number.isFinite(parsedWeight) &&
+          (unit === 'PLATES' ? grit.plateCheck(parsedWeight, 'HALF') === 'OK' : parsedWeight >= 0 && parsedWeight <= MAX_KG)
+        const repsValid = Number.isInteger(parsedReps) && parsedReps >= 1 && parsedReps <= MAX_REPS
+        const rpeValid = parsedRpe == null || (Number.isFinite(parsedRpe) && parsedRpe >= MIN_RPE && parsedRpe <= MAX_RPE)
+        const changed =
+          parsedWeight !== selected.set.weightKg || parsedReps !== selected.set.reps || parsedRpe !== selected.set.rpe
+        const canSave = canQuickEdit && weightValid && repsValid && rpeValid && changed
+        return (
+          <Dialog
+            open
+            title={`Set ${selected.number}`}
+            onDismiss={() => setSelected(null)}
+            actions={
+              <>
+                <QuietButton
+                  className="today-danger"
+                  text="Delete set"
+                  onClick={() => {
+                    void actions.deleteSet(selected.set.id)
+                    setSelected(null)
+                  }}
+                />
+                <QuietButton text="Keep" onClick={() => setSelected(null)} />
+                {canSave && (
+                  <PrimaryButton
+                    text="Save"
+                    onClick={() => {
+                      void actions.updateSet!(selected.set.id, { weightKg: parsedWeight, reps: parsedReps, rpe: parsedRpe })
+                      setSelected(null)
+                    }}
+                  />
+                )}
+              </>
+            }
+          >
+            <p className="today-dose headline-small">{doseText(selected.set.weightKg, selected.set.reps, selected.set.rpe, unit) + (selected.set.failed ? ' · failed' : '')}</p>
+            {selected.set.splitSides && (
+              <p className="body-medium" style={{ color: 'var(--text-secondary)', marginTop: 6 }}>
+                {`Right: ${doseText(selected.set.splitSides.right.weightKg, selected.set.splitSides.right.reps, selected.set.splitSides.right.rpe, unit)}${selected.set.splitSides.right.failed ? ' (missed)' : ''} · Left: ${doseText(selected.set.splitSides.left.weightKg, selected.set.splitSides.left.reps, selected.set.splitSides.left.rpe, unit)}${selected.set.splitSides.left.failed ? ' (missed)' : ''}`}
+              </p>
+            )}
+            {canQuickEdit && (
+              <div className="today-quick-edit">
+                <label className="today-quick-field">
+                  <span className="label-small">{unit === 'PLATES' ? 'Plate' : 'Weight (kg)'}</span>
+                  <input
+                    className="today-quick-input body-large"
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={unit === 'PLATES' ? 'Edit plate' : 'Edit weight'}
+                    value={editWeight}
+                    onChange={(e) => setEditWeight(e.target.value)}
+                  />
+                </label>
+                <label className="today-quick-field">
+                  <span className="label-small">Reps</span>
+                  <input
+                    className="today-quick-input body-large"
+                    type="text"
+                    inputMode="numeric"
+                    aria-label="Edit reps"
+                    value={editReps}
+                    onChange={(e) => setEditReps(e.target.value)}
+                  />
+                </label>
+                <label className="today-quick-field">
+                  <span className="label-small">RPE</span>
+                  <input
+                    className="today-quick-input body-large"
+                    type="text"
+                    inputMode="decimal"
+                    aria-label="Edit RPE"
+                    placeholder="—"
+                    value={editRpe}
+                    onChange={(e) => setEditRpe(e.target.value)}
+                  />
+                </label>
+              </div>
+            )}
+          </Dialog>
+        )
+      })()}
     </Card>
   )
 }

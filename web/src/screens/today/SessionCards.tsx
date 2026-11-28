@@ -134,6 +134,7 @@ export function SummaryCard({ summary, onOpenCoach, onKeepLogging }: SummaryCard
   const notes =
     (summary.newNotes === 0 ? 'No new coach notes' : summary.newNotes === 1 ? '1 new coach note' : `${summary.newNotes} new coach notes`) +
     (summary.skipped != null && summary.skipped >= 1 ? `, ${summary.skipped} skipped` : '')
+  const formatVolume = (kg: number) => `${Math.round(kg).toLocaleString()} kg`
   return (
     <Card>
       <div className="today-summary-head">
@@ -145,9 +146,18 @@ export function SummaryCard({ summary, onOpenCoach, onKeepLogging }: SummaryCard
           <p className="today-secondary body-medium">{notes}</p>
         </div>
       </div>
-      <div className="today-summary-stats">
+      <div className="today-summary-stats today-summary-grid">
         <StatTile className="today-grow" label="Sets" value={String(summary.setCount)} />
         <StatTile className="today-grow" label="Exercises" value={String(summary.exerciseCount)} />
+        {summary.tonnageKg != null && summary.tonnageKg > 0 && (
+          <StatTile className="today-grow" label="Volume" value={formatVolume(summary.tonnageKg)} />
+        )}
+        {summary.durationMin != null && summary.durationMin > 0 && (
+          <StatTile className="today-grow" label="Duration" value={`${summary.durationMin} min`} />
+        )}
+        {summary.prCount != null && summary.prCount > 0 && (
+          <StatTile className="today-grow" label={summary.prCount === 1 ? 'New PR' : 'New PRs'} value={String(summary.prCount)} note="All-time best" noteTone="success" />
+        )}
       </div>
       {summary.newNotes > 0 ? (
         <PrimaryButton text="See coach notes" onClick={onOpenCoach} icon={<BoltIcon />} />

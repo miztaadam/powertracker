@@ -26,14 +26,16 @@ export function RestTimerBar({ remainingSec, totalSec, onSubtractThirty, onAddTh
   const left = Number.isFinite(remainingSec) ? Math.max(0, Math.floor(remainingSec)) : 0
   const fraction = totalSec > 0 ? Math.min(1, left / totalSec) : 0
   const clock = formatClock(left)
+  const finalTen = left > 0 && left <= 10
+  const ready = left === 0 && totalSec > 0
   return (
-    <div className={cx('gr-rest', className)}>
+    <div className={cx('gr-rest', finalTen && 'gr-rest-final', ready && 'gr-rest-ready', className)}>
       <div className="gr-rest-track" aria-hidden="true">
         <div className="gr-rest-fill" style={{ width: `${fraction * 100}%` }} />
       </div>
       <div className="gr-rest-row">
         <div className="gr-rest-time" role="timer" aria-label={`Rest, ${clock} left`}>
-          <p className="eyebrow">Rest</p>
+          <p className="eyebrow">{ready ? 'Ready' : finalTen ? 'Almost up' : 'Rest'}</p>
           <span className="gr-rest-clock display-small">{clock}</span>
         </div>
         <SecondaryButton text="−30 s" onClick={onSubtractThirty} compact />

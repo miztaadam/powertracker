@@ -66,8 +66,9 @@ fun PlateStrip(perSide: List<Double>, modifier: Modifier = Modifier, caption: St
         Canvas(Modifier.width(112.dp).height(48.dp)) {
             val mid = size.height / 2
             val bar = 6.dp.toPx()
-            // Sleeve, then the thicker shoulder the plates sit against.
+            // Sleeve, metallic sheen, then the thicker shoulder the plates sit against.
             drawRoundRect(PlateColors.Steel, Offset(0f, mid - bar / 2), Size(size.width, bar), CornerRadius(bar / 2))
+            drawRoundRect(Color.White.copy(alpha = 0.25f), Offset(0f, mid - bar / 2 + 1.dp.toPx()), Size(size.width, 1.5.dp.toPx()), CornerRadius(0.75.dp.toPx()))
             val shoulder = Size(5.dp.toPx(), 16.dp.toPx())
             drawRoundRect(PlateColors.Chrome, Offset(6.dp.toPx(), mid - shoulder.height / 2), shoulder, CornerRadius(1.5.dp.toPx()))
             var x = 6.dp.toPx() + shoulder.width + 2.dp.toPx()
@@ -78,6 +79,13 @@ fun PlateStrip(perSide: List<Double>, modifier: Modifier = Modifier, caption: St
                 val topLeft = Offset(x, mid - plate.height / 2)
                 val radius = CornerRadius(2.dp.toPx())
                 drawRoundRect(PlateColors.forKg(kg), topLeft, plate, radius)
+                // Machined top-edge sheen for depth.
+                drawRoundRect(
+                    Color.White.copy(alpha = 0.22f),
+                    Offset(topLeft.x + 1.dp.toPx(), topLeft.y + 1.dp.toPx()),
+                    Size((plate.width - 2.dp.toPx()).coerceAtLeast(1f), 2.5.dp.toPx()),
+                    CornerRadius(1.dp.toPx()),
+                )
                 // A faint edge keeps black plates visible on dark and white plates on light.
                 drawRoundRect(edge, topLeft, plate, radius, style = Stroke(1.dp.toPx()))
                 x += plate.width + 2.dp.toPx()
