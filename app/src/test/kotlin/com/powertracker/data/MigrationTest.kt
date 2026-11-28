@@ -10,6 +10,7 @@ import com.powertracker.data.db.MIGRATION_3_4
 import com.powertracker.data.db.MIGRATION_4_5
 import com.powertracker.data.db.MIGRATION_5_6
 import com.powertracker.data.db.MIGRATION_6_7
+import com.powertracker.data.db.MIGRATION_7_8
 import com.powertracker.data.db.StrictPressUpgrade
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -317,7 +318,7 @@ class MigrationTest {
         val app = AppDatabase.build(context)
         try {
             val db = app.openHelper.writableDatabase
-            assertEquals(7, db.version)
+            assertEquals(8, db.version)
             assertEquals(listOf(1L to 1L), sets(db))
             assertEquals(emptyList<Long>(), ids(db, "SELECT id FROM skips"))
         } finally {
@@ -416,12 +417,18 @@ class MigrationTest {
             session(db, 1, 20_400)
             set(db, 1, 1, 1, 140.0)
         }
-        val migrated = helper.runMigrationsAndValidate(name, 7, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+        val migrated = helper.runMigrationsAndValidate(name, 8, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
         assertEquals(listOf(1L to 1L), sets(migrated))
         assertEquals(listOf("KG"), strings(migrated, "SELECT unit FROM logged_set"))
         // The plan table has version 7's column.
         migrated.execSQL("INSERT INTO plan_item (id, weekday, exerciseId, sets, reps, targetRpe, sortOrder, mode, repsHigh) VALUES (1, 3, 1, 5, 5, 8.0, 0, 'POWERLIFTING', NULL)")
         assertEquals(listOf("0"), strings(migrated, "SELECT supersetWithAbove FROM plan_item"))
+        // Version 8's columns: singleSided defaults to 0 and splitSides defaults to null.
+        assertEquals(listOf("0"), strings(migrated, "SELECT DISTINCT singleSided FROM exercise"))
+        migrated.query("SELECT splitSides FROM logged_set").use { c ->
+            assertEquals(true, c.moveToFirst())
+            assertEquals(true, c.isNull(0))
+        }
         migrated.close()
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -434,11 +441,12 @@ class MigrationTest {
         val app = AppDatabase.build(context)
         try {
             val db = app.openHelper.writableDatabase
-            assertEquals(7, db.version)
+            assertEquals(8, db.version)
             assertEquals(listOf(1L to 1L), sets(db))
             assertEquals(listOf("POWERLIFTING"), strings(db, "SELECT mode FROM session"))
             assertEquals(listOf("KG"), strings(db, "SELECT unit FROM logged_set"))
             assertEquals(listOf("OFF"), strings(db, "SELECT DISTINCT plateCount FROM exercise"))
+            assertEquals(listOf("0"), strings(db, "SELECT DISTINCT singleSided FROM exercise"))
         } finally {
             app.close()
             context.deleteDatabase(APP_DB)

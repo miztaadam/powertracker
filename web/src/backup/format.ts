@@ -18,8 +18,11 @@
  * without it is not linked; a version 1 to 6 file restores with no supersets. A flag that cannot count (the first item
  * of a day, the third in a row, the same exercise twice) is cleared on restore, in both apps, by the domain's
  * `Supersets.stale`. An app that reads only version 6 turns a version 7 file away as too new.
+ * 8: 1.25's single-sided ("one side at a time") tracking (`singleSided` on exercises, written only when true;
+ * `splitSides` on sets, written only when present). A version 1 to 7 file restores with singleSided off and no
+ * splitSides. An app that reads only version 7 turns a version 8 file away as too new.
  */
-export const BACKUP_VERSION = 7
+export const BACKUP_VERSION = 8
 
 /** The domain's `TrainingMode` names. */
 export { TRAINING_MODES } from '../db/schema'
@@ -69,12 +72,19 @@ export type ExerciseDto = {
   muscles: string[]
   isBuiltIn: boolean
   archived: boolean
-  /** Version 6, the row's last key: written only as WHOLE or HALF; absent means OFF. The parser fills it in. */
+  /** Version 6: written only as WHOLE or HALF; absent means OFF. The parser fills it in. */
   plateCount?: string
+  /** Version 8: written only when true; absent means false. */
+  singleSided?: boolean
 }
 
 /** `mode` (version 3) is absent from older files, which means POWERLIFTING; the parser fills it in, as on plan items and advice. */
 export type SessionDto = { id: number; date: number; bodyweightKg: number | null; readiness: number | null; mode?: string }
+
+/** Version 8: one half (right or left) of a single-sided set. */
+export type SideLogDto = { weightKg: number; reps: number; rpe: number | null; failed: boolean }
+/** Version 8: both halves of a single-sided set. */
+export type SplitSidesDto = { right: SideLogDto; left: SideLogDto }
 
 export type SetDto = {
   id: number
@@ -86,8 +96,10 @@ export type SetDto = {
   failed: boolean
   missPoint: string | null
   isTopSet: boolean
-  /** Version 6, the row's last key: written only as PLATES; absent means KG. The parser fills it in. */
+  /** Version 6: written only as PLATES; absent means KG. The parser fills it in. */
   unit?: string
+  /** Version 8: written only on a single-sided set; absent means normal two-sided set. */
+  splitSides?: SplitSidesDto
 }
 
 export type PlanItemDto = {

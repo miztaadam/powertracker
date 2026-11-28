@@ -13,6 +13,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
+import com.powertracker.domain.model.SplitSides
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -28,6 +29,8 @@ data class ExerciseEntity(
     val archived: Boolean = false,
     /** Version 6 (1.17): whether the lifter counts plates on this machine. Rows from before version 6 are off. */
     @ColumnInfo(defaultValue = OFF) val plateCount: PlateCount = PlateCount.OFF,
+    /** Version 8 (1.25): whether this exercise is logged one side at a time (Right + Left = 1 set). */
+    @ColumnInfo(defaultValue = "0") val singleSided: Boolean = false,
 )
 
 @Entity(tableName = "session", indices = [Index("date")])
@@ -60,6 +63,8 @@ data class SetEntity(
     val isTopSet: Boolean,
     /** Version 6 (1.17): what [weightKg] counts, kg or a plate number. Sets from before version 6 are kg. */
     @ColumnInfo(defaultValue = KG) val unit: LoadUnit = LoadUnit.KG,
+    /** Version 8 (1.25): both halves when logged one side at a time; null for a normal set. */
+    val splitSides: SplitSides? = null,
 )
 
 @Entity(

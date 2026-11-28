@@ -21,6 +21,8 @@ interface ExerciseDao {
     @Query("UPDATE exercise SET archived = 0 WHERE id = :id") suspend fun restore(id: Long)
     /** Version 6 (1.17): the exercise's plate setting; no set and no advice changes with it. */
     @Query("UPDATE exercise SET plateCount = :value WHERE id = :id") suspend fun setPlateCount(id: Long, value: PlateCount)
+    /** Version 8 (1.25): whether the exercise is logged one side at a time. */
+    @Query("UPDATE exercise SET singleSided = :value WHERE id = :id") suspend fun setSingleSided(id: Long, value: Boolean)
     @Query("DELETE FROM exercise WHERE id = :id") suspend fun delete(id: Long)
     @Query("SELECT COUNT(*) FROM logged_set WHERE exerciseId = :id") suspend fun setCount(id: Long): Int
     @Query("SELECT * FROM exercise ORDER BY id") suspend fun all(): List<ExerciseEntity>

@@ -220,6 +220,10 @@ export const SCHEMA_VERSIONS: SchemaVersion[] = [
   // not linked. Declared, as version 6 was, for the version number and the safety copy: a copy of the app from before
   // 1.24 is turned away (OlderCopyError) rather than left to edit a plan whose links it does not know.
   { version: 7, stores: {} },
+  // Single-sided ("one side at a time", 1.25): an exercise's `singleSided` and a set's `splitSides`. No new index and
+  // no upgrade step: rows without them read as normal two-sided exercises and sets. Declared for the version number
+  // and safety copy so copies before 1.25 are turned away (OlderCopyError).
+  { version: 8, stores: {} },
 ]
 
 /** Schema version 3's upgrade: every plan item, session and advice row without a side is on the powerlifting side. */

@@ -120,19 +120,14 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       replaces everything on that phone: restore the other phone's file and check the data matches.
 - [ ] **9. Back closes what is open.** On Exercises, open a form guide and go Back (button or edge swipe): the guide
       closes and you are still on Exercises.
-- [ ] **10. This release's own changes.** 1.24, both apps, supersets. On Plan, open the ⋮ of a day's second exercise
-      and tap "Superset with the one above": the two rows are tagged SUPERSET A and SUPERSET B. On that day (or after
-      moving the pair to today), start a session: A's card is open. Log a set: B's card opens and no rest timer
-      starts. Log B's set: the rest timer starts and A's card is open again. Close Grit after an A set and open it:
-      B's card is open. On Plan, "Remove superset" takes the tags off. **The backup changed:** update both phones
-      before moving a backup between them (check 8). **Android app also:** set a barbell lift to 182.5 kg on Today:
-      the plate list beside the bar reads "25 + 25 + 25 + 5 + 1.25", all five plates.
-      **And the three before it, if you have not checked them yet. 1.23.2, the web app in a browser tab:** reload
-      Today before a session and tap an exercise's ⋮ the moment the plan appears: when the "Install Grit" card arrives
-      above it, the menu is still whole on screen. **1.23.1, both apps:** with two sets logged, tap Log set and then
-      Finish as fast as you can: "Session saved" says Sets 3. **1.23, both apps, the warm-up checklist:** on Today,
-      open a barbell lift you have done before, before logging a set: above the weight it says "WARM-UP · NOT LOGGED"
-      with one or two lighter sets to tick; log your first set and the checklist is gone.
+- [ ] **10. This release's own changes.** 1.25, both apps:
+      - **Mode-switch animations:** in Settings, switch between Bodybuilding and Powerlifting mode: the forged iron
+        hammer drops with molten glow and cracks (with the original hammer sound), and the pump pulses with double-beat
+        heartbeats (with the original pump sound).
+      - **One side at a time:** on Today, open ⋮ on an eligible exercise (such as Pec deck, Lat pulldown, or a dumbbell
+        exercise) and tap "One side at a time". Log your Right side (no rest timer starts), then log your Left side
+        (saves as 1 set showing `R … · L …` and starts your normal rest timer).
+      - **The backup changed (version 8):** update both phones before moving a backup between them (check 8).
 
 The full list, feature by feature (210 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
 release touched a feature and you want that feature's own checks.

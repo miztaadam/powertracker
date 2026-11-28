@@ -158,8 +158,10 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         muscles: e.muscles,
         isBuiltIn: e.isBuiltIn,
         archived: e.archived,
-        // Version 6: only on a plate-counted exercise, as its last key, as Android writes it.
+        // Version 6: only on a plate-counted exercise, as Android writes it.
         ...(plateCountOf(e) !== 'OFF' ? { plateCount: plateCountOf(e) } : {}),
+        // Version 8: only when single-sided is on, as Android writes it.
+        ...(e.singleSided === true ? { singleSided: true } : {}),
       })),
       sessions: sessions.map((s) => ({
         id: s.id,
@@ -178,8 +180,17 @@ export async function exportBackup(db: Dexie, nowMs: number): Promise<BackupFile
         failed: s.failed,
         missPoint: s.missPoint,
         isTopSet: s.isTopSet,
-        // Version 6: only on a plate set, as its last key, as Android writes it.
+        // Version 6: only on a plate set, as Android writes it.
         ...(setUnit(s) !== 'KG' ? { unit: setUnit(s) } : {}),
+        // Version 8: only on a single-sided set, as Android writes it.
+        ...(s.splitSides
+          ? {
+              splitSides: {
+                right: { weightKg: s.splitSides.right.weightKg, reps: s.splitSides.right.reps, rpe: s.splitSides.right.rpe, failed: s.splitSides.right.failed },
+                left: { weightKg: s.splitSides.left.weightKg, reps: s.splitSides.left.reps, rpe: s.splitSides.left.rpe, failed: s.splitSides.left.failed },
+              },
+            }
+          : {}),
       })),
       planItems: planItems.map((p) => ({
         id: p.id,
@@ -279,7 +290,7 @@ function parseBackup(root: Obj): BackupFile {
       bodybuildingLeftOn: 'bodybuildingLeftOn' in s ? nullable(s, 'bodybuildingLeftOn', int) : null,
     },
     exercises: list(o.exercises, 'exercises', (v, p) => {
-      const e = obj(v, p, ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived'], ['plateCount'])
+      const e = obj(v, p, ['id', 'name', 'category', 'parentLift', 'muscles', 'isBuiltIn', 'archived'], ['plateCount', 'singleSided'])
       return {
         id: int(e, 'id'),
         name: str(e, 'name'),
@@ -290,6 +301,8 @@ function parseBackup(root: Obj): BackupFile {
         archived: bool(e, 'archived'),
         // Version 6. Absent (every older file, and every exercise that is off) means OFF.
         plateCount: 'plateCount' in e ? str(e, 'plateCount') : 'OFF',
+        // Version 8. Absent means false; kept only when true.
+        ...('singleSided' in e && bool(e, 'singleSided') ? { singleSided: true } : {}),
       }
     }),
     sessions: list(o.sessions, 'sessions', (v, p) => {
@@ -297,7 +310,18 @@ function parseBackup(root: Obj): BackupFile {
       return { id: int(x, 'id'), date: int(x, 'date'), bodyweightKg: nullable(x, 'bodyweightKg', num), readiness: nullable(x, 'readiness', int), mode: modeOf(x) }
     }),
     sets: list(o.sets, 'sets', (v, p) => {
-      const x = obj(v, p, ['id', 'sessionId', 'exerciseId', 'weightKg', 'reps', 'rpe', 'failed', 'missPoint', 'isTopSet'], ['unit'])
+      const x = obj(v, p, ['id', 'sessionId', 'exerciseId', 'weightKg', 'reps', 'rpe', 'failed', 'missPoint', 'isTopSet'], ['unit', 'splitSides'])
+      const parseSide = (sv: unknown, sp: string) => {
+        const so = obj(sv, sp, ['weightKg', 'reps', 'rpe', 'failed'])
+        return { weightKg: num(so, 'weightKg'), reps: int(so, 'reps'), rpe: nullable(so, 'rpe', num), failed: bool(so, 'failed') }
+      }
+      const splitSides =
+        'splitSides' in x && x.splitSides !== null
+          ? (() => {
+              const ss = obj(x.splitSides, `${p}.splitSides`, ['right', 'left'])
+              return { right: parseSide(ss.right, `${p}.splitSides.right`), left: parseSide(ss.left, `${p}.splitSides.left`) }
+            })()
+          : undefined
       return {
         id: int(x, 'id'),
         sessionId: int(x, 'sessionId'),
@@ -310,6 +334,8 @@ function parseBackup(root: Obj): BackupFile {
         isTopSet: bool(x, 'isTopSet'),
         // Version 6. Absent (every older file, and every kg set) means KG.
         unit: 'unit' in x ? str(x, 'unit') : 'KG',
+        // Version 8. Absent (every older file, and every normal set) means no split sides.
+        ...(splitSides ? { splitSides } : {}),
       }
     }),
     planItems: list(o.planItems, 'planItems', (v, p) => {
@@ -405,6 +431,8 @@ function mapBackup(file: BackupFile): Mapped {
     archived: e.archived,
     // Stored only when not off, as the app writes it.
     ...(plateCount(e.plateCount) !== 'OFF' ? { plateCount: plateCount(e.plateCount) } : {}),
+    // Stored only when true, as the app writes it.
+    ...(e.singleSided === true ? { singleSided: true as const } : {}),
   }))
   const exercises = file.version < 2 ? applyStrictPressUpgrade(mappedExercises) : mappedExercises
   unique(file.sessions.map((s) => s.id), 'session id')
@@ -427,15 +455,22 @@ function mapBackup(file: BackupFile): Mapped {
       sessions.push(row)
     }
   }
+  const checkPlate = (weightKg: number) => {
+    const check = grit.plateCheck(weightKg, 'HALF')
+    if (check === 'STEP') bad('A plate set that is not a whole or half plate')
+    if (check !== 'OK') bad(weightKg < 1 ? 'A plate set below plate 1' : 'A plate set above plate 50')
+  }
   const sets = file.sets.map((s) => {
     const unit = loadUnit(s.unit)
     // A plate number is one the app can store (as Android refuses it): a whole or half plate from plate 1 to 50. It is
     // judged on the half-plate grid, never on the exercise's setting now: a logged 7½ stands on whole plates or in kg.
     // The grid first (0.3 is not a whole or half plate); 0 would read as bodyweight.
     if (unit === 'PLATES') {
-      const check = grit.plateCheck(s.weightKg, 'HALF')
-      if (check === 'STEP') bad('A plate set that is not a whole or half plate')
-      if (check !== 'OK') bad(s.weightKg < 1 ? 'A plate set below plate 1' : 'A plate set above plate 50')
+      checkPlate(s.weightKg)
+      if (s.splitSides) {
+        checkPlate(s.splitSides.right.weightKg)
+        checkPlate(s.splitSides.left.weightKg)
+      }
     }
     return {
       id: s.id,
@@ -449,6 +484,15 @@ function mapBackup(file: BackupFile): Mapped {
       isTopSet: s.isTopSet,
       // Stored only for a plate set, as the app writes it.
       ...(unit !== 'KG' ? { unit } : {}),
+      // Stored only for a single-sided set, as the app writes it.
+      ...(s.splitSides
+        ? {
+            splitSides: {
+              right: { ...s.splitSides.right },
+              left: { ...s.splitSides.left },
+            },
+          }
+        : {}),
     }
   })
   const linkedPlanItems = file.planItems.map((p) => ({

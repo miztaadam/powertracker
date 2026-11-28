@@ -42,8 +42,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Column
 import com.powertracker.domain.model.LoadUnit
+import com.powertracker.domain.model.SplitSides
 import com.powertracker.domain.stack.PlateStack
+import com.powertracker.domain.unilateral.SingleSided
 import com.powertracker.ui.theme.PowertrackerTheme
 import com.powertracker.ui.theme.Space
 import com.powertracker.ui.theme.Tone
@@ -77,12 +80,15 @@ fun SetRow(
     drawIn: (() -> Float)? = null,
     /** What [weightKg] is: kg, or a plate number on a plate-counted machine (1.17), "plate 7½". */
     unit: LoadUnit = LoadUnit.KG,
+    /** Version 8 (1.25): both halves of a single-sided set ("R 12 · L 10"); null for a normal set. */
+    splitSides: SplitSides? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val pt = PowertrackerTheme.colors
     val strong = if (state == SetState.PLANNED) scheme.onSurfaceVariant else scheme.onSurface
     val soft = pt.muted
     val plates = unit == LoadUnit.PLATES
+    val splitText = splitSides?.let { SingleSided.summaryText(it, unit) }
     val spoken = buildString {
         if (plates) {
             append("Set $index: ${PlateStack.spoken(weightKg)} × $reps")
@@ -91,6 +97,7 @@ fun SetRow(
             append("Set $index: ${formatKg(weightKg)} kg × $reps")
             if (rpe != null) append(" @ ${formatRpe(rpe)}")
         }
+        if (splitText != null) append(", $splitText")
         if (isTopSet) append(", top set")
         if (isPr) append(", personal record")
         append(
@@ -131,7 +138,12 @@ fun SetRow(
             textAlign = TextAlign.Center,
             modifier = Modifier.width(20.dp),
         )
-        Text(line, style = MaterialTheme.typography.headlineSmall, maxLines = 1)
+        Column {
+            Text(line, style = MaterialTheme.typography.headlineSmall, maxLines = 1)
+            if (splitText != null) {
+                Text(splitText, style = MaterialTheme.typography.bodySmall, color = soft, maxLines = 1)
+            }
+        }
         if (isTopSet) Pill("Top set")
         if (isPr) Pill("PR", tone = Tone.SUCCESS, icon = Icons.Filled.EmojiEvents)
         Box(Modifier.weight(1f))
