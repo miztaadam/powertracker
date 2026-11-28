@@ -2149,7 +2149,14 @@ Picked by the owner on 2026-11-26 ("supersets", saved in the plan, linked once o
 - Browser tests as an iPhone: 537 passed, 12 skipped (as before), none left unrun. As an Android phone (CI's list, with the superset tests added): 269 passed, 12 skipped. The superset tests passed in both.
 - The timing checks, three runs: 6 of 6 each time.
 - **What the runs before it caught, all in tests, none in the app:** a browser test that still expected backup version 6; the older-copy browser tests, which moved the log on to stored-data version 70, the number 1.24 made this build's own (they use a far later one now, so the next version cannot do the same to them); and my own superset browser test pressing Escape before the menu listened for it.
-- **Not checked:** a real phone; real Safari; an update of an installed 1.23.2 to 1.24 on a phone (the Android database's step from version 6 to 7 is tested on a copy of the stored schema, the web's in a test browser); CI on main (it runs there after a push). CI was started by hand on the branch at `60a6b15`, the first run of the workflow with the superset tests in its Android pass; its result is recorded with the release.
+- **Not checked:** a real phone; real Safari; an update of an installed 1.23.2 to 1.24 on a phone (the Android database's step from version 6 to 7 is tested on a copy of the stored schema, the web's in a test browser); CI on main (it runs there after a push). CI was started by hand on the branch at `60a6b15`, the first run of the workflow with the superset tests in its Android pass: both jobs passed.
+
+**Published 2026-11-28 (owner: "publish").** Main `efd1edd`, a merge of the branch at `d46fed9` with nothing else in it.
+- **Checked on merged main before the push, all passing:** shared rules 1020 and 1073; Android app 1190 (1 skipped); the generated web copy up to date; web type check, 1751 unit tests, build; browser tests as an iPhone 537 passed, 12 skipped; as an Android phone 269 passed, 12 skipped; the timing checks 6 of 6, three times.
+- **The live site, checked after the push:** `/` names `assets/index-n9IyHkew.js`; that file holds "1.24.0", "Superset with the one above", and no "1.23.2"; `/sw.js` lists it and is served with `cache-control: no-cache`.
+- **Android:** `./gradlew :app:assembleRelease` wrote `app-release-unsigned.apk`, versionName 1.24, versionCode 43 (unsigned, as always).
+- **Not checked:** a real phone, real Safari, and an installed 1.23.2 updating to 1.24 on a phone. CI on main was started by the push.
+- **To hear back from the owner:** check 10 in `README.md` for 1.24, and the ones for 1.20 to 1.23.2 still open.
 
 ## Next project idea (owner, 2026-11-12): pictures on the Exercises tab
 - Each exercise's guide shows a picture of a person doing it. First thoughts (not decided):
