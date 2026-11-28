@@ -250,6 +250,24 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
           </>
         ) : (
           <>
+            {(() => {
+              const plannedTotal = items.reduce((n, i) => n + (i.targetSets ?? 0), 0)
+              const doneSets = items.reduce((n, i) => n + i.sets.length, 0)
+              if (plannedTotal <= 0) return null
+              const pct = Math.min(100, Math.round((doneSets / plannedTotal) * 100))
+              const complete = doneSets >= plannedTotal
+              return (
+                <div className="today-progress" role="progressbar" aria-label="Workout progress" aria-valuenow={doneSets} aria-valuemin={0} aria-valuemax={plannedTotal}>
+                  <div className="today-progress-head">
+                    <span className="label-small today-progress-label">{complete ? 'Workout complete' : 'Session progress'}</span>
+                    <span className="label-small today-progress-count">{`${doneSets} / ${plannedTotal} sets`}</span>
+                  </div>
+                  <div className="today-progress-track">
+                    <div className={`today-progress-fill${complete ? ' today-progress-fill-done' : ''}`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              )
+            })()}
             {items.map((item, i) =>
               item === active ? (
                 <div key={keyOf(item)} ref={activeCard} className="today-item" {...slideName(`item-${keyOf(item)}`)}>
@@ -266,6 +284,7 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
                     onSkipToday={skipToday(item)}
                     onCountPlates={countPlates(item)}
                     onToggleSingleSided={toggleSingleSided(item)}
+                    prSetIds={state.prSetIds}
                   />
                 </div>
               ) : (

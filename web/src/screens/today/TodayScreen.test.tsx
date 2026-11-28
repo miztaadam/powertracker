@@ -806,19 +806,16 @@ describe('TodayScreen haptics', () => {
     }
   })
 
-  it('withNothingToBuzz_theBestCheckIsSkipped', async () => {
+  it('withTapHapticsOff_neverVibrates_evenWhenCheckingForPrBadge', async () => {
     setTapHaptics(false)
-    const check = vi.spyOn(grit, 'isNewPr')
-    try {
-      await startSession(db, TODAY)
-      show()
-      await tapWhenShown('Log set 1')
-      await waitForSets(1)
-      await findButton('Log set 2')
-      expect(check).not.toHaveBeenCalled()
-    } finally {
-      check.mockRestore()
-    }
+    const vibrate = vi.fn(() => true)
+    Object.defineProperty(navigator, 'vibrate', { value: vibrate, configurable: true })
+    await startSession(db, TODAY)
+    show()
+    await tapWhenShown('Log set 1')
+    await waitForSets(1)
+    await findButton('Log set 2')
+    expect(vibrate).not.toHaveBeenCalled()
   })
 
   it('pickingAnExerciseAlreadyInTheSession_doesNotBuzz', async () => {

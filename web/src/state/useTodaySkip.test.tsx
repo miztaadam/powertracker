@@ -274,7 +274,7 @@ describe('skipping on Today', () => {
     await waitFor(() => expect(ids(vm)).toEqual([squat]))
     await act(() => vm.current.finishSession())
     await waitFor(() => expect(vm.current.summary).not.toBeNull())
-    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 0, skipped: 2 })
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 0, skipped: 2, tonnageKg: 500, prCount: 1 })
   })
 
   it('finish_withNoSkips_countsNone', async () => {
@@ -285,7 +285,7 @@ describe('skipping on Today', () => {
     await act(() => vm.current.finishSession())
     await waitFor(() => expect(vm.current.summary).not.toBeNull())
     // Unchanged from 1.12: no `skipped` at all.
-    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 0 })
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 0, tonnageKg: 500, prCount: 1 })
   })
 
   it('skip_doubleCall_storesOneSkip', async () => {

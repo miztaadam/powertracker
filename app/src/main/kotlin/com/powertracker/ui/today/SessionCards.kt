@@ -167,6 +167,24 @@ fun SummaryCard(summary: FinishSummary, onOpenCoach: () -> Unit, onKeepLogging: 
             StatTile("Sets", summary.setCount.toString(), Modifier.weight(1f))
             StatTile("Exercises", summary.exerciseCount.toString(), Modifier.weight(1f))
         }
+        val extraTiles = buildList<Triple<String, String, String?>> {
+            if (summary.tonnageKg > 0.0) add(Triple("Volume", "${kotlin.math.round(summary.tonnageKg).toLong()} kg", null))
+            if (summary.durationMin != null && summary.durationMin > 0) add(Triple("Duration", "${summary.durationMin} min", null))
+            if (summary.prCount > 0) add(Triple(if (summary.prCount == 1) "New PR" else "New PRs", summary.prCount.toString(), "All-time best"))
+        }
+        if (extraTiles.isNotEmpty()) {
+            Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                for ((label, value, note) in extraTiles) {
+                    StatTile(
+                        label = label,
+                        value = value,
+                        modifier = Modifier.weight(1f),
+                        note = note,
+                        noteTone = if (note != null) com.powertracker.ui.theme.Tone.SUCCESS else com.powertracker.ui.theme.Tone.NEUTRAL,
+                    )
+                }
+            }
+        }
         if (summary.newNotes > 0) {
             PrimaryButton("See coach notes", onOpenCoach, Modifier.fillMaxWidth(), icon = Icons.Filled.Bolt)
         } else {

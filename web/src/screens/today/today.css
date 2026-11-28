@@ -880,3 +880,93 @@
   gap: 2px;
   min-width: 0;
 }
+
+/* Session progress strip at the top of Today while training. */
+.today-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px var(--space-1) var(--space-1);
+}
+
+.today-progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.today-progress-label {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.today-progress-count {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.today-progress-track {
+  height: 5px;
+  width: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--container-highest);
+}
+
+.today-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent-text);
+  transition: width 360ms cubic-bezier(0.22, 1, 0.36, 1), background-color 240ms ease;
+}
+
+.today-progress-fill-done {
+  background: var(--success);
+}
+
+/* Quick-edit inputs inside the tapped-set dialog. */
+.today-quick-edit {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.today-quick-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-secondary);
+}
+
+.today-quick-input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-sm);
+  background: var(--container);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.today-quick-input:focus {
+  outline: 2px solid var(--accent-text);
+  outline-offset: -1px;
+}
+
+/* Session recap grid wraps cleanly when Volume / Duration / PR tiles are present. */
+.today-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .today-progress-fill {
+    transition: none;
+  }
+}

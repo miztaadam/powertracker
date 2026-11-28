@@ -201,6 +201,20 @@ data class JsWeeklyPoint(val weekStart: String, val value: Double)
 data class JsPr(val date: String, val e1rmKg: Double, val weightKg: Double, val reps: Int, val rpe: Double?)
 
 @JsExport
+data class JsSideBalanceRow(
+    val exerciseId: Int,
+    val name: String,
+    /** "LEFT", "RIGHT", or null when balanced. */
+    val weakerSide: String?,
+    val avgRepGap: Double,
+    val sessionCount: Int,
+    val summary: String,
+)
+
+@JsExport
+data class JsSessionRecap(val tonnageKg: Double, val prCount: Int)
+
+@JsExport
 data class JsAccessoryOption(val name: String, val heavy: Boolean)
 
 /** The typical range of one lift as a share of another: [low]..[high] are factors, e.g. 0.8..0.9. */

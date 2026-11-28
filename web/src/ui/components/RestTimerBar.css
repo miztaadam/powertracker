@@ -36,3 +36,69 @@
   color: var(--text);
   white-space: nowrap;
 }
+
+/* Final 10 seconds: subtle breathing glow along the bar so you can catch it from the gym floor. */
+.gr-rest-final {
+  box-shadow:
+    var(--elevation-card),
+    0 0 0 1.5px color-mix(in srgb, var(--accent-text) 65%, transparent),
+    0 0 18px color-mix(in srgb, var(--accent-text) 28%, transparent);
+  animation: gr-rest-breathe 1s ease-in-out infinite;
+}
+
+.gr-rest-final .gr-rest-clock {
+  color: var(--accent-text);
+}
+
+/* 0:00 ready pulse: clean green flash. */
+.gr-rest-ready {
+  box-shadow:
+    var(--elevation-card),
+    0 0 0 2px var(--success),
+    0 0 22px color-mix(in srgb, var(--success) 38%, transparent);
+  animation: gr-rest-ready-pulse 900ms ease-out 2;
+}
+
+.gr-rest-ready .gr-rest-fill {
+  width: 100% !important;
+  background: var(--success);
+}
+
+.gr-rest-ready .gr-rest-clock {
+  color: var(--success);
+}
+
+@keyframes gr-rest-breathe {
+  0%,
+  100% {
+    box-shadow:
+      var(--elevation-card),
+      0 0 0 1.5px color-mix(in srgb, var(--accent-text) 45%, transparent),
+      0 0 10px color-mix(in srgb, var(--accent-text) 16%, transparent);
+  }
+  50% {
+    box-shadow:
+      var(--elevation-card),
+      0 0 0 2px color-mix(in srgb, var(--accent-text) 85%, transparent),
+      0 0 22px color-mix(in srgb, var(--accent-text) 34%, transparent);
+  }
+}
+
+@keyframes gr-rest-ready-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.015);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gr-rest-final,
+  .gr-rest-ready {
+    animation: none;
+  }
+}

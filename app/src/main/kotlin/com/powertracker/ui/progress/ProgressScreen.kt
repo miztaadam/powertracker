@@ -151,6 +151,7 @@ fun ProgressContent(
                             "Add exercises on the Plan tab and log them on Today. Each one's best sets will show here.",
                         )
                     } else {
+                        if (state.sideBalances.isNotEmpty()) SideBalanceSection(state.sideBalances)
                         Column {
                             SectionHeader("Exercises")
                             BodybuildingSection(state, onOpenExercise)
@@ -172,6 +173,7 @@ fun ProgressContent(
                     if (state.prs.isNotEmpty()) PrSection(state.prs)
                     VolumeSection(state)
                     if (state.ratios.isNotEmpty()) RatioSection(state.ratios)
+                    if (state.sideBalances.isNotEmpty()) SideBalanceSection(state.sideBalances)
                     if (state.bodyweight.isNotEmpty()) BodyweightSection(state.bodyweight, state.range)
                 }
             }
@@ -498,6 +500,28 @@ private fun BodyPartsSection(rows: List<MuscleRow>) {
                 ) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
                         Text(row.group.label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        val target = if (row.setsPlanned > 0) row.setsPlanned else 12
+                        val ratio = if (target > 0) row.setsDone.toFloat() / target else 0f
+                        val heatColor = when {
+                            row.setsDone == 0 || ratio < 0.45f -> pt.muted.copy(alpha = 0.65f)
+                            ratio < 0.9f -> pt.accentText
+                            ratio <= 1.25f -> pt.success
+                            else -> pt.warning
+                        }
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp)
+                                .height(6.dp)
+                                .background(MaterialTheme.colorScheme.surfaceContainerHighest, androidx.compose.foundation.shape.CircleShape),
+                        ) {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth(ratio.coerceIn(0f, 1f))
+                                    .height(6.dp)
+                                    .background(heatColor, androidx.compose.foundation.shape.CircleShape),
+                            )
+                        }
                         Text(setsText(row), style = MaterialTheme.typography.bodyMedium, color = pt.muted)
                         goingUpText(row)?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = pt.muted) }
                         if (earlier.isNotEmpty()) {
@@ -505,6 +529,36 @@ private fun BodyPartsSection(rows: List<MuscleRow>) {
                         }
                     }
                     if (latest != null) Pill(ratingText(latest), tone = latest.tone())
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SideBalanceSection(rows: List<com.powertracker.domain.unilateral.SideBalanceRow>) {
+    val pt = PowertrackerTheme.colors
+    Column {
+        SectionHeader("Side balance (L / R)")
+        PtCard(contentPadding = PaddingValues(horizontal = Space.l, vertical = Space.xs), spacing = 0.dp) {
+            rows.forEachIndexed { i, row ->
+                if (i > 0) SoftDivider()
+                Row(
+                    Modifier.fillMaxWidth().padding(vertical = Space.m).semantics(mergeDescendants = true) {},
+                    horizontalArrangement = Arrangement.spacedBy(Space.m),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Space.xxs)) {
+                        Text(row.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                        Text(row.summary, style = MaterialTheme.typography.bodyMedium, color = pt.muted)
+                    }
+                    val weaker = row.weakerSide
+                    if (weaker == null) {
+                        Pill("Balanced", tone = Tone.SUCCESS)
+                    } else {
+                        val sideName = if (weaker == com.powertracker.domain.model.Side.LEFT) "Left" else "Right"
+                        Pill("$sideName -${kotlin.math.abs(row.avgRepGap)}", tone = Tone.WARNING)
+                    }
                 }
             }
         }

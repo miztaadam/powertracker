@@ -408,3 +408,42 @@ button.workout-day:active {
   margin: 0;
   color: var(--text-muted);
 }
+
+/* Weekly muscle-group volume heat map bar inside each BodyPart row. */
+.bb-heat-track {
+  height: 6px;
+  width: 100%;
+  margin: 4px 0 2px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--container-highest);
+}
+
+.bb-heat-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-heat-low {
+  background: var(--text-muted);
+  opacity: 0.65;
+}
+
+.bb-heat-mid {
+  background: var(--accent-text);
+}
+
+.bb-heat-hit {
+  background: var(--success);
+}
+
+.bb-heat-high {
+  background: var(--warning);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-heat-fill {
+    transition: none;
+  }
+}

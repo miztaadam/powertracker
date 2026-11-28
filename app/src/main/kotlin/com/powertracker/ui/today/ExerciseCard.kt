@@ -188,6 +188,8 @@ fun ExerciseCard(
     onCountPlates: (() -> Unit)? = null,
     /** Toggles single-sided ("one side at a time") tracking (1.25); null leaves it out of the row menu. */
     onToggleSingleSided: (() -> Unit)? = null,
+    /** Set ids logged during this view that achieved a new personal record. */
+    prSetIds: Set<Long> = emptySet(),
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
@@ -195,34 +197,86 @@ fun ExerciseCard(
 
     PtCard(modifier, spacing = Space.s) {
         if (slidingContent == null) {
-            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates, onToggleSingleSided) { selected = it }
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates, onToggleSingleSided, prSetIds) { selected = it }
         } else {
             Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates, onToggleSingleSided) { selected = it }
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates, onToggleSingleSided, prSetIds) { selected = it }
             }
         }
     }
 
     selected?.let { (number, stored) ->
+        val canQuickEdit = actions.onUpdateSet != null && stored.set.splitSides == null
+        var editWeight by remember(stored.id) { mutableStateOf(formatKg(stored.set.weightKg)) }
+        var editReps by remember(stored.id) { mutableStateOf(stored.set.reps.toString()) }
+        var editRpe by remember(stored.id) { mutableStateOf(stored.set.rpe?.let(::formatRpe).orEmpty()) }
+        val parsedWeight = editWeight.replace(',', '.').toDoubleOrNull()
+        val parsedReps = editReps.toIntOrNull()
+        val parsedRpe = if (editRpe.isBlank()) null else editRpe.replace(',', '.').toDoubleOrNull()
+        val weightValid = parsedWeight != null && (if (stored.set.unit == LoadUnit.PLATES) PlateStack.check(parsedWeight, com.powertracker.domain.model.PlateCount.HALF) == PlateCheck.OK else parsedWeight in 0.0..MAX_KG)
+        val repsValid = parsedReps != null && parsedReps in 1..MAX_REPS
+        val rpeValid = editRpe.isBlank() || (parsedRpe != null && parsedRpe in MIN_RPE..MAX_RPE)
+        val changed = parsedWeight != stored.set.weightKg || parsedReps != stored.set.reps || parsedRpe != stored.set.rpe
+        val canSave = canQuickEdit && weightValid && repsValid && rpeValid && changed
+
         AlertDialog(
             onDismissRequest = { selected = null },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+            modifier = Modifier.padding(horizontal = 16.dp),
             title = { Text("Set $number") },
             // Each set in its own unit, whatever the exercise's setting is now.
             text = {
-                val split = stored.set.splitSides?.let { "\n" + com.powertracker.domain.unilateral.SingleSided.summaryText(it, stored.set.unit) }.orEmpty()
-                Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe, stored.set.unit) + (if (stored.set.failed) " · failed" else "") + split, style = MaterialTheme.typography.headlineSmall)
+                Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
+                    val split = stored.set.splitSides?.let { "\n" + com.powertracker.domain.unilateral.SingleSided.summaryText(it, stored.set.unit) }.orEmpty()
+                    Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe, stored.set.unit) + (if (stored.set.failed) " · failed" else "") + split, style = MaterialTheme.typography.headlineSmall)
+                    if (canQuickEdit) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                            androidx.compose.material3.OutlinedTextField(
+                                value = editWeight,
+                                onValueChange = { editWeight = it },
+                                label = { Text(if (stored.set.unit == LoadUnit.PLATES) "Plate" else "kg") },
+                                singleLine = true,
+                                modifier = Modifier.weight(1.2f),
+                            )
+                            androidx.compose.material3.OutlinedTextField(
+                                value = editReps,
+                                onValueChange = { editReps = it },
+                                label = { Text("Reps") },
+                                singleLine = true,
+                                modifier = Modifier.weight(1f),
+                            )
+                            androidx.compose.material3.OutlinedTextField(
+                                value = editRpe,
+                                onValueChange = { editRpe = it },
+                                label = { Text("RPE") },
+                                singleLine = true,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
+                }
             },
             confirmButton = {
-                val deleteSource = remember { MutableInteractionSource() }
-                TextButton(
-                    onClick = {
-                        actions.onDeleteSet(stored.id)
-                        selected = null
-                    },
-                    modifier = Modifier.pressScale(deleteSource),
-                    colors = ButtonDefaults.textButtonColors(contentColor = PowertrackerTheme.colors.danger),
-                    interactionSource = deleteSource,
-                ) { Text("Delete set", style = MaterialTheme.typography.labelLarge) }
+                Row(horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
+                    if (canSave) {
+                        TextButton(
+                            onClick = {
+                                actions.onUpdateSet(stored.id, parsedWeight, parsedReps, parsedRpe)
+                                selected = null
+                            },
+                        ) { Text("Save", style = MaterialTheme.typography.labelLarge) }
+                    }
+                    val deleteSource = remember { MutableInteractionSource() }
+                    TextButton(
+                        onClick = {
+                            actions.onDeleteSet(stored.id)
+                            selected = null
+                        },
+                        modifier = Modifier.pressScale(deleteSource),
+                        colors = ButtonDefaults.textButtonColors(contentColor = PowertrackerTheme.colors.danger),
+                        interactionSource = deleteSource,
+                    ) { Text("Delete set", style = MaterialTheme.typography.labelLarge) }
+                }
             },
             dismissButton = { QuietButton("Keep", { selected = null }) },
         )
@@ -246,6 +300,7 @@ private fun ColumnScope.CardContent(
     onSkipToday: (() -> Unit)?,
     onCountPlates: (() -> Unit)?,
     onToggleSingleSided: (() -> Unit)?,
+    prSetIds: Set<Long>,
     onSelect: (Pair<Int, StoredSet>) -> Unit,
 ) {
     val id = item.exercise.id
@@ -312,6 +367,7 @@ private fun ColumnScope.CardContent(
                         rpe = set.rpe,
                         state = if (set.failed) SetState.FAILED else SetState.DONE,
                         isTopSet = i == top,
+                        isPr = stored.id in prSetIds,
                         onClick = { onSelect(i + 1 to stored) },
                         drawIn = drawIn,
                         unit = set.unit,

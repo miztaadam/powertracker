@@ -17,6 +17,27 @@
   stroke-width: 1px;
 }
 
+.gr-plate-group {
+  animation: gr-plate-slide 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes gr-plate-slide {
+  from {
+    transform: translateX(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gr-plate-group {
+    animation: none;
+  }
+}
+
 .gr-plates-text {
   display: flex;
   flex-direction: column;

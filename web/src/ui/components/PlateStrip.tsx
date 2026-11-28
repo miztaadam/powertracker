@@ -67,13 +67,36 @@ function Bar({ perSide }: { perSide: readonly number[] }) {
   }
   return (
     <svg className="gr-plates-bar" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Plates per side: ${platesLabel(perSide)}`}>
-      {/* Sleeve, then the thicker shoulder the plates sit against. */}
+      {/* Sleeve, subtle metallic sheen, then the thicker shoulder the plates sit against. */}
       <rect x={0} y={H / 2 - 3} width={W} height={6} rx={3} fill="var(--bar-steel)" />
+      <rect x={0} y={H / 2 - 2} width={W} height={1.5} rx={0.75} fill="rgba(255,255,255,0.28)" />
       <rect x={6} y={H / 2 - 8} width={5} height={16} rx={1.5} fill="var(--bar-chrome)" />
-      {plates.map((p, i) => (
-        // A faint edge keeps black plates visible on dark and white plates on light.
-        <rect key={i} className="gr-plate" x={p.x} y={(H - p.h) / 2} width={p.w} height={p.h} rx={2} fill={plateColor(p.kg)} />
-      ))}
+      {plates.map((p, i) => {
+        const y = (H - p.h) / 2
+        const label = p.kg >= 10 ? String(p.kg) : null
+        const darkText = p.kg === 15 || p.kg === 5
+        return (
+          <g key={`${i}-${p.kg}`} className="gr-plate-group" style={{ animationDelay: `${i * 28}ms` }}>
+            {/* A faint edge keeps black plates visible on dark and white plates on light. */}
+            <rect className="gr-plate" x={p.x} y={y} width={p.w} height={p.h} rx={2} fill={plateColor(p.kg)} />
+            {/* Subtle top-edge highlight for 3D machined depth. */}
+            <rect x={p.x + 1} y={y + 1} width={Math.max(1, p.w - 2)} height={2.5} rx={1} fill="rgba(255,255,255,0.22)" />
+            {label && p.w >= 9 && (
+              <text
+                x={p.x + p.w / 2}
+                y={H / 2 + 2.5}
+                textAnchor="middle"
+                fontSize="6.5"
+                fontWeight="700"
+                fill={darkText ? 'rgba(15,15,18,0.82)' : 'rgba(255,255,255,0.9)'}
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >
+                {label}
+              </text>
+            )}
+          </g>
+        )
+      })}
     </svg>
   )
 }

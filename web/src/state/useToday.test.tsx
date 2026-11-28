@@ -57,7 +57,7 @@ describe('useToday', () => {
 
     await waitFor(() => expect(vm.current.summary).not.toBeNull())
     expect((await db.advice.toArray()).map((a) => a.type)).toEqual(['RE_ENTRY'])
-    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1, tonnageKg: 700 })
   })
 
   it('finishedSession_staysFinished_afterAReload', async () => {
@@ -130,11 +130,11 @@ describe('useToday', () => {
     await act(async () => {
       await Promise.all([vm.current.finishSession(), vm.current.finishSession()])
     })
-    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1, tonnageKg: 700 })
 
     // Nor does a tap while the summary is up replace it.
     await act(() => vm.current.finishSession())
-    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 })
+    expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1, tonnageKg: 700 })
     expect((await db.advice.toArray()).map((a) => a.type)).toEqual(['RE_ENTRY'])
   })
 
@@ -369,7 +369,7 @@ describe('useToday', () => {
 
     // Finishing it works as usual; what the coach stores is dated by the real clock, never the day before.
     fire(() => vm.current.finishSession())
-    await waitFor(() => expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1 }))
+    await waitFor(() => expect(vm.current.summary).toEqual({ setCount: 1, exerciseCount: 1, newNotes: 1, tonnageKg: 700 }))
     expect(vm.current.date).toBe(TODAY)
     expect((await db.advice.toArray()).map((a) => [a.type, a.createdAt])).toEqual([['RE_ENTRY', addDays(TODAY, 1)]])
 

@@ -3,13 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { addSet, planFor, setPlateCount as storePlateCount, setSingleSided as storeSingleSided } from '../db/catalogue'
 import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
-import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
+import { adviceFromJs, adviceToJs, planItemToJs, setToJs } from '../db/mapping'
 import { LOAD_UNITS, setUnit, sideOf, type AdviceRow, type LoadUnit, type PlanItemRow, type PlateCount, type SetRow, type SkipReason, type SplitSidesRow, type TrainingMode } from '../db/schema'
 import { skip as storeSkip, skips as readSkips, skipToJs, unskip, type StoredSkip } from '../db/skips'
 import { haptic, hapticsPossible } from '../platform/haptics'
 import type { PastSet } from '../ui/components/PastSets'
 import { slideNextChange, withTransition } from '../ui/viewTransition'
-import { grit, JsCoachSettings, JsExercise, JsSet, type JsHistory, type JsLibraryExercise, type JsSkip } from '../domain'
+import { grit, JsCoachSettings, JsExercise, JsHistory, JsSet, type JsLibraryExercise, type JsSkip } from '../domain'
 import { createCustomExercise, library, recentExerciseIds, type CustomExercise } from './exercisePicker'
 import { warmUpSets, type WarmUpSet } from './warmUp'
 import { supersetHalves } from '../db/supersets'
@@ -132,7 +132,18 @@ export type TodayAdd =
   | 'REFUSED'
 
 /** `skipped` (1.13) is how many exercises were skipped that day on the session's side; there only when 1 or more. */
-export type FinishSummary = { setCount: number; exerciseCount: number; newNotes: number; skipped?: number }
+export type FinishSummary = {
+  setCount: number
+  exerciseCount: number
+  newNotes: number
+  skipped?: number
+  /** Total kg moved across completed kg sets (`sum(weightKg * reps)`). */
+  tonnageKg?: number
+  /** Number of exercises with a new personal record in this session. */
+  prCount?: number
+  /** Elapsed minutes from session start to finish, when started in this app. */
+  durationMin?: number
+}
 
 /** A planned exercise skipped today on the side shown (1.13), for the "Skipped today" line and its Bring back. */
 export type SkippedToday = { exerciseId: number; name: string; skipId: number }
@@ -176,6 +187,8 @@ export type TodayState = {
   activeSide: TrainingMode
   /** Today's planned exercises skipped on the side shown, in plan order (1.13); they are not in `items`. */
   skippedToday: SkippedToday[]
+  /** Set ids logged during this view that achieved a new PR (for the PR celebration shimmer & badge). */
+  prSetIds?: readonly number[]
 }
 
 export type TodayActions = {
@@ -197,6 +210,8 @@ export type TodayActions = {
   cancelPending: () => void
   /** Records where the rep was hardest or missed; null clears it. */
   setMissPoint: (setId: number, point: MissPoint | null) => Promise<void>
+  /** Quick-edits weight, reps, and RPE of a logged set in place. */
+  updateSet?: (setId: number, patch: { weightKg: number; reps: number; rpe: number | null }) => Promise<void>
   deleteSet: (setId: number) => Promise<void>
   /** Puts the coach's numbers into the editor and marks the advice applied. */
   applyTarget: (adviceId: number) => Promise<void>
@@ -290,9 +305,22 @@ type Local = {
   warmUpOver: readonly number[]
   /** 1.24: see `TodayState.openRequest`. */
   openRequest: { exerciseId: number; n: number } | null
+  /** Set ids logged during this view that achieved a new PR. */
+  prSetIds: readonly number[]
 }
 
-const emptyLocal = (date: string): Local => ({ date, restored: false, editors: {}, added: [], pending: null, summary: null, warmUpDone: {}, warmUpOver: [], openRequest: null })
+const emptyLocal = (date: string): Local => ({
+  date,
+  restored: false,
+  editors: {},
+  added: [],
+  pending: null,
+  summary: null,
+  warmUpDone: {},
+  warmUpOver: [],
+  openRequest: null,
+  prSetIds: [],
+})
 
 const NONE_TICKED: readonly string[] = []
 
@@ -401,10 +429,18 @@ async function readFinished(db: GritDb, date: string): Promise<FinishSummary | n
   if (typeof note !== 'object' || note === null) return null
   const { sessionId, date: day, summary } = note as Record<string, unknown>
   if (typeof sessionId !== 'number' || day !== date || typeof summary !== 'object' || summary === null) return null
-  const { setCount, exerciseCount, newNotes, skipped } = summary as Record<string, unknown>
+  const { setCount, exerciseCount, newNotes, skipped, tonnageKg, prCount, durationMin } = summary as Record<string, unknown>
   if (!isCount(setCount) || !isCount(exerciseCount) || !isCount(newNotes) || (skipped !== undefined && !isCount(skipped))) return null
   if ((await db.sessions.get(sessionId))?.date !== date) return null
-  return { setCount, exerciseCount, newNotes, ...(skipped != null && skipped > 0 ? { skipped } : {}) }
+  return {
+    setCount,
+    exerciseCount,
+    newNotes,
+    ...(skipped != null && skipped > 0 ? { skipped } : {}),
+    ...(typeof tonnageKg === 'number' && Number.isFinite(tonnageKg) && tonnageKg > 0 ? { tonnageKg } : {}),
+    ...(isCount(prCount) && prCount > 0 ? { prCount } : {}),
+    ...(isCount(durationMin) && durationMin > 0 ? { durationMin } : {}),
+  }
 }
 
 const coachSettings = (s: AppSettings) => new JsCoachSettings(s.defaultRpe, s.changePlates)
@@ -830,6 +866,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     side: built?.side ?? 'POWERLIFTING',
     activeSide: built?.activeSide ?? 'POWERLIFTING',
     skippedToday: built?.skippedToday ?? [],
+    prSetIds: local.prSetIds,
   }
 
   // Actions read the newest state and callbacks through refs, so a tap never acts on a stale screen.
@@ -1016,6 +1053,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
           // Started on the side the app is on at the moment of the tap.
           if (!existing) await db.sessions.add({ date: day, bodyweightKg, readiness, mode: (await getSettings(db)).trainingMode })
         })
+        db.meta.put({ key: 'today:startedAt', value: { date: day, at: Date.now() } }).catch(() => {})
         touch(day)
       } finally {
         starting.current = false
@@ -1091,9 +1129,18 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
           slide.disarm()
           throw e
         }
-        // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz,
-        // worked out after the save and beside it: it never holds the set up, and if it fails the set still ticks.
-        if (hapticsPossible()) void buzzForSet(db, setId, row, now.date, now.side)
+        // One buzz per set saved, Log set or Missed; a failed write does not buzz. A new best gets the stronger buzz
+        // and the PR celebration badge/shimmer on the set row.
+        void (async () => {
+          let best = false
+          try {
+            best = row.exerciseId != null && isNewBest(await loadHistory(db, setId), row, now.date, now.side)
+          } catch {
+            // Fall back cleanly: the set is saved either way.
+          }
+          if (best) update((l) => (l.prSetIds.includes(setId) ? l : { ...l, prSetIds: [...l.prSetIds, setId] }))
+          if (hapticsPossible()) haptic(best ? 'best' : 'tick')
+        })()
         // In a superset (1.24) the domain says what follows this set, from the sets logged with it: after the first
         // exercise the second's card opens and no rest starts; after the second the rest starts and the first's card
         // opens. A miss or a grind on the powerlifting side keeps the card, which then asks where it stalled.
@@ -1137,6 +1184,13 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
   const setMissPoint = useCallback(
     async (setId: number, point: MissPoint | null) => {
       await db.sets.update(setId, { missPoint: point })
+    },
+    [db],
+  )
+
+  const updateSet = useCallback(
+    async (setId: number, patch: { weightKg: number; reps: number; rpe: number | null }) => {
+      await db.sets.update(setId, patch)
     },
     [db],
   )
@@ -1308,7 +1362,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
       if (now.summary != null || now.sessionId !== tapped.sessionId) return
       // Advice is dated by the real clock: a session finished after midnight stores nothing under the day before.
       const clockDay = clock.current()
-      const [newNotes, skipped] = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns, db.skips], async () => {
+      const [newNotes, skipped, tonnageKg, prCount] = await db.transaction('rw', [db.sessions, db.sets, db.exercises, db.baselines, db.planItems, db.settings, db.advice, db.checkIns, db.skips], async () => {
         // The coach of the session's own side looks at it, also after a switch since it was started.
         const side = now.side
         const [history, plan, settings, advice, checkIns] = await Promise.all([loadHistory(db), planFor(db, side), getSettings(db), db.advice.toArray(), loadCheckIns(db)])
@@ -1319,10 +1373,35 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         if (fresh.length > 0) await db.advice.bulkAdd(fresh.map((a) => withoutId(adviceFromJs(a))))
         // The exercises skipped that day on the session's side (1.13).
         const skipped = await db.skips.where('[date+mode+exerciseId]').between([now.date, side, Dexie.minKey], [now.date, side, Dexie.maxKey]).count()
-        return [fresh.length, skipped] as const
+        const priorHistory = new JsHistory(
+          history.sessions.filter((s) => s.id !== now.sessionId),
+          history.exercises,
+          history.baselines,
+        )
+        const todaysSets = now.items.flatMap((i) => i.sets).map((s) => setToJs(s))
+        const recap = grit.sessionRecap(priorHistory, todaysSets, now.date, side)
+        return [fresh.length, skipped, recap.tonnageKg, recap.prCount] as const
       })
+      let durationMin: number | undefined
+      try {
+        const started = (await db.meta.get('today:startedAt'))?.value as { date?: string; at?: number } | undefined
+        if (started?.date === now.date && typeof started.at === 'number') {
+          const mins = Math.round((Date.now() - started.at) / 60_000)
+          if (mins >= 1 && mins <= 360) durationMin = mins
+        }
+      } catch {
+        // Ignore duration read failure.
+      }
       const done = now.items.filter((i) => i.sets.length > 0)
-      const summary: FinishSummary = { setCount: done.reduce((n, i) => n + i.sets.length, 0), exerciseCount: done.length, newNotes, ...(skipped > 0 ? { skipped } : {}) }
+      const summary: FinishSummary = {
+        setCount: done.reduce((n, i) => n + i.sets.length, 0),
+        exerciseCount: done.length,
+        newNotes,
+        ...(skipped > 0 ? { skipped } : {}),
+        ...(tonnageKg > 0 ? { tonnageKg } : {}),
+        ...(prCount > 0 ? { prCount } : {}),
+        ...(durationMin != null ? { durationMin } : {}),
+      }
       // Stored before it is shown, so the summary on screen means the session stays finished over a reload. A failed
       // write only costs that: the session is finished on screen all the same.
       await db.meta.put({ key: FINISHED_KEY, value: { sessionId: now.sessionId, date: now.date, summary } }).catch(() => {})
@@ -1401,6 +1480,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     confirmPending,
     cancelPending,
     setMissPoint,
+    updateSet,
     deleteSet,
     applyTarget,
     dismissTarget,

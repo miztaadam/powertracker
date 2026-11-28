@@ -59,6 +59,7 @@ export type ProgressState = {
   volumeFrom: string | null
   volume: VolumeUi[]
   ratios: RatioUi[]
+  sideBalances?: SideBalanceUi[]
 }
 
 const CHANGE_DAYS = 28
@@ -174,7 +175,29 @@ export function buildProgress(history: JsHistory, range: ChartRange = DEFAULT_RA
     volumeFrom: volumeWeeks[0] ?? null,
     volume,
     ratios,
+    sideBalances: mapSideBalances(history),
   }
+}
+
+/** Left vs. Right balance summary for one single-sided exercise. */
+export type SideBalanceUi = {
+  exerciseId: number
+  name: string
+  weakerSide: 'LEFT' | 'RIGHT' | null
+  avgRepGap: number
+  sessionCount: number
+  summary: string
+}
+
+function mapSideBalances(history: JsHistory): SideBalanceUi[] {
+  return grit.sideBalances(history).map((r) => ({
+    exerciseId: r.exerciseId,
+    name: r.name,
+    weakerSide: (r.weakerSide ?? null) as 'LEFT' | 'RIGHT' | null,
+    avgRepGap: r.avgRepGap,
+    sessionCount: r.sessionCount,
+    summary: r.summary,
+  }))
 }
 
 /** One exercise of the bodybuilding plan on Progress: its best set in each of its last four sessions on that side. */
@@ -209,7 +232,7 @@ export type BodyPartRow = {
  * Progress on the bodybuilding side: the body parts (stage 3), in the domain's order, then the plan's exercises
  * (spec §7.6), in plan order. `checkedIn` is false until a check-in dated on or before today, as on Android.
  */
-export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRow[]; bodyParts: BodyPartRow[]; checkedIn: boolean }
+export type BodybuildingProgressState = { loading: boolean; rows: BodybuildingRow[]; bodyParts: BodyPartRow[]; checkedIn: boolean; sideBalances?: SideBalanceUi[] }
 
 /** The bodybuilding side's rows: the domain's `bodybuildingProgress` and `muscleProgressRows` over the whole log and that side's plan. */
 export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow & { id: number })[], today: string, checkIns: (CheckInRow & { id: number })[] = []): BodybuildingProgressState {
@@ -235,6 +258,7 @@ export function buildBodybuildingProgress(history: JsHistory, plan: (PlanItemRow
         goingUp: trend.goingUp ?? null,
       }),
     ),
+    sideBalances: mapSideBalances(history),
   }
 }
 

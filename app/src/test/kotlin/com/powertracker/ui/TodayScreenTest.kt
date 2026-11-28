@@ -1463,24 +1463,16 @@ class TodayScreenTest {
     }
 
     @Test
-    fun withVibrateOnTapsOff_theHistoryIsNotRead() {
-        var reads = 0
-        val counting = object : TrainingRepository(db) {
-            override suspend fun historyWithout(setId: Long): TrainingHistory {
-                reads++
-                return super.historyWithout(setId)
-            }
-        }
+    fun withVibrateOnTapsOff_neverVibrates_evenWhenCheckingForPrBadge() {
         runBlocking { settings.update { it.copy(vibrateOnTaps = false) } }
         startSession()
         compose.setContent {
-            PowertrackerTheme { WithHaptics(haptics, vibrateOnTaps = false) { TodayScreen(counting, advice, settings, onOpenCoach = {}, today = { today }) } }
+            PowertrackerTheme { WithHaptics(haptics, vibrateOnTaps = false) { TodayScreen(training, advice, settings, onOpenCoach = {}, today = { today }) } }
         }
         waitForText("Log set 1")
         compose.onNodeWithText("Log set 1").performClick()
         waitForSets(1)
         settled()
-        assertEquals(0, reads)
         assertEquals(0, haptics.calls.size)
     }
 

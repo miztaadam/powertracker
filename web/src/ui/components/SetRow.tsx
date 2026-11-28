@@ -22,6 +22,8 @@ export type SetRowProps = {
   unit?: LoadUnit
   /** Compact Right/Left breakdown for a single-sided set, e.g. "R 12 · L 10". */
   splitText?: string
+  /** Plays a one-shot molten gold shimmer & PR badge pop when a new PR was just logged. */
+  celebratePr?: boolean
 }
 
 /** "Set 1: 150 kg × 5 at RPE 8, top set, personal record, done"; "Set 1: plate 7 and a half × 12 at RPE 8, done". */
@@ -40,7 +42,7 @@ export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = fals
  * Reads to a screen reader as one sentence.
  */
 export function SetRow(props: SetRowProps) {
-  const { index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, onClick, className, unit, splitText } = props
+  const { index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, onClick, className, unit, splitText, celebratePr = false } = props
   const content = (
     <>
       <span className="sr-only">{setRowLabel(props)}</span>
@@ -67,7 +69,7 @@ export function SetRow(props: SetRowProps) {
           <span className="gr-set-pills">
             {splitText && <Pill text={splitText} />}
             {isTopSet && <Pill text="Top set" />}
-            {isPr && <Pill text="PR" tone="success" icon={<EmojiEventsIcon />} />}
+            {isPr && <Pill className={celebratePr ? 'gr-pr-pill-pop' : undefined} text="PR" tone="success" icon={<EmojiEventsIcon />} />}
           </span>
         )}
         <span className="gr-set-spacer" />
@@ -88,7 +90,7 @@ export function SetRow(props: SetRowProps) {
       </span>
     </>
   )
-  const classes = cx('gr-set', `gr-set-${state}`, className)
+  const classes = cx('gr-set', `gr-set-${state}`, celebratePr && isPr && 'gr-set-pr-celebrate', className)
   return onClick ? (
     <button type="button" className={classes} onClick={onClick}>
       {content}

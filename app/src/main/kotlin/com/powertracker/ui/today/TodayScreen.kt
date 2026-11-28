@@ -1,10 +1,12 @@
 package com.powertracker.ui.today
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -93,6 +95,7 @@ class TodayActions(
     val onConfirmPending: () -> Unit = {},
     val onEditPending: () -> Unit = {},
     val onMissPoint: (setId: Long, MissPoint?) -> Unit = { _, _ -> },
+    val onUpdateSet: ((setId: Long, weightKg: Double, reps: Int, rpe: Double?) -> Unit)? = null,
     val onDeleteSet: (setId: Long) -> Unit = {},
     val onApply: (adviceId: Long) -> Unit = {},
     val onDismiss: (adviceId: Long) -> Unit = {},
@@ -189,6 +192,7 @@ fun TodayScreen(
             onConfirmPending = { viewModel.state.value.pending?.let { viewModel.logSet(it.planItemId, it.exerciseId, it.set, confirmed = true) } },
             onEditPending = viewModel::dismissWarning,
             onMissPoint = viewModel::setMissPoint,
+            onUpdateSet = viewModel::updateSet,
             onDeleteSet = viewModel::deleteSet,
             onApply = viewModel::applyTarget,
             onDismiss = viewModel::dismissTarget,
@@ -406,6 +410,54 @@ fun TodayContent(
                     }
                 }
                 else -> {
+                    val plannedTotal = items.sumOf { it.targetSets ?: 0 }
+                    val doneSets = items.sumOf { it.sets.size }
+                    if (plannedTotal > 0) {
+                        item(key = "session-progress") {
+                            val pt = com.powertracker.ui.theme.PowertrackerTheme.colors
+                            val complete = doneSets >= plannedTotal
+                            val fraction = (doneSets.toFloat() / plannedTotal).coerceIn(0f, 1f)
+                            androidx.compose.foundation.layout.Column(
+                                Modifier.fillMaxWidth().padding(horizontal = Space.xs),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                androidx.compose.foundation.layout.Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Text(
+                                        if (complete) "WORKOUT COMPLETE" else "SESSION PROGRESS",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = pt.muted,
+                                    )
+                                    Text(
+                                        "$doneSets / $plannedTotal sets",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(5.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceContainerHighest,
+                                            androidx.compose.foundation.shape.CircleShape,
+                                        ),
+                                ) {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth(fraction)
+                                            .height(5.dp)
+                                            .background(
+                                                if (complete) pt.success else pt.accentText,
+                                                androidx.compose.foundation.shape.CircleShape,
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                    }
                     // The list's items in order, for sliding them only when one is added, removed or moved.
                     val keys: List<Any> = if (motion) items.map { itemKey(it.exercise.id) } + (if (items.isEmpty()) listOf("empty") else emptyList()) + "add" else emptyList()
                     itemsIndexed(items, key = { _, item -> itemKey(item.exercise.id) }) { i, item ->
@@ -447,6 +499,7 @@ fun TodayContent(
                                         onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
                                         onCountPlates = countPlates(item),
                                         onToggleSingleSided = toggleSingleSided,
+                                        prSetIds = state.prSetIds,
                                     )
                                 },
                             )

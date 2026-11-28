@@ -56,6 +56,7 @@ export function BodybuildingProgressContent({ state, onOpenExercise, onCheckIn =
             </Card>
           </section>
         )}
+        {state.sideBalances && state.sideBalances.length > 0 && <SideBalanceSection rows={state.sideBalances} />}
         {!state.loading && state.rows.length === 0 && (
           <EmptyState icon={<InsightsIcon />} title="No exercises in your plan yet" body="Add exercises on the Plan tab and log them on Today. Each one's best sets will show here." />
         )}
@@ -97,19 +98,60 @@ export function goingUpLine(row: Pick<BodyPartRow, 'exercisesUp' | 'exercisesTra
   return `${row.exercisesUp} of ${row.exercisesTracked} ${row.exercisesTracked === 1 ? 'exercise' : 'exercises'} going up`
 }
 
+/** Visual intensity level for the weekly muscle-group volume heat map bar. */
+function volumeHeat(done: number, planned: number): { pct: number; level: 'low' | 'mid' | 'hit' | 'high' } {
+  const target = planned > 0 ? planned : 12
+  const ratio = target > 0 ? done / target : 0
+  const pct = Math.min(100, Math.round(ratio * 100))
+  if (done === 0 || ratio < 0.45) return { pct, level: 'low' }
+  if (ratio < 0.9) return { pct, level: 'mid' }
+  if (ratio <= 1.25) return { pct, level: 'hit' }
+  return { pct: 100, level: 'high' }
+}
+
+/** Left vs. Right balance card shown on Progress once any single-sided sets have been logged. */
+export function SideBalanceSection({ rows }: { rows: readonly import('../../state/useProgress').SideBalanceUi[] }) {
+  return (
+    <section aria-label="Side balance" className="bb-section">
+      <SectionHeader title="Side balance (L / R)" />
+      <Card contentPadding={0} spacing={0}>
+        <ul className="bb-rows">
+          {rows.map((row) => (
+            <li key={row.exerciseId} className="bb-part">
+              <div className="bb-part-head">
+                <h3 className="bb-part-name title-medium">{row.name}</h3>
+                {row.weakerSide == null ? (
+                  <Pill text="Balanced" tone="success" />
+                ) : (
+                  <Pill text={`${row.weakerSide === 'LEFT' ? 'Left' : 'Right'} -${Math.abs(row.avgRepGap)}`} tone="warning" />
+                )}
+              </div>
+              <p className="bb-part-line body-medium">{row.summary}</p>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </section>
+  )
+}
+
 /**
- * One body part: its name and its rating at the latest check-in, the sets done against those planned, how many of its
- * exercises are going up, and its earlier ratings, oldest first ("Earlier: Lagging · On track"; left out with none). Before the first check-in it has no rating.
+ * One body part: its name and its rating at the latest check-in, the sets done against those planned, a weekly volume
+ * heat map bar, how many of its exercises are going up, and its earlier ratings.
  */
 function BodyPart({ row }: { row: BodyPartRow }) {
   const latest = row.ratings.at(-1)
   const earlier = row.ratings.slice(0, -1)
   const goingUp = goingUpLine(row)
+  const heat = volumeHeat(row.setsDone, row.setsPlanned)
   return (
     <li className="bb-part">
       <div className="bb-part-head">
         <h3 className="bb-part-name title-medium">{grit.muscleGroupLabel(row.group)}</h3>
         {latest && <Pill text={RATING[latest.rating].text} tone={RATING[latest.rating].tone} />}
+      </div>
+      <div className="bb-heat-track" aria-hidden="true">
+        <div className={`bb-heat-fill bb-heat-${heat.level}`} style={{ width: `${heat.pct}%` }} />
       </div>
       <p className="bb-part-line body-medium">{setsLine(row)}</p>
       {goingUp != null && <p className="bb-part-line body-medium">{goingUp}</p>}
