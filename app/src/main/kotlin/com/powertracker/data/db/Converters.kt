@@ -9,6 +9,7 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlateCount
 import com.powertracker.domain.model.SkipReason
+import com.powertracker.domain.model.SplitSides
 import com.powertracker.domain.model.TrainingMode
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -51,6 +52,9 @@ class Converters {
 
     @TypeConverter fun skipReasonToDb(r: SkipReason?): String? = r?.name
     @TypeConverter fun skipReasonFromDb(v: String?): SkipReason? = v?.let(SkipReason::valueOf)
+
+    @TypeConverter fun splitSidesToDb(s: SplitSides?): String? = s?.let { Json.encodeToString(SplitSides.serializer(), it) }
+    @TypeConverter fun splitSidesFromDb(v: String?): SplitSides? = v?.let { Json.decodeFromString(SplitSides.serializer(), it) }
 
     @TypeConverter fun stringsToDb(l: List<String>): String = Json.encodeToString(strings, l)
     @TypeConverter fun stringsFromDb(v: String): List<String> = Json.decodeFromString(strings, v)

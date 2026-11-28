@@ -38,8 +38,10 @@ const WEB_V4_FIXTURE = resolve(FIXTURES, 'web-v4.json')
 const WEB_V5_FIXTURE = resolve(FIXTURES, 'web-v5.json')
 /** What the plates apps wrote (version 6): frozen since version 7, and must keep restoring. */
 const WEB_V6_FIXTURE = resolve(FIXTURES, 'web-v6.json')
-/** What this app writes now (version 7, supersets). Regenerate with UPDATE_FIXTURES=1. */
-const WEB_FIXTURE = resolve(FIXTURES, 'web-v7.json')
+/** What the supersets apps wrote (version 7): frozen since version 8, and must keep restoring. */
+const WEB_V7_FIXTURE = resolve(FIXTURES, 'web-v7.json')
+/** What this app writes now (version 8, single-sided). Regenerate with UPDATE_FIXTURES=1. */
+const WEB_FIXTURE = resolve(FIXTURES, 'web-v8.json')
 /** What the Android app wrote in 1.12 (version 4, stage 3 Task 2): frozen. */
 const ANDROID_V4_FIXTURE = resolve(FIXTURES, 'android-v4.json')
 /** What the Android app writes now (version 5, 1.13 Task 2). */
@@ -540,7 +542,7 @@ describe('backup', () => {
     const file = decodeOk(readFileSync(WEB_FIXTURE, 'utf8'))
     expect(file.settings.restAlert).toBe('VIBRATE')
     expect(file.settings.webRestAlert).toBe('SILENT')
-    expect(file.version).toBe(7)
+    expect(file.version).toBe(8)
     expect(file.planItems.filter((p) => p.supersetWithAbove).length).toBe(2)
     expect(file.checkIns).toHaveLength(2)
     expect(file.skips).toHaveLength(3)
@@ -915,13 +917,13 @@ describe('backup version 4', () => {
 describe('backup version 5', () => {
   it('everyBackup_isVersion5_withOrWithoutSkips', async () => {
     const db = await openDb()
-    expect(BACKUP_VERSION).toBe(7)
+    expect(BACKUP_VERSION).toBe(8)
     const empty = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
-    expect(empty.version).toBe(7)
+    expect(empty.version).toBe(8)
     expect(empty.skips).toEqual([])
     await buildSampleDb(db, { bodybuilding: true, skips: true })
     const full = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as Record<string, unknown>
-    expect(full.version).toBe(7)
+    expect(full.version).toBe(8)
     expect(full.skips).toHaveLength(3)
   })
 
@@ -1607,7 +1609,7 @@ describe('backup version 7', () => {
     expect(before).toHaveLength(2)
     const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
     const json = JSON.parse(text) as FileJson
-    expect(json.version).toBe(7)
+    expect(json.version).toBe(BACKUP_VERSION)
     for (const p of json.planItems) expect(Object.keys(p)).toEqual(before.includes(p.id) ? [...V6_PLAN_KEYS, 'supersetWithAbove'] : V6_PLAN_KEYS)
     expect(json.planItems.filter((p) => p.supersetWithAbove === true).map((p) => p.id)).toEqual(before)
 
@@ -1636,8 +1638,8 @@ describe('backup version 7', () => {
     await restoreBackup(db, file)
     expect(await linkedIn(db)).toEqual([])
 
-    expect(decodeBackup(readFileSync(WEB_FIXTURE, 'utf8'), 6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 7 })
-    expect(decodeBackup(readFileSync(WEB_FIXTURE, 'utf8')).ok).toBe(true)
+    expect(decodeBackup(readFileSync(WEB_V7_FIXTURE, 'utf8'), 6)).toEqual({ ok: false, kind: 'TOO_NEW', version: 7 })
+    expect(decodeBackup(readFileSync(WEB_V7_FIXTURE, 'utf8')).ok).toBe(true)
   })
 
   it('a link that is not true or false is corrupt', () => {
@@ -1677,9 +1679,8 @@ describe('backup version 7', () => {
 
   it('restores android-v7.json with its supersets, and the two version 7 fixtures hold the same keys on a plan item', async () => {
     const android = readJson(ANDROID_V7_FIXTURE) as FileJson
-    const web = readJson(WEB_FIXTURE) as FileJson
+    const web = readJson(WEB_V7_FIXTURE) as FileJson
     expect(android.version).toBe(7)
-    expect(android.version).toBe(BACKUP_VERSION)
     for (const f of [android, web]) {
       const linked = f.planItems.filter((p) => 'supersetWithAbove' in p)
       expect(linked.length).toBeGreaterThan(0)
@@ -1693,5 +1694,47 @@ describe('backup version 7', () => {
     expect(await linkedIn(db)).toEqual(android.planItems.filter((p) => p.supersetWithAbove === true).map((p) => p.id))
     const out = JSON.parse(encodeBackup(await exportBackup(db, EXPORTED_AT))) as FileJson
     expect(out.planItems).toEqual(android.planItems)
+  })
+})
+
+/** 1.25: backup version 8 carries single-sided exercises (`singleSided`) and split-side sets (`splitSides`). */
+describe('backup version 8', () => {
+  it('writes singleSided and splitSides only when set, and round-trips cleanly', async () => {
+    const db = await openDb()
+    await ensureSeeded(db)
+    const pecDeckId = await resolveCatalogue(db, 'Pec deck')
+    await db.exercises.update(pecDeckId, { singleSided: true })
+    const sessionId = (await db.sessions.add({ date: '2026-11-28', bodyweightKg: null, readiness: null, mode: 'BODYBUILDING' })) as number
+    const split = {
+      right: { weightKg: 40, reps: 12, rpe: 8, failed: false },
+      left: { weightKg: 40, reps: 10, rpe: 8.5, failed: false },
+    }
+    await db.sets.add({
+      sessionId,
+      exerciseId: pecDeckId,
+      weightKg: 40,
+      reps: 10,
+      rpe: 8.5,
+      failed: false,
+      missPoint: null,
+      isTopSet: false,
+      splitSides: split,
+    })
+
+    const text = encodeBackup(await exportBackup(db, EXPORTED_AT))
+    const json = JSON.parse(text) as BackupFile
+    expect(json.version).toBe(8)
+    expect(decodeBackup(text, 7)).toEqual({ ok: false, kind: 'TOO_NEW', version: 8 })
+
+    const pecExercise = json.exercises.find((e) => e.id === pecDeckId)!
+    expect(pecExercise.singleSided).toBe(true)
+    expect(json.exercises.filter((e) => e.id !== pecDeckId).every((e) => !('singleSided' in e))).toBe(true)
+    expect(json.sets[0]!.splitSides).toEqual(split)
+
+    await db.exercises.update(pecDeckId, { singleSided: undefined })
+    await db.sets.clear()
+    await restoreBackup(db, decodeOk(text))
+    expect((await db.exercises.get(pecDeckId))?.singleSided).toBe(true)
+    expect((await db.sets.toArray())[0]?.splitSides).toEqual(split)
   })
 })

@@ -15,7 +15,7 @@ import java.util.concurrent.Executor
         ExerciseEntity::class, SessionEntity::class, SetEntity::class,
         PlanItemEntity::class, AdviceEntity::class, BaselineEntity::class, CheckInEntity::class, SkipEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "powertracker.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                 .addCallback(SeedCallback)
                 .build()
 
@@ -133,6 +133,17 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE plan_item ADD COLUMN supersetWithAbove INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+/**
+ * Version 8 (1.25): single-sided ("one side at a time") set tracking. Each exercise gains `singleSided` (default 0)
+ * and each logged set gains optional `splitSides` JSON (default null); nothing already stored changes.
+ */
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE exercise ADD COLUMN singleSided INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE logged_set ADD COLUMN splitSides TEXT")
     }
 }
 

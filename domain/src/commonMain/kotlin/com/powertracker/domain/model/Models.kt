@@ -42,6 +42,8 @@ data class Exercise(
     val archived: Boolean = false,
     /** Whether the lifter counts plates on this machine; it counts only where `PlateStack.offered` allows it. */
     val plateCount: PlateCount = PlateCount.OFF,
+    /** Whether this exercise is logged one side at a time (Right + Left = 1 set); counts only where `SingleSided.offered` allows it. */
+    val singleSided: Boolean = false,
 ) {
     /** A main-lift category -> that lift; VARIATION -> [parentLift]; ACCESSORY -> null. */
     val mainLift: MainLift?
@@ -72,6 +74,8 @@ data class LoggedSet(
     val isTopSet: Boolean,
     /** What [weightKg] means: kg, or a plate number when this is [LoadUnit.PLATES]. */
     val unit: LoadUnit = LoadUnit.KG,
+    /** Present when logged one side at a time (Right + Left = 1 set); the main fields hold the weaker side. */
+    val splitSides: SplitSides? = null,
 )
 
 data class LoggedSession(

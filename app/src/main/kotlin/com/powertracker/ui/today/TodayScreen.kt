@@ -116,6 +116,12 @@ class TodayActions(
      * is what the guide's Today, drawn with `TodayActions()`, gets.
      */
     val onCountPlates: ((exerciseId: Long, PlateCount) -> Unit)? = null,
+    /** Toggles single-sided ("one side at a time") tracking for an exercise (1.25). Null hides the menu item. */
+    val onToggleSingleSided: ((exerciseId: Long, Boolean) -> Unit)? = null,
+    /** Logs one half (Right or Left) of a single-sided set (1.25). */
+    val onLogSide: (TodayItem, failed: Boolean) -> Unit = { _, _ -> },
+    /** Clears a half-logged right side before logging left (1.25). */
+    val onClearPendingRight: (exerciseId: Long) -> Unit = {},
 )
 
 /**
@@ -201,6 +207,15 @@ fun TodayScreen(
                 openPlan()
             },
             onCountPlates = viewModel::setPlateCount,
+            onToggleSingleSided = viewModel::setSingleSided,
+            onLogSide = { item, failed ->
+                val weight = item.editor.weightKg
+                if (weight != null) {
+                    val side = com.powertracker.domain.model.SideLog(weight, item.editor.reps, item.editor.rpe, failed)
+                    viewModel.logSide(item.planned?.id, item.exercise.id, side, item.unit)
+                }
+            },
+            onClearPendingRight = viewModel::clearPendingRight,
         )
     }
     TodayContent(state, actions, restTimer, snackbar)
@@ -400,10 +415,16 @@ fun TodayContent(
                             SlidingSwap(
                                 opened = item === active,
                                 row = { rowModifier ->
+                                    val toggleSingleSided: (() -> Unit)? = if (item.singleSidedOffered && actions.onToggleSingleSided != null) {
+                                        { actions.onToggleSingleSided.invoke(item.exercise.id, !item.singleSided) }
+                                    } else {
+                                        null
+                                    }
                                     ExerciseRow(
                                         item, onClick = { activeId = item.exercise.id }, modifier = rowModifier,
                                         onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
                                         onCountPlates = countPlates(item),
+                                        onToggleSingleSided = toggleSingleSided,
                                     )
                                 },
                                 card = { content ->
@@ -413,6 +434,11 @@ fun TodayContent(
                                     } else {
                                         NextStep("Finish session", actions.onFinish)
                                     }
+                                    val toggleSingleSided: (() -> Unit)? = if (item.singleSidedOffered && actions.onToggleSingleSided != null) {
+                                        { actions.onToggleSingleSided.invoke(item.exercise.id, !item.singleSided) }
+                                    } else {
+                                        null
+                                    }
                                     ExerciseCard(
                                         item, i + 1, items.size, state.weightStepKg, state.changePlates, next, actions,
                                         bodybuilding = state.mode == TrainingMode.BODYBUILDING,
@@ -420,6 +446,7 @@ fun TodayContent(
                                         slidingContent = content,
                                         onSkipToday = if (item.canSkip) ({ skippingId = item.exercise.id }) else null,
                                         onCountPlates = countPlates(item),
+                                        onToggleSingleSided = toggleSingleSided,
                                     )
                                 },
                             )

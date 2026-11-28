@@ -93,9 +93,11 @@ data class ExerciseDto(
     val muscles: List<String>, val isBuiltIn: Boolean, val archived: Boolean,
     /** Version 6: WHOLE or HALF. Left out when off, so a row without plates is written as version 5 wrote it. */
     @EncodeDefault(EncodeDefault.Mode.NEVER) val plateCount: String = PlateCount.OFF.name,
+    /** Version 8: true when logged one side at a time. Left out when false. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val singleSided: Boolean = false,
 ) {
     fun toEntity() = ExerciseEntity(
-        id, name, Category.valueOf(category), parentLift?.let(MainLift::valueOf), muscles, isBuiltIn, archived, PlateCount.valueOf(plateCount),
+        id, name, Category.valueOf(category), parentLift?.let(MainLift::valueOf), muscles, isBuiltIn, archived, PlateCount.valueOf(plateCount), singleSided,
     )
 }
 
@@ -108,6 +110,26 @@ data class SessionDto(
     fun toEntity() = SessionEntity(id, LocalDate.fromEpochDays(date), bodyweightKg, readiness, TrainingMode.valueOf(mode))
 }
 
+/** Version 8: one half (right or left) of a single-sided set. */
+@Serializable
+data class SideLogDto(val weightKg: Double, val reps: Int, val rpe: Double?, val failed: Boolean) {
+    fun toDomain() = com.powertracker.domain.model.SideLog(weightKg, reps, rpe, failed)
+
+    companion object {
+        fun of(s: com.powertracker.domain.model.SideLog) = SideLogDto(s.weightKg, s.reps, s.rpe, s.failed)
+    }
+}
+
+/** Version 8: both halves of a single-sided set. */
+@Serializable
+data class SplitSidesDto(val right: SideLogDto, val left: SideLogDto) {
+    fun toDomain() = com.powertracker.domain.model.SplitSides(right.toDomain(), left.toDomain())
+
+    companion object {
+        fun of(s: com.powertracker.domain.model.SplitSides) = SplitSidesDto(SideLogDto.of(s.right), SideLogDto.of(s.left))
+    }
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SetDto(
@@ -115,8 +137,13 @@ data class SetDto(
     val rpe: Double?, val failed: Boolean, val missPoint: String?, val isTopSet: Boolean,
     /** Version 6: PLATES for a plate set, whose [weightKg] is the plate number. Left out when kg. */
     @EncodeDefault(EncodeDefault.Mode.NEVER) val unit: String = LoadUnit.KG.name,
+    /** Version 8: both halves of a single-sided set. Left out for normal sets. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val splitSides: SplitSidesDto? = null,
 ) {
-    fun toEntity() = SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint?.let(MissPoint::valueOf), isTopSet, LoadUnit.valueOf(unit))
+    fun toEntity() = SetEntity(
+        id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint?.let(MissPoint::valueOf), isTopSet,
+        LoadUnit.valueOf(unit), splitSides?.toDomain(),
+    )
 }
 
 @Serializable
@@ -221,8 +248,11 @@ object Backup {
      * exports as version 6 did but for the version). A version 6 or older file restores with no supersets; a flag that
      * cannot count (the first item of a day, the third in a row, one exercise twice) is cleared on restore, in both
      * apps, by the domain's `Supersets.stale`. An app that reads only version 6 turns a version 7 file away as too new.
+     * 8: 1.25's single-sided ("one side at a time") tracking (`singleSided` on exercises, written only when true;
+     * `splitSides` on sets, written only when present). A version 7 or older file restores with singleSided off and no
+     * splitSides. An app that reads only version 7 turns a version 8 file away as too new.
      */
-    const val VERSION = 7
+    const val VERSION = 8
 
     private val strict = Json { ignoreUnknownKeys = false }
     private val writer = Json { encodeDefaults = true }
@@ -272,8 +302,14 @@ object Backup {
             // half-plate grid, never by the exercise's setting now: a logged 7½ stands with whole plates on, or in kg.
             // Under plate 1 (0 included, which means bodyweight in kg), over 50 or off the grid, the file is damaged.
             // The first such set in the file names the fault.
-            file.sets.firstNotNullOfOrNull { s -> if (s.unit == LoadUnit.PLATES.name) plateFault(s.weightKg) else null }
-                ?.let { return BackupResult.Corrupt(it) }
+            file.sets.firstNotNullOfOrNull { s ->
+                if (s.unit == LoadUnit.PLATES.name) {
+                    plateFault(s.weightKg)
+                        ?: s.splitSides?.let { plateFault(it.right.weightKg) ?: plateFault(it.left.weightKg) }
+                } else {
+                    null
+                }
+            }?.let { return BackupResult.Corrupt(it) }
             file.planItems.forEach { it.toEntity() }
             file.advice.forEach { it.toEntity() }
             file.checkIns.forEach { it.toEntity() }
@@ -303,11 +339,11 @@ class BackupService(private val db: AppDatabase, private val settings: SettingsR
                 exportedAt = nowMillis,
                 settings = BackupSettings.of(s),
                 exercises = db.exercises().all().map {
-                    ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived, it.plateCount.name)
+                    ExerciseDto(it.id, it.name, it.category.name, it.parentLift?.name, it.muscles, it.isBuiltIn, it.archived, it.plateCount.name, it.singleSided)
                 },
                 sessions = db.sessions().all().map { SessionDto(it.id, it.date.toEpochDays(), it.bodyweightKg, it.readiness, it.mode.name) },
                 sets = db.sets().all().map {
-                    SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet, it.unit.name)
+                    SetDto(it.id, it.sessionId, it.exerciseId, it.weightKg, it.reps, it.rpe, it.failed, it.missPoint?.name, it.isTopSet, it.unit.name, it.splitSides?.let(SplitSidesDto::of))
                 },
                 planItems = db.plan().all().map {
                     PlanItemDto(it.id, it.weekday.isoDayNumber, it.exerciseId, it.sets, it.reps, it.targetRpe, it.sortOrder, it.mode.name, it.repsHigh, it.supersetWithAbove)

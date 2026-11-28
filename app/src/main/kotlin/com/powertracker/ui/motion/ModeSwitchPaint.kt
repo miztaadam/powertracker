@@ -145,9 +145,9 @@ private fun partialOf(d: String, color: String, width: Double, alpha: Double): P
     return Partial(m, m.length, hex(color), width.toFloat(), alpha.toFloat())
 }
 
-internal class HammerArt(val shapes: List<Shape>, val rune: Shape)
+internal class HammerArt(val shapes: List<Shape>, val runeGlows: List<Shape>)
 
-private val HAMMER_ART: HammerArt by lazy { HammerArt(ModeSwitchMotion.HAMMER_PATHS.map(::shapeOf), shapeOf(ModeSwitchMotion.HAMMER_RUNE)) }
+private val HAMMER_ART: HammerArt by lazy { HammerArt(ModeSwitchMotion.HAMMER_PATHS.map(::shapeOf), ModeSwitchMotion.HAMMER_RUNE_PATHS.map(::shapeOf)) }
 
 internal class DropArt(
     val hammer: HammerArt,
@@ -227,7 +227,13 @@ private fun DrawScope.drawHammer(art: HammerArt, pose: com.powertracker.domain.m
                     s.fill?.let { drawPath(s.path, it, alpha = s.alpha) }
                     if (s.stroke != null && s.style != null) drawPath(s.path, s.stroke, alpha = s.alpha, style = s.style)
                 }
-                if (runeAlpha > 0f) drawPath(art.rune.path, art.rune.stroke!!, alpha = runeAlpha, style = art.rune.style!!)
+                if (runeAlpha > 0f) {
+                    for (r in art.runeGlows) {
+                        val a = runeAlpha * r.alpha
+                        r.fill?.let { drawPath(r.path, it, alpha = a) }
+                        if (r.stroke != null && r.style != null) drawPath(r.path, r.stroke, alpha = a, style = r.style)
+                    }
+                }
             }
         }
     }

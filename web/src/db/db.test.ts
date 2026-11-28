@@ -430,9 +430,9 @@ describe('strict press upgrade', () => {
 
     // The same upgrade again, as a version on top.
     const upgrade = SCHEMA_VERSIONS.find((v) => v.version === 2)!.upgrade
-    const again = await openDb([...SCHEMA_VERSIONS, { version: 8, stores: {}, upgrade }])
+    const again = await openDb([...SCHEMA_VERSIONS, { version: 9, stores: {}, upgrade }])
 
-    expect(await installedVersion(name)).toBe(8)
+    expect(await installedVersion(name)).toBe(9)
     expect(await again.exercises.orderBy('id').toArray()).toEqual(once)
     expect((await rows(again)).slice(3)).toEqual([
       { id: 4, name: 'Strict press', category: 'STRICT_PRESS', isBuiltIn: true, archived: false },
@@ -484,18 +484,18 @@ describe('schema version 6', () => {
     return before
   }
 
-  it('version 6 is declared with no new index and no upgrade step (the version installed now is 7, see supersets.test.ts)', async () => {
+  it('version 6 is declared with no new index and no upgrade step (the version installed now is 8)', async () => {
     expect(SCHEMA_VERSIONS.find((v) => v.version === 6)).toEqual({ version: 6, stores: {} })
     await openDb()
-    expect(await installedVersion(name)).toBe(7)
+    expect(await installedVersion(name)).toBe(8)
   })
 
-  it('upgrade 5 → 6 (and on to 7) changes no row, and every set reads kg and every exercise off', async () => {
+  it('upgrade 5 → 6 (and on to 8) changes no row, and every set reads kg and every exercise off', async () => {
     const before = await version5()
 
     const db = await openDb()
 
-    expect(await installedVersion(name)).toBe(7)
+    expect(await installedVersion(name)).toBe(8)
     // Version 7 (supersets, 1.24) stamps nothing either: no plan item gained the key.
     expect((await db.planItems.toArray()).every((p) => !('supersetWithAbove' in p))).toBe(true)
     for (const t of TABLES) expect(await db.table(t).toArray(), t).toStrictEqual(before[t])

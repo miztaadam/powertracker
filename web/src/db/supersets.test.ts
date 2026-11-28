@@ -44,9 +44,10 @@ const stored = async (id: number) => (await db.planItems.get(id)) as Stored
 
 describe('schema version 7', () => {
   it('isDeclaredWithNoIndexAndNoUpgrade_andInstalled', async () => {
-    expect(Math.max(...SCHEMA_VERSIONS.map((v) => v.version))).toBe(7)
+    expect(Math.max(...SCHEMA_VERSIONS.map((v) => v.version))).toBe(8)
     expect(SCHEMA_VERSIONS.find((v) => v.version === 7)).toEqual({ version: 7, stores: {} })
-    expect(await installedVersion(name)).toBe(7)
+    expect(SCHEMA_VERSIONS.find((v) => v.version === 8)).toEqual({ version: 8, stores: {} })
+    expect(await installedVersion(name)).toBe(8)
   })
 
   it('anItemNeverLinked_storesNoKey_andMapsBothWays', async () => {

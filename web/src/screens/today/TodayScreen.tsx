@@ -136,6 +136,13 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
   // Offered only where the exercise may count plates and the screen can store the choice: never in the guide, which
   // draws this screen with actions that have none.
   const countPlates = (item: TodayItem) => (item.plateOffered && setPlateCount ? () => openPlates(item) : undefined)
+  const setSingleSided = raw.setSingleSided
+  const toggleSingleSided = (item: TodayItem) =>
+    item.singleSidedOffered && setSingleSided
+      ? () => {
+          void setSingleSided(item.exercise.id, !item.singleSided).catch(failed)
+        }
+      : undefined
   const { weekday, day, month } = dateParts(state.date)
 
   // A catalogue exercise added without a row changes id when its first set saves the row: follow it.
@@ -258,11 +265,18 @@ export function TodayContent({ state, actions: raw, onOpenCoach, notice, welcome
                     today={state.date}
                     onSkipToday={skipToday(item)}
                     onCountPlates={countPlates(item)}
+                    onToggleSingleSided={toggleSingleSided(item)}
                   />
                 </div>
               ) : (
                 <div key={keyOf(item)} className="today-item" {...slideName(`item-${keyOf(item)}`)}>
-                  <ExerciseRow item={item} onClick={() => withTransition(() => setActiveId(item.exercise.id))} onSkipToday={skipToday(item)} onCountPlates={countPlates(item)} />
+                  <ExerciseRow
+                    item={item}
+                    onClick={() => withTransition(() => setActiveId(item.exercise.id))}
+                    onSkipToday={skipToday(item)}
+                    onCountPlates={countPlates(item)}
+                    onToggleSingleSided={toggleSingleSided(item)}
+                  />
                 </div>
               ),
             )}

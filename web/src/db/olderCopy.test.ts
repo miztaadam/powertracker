@@ -81,7 +81,7 @@ async function everything(): Promise<Record<string, unknown[]>> {
 
 describe('an older copy of Grit', () => {
   it(`native version ${NATIVE}, the version this copy declares: opens`, async () => {
-    expect(TARGET).toBe(7)
+    expect(TARGET).toBe(8)
     await storedAt(NATIVE)
     const db = await openGritDb(name)
     opened.push(db)

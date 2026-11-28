@@ -16,8 +16,10 @@ import com.powertracker.domain.model.MainLift
 import com.powertracker.domain.model.MissPoint
 import com.powertracker.domain.model.PlanItem
 import com.powertracker.domain.model.PlateCount
+import com.powertracker.domain.model.SideLog
 import com.powertracker.domain.model.Skip
 import com.powertracker.domain.model.SkipReason
+import com.powertracker.domain.model.SplitSides
 import com.powertracker.domain.model.TrainingHistory
 import com.powertracker.domain.model.TrainingMode
 import com.powertracker.domain.coach.AccessoryOption
@@ -56,6 +58,20 @@ import kotlinx.serialization.json.Json
 // `TrainingMode` name ("POWERLIFTING" or "BODYBUILDING"); it may be left out, and then means POWERLIFTING.
 
 @JsExport
+data class JsSideLog(
+    val weightKg: Double,
+    val reps: Int,
+    val rpe: Double?,
+    val failed: Boolean,
+)
+
+@JsExport
+data class JsSplitSides(
+    val right: JsSideLog,
+    val left: JsSideLog,
+)
+
+@JsExport
 data class JsExercise(
     val id: Int,
     val name: String,
@@ -66,6 +82,8 @@ data class JsExercise(
     val archived: Boolean,
     /** A `PlateCount` name: "OFF", "WHOLE" or "HALF"; left out, it is "OFF". */
     val plateCount: String = "OFF",
+    /** True when logged one side at a time (Right + Left = 1 set); left out, it is false. */
+    val singleSided: Boolean = false,
 )
 
 @JsExport
@@ -79,6 +97,8 @@ data class JsSet(
     val isTopSet: Boolean,
     /** A `LoadUnit` name: "KG", or "PLATES" when [weightKg] is a plate number; left out, it is "KG". */
     val unit: String = "KG",
+    /** Present when logged one side at a time (Right + Left = 1 set); main fields hold the weaker side. */
+    val splitSides: JsSplitSides? = null,
 )
 
 @JsExport
@@ -430,20 +450,26 @@ internal inline fun <reified E : Enum<E>> parseEnum(field: String, text: String)
 
 internal fun parseLift(field: String, text: String): MainLift = parseEnum<MainLift>(field, text)
 
+internal fun JsSideLog.toDomain() = SideLog(weightKg, reps, rpe, failed)
+internal fun SideLog.toJs() = JsSideLog(weightKg, reps, rpe, failed)
+internal fun JsSplitSides.toDomain() = SplitSides(right.toDomain(), left.toDomain())
+internal fun SplitSides.toJs() = JsSplitSides(right.toJs(), left.toJs())
+
 internal fun JsExercise.toDomain() = Exercise(
     id.toLong(), name, parseEnum<Category>("exercise.category", category),
     parentLift?.let { parseLift("exercise.parentLift", it) }, muscles.toList(), isBuiltIn, archived,
-    parseEnum<PlateCount>("exercise.plateCount", plateCount),
+    parseEnum<PlateCount>("exercise.plateCount", plateCount), singleSided,
 )
 
 internal fun Exercise.toJs() = JsExercise(
     id.toFacadeId("exercise.id"), name, category.name, parentLift?.name, muscles.toTypedArray(), isBuiltIn, archived,
-    plateCount.name,
+    plateCount.name, singleSided,
 )
 
 internal fun JsSet.toDomain() = LoggedSet(
     exerciseId.toLong(), weightKg, reps, rpe, failed,
     missPoint?.let { parseEnum<MissPoint>("set.missPoint", it) }, isTopSet, parseEnum<LoadUnit>("set.unit", unit),
+    splitSides?.toDomain(),
 )
 
 internal fun JsSession.toDomain() = LoggedSession(

@@ -13,7 +13,7 @@ class ModeSwitchBridgeTest {
     @Test
     fun timelinesAndVibrationCrossAsNumbers() {
         val drop = GritDomain.modeSwitchDropTimeline()
-        assertEquals(250.0, drop.impact); assertEquals(1120.0, drop.end); assertEquals(.42, drop.hammerScale)
+        assertEquals(250.0, drop.impact); assertEquals(1120.0, drop.end); assertEquals(.44, drop.hammerScale)
         val pump = GritDomain.modeSwitchPumpTimeline()
         assertContentEquals(arrayOf(90.0, 400.0, 750.0), pump.beats); assertEquals(380.0, pump.flood); assertEquals(1330.0, pump.end)
         val v = GritDomain.modeSwitchVibration()
@@ -28,7 +28,7 @@ class ModeSwitchBridgeTest {
         val d = ModeSwitchMotion.dropFrame(250.0, 390.0, 760.0)
         assertEquals(d.flashOpacity, f.flashOpacity); assertEquals(d.revealRadius, f.revealRadius)
         assertEquals(d.hammer!!.scaleX, assertNotNull(f.hammer).scaleX)
-        assertEquals(30, f.dust.size); assertEquals(34, f.sparks.size); assertEquals(3, f.ghosts.size)
+        assertEquals(30, f.dust.size); assertEquals(36, f.sparks.size); assertEquals(3, f.ghosts.size)
         assertNull(GritDomain.modeSwitchDropFrame(1120.0, 390.0, 760.0).hammer)
 
         val p = GritDomain.modeSwitchPumpFrame(900.0, 390.0, 760.0, 341.0, 715.0)
@@ -43,14 +43,15 @@ class ModeSwitchBridgeTest {
 
     @Test
     fun shapesMatchTheDomain() {
-        assertEquals(22, GritDomain.modeSwitchHammerPaths().size)
-        assertEquals("#FFC98A", GritDomain.modeSwitchHammerRune().stroke)
-        assertEquals(5, GritDomain.modeSwitchGradients().size)
+        assertEquals(24, GritDomain.modeSwitchHammerPaths().size)
+        assertEquals("#FFB84D", GritDomain.modeSwitchHammerRune().stroke)
+        assertEquals(6, GritDomain.modeSwitchHammerRunePaths().size)
+        assertEquals(6, GritDomain.modeSwitchGradients().size)
         val hit = GritDomain.modeSwitchHitPoint(390.0, 760.0)
         assertEquals(JsMotionPoint(195.0, 756.0), hit)
         assertEquals(ModeSwitchMotion.cracks(390.0, 760.0, Point(195.0, 756.0)).map { it.d }, GritDomain.modeSwitchCracks(390.0, 760.0, 195.0, 756.0).map { it.d })
         assertEquals(30, GritDomain.modeSwitchDust(195.0, 756.0).size)
-        assertEquals(34, GritDomain.modeSwitchSparks(195.0, 756.0).size)
+        assertEquals(36, GritDomain.modeSwitchSparks(195.0, 756.0).size)
         assertEquals(36, GritDomain.modeSwitchBurst(195.0, 756.0).size)
         val veins = GritDomain.modeSwitchVeins(412.0, 915.0, 370.0, 96.0)
         assertEquals(ModeSwitchMotion.veins(412.0, 915.0, Point(370.0, 96.0)).map { it.d }, veins.map { it.d })
@@ -70,7 +71,7 @@ class ModeSwitchBridgeTest {
         assertEquals(l.CRACK_SHADOW_OPACITY, light.crackShadowOpacity); assertEquals(l.VEIN_EDGE_OPACITY, light.veinEdgeOpacity)
         assertEquals(l.CHALK.map { it.color }, light.chalk.map { it.color })
         assertEquals(ModeSwitchMotion.veinEdgeWidth(2.4, 1.3), GritDomain.modeSwitchVeinEdgeWidth(2.4, 1.3))
-        assertEquals(2.4, GritDomain.modeSwitchSparkWidth())
+        assertEquals(2.6, GritDomain.modeSwitchSparkWidth())
         assertTrue(GritDomain.modeSwitchNodeShown(56.5, 50.0))
         assertEquals(false, GritDomain.modeSwitchNodeShown(56.0, 50.0))
     }

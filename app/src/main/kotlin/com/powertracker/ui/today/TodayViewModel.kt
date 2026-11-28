@@ -120,6 +120,12 @@ data class TodayItem(
      * plan are on today's list, each as its own card): which half it is, the other half, and whose turn it is.
      */
     val superset: TodaySuperset? = null,
+    /** 1.25: whether this exercise may be logged one side at a time ([SingleSided.offered]). */
+    val singleSidedOffered: Boolean = false,
+    /** 1.25: whether this exercise is currently set to one side at a time ([SingleSided.active]). */
+    val singleSided: Boolean = false,
+    /** 1.25: the right side just logged for the current set while waiting for the left side; null before right is logged. */
+    val pendingRight: com.powertracker.domain.model.SideLog? = null,
 ) {
     val logged: List<LoggedSet> get() = sets.map { it.set }
     val isComplete: Boolean get() = targetSets != null && sets.size >= targetSets
@@ -261,6 +267,8 @@ class TodayViewModel(
         val warmUpOver: Set<Long> = emptySet(),
         /** 1.24: see [TodayState.openRequest]. */
         val openRequest: OpenRequest? = null,
+        /** 1.25: right-side halves logged while waiting for the left side, by exercise id (or stand-in id). */
+        val pendingRights: Map<Long, com.powertracker.domain.model.SideLog> = emptyMap(),
     )
 
     private data class Stored(
@@ -462,6 +470,9 @@ class TodayViewModel(
                 warmUpOpen = warmUpOpen,
                 warmUp = if (warmUpOpen) WarmUp.sets(exercise, editor.weightKg, plan?.reps ?: editor.reps, d.settings.changePlates) else emptyList(),
                 warmUpDone = l.warmUpDone[exercise.id] ?: l.warmUpDone[standInOf[exercise.id]] ?: emptySet(),
+                singleSidedOffered = com.powertracker.domain.unilateral.SingleSided.offered(exercise),
+                singleSided = com.powertracker.domain.unilateral.SingleSided.active(exercise),
+                pendingRight = l.pendingRights[exercise.id] ?: l.pendingRights[standInOf[exercise.id]],
             )
         }
 
@@ -595,7 +606,8 @@ class TodayViewModel(
                 // A stand-in id means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
                 val setId = training.logSet(sessionId, stored, catalogueName = catalogueEntry(exerciseId)?.name)
                 // The exercise's warm-up is over with its first set, and stays over if the set is deleted (1.23).
-                local.update { it.copy(pending = null, warmUpOver = it.warmUpOver + exerciseId) }
+                val standIns = now.resolved.filterValues { it == exerciseId }.keys
+                local.update { it.copy(pending = null, warmUpOver = it.warmUpOver + exerciseId, pendingRights = it.pendingRights - exerciseId - standIns) }
                 // In a superset (1.24) the domain says what follows this set, from the sets logged with it: after the
                 // first exercise the second's card opens and no rest starts; after the second the rest starts and the
                 // first's card opens. A miss or a grind on the powerlifting side keeps the card, which then asks where
@@ -691,6 +703,58 @@ class TodayViewModel(
                 local.update { it.copy(plateSaves = (it.plateSaves - 1).coerceAtLeast(0)) }
             }
         }
+    }
+
+    /**
+     * Turns single-sided ("one side at a time") tracking on or off for [exerciseId] (1.25). Resolves a catalogue
+     * exercise first if needed, and clears any half-logged right side when turned off.
+     */
+    fun setSingleSided(exerciseId: Long, value: Boolean) {
+        viewModelScope.launch {
+            val id = try {
+                training.setSingleSided(exerciseId.takeIf { it > 0 }, catalogueEntry(exerciseId)?.name, value)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _events.emit(TodayEvent.SaveFailed)
+                return@launch
+            }
+            if (!value) {
+                val standIns = state.value.resolved.filterValues { it == id || it == exerciseId }.keys
+                val dropped = setOf(exerciseId, id) + standIns
+                local.update { it.copy(pendingRights = it.pendingRights - dropped) }
+            }
+        }
+    }
+
+    /**
+     * Logs one half of a single-sided set (1.25).
+     * - First tap (Right side): holds Right in memory and prefills the editor for Left, with haptic tick and NO rest timer.
+     * - Second tap (Left side): combines Right + Left via [SingleSided.combine] and saves as 1 set (which starts the normal rest timer).
+     */
+    fun logSide(planItemId: Long?, exerciseId: Long, side: com.powertracker.domain.model.SideLog, unit: LoadUnit) {
+        if (finishing.value || saving.value) return
+        val now = state.value
+        val item = now.items.firstOrNull { it.exercise.id == exerciseId } ?: return
+        val right = item.pendingRight
+        if (right == null) {
+            local.update {
+                it.copy(
+                    pendingRights = it.pendingRights + (exerciseId to side),
+                    editors = it.editors + (exerciseId to SetEditor(side.weightKg, side.reps, side.rpe ?: item.editor.rpe, unit)),
+                )
+            }
+            viewModelScope.launch { _events.emit(TodayEvent.SetBuzz(isNewBest = false)) }
+        } else {
+            val combined = com.powertracker.domain.unilateral.SingleSided.combine(exerciseId, right, side, unit)
+            logSet(planItemId, exerciseId, combined)
+        }
+    }
+
+    /** Clears a half-logged right side before the left side is logged (1.25). */
+    fun clearPendingRight(exerciseId: Long) {
+        val standIns = state.value.resolved.filterValues { it == exerciseId }.keys
+        local.update { it.copy(pendingRights = it.pendingRights - exerciseId - standIns) }
     }
 
     /** Puts the coach's numbers into the editor and marks the advice applied. */

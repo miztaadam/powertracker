@@ -688,8 +688,11 @@ object GritDomain {
     /** The hammer's shapes, back to front, the striking boss at (0, 0): place them with a frame's pose. */
     fun modeSwitchHammerPaths(): Array<JsMotionPath> = ModeSwitchMotion.HAMMER_PATHS.map { it.toJs() }.toTypedArray()
 
-    /** The rune's glow, over the hammer at the frame's `runeOpacity`. */
+    /** The rune's golden core stroke, over the hammer at the frame's `runeOpacity`. */
     fun modeSwitchHammerRune(): JsMotionPath = ModeSwitchMotion.HAMMER_RUNE.toJs()
+
+    /** The full molten rune glow layers, over the hammer at the frame's `runeOpacity`. */
+    fun modeSwitchHammerRunePaths(): Array<JsMotionPath> = ModeSwitchMotion.HAMMER_RUNE_PATHS.map { it.toJs() }.toTypedArray()
 
     /** The gradients the shapes name with `url(#id)`. */
     fun modeSwitchGradients(): Array<JsMotionGradient> = ModeSwitchMotion.GRADIENTS.map { it.toJs() }.toTypedArray()
@@ -898,6 +901,22 @@ object GritDomain {
     /** Bodybuilding's check-in once screen 7's last move has arrived; null before then and on powerlifting. */
     fun guideSampleMonthsCheckIn(mode: String, step: String, progress: Double): JsCheckIn? =
         GuideSample.monthsCheckIn(parseEnum<TrainingMode>("mode", mode), parseEnum<GuideStep>("step", step), progress)?.toJs()
+
+    /** Whether [exercise] may be logged one side at a time (unilateral-capable machines, cables, DBs, KBs, custom). */
+    fun singleSidedOffered(exercise: JsExercise): Boolean =
+        com.powertracker.domain.unilateral.SingleSided.offered(exercise.toDomain())
+
+    /** True only when [exercise] is offered single-sided and its setting is turned on. */
+    fun singleSidedActive(exercise: JsExercise): Boolean =
+        com.powertracker.domain.unilateral.SingleSided.active(exercise.toDomain())
+
+    /** Picks the weaker of [right] and [left] so Coach and Progress only advance once both sides hit the target. */
+    fun singleSidedWeaker(right: JsSideLog, left: JsSideLog): JsSideLog =
+        com.powertracker.domain.unilateral.SingleSided.weaker(right.toDomain(), left.toDomain()).toJs()
+
+    /** Compact summary for a set row: "R 12 · L 10" or "R 40×12 · L 37.5×10". */
+    fun singleSidedSummary(split: JsSplitSides, unit: String = "KG"): String =
+        com.powertracker.domain.unilateral.SingleSided.summaryText(split.toDomain(), parseEnum<LoadUnit>("unit", unit))
 
     private fun ratioRange(numerator: MainLift, denominator: MainLift, typical: ClosedFloatingPointRange<Double>) =
         JsRatioRange(numerator.name, denominator.name, typical.start, typical.endInclusive)

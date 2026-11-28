@@ -2210,3 +2210,14 @@ What would give real room, each needing the owner's say because it changes what 
 3. **Change the limit**, to one agreed for a real phone.
 
 Nothing here says what a real phone does: no phone was available.
+
+## 1.25 (2026-11-28, branch `feat/mode-switch-redesign`): forged iron hammer & pump animations + single-sided ("one side at a time") sets, both apps
+- **Mode-switch animations (Android + Web):** upgraded Powerlifting's Hammer Drop (forged iron hammer, molten rune glow, shockwave & cracks) and Bodybuilding's Pump (lub-dub double-beat heartbeats & surge glow), keeping the original sound files (`grit_hammer_drop`, `grit_pump`) and exact impact/beat/vibration timings untouched.
+- **Single-sided ("One side at a time") set tracking (domain + Android + Web):**
+  - Offered in the ⋮ menu on unilateral-capable machines, cables, dumbbells, kettlebells, and custom accessories, and remembered per exercise.
+  - Logs Right side first (no rest timer), then Left side (saves as 1 set with both halves in `splitSides` and starts the normal rest timer).
+  - Primary set fields (`weightKg`, `reps`, `rpe`, `failed`) store the weaker side via `SingleSided.weaker`, so Coach and Progress only bump weight once both sides hit the target.
+  - Set rows display the compact `R … · L …` breakdown under the main line.
+- **Database & Backup version 8 (both apps):** Room `MIGRATION_7_8` (`exercise.singleSided`, `logged_set.splitSides`), Dexie schema v8, and Backup format v8 (omitting `singleSided` when false and `splitSides` when absent; v7 files restore cleanly; v7 readers reject v8 as too new).
+- **Owner previewed on iPhone** via Vercel preview branch and approved ("works great, lets do it").
+

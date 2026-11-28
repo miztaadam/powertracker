@@ -221,11 +221,11 @@ data class PumpFrame(
  * Nothing is worked out until it is first used, and the seeded shapes are built once per hit point or switch.
  */
 object ModeSwitchMotion {
-    val DROP = DropTimeline(fall = 115.0, impact = 250.0, hold = 330.0, settle = 520.0, lift = 640.0, end = 1120.0, hammerScale = 0.42)
+    val DROP = DropTimeline(fall = 95.0, impact = 250.0, hold = 335.0, settle = 525.0, lift = 650.0, end = 1120.0, hammerScale = 0.44)
 
     val PUMP = PumpTimeline(
         beats = listOf(90.0, 400.0, 750.0),
-        amps = listOf(.36, .62, 1.0),
+        amps = listOf(.38, .65, 1.0),
         rise = listOf(110.0, 120.0, 180.0),
         fall = listOf(190.0, 210.0, 370.0),
         reach = listOf(175.0, 390.0, 1000.0),
@@ -246,37 +246,41 @@ object ModeSwitchMotion {
     /** Amplitude (0..255) per heartbeat, building to full strength. */
     val PUMP_AMPLITUDES: IntArray get() = intArrayOf(150, 205, 255)
 
-    /** The hammer's shapes, back to front, with the striking boss at (0, 0) and the haft up. Place it with a [Pose]. */
+    /** The hammer's shapes, back to front, with the striking face at (0, 0) and the haft up. Place it with a [Pose]. */
     val HAMMER_PATHS: List<MotionPath> get() = HAMMER
 
-    /** The rune's warm glow, drawn over the hammer at [DropFrame.runeOpacity]. */
+    /** The rune's golden core stroke, drawn over the hammer at [DropFrame.runeOpacity]. */
     val HAMMER_RUNE: MotionPath get() = HAMMER_RUNE_GLOW
 
-    /** The gradients the shapes name with `url(#id)`: gIron, gBand, gWood (hammer), gHalo (pump halos), gChalk (dust). */
+    /** The full molten rune glow layers, drawn over the hammer at [DropFrame.runeOpacity]. */
+    val HAMMER_RUNE_PATHS: List<MotionPath> get() = HAMMER_RUNE_GLOWS
+
+    /** The gradients the shapes name with `url(#id)`: forged hammer gradients, gEmber, gHalo (pump halos), gChalk (dust). */
     val GRADIENTS: List<MotionGradient> get() = MOTION_GRADIENTS
 
-    /** The effects' colours, the prototype's. The screens themselves use the app's own tokens. */
+    /** The effects' colours. The screens themselves use the app's own tokens. */
     object Colors {
         const val SHADOW = "#000000"
         const val CRACK_SHADOW = "#000000"
         const val CRACK = "#F3F4EF"
+        const val CRACK_HOT = "#FF9E3D"
         const val CRACK_BRANCH = "#C9CED6"
         const val FLASH = "#F3F4EF"
         /** The light scheme's flash: a dark punch, drawn at half [DropFrame.flashOpacity]. */
         const val FLASH_LIGHT = "#2A2E33"
         const val RING1 = "#F3F4EF"
-        const val RING2 = "#93979D"
-        const val BURST = "#FFF6E8"
+        const val RING2 = "#FFB36B"
+        const val BURST = "#FFF3D6"
         const val SPARK = "#FFB36B"
-        const val TINT = "#4F8DFF"
+        const val TINT = "#3B82F6"
         const val PUMP_RING = "#8DB8FF"
-        const val EDGE = "#DCE9FF"
-        const val EDGE_SOFT = "#8DB8FF"
-        const val VEIN_GLOW = "#4F8DFF"
-        const val VEIN_CORE = "#8DB8FF"
-        const val VEIN_HOT = "#EAF2FF"
+        const val EDGE = "#EFF6FF"
+        const val EDGE_SOFT = "#60A5FA"
+        const val VEIN_GLOW = "#3B82F6"
+        const val VEIN_CORE = "#7DD3FC"
+        const val VEIN_HOT = "#F0F9FF"
         const val VEIN_PULSE = "#FFFFFF"
-        const val NODE = "#DCE9FF"
+        const val NODE = "#E0F2FE"
     }
 
     /**
@@ -309,8 +313,8 @@ object ModeSwitchMotion {
     /** The light scheme's edge under a core vein [coreWidth] wide, at the frame's [widthScale] ([PumpFrame.veinWidthScale]). */
     fun veinEdgeWidth(coreWidth: Double, widthScale: Double): Double = coreWidth * widthScale + LightColors.VEIN_EDGE_EXTRA_WIDTH
 
-    const val SHADOW_OPACITY_MAX = .5
-    const val SPARK_WIDTH = 2.4
+    const val SHADOW_OPACITY_MAX = .55
+    const val SPARK_WIDTH = 2.6
     const val PUMP_RING_FILL = "none"
 
     // ---- the prototype's geometry, for the scale rule ----
@@ -337,12 +341,17 @@ object ModeSwitchMotion {
 
     // ---- the drop ----
 
-    /** `fallPose`: [t] in [fall, impact], swung down from the upper right, accelerating hard. */
+    /** `fallPose`: [t] in [fall, impact], quick overhead wind-up then swung down from the upper right, accelerating hard. */
     fun fallPose(t: Double, hit: Point): Pose {
         val d = DROP
         val p = clamp01((t - d.fall) / (d.impact - d.fall))
-        val e = p.pow(3.4)
-        return pose(hit.x + 64 * (1 - e), -70 + (hit.y + 70) * e, -32 * (1 - e), 1 - .04 * e, 1 + .1 * e)
+        if (p < .16) {
+            val w = sin((p / .16) * PI)
+            return pose(hit.x + 70 + 12 * w, -60 - 24 * w, -36 - 8 * w, 1.0, 1.0)
+        }
+        val adj = clamp01((p - .16) / .84)
+        val e = adj.pow(3.8)
+        return pose(hit.x + 70 * (1 - e), -60 + (hit.y + 60) * e, -36 * (1 - e), 1 - .05 * e, 1 + .14 * e)
     }
 
     /** `hammerPose`: where the hammer is at [t], or null while it is out of sight. */
@@ -350,7 +359,10 @@ object ModeSwitchMotion {
         val d = DROP
         if (t < d.fall || t >= d.end) return null
         if (t < d.impact) return fallPose(t, hit)
-        if (t < d.hold) return pose(hit.x, hit.y + 4, 0.0, 1.14, .8) // hit-stop, squashed into the glass
+        if (t < d.hold) {
+            val micro = sin((t - d.impact) * .45) * 1.5
+            return pose(hit.x + micro, hit.y + 4, 0.0, 1.15, .78) // hit-stop, squashed & shuddering into the glass
+        }
         if (t < d.settle) {
             val q = (t - d.hold) / (d.settle - d.hold)
             val b = sin(PI * q) * (1 - q * .4)
@@ -378,9 +390,9 @@ object ModeSwitchMotion {
         val tau = t - d.impact
         val g = clamp01(t / d.impact)
 
-        val ghosts = listOf(.32, .2, .1).mapIndexed { i, op ->
-            val gt = t - (i + 1) * 13
-            if (t >= d.fall && t < d.impact + 20 && gt > d.fall) Ghost(op, fallPose(min(gt, d.impact), hit))
+        val ghosts = listOf(.28, .16, .08).mapIndexed { i, op ->
+            val gt = t - (i + 1) * 12
+            if (t >= d.fall && t < d.impact + 18 && gt > d.fall) Ghost(op, fallPose(min(gt, d.impact), hit))
             else Ghost(0.0, fallPose(d.impact, hit))
         }
 
@@ -417,16 +429,16 @@ object ModeSwitchMotion {
         val dust = shapes.dust.map { p ->
             if (tau < 0 || tau > p.life) DustState(p.ox, p.oy, 0.0, 0.0)
             else {
-                val s = 1 - exp(-tau / 190)
-                DustState(p.ox + p.dx * s, p.oy + p.dy * s + .00016 * tau * tau, p.r0 * (1 + 2.4 * s), p.alpha * (1 - tau / p.life))
+                val s = 1 - exp(-tau / 185)
+                DustState(p.ox + p.dx * s, p.oy + p.dy * s + .00014 * tau * tau, p.r0 * (1 + 2.3 * s), p.alpha * (1 - tau / p.life))
             }
         }
         val sparks = shapes.sparks.map { p ->
             if (tau < 0 || tau > p.life) SparkState(p.ox, p.oy, p.ox, p.oy, 0.0)
             else {
-                val s = 1 - exp(-tau / 110)
-                val s0 = max(0.0, s - .16)
-                val gy = .0009 * tau * tau
+                val s = 1 - exp(-tau / 105)
+                val s0 = max(0.0, s - .17)
+                val gy = .00095 * tau * tau
                 SparkState(p.ox + p.dx * s0, p.oy + p.dy * s0 + gy, p.ox + p.dx * s, p.oy + p.dy * s + gy, 1 - tau / p.life)
             }
         }
@@ -442,7 +454,7 @@ object ModeSwitchMotion {
             shadowCy = hit.y - 4,
             hammer = hammerPose(t, hit),
             ghosts = ghosts,
-            runeOpacity = if (tau < 0) 0.0 else clamp01(1 - tau / 620),
+            runeOpacity = if (tau < 0) 0.0 else clamp01(1 - tau / 650),
             revealRadius = revealRadius,
             revealFull = revealFull || atRest,
             shakeX = shakeX,
@@ -456,7 +468,7 @@ object ModeSwitchMotion {
             burstOpacity = if (tau < 0) 0.0 else 1 - bp,
             burstScale = .5 + 1.5 * easeOut(bp),
             ring1 = ring(0.0, 340.0, 26.0),
-            ring2 = ring(60.0, 460.0, 14.0),
+            ring2 = ring(55.0, 460.0, 14.0),
             cracksOpacity = if (tau < 0) 0.0 else clamp01(1 - (tau - 380) / 420),
             crackDrawn = easeOut(cp),
             dust = dust,
@@ -488,14 +500,20 @@ object ModeSwitchMotion {
 
     // ---- the pump ----
 
-    /** `beatEnv`: one beat, [u] ms from its onset: swell up, relax a touch past rest, settle. */
+    /** `beatEnv`: one cardiac double-thump ("lub-DUB") beat, [u] ms from its onset. */
     fun beatEnv(u: Double, rise: Double, fall: Double): Double {
         if (u <= 0 || u >= rise + fall) return 0.0
-        if (u < rise) return .5 - .5 * cos(PI * u / rise)
-        val v = (u - rise) / fall
-        val dip = .12
-        if (v < .68) return -dip + (1 + dip) * (.5 + .5 * cos(PI * v / .68))
-        return -dip * (.5 + .5 * cos(PI * (v - .68) / .32))
+        val lub = if (u < 70.0) .32 * sin(PI * u / 70.0) else 0.0
+        val u2 = u - 45.0
+        val dub = when {
+            u2 <= 0.0 -> 0.0
+            u2 < rise * .85 -> .5 - .5 * cos(PI * u2 / (rise * .85))
+            else -> {
+                val v = (u2 - rise * .85) / fall
+                if (v < 1.0) (1 - v).pow(1.8) else 0.0
+            }
+        }
+        return max(lub, dub)
     }
 
     /** `pumpSwell`: the three beats summed, each at its amplitude. */
@@ -532,7 +550,7 @@ object ModeSwitchMotion {
             val none = MotionCircle(0.0, 0.0, 0.0)
             return PumpFrame(
                 src.x, src.y, 0.0, 1.0, 1.0, 0.0, 0.0, List(3) { none }, List(2) { none }, 0.0, 0.0, veinFront(t) * k, 1.0,
-                0.0, 1.0, 0.0, 12 + 860 * k, true, 0.0, 2.0, 0.0, 50.0, 1.0,
+                0.0, 1.0, 0.0, 12 + 860 * k, true, 0.0, 2.0, 0.0, 60.0, 1.0,
             )
         }
         val sw = pumpSwell(t)
@@ -552,7 +570,7 @@ object ModeSwitchMotion {
             val u = t - p.beats[i]
             val q = clamp01(u / 460)
             val on = u >= 0 && q < 1
-            MotionCircle(if (on) .32 * (1 - q) else 0.0, 20 + p.reach[i] * k * 1.05 * easeOut(q), 12 * (1 - q) + 1)
+            MotionCircle(if (on) .36 * (1 - q) else 0.0, 20 + p.reach[i] * k * 1.05 * easeOut(q), 12 * (1 - q) + 1)
         }
         val front = veinFront(t) * k
         var bi = -1
@@ -567,26 +585,26 @@ object ModeSwitchMotion {
             srcX = src.x,
             srcY = src.y,
             swell = sw,
-            contentScale = 1 + .03 * sw,
-            deviceScale = 1 + .032 * sw,
+            contentScale = 1 + .036 * sw,
+            deviceScale = 1 + .034 * sw,
             glow = glow,
-            tintOpacity = .15 * glow,
+            tintOpacity = .18 * glow,
             halos = halos,
             rings = rings,
             veinsOpacity = if (t < p.beats[0]) 0.0 else 1 - clamp01((t - (p.beats[2] + 280)) / 300),
-            glowLayerOpacity = .16 + .42 * glow,
+            glowLayerOpacity = .18 + .45 * glow,
             veinFront = front,
-            veinWidthScale = 1 + .45 * glow,
+            veinWidthScale = 1 + .48 * glow,
             nodeOpacity = .55 + .45 * glow,
-            nodeScale = 1 + .7 * glow,
+            nodeScale = 1 + .72 * glow,
             pulseOpacity = if (pp >= 1) 0.0 else .95 * sin(PI * pp),
             floodRadius = if (u3 < 0) 0.0 else rad,
             floodFull = u3 >= 0 && fp >= 1,
-            edgeOpacity = if (edgeOn) .5 * (1 - fp * fp) else 0.0,
+            edgeOpacity = if (edgeOn) .6 * (1 - fp * fp) else 0.0,
             edgeWidth = 2 + 6 * (1 - fp),
-            edgeSoftOpacity = if (edgeOn) .2 * (1 - fp) else 0.0,
-            edgeSoftWidth = 50.0,
-            pillScale = 1 + .28 * max(0.0, beatEnv(u3 - 230, 120.0, 260.0)),
+            edgeSoftOpacity = if (edgeOn) .28 * (1 - fp) else 0.0,
+            edgeSoftWidth = 60.0,
+            pillScale = 1 + .32 * max(0.0, beatEnv(u3 - 230, 120.0, 260.0)),
         )
     }
 
@@ -597,7 +615,7 @@ object ModeSwitchMotion {
     fun pumpElementScale(tMs: Double, w: Double, elementCenterY: Double, src: Point): Double {
         if (tMs >= PUMP.end) return 1.0
         val delay = hypot(w / 2 - src.x, elementCenterY - src.y) * .16
-        return 1 + .034 * pumpSwell(tMs - delay)
+        return 1 + .036 * pumpSwell(tMs - delay)
     }
 
     /** How much of a vein starting at [d0], [len] long, is drawn at [front]: 0..1 from its start, hidden at 0. */

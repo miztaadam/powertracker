@@ -50,6 +50,7 @@ import kotlinx.coroutines.delay
 // Skipping a planned exercise for today (skip-a-planned-exercise spec, "What you see on Today"). The web app's Today
 // uses the same words.
 const val SKIP_TODAY = "Skip today"
+const val ONE_SIDE_AT_A_TIME = "One side at a time"
 const val UNDO = "Undo"
 const val SKIPPED_TODAY = "Skipped today"
 const val BRING_BACK = "Bring back"
@@ -85,12 +86,19 @@ internal const val SKIP_SHEET_TAP_WINDOW_MS = 300L
 val TodayItem.canSkip: Boolean get() = planned != null && sets.isEmpty()
 
 /**
- * The row menu (⋮): Skip today with [onSkipToday], and Count plates on this machine under it with [onCountPlates]
- * (1.17). It shows when either is given, and draws nothing when neither is.
+ * The row menu (⋮): Skip today with [onSkipToday], Count plates on this machine with [onCountPlates] (1.17),
+ * and One side at a time with [onToggleSingleSided] (1.25). Draws nothing when none are given.
  */
 @Composable
-fun SkipMenuButton(name: String, onSkipToday: (() -> Unit)?, modifier: Modifier = Modifier, onCountPlates: (() -> Unit)? = null) {
-    if (onSkipToday == null && onCountPlates == null) return
+fun SkipMenuButton(
+    name: String,
+    onSkipToday: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+    onCountPlates: (() -> Unit)? = null,
+    singleSided: Boolean = false,
+    onToggleSingleSided: (() -> Unit)? = null,
+) {
+    if (onSkipToday == null && onCountPlates == null && onToggleSingleSided == null) return
     var open by remember { mutableStateOf(false) }
     Box(modifier) {
         PtIconButton(onClick = { open = true }, modifier = Modifier.size(Space.touch)) {
@@ -108,6 +116,15 @@ fun SkipMenuButton(name: String, onSkipToday: (() -> Unit)?, modifier: Modifier 
                     open = false
                     onCountPlates()
                 }
+            }
+            if (onToggleSingleSided != null) {
+                PtDropdownMenuItem(
+                    text = { Text(if (singleSided) "$ONE_SIDE_AT_A_TIME ✓" else ONE_SIDE_AT_A_TIME) },
+                    onClick = {
+                        open = false
+                        onToggleSingleSided()
+                    },
+                )
             }
         }
     }

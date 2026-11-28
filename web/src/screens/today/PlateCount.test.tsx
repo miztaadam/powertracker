@@ -85,15 +85,15 @@ describe('the plate item and the sheet', () => {
     await planToday(pulldown)
     await logSet(db, await startSession(db, TODAY), set(pulldown, 40, { reps: 8 }))
     show()
-    // After its first set there is no Skip today, but the plate item stays.
-    expect(await menuItems('Lat pulldown')).toEqual([COUNT_PLATES])
-    // An exercise added on Today (a catalogue machine with no row yet) has it too.
+    // After its first set there is no Skip today, but the plate and single-sided items stay.
+    expect(await menuItems('Lat pulldown')).toEqual([COUNT_PLATES, 'One side at a time'])
+    // An exercise added on Today (a catalogue machine with no row yet) has them too.
     await userEvent.click(screen.getByRole('button', { name: 'Add exercise' }))
     const picker = within(screen.getByRole('dialog', { name: 'Add exercise' }))
     await userEvent.type(picker.getByRole('textbox', { name: 'Search exercises' }), 'leg press')
     await userEvent.click(within(await picker.findByRole('listitem', { name: 'Leg press' })).getAllByRole('button')[0]!)
     expect(await screen.findByRole('button', { name: 'Remove' })).toBeInTheDocument()
-    expect(await menuItems('Leg press')).toEqual([COUNT_PLATES])
+    expect(await menuItems('Leg press')).toEqual([COUNT_PLATES, 'One side at a time'])
   })
 
   it('noMenuItem_onBench_onACustomVariation_onAssistedDip', async () => {

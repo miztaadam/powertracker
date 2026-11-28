@@ -253,7 +253,7 @@ open class TrainingRepository(private val db: AppDatabase) {
     suspend fun resolveCatalogue(name: String): Long = catalogue.resolve(name)
 
     suspend fun addExercise(e: Exercise): Long = db.exercises().insert(
-        ExerciseEntity(0, e.name, e.category, e.parentLift, e.muscles, e.isBuiltIn, e.archived, e.plateCount),
+        ExerciseEntity(0, e.name, e.category, e.parentLift, e.muscles, e.isBuiltIn, e.archived, e.plateCount, e.singleSided),
     )
 
     /**
@@ -265,6 +265,16 @@ open class TrainingRepository(private val db: AppDatabase) {
     suspend fun setPlateCount(exerciseId: Long?, catalogueName: String?, value: PlateCount): Long = db.withTransaction {
         val id = if (catalogueName != null) catalogue.resolve(catalogueName) else requireNotNull(exerciseId) { "An exercise id or a catalogue name" }
         db.exercises().setPlateCount(id, value)
+        id
+    }
+
+    /**
+     * Turns single-sided ("one side at a time") tracking on or off for an exercise (1.25), in one transaction, and
+     * returns the row's id. Resolves a catalogue exercise first when [catalogueName] is given.
+     */
+    suspend fun setSingleSided(exerciseId: Long?, catalogueName: String?, value: Boolean): Long = db.withTransaction {
+        val id = if (catalogueName != null) catalogue.resolve(catalogueName) else requireNotNull(exerciseId) { "An exercise id or a catalogue name" }
+        db.exercises().setSingleSided(id, value)
         id
     }
 
@@ -370,14 +380,14 @@ open class TrainingRepository(private val db: AppDatabase) {
     suspend fun setBaseline(b: Baseline) = db.baselines().upsert(BaselineEntity(b.exerciseId, b.e1rmKg, b.date))
 }
 
-private fun ExerciseEntity.toDomain() = Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived, plateCount)
+private fun ExerciseEntity.toDomain() = Exercise(id, name, category, parentLift, muscles, isBuiltIn, archived, plateCount, singleSided)
 
 private fun SessionEntity.toDomain(sets: List<LoggedSet>) = LoggedSession(id, date, bodyweightKg, readiness, sets, mode)
 
-private fun SetEntity.toDomain() = LoggedSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, unit)
+private fun SetEntity.toDomain() = LoggedSet(exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, unit, splitSides)
 
 private fun LoggedSet.toEntity(id: Long, sessionId: Long) =
-    SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, unit)
+    SetEntity(id, sessionId, exerciseId, weightKg, reps, rpe, failed, missPoint, isTopSet, unit, splitSides)
 
 private fun SkipEntity.toDomain() = Skip(id, date, mode, exerciseId, planItemId, reason)
 

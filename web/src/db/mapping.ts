@@ -5,6 +5,8 @@ import {
   JsPlanItem,
   JsSession,
   JsSet,
+  JsSideLog,
+  JsSplitSides,
 } from '../domain'
 import type {
   AdviceRow,
@@ -15,6 +17,7 @@ import type {
   PlateCount,
   SessionRow,
   SetRow,
+  SplitSidesRow,
   TrainingMode,
 } from './schema'
 import { LOAD_UNITS, PLATE_COUNTS, plateCountOf, setUnit, sideOf, TRAINING_MODES } from './schema'
@@ -37,8 +40,22 @@ function plateCount(name: string): PlateCount {
   return name as PlateCount
 }
 
+export function splitSidesToJs(s: SplitSidesRow): JsSplitSides {
+  return new JsSplitSides(
+    new JsSideLog(s.right.weightKg, s.right.reps, s.right.rpe, s.right.failed),
+    new JsSideLog(s.left.weightKg, s.left.reps, s.left.rpe, s.left.failed),
+  )
+}
+
+export function splitSidesFromJs(s: JsSplitSides): SplitSidesRow {
+  return {
+    right: { weightKg: s.right.weightKg, reps: s.right.reps, rpe: s.right.rpe ?? null, failed: s.right.failed },
+    left: { weightKg: s.left.weightKg, reps: s.left.reps, rpe: s.left.rpe ?? null, failed: s.left.failed },
+  }
+}
+
 export function exerciseToJs(r: ExerciseRow & { id: number }): JsExercise {
-  return new JsExercise(r.id, r.name, r.category, r.parentLift, [...r.muscles], r.isBuiltIn, r.archived, plateCountOf(r))
+  return new JsExercise(r.id, r.name, r.category, r.parentLift, [...r.muscles], r.isBuiltIn, r.archived, plateCountOf(r), r.singleSided === true)
 }
 
 /** An exercise that is off stores no `plateCount` key, as every row before schema version 6. */
@@ -53,11 +70,12 @@ export function exerciseFromJs(e: JsExercise): ExerciseRow & { id: number } {
     isBuiltIn: e.isBuiltIn,
     archived: e.archived,
     ...(count !== 'OFF' ? { plateCount: count } : {}),
+    ...(e.singleSided ? { singleSided: true as const } : {}),
   }
 }
 
 export function setToJs(r: SetRow): JsSet {
-  return new JsSet(r.exerciseId, r.weightKg, r.reps, r.rpe, r.failed, r.missPoint, r.isTopSet, setUnit(r))
+  return new JsSet(r.exerciseId, r.weightKg, r.reps, r.rpe, r.failed, r.missPoint, r.isTopSet, setUnit(r), r.splitSides ? splitSidesToJs(r.splitSides) : null)
 }
 
 /** A kg set stores no `unit` key, as every row before schema version 6. */
@@ -73,6 +91,7 @@ export function setFromJs(s: JsSet, sessionId: number): SetRow {
     missPoint: s.missPoint ?? null,
     isTopSet: s.isTopSet,
     ...(unit !== 'KG' ? { unit } : {}),
+    ...(s.splitSides != null ? { splitSides: splitSidesFromJs(s.splitSides) } : {}),
   }
 }
 

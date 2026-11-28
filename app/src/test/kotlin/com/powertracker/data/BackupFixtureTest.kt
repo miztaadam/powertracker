@@ -68,8 +68,10 @@ class BackupFixtureTest {
 
     // Gradle runs app tests with the module directory as the working directory.
     private val fixtureDir = File("../web/src/backup/__fixtures__")
-    /** What this app writes now (version 7, supersets). Regenerate with -Pfixtures.update=true. */
-    private val androidFixture = File(fixtureDir, "android-v7.json")
+    /** What this app writes now (version 8, single-sided). Regenerate with -Pfixtures.update=true. */
+    private val androidFixture = File(fixtureDir, "android-v8.json")
+    /** What 1.24 wrote (version 7): frozen since version 8, and must keep restoring. */
+    private val androidV7Fixture = File(fixtureDir, "android-v7.json")
     /** What 1.17 to 1.23 wrote (version 6): frozen since version 7, and must keep restoring. */
     private val androidV6Fixture = File(fixtureDir, "android-v6.json")
     private val androidV5Fixture = File(fixtureDir, "android-v5.json")
@@ -268,7 +270,7 @@ class BackupFixtureTest {
     @Test
     fun androidFixture_holdsBothSides() {
         val root = tree(androidFixture.readText()) as JsonObject
-        assertEquals(JsonPrimitive(7), root.getValue("version"))
+        assertEquals(JsonPrimitive(Backup.VERSION), root.getValue("version"))
         for (list in listOf("planItems", "sessions", "advice")) {
             val modes = (root.getValue(list) as JsonArray).map { ((it as JsonObject).getValue("mode") as JsonPrimitive).content }.toSet()
             assertEquals(list, setOf("POWERLIFTING", "BODYBUILDING"), modes)
@@ -344,7 +346,7 @@ class BackupFixtureTest {
         assertTrue(db.plan().all().isNotEmpty())
         assertTrue(db.plan().all().none { it.supersetWithAbove })
         // A version 6 reader turns what this app writes now away as too new.
-        assertEquals(BackupResult.TooNew(7), Backup.decode(androidFixture.readText(), supportedVersion = 6))
+        assertEquals(BackupResult.TooNew(Backup.VERSION), Backup.decode(androidFixture.readText(), supportedVersion = 6))
     }
 
     /** 1.24: the fixture this app writes holds a superset on each side, the flag only on the linked item and as its last key. */
@@ -363,9 +365,9 @@ class BackupFixtureTest {
     fun webV7Fixture_restoresOnAndroid_withItsSupersets() = runTest {
         assertTrue("Missing ${webV7Fixture.path}; the web app writes it", webV7Fixture.exists())
         val fixture = tree(webV7Fixture.readText()) as JsonObject
-        assertEquals(JsonPrimitive(Backup.VERSION), fixture.getValue("version"))
+        assertEquals(JsonPrimitive(7), fixture.getValue("version"))
         val actual = restoreAndExport(webV7Fixture)
-        assertEquals(withoutExportedAt(fixture), actual)
+        assertEquals(withoutExportedAt(JsonObject(fixture + ("version" to JsonPrimitive(Backup.VERSION)))), actual)
         val linkedInFile = (fixture.getValue("planItems") as JsonArray).map { it as JsonObject }.filter { "supersetWithAbove" in it }.map { (it.getValue("id") as JsonPrimitive).content.toLong() }
         assertTrue(linkedInFile.isNotEmpty())
         // Every link the web wrote is one that counts here too: none was cleared on the way in.

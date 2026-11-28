@@ -186,6 +186,8 @@ fun ExerciseCard(
     onSkipToday: (() -> Unit)? = null,
     /** Opens the plate sheet (1.17); null leaves Count plates out of the row menu. */
     onCountPlates: (() -> Unit)? = null,
+    /** Toggles single-sided ("one side at a time") tracking (1.25); null leaves it out of the row menu. */
+    onToggleSingleSided: (() -> Unit)? = null,
 ) {
     val id = item.exercise.id
     var extraSet by rememberSaveable(id) { mutableStateOf(false) }
@@ -193,10 +195,10 @@ fun ExerciseCard(
 
     PtCard(modifier, spacing = Space.s) {
         if (slidingContent == null) {
-            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
+            CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates, onToggleSingleSided) { selected = it }
         } else {
             Column(slidingContent, verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates) { selected = it }
+                CardContent(item, position, count, weightStepKg, changePlates, next, actions, bodybuilding, today, extraSet, { extraSet = true }, onSkipToday, onCountPlates, onToggleSingleSided) { selected = it }
             }
         }
     }
@@ -206,7 +208,10 @@ fun ExerciseCard(
             onDismissRequest = { selected = null },
             title = { Text("Set $number") },
             // Each set in its own unit, whatever the exercise's setting is now.
-            text = { Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe, stored.set.unit) + if (stored.set.failed) " · failed" else "", style = MaterialTheme.typography.headlineSmall) },
+            text = {
+                val split = stored.set.splitSides?.let { "\n" + com.powertracker.domain.unilateral.SingleSided.summaryText(it, stored.set.unit) }.orEmpty()
+                Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe, stored.set.unit) + (if (stored.set.failed) " · failed" else "") + split, style = MaterialTheme.typography.headlineSmall)
+            },
             confirmButton = {
                 val deleteSource = remember { MutableInteractionSource() }
                 TextButton(
@@ -240,6 +245,7 @@ private fun ColumnScope.CardContent(
     onAddSet: () -> Unit,
     onSkipToday: (() -> Unit)?,
     onCountPlates: (() -> Unit)?,
+    onToggleSingleSided: (() -> Unit)?,
     onSelect: (Pair<Int, StoredSet>) -> Unit,
 ) {
     val id = item.exercise.id
@@ -271,7 +277,7 @@ private fun ColumnScope.CardContent(
                     else -> Pill("Set ${item.sets.size + 1}")
                 }
             }
-            GuideAndMenu(item.exercise.name, onSkipToday, onCountPlates, stacked)
+            GuideAndMenu(item.exercise.name, onSkipToday, onCountPlates, item.singleSided, onToggleSingleSided, stacked)
         }
     }
 
@@ -309,6 +315,7 @@ private fun ColumnScope.CardContent(
                         onClick = { onSelect(i + 1 to stored) },
                         drawIn = drawIn,
                         unit = set.unit,
+                        splitSides = set.splitSides,
                     )
                     if (!bodybuilding && (set.failed || (set.rpe ?: 0.0) >= GRIND_RPE)) {
                         MissRow(i + 1, set, item.exercise.mainLift) { actions.onMissPoint(stored.id, it) }
@@ -459,7 +466,10 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         if (refused != null) focus.getValue(refused).requestFocus()
         drafts = settled.drafts
         if (settled.editor != e) actions.onEdit(id, settled.editor)
-        if (refused == null && settled.editor.weightKg != null) actions.onLogSet(item.copy(editor = settled.editor), failed)
+        if (refused == null && settled.editor.weightKg != null) {
+            val updated = item.copy(editor = settled.editor)
+            if (item.singleSided) actions.onLogSide(updated, failed) else actions.onLogSet(updated, failed)
+        }
     }
 
     fun entry(kind: EntryKind, label: String, keyboard: KeyboardType, placeholder: String? = null) = StepperEntry(
@@ -481,6 +491,34 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         else -> WarmUp.sets(item.exercise, weight, item.planned?.reps ?: typed.reps, changePlates)
     }
     if (warmUp.isNotEmpty()) WarmUpBlock(warmUp, item.warmUpDone) { set, done -> actions.onTickWarmUp(id, set, done) }
+
+    if (item.singleSided) {
+        val right = item.pendingRight
+        Row(
+            Modifier.fillMaxWidth().testTag("single-sided-banner"),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
+        ) {
+            if (right == null) {
+                Pill("Right side", tone = Tone.ACCENT)
+                Text(
+                    "Set ${item.sets.size + 1} · Right first, then Left",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+            } else {
+                Pill("Left side", tone = Tone.ACCENT)
+                Text(
+                    "Right: ${doseText(right.weightKg, right.reps, right.rpe, item.unit)}${if (right.failed) " · missed" else ""}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                QuietButton("Clear", { actions.onClearPendingRight(id) })
+            }
+        }
+    }
 
     Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
         if (weightKind == EntryKind.KG) {
@@ -557,9 +595,14 @@ private fun Editor(item: TodayItem, weightStepKg: Double, changePlates: Boolean,
         )
     }
 
+    val logLabel = when {
+        !item.singleSided -> "Log set ${item.sets.size + 1}"
+        item.pendingRight == null -> "Log right side"
+        else -> "Log left side"
+    }
     LogRow(
         missed = { SecondaryButton("Missed", { log(true) }, enabled = weight != null, icon = Icons.Filled.Close) },
-        log = { PrimaryButton("Log set ${item.sets.size + 1}", { log(false) }, Modifier.tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check) },
+        log = { PrimaryButton(logLabel, { log(false) }, Modifier.tapAnchor(TapAnchor.LOG_SET), enabled = weight != null, icon = Icons.Filled.Check) },
     )
 }
 
@@ -608,26 +651,40 @@ internal val ROW_STACK_WIDTH = 260.dp
 internal fun stacksActions(width: Dp, fontScale: Float): Boolean = width / fontScale < ROW_STACK_WIDTH
 
 /**
- * The guide button (ⓘ) and, with [onSkipToday] or [onCountPlates], the row menu (⋮): side by side, or [stacked] one
- * above the other.
+ * The guide button (ⓘ) and, with [onSkipToday], [onCountPlates] or [onToggleSingleSided], the row menu (⋮): side by
+ * side, or [stacked] one above the other.
  */
 @Composable
-private fun GuideAndMenu(name: String, onSkipToday: (() -> Unit)?, onCountPlates: (() -> Unit)?, stacked: Boolean) {
-    val menu = onSkipToday != null || onCountPlates != null
+private fun GuideAndMenu(
+    name: String,
+    onSkipToday: (() -> Unit)?,
+    onCountPlates: (() -> Unit)?,
+    singleSided: Boolean,
+    onToggleSingleSided: (() -> Unit)?,
+    stacked: Boolean,
+) {
+    val menu = onSkipToday != null || onCountPlates != null || onToggleSingleSided != null
     if (stacked && menu) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             InfoButton(name)
-            SkipMenuButton(name, onSkipToday, onCountPlates = onCountPlates)
+            SkipMenuButton(name, onSkipToday, onCountPlates = onCountPlates, singleSided = singleSided, onToggleSingleSided = onToggleSingleSided)
         }
     } else {
         InfoButton(name)
-        if (menu) SkipMenuButton(name, onSkipToday, onCountPlates = onCountPlates)
+        if (menu) SkipMenuButton(name, onSkipToday, onCountPlates = onCountPlates, singleSided = singleSided, onToggleSingleSided = onToggleSingleSided)
     }
 }
 
 /** Another exercise in today's session, folded to one line. Tap to log it. */
 @Composable
-fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modifier, onSkipToday: (() -> Unit)? = null, onCountPlates: (() -> Unit)? = null) {
+fun ExerciseRow(
+    item: TodayItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onSkipToday: (() -> Unit)? = null,
+    onCountPlates: (() -> Unit)? = null,
+    onToggleSingleSided: (() -> Unit)? = null,
+) {
     val scheme = MaterialTheme.colorScheme
     val fontScale = LocalDensity.current.fontScale
     val padding = Space.l
@@ -665,7 +722,7 @@ fun ExerciseRow(item: TodayItem, onClick: () -> Unit, modifier: Modifier = Modif
                     }
                 }
             }
-            GuideAndMenu(item.exercise.name, onSkipToday, onCountPlates, stacked)
+            GuideAndMenu(item.exercise.name, onSkipToday, onCountPlates, item.singleSided, onToggleSingleSided, stacked)
         }
     } }
 }
