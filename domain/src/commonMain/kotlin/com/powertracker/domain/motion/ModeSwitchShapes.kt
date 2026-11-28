@@ -64,14 +64,14 @@ internal class DropShapes(
     val burst: List<Point>,
 )
 
-/** The whole rng(7) run for a hit point: cracks, then dust, then sparks, then the burst, as on the page. */
+/** The whole rng(19) run for a hit point: cracks (with molten inner seams), chalk dust, sparks, and starburst. */
 internal fun buildDropShapes(hit: Point): DropShapes {
-    val r = MotionRng(7)
+    val r = MotionRng(19)
     val cracks = ArrayList<MotionPath>()
     val n = 15
     for (i in 0 until n) {
-        var a = (i.toDouble() / n) * PI * 2 + (r.next() - .5) * .45
-        val len = 150 + r.next() * 260
+        var a = (i.toDouble() / n) * PI * 2 + (r.next() - .5) * .4
+        val len = 155 + r.next() * 265
         var x = hit.x
         var y = hit.y
         val d = StringBuilder("M${jsNumber(x)},${jsNumber(y)}")
@@ -80,24 +80,27 @@ internal fun buildDropShapes(hit: Point): DropShapes {
         var by = 0.0
         var ba = 0.0
         for (s in 0 until segs) {
-            a += (r.next() - .5) * .7
+            a += (r.next() - .5) * .72
             x += cos(a) * len / segs
             y += sin(a) * len / segs
             d.append(" L").append(fixed(x, 1)).append(',').append(fixed(y, 1))
             if (s == 2) {
                 bx = x; by = y
-                ba = a + (if (r.next() > .5) .8 else -.8)
+                ba = a + (if (r.next() > .5) .75 else -.75)
             }
         }
-        val w = 1.8 + r.next() * 2.2
+        val w = 1.6 + r.next() * 2.2
         val path = d.toString()
-        cracks += MotionPath(path, null, ModeSwitchMotion.Colors.CRACK_SHADOW, w + 2.5, .55, "round", "round")
+        cracks += MotionPath(path, null, ModeSwitchMotion.Colors.CRACK_SHADOW, w + 2.6, .6, "round", "round")
         cracks += MotionPath(path, null, ModeSwitchMotion.Colors.CRACK, w, 1.0, "round", "round")
+        if (i % 3 == 0) {
+            cracks += MotionPath(path, null, ModeSwitchMotion.Colors.CRACK_HOT, max(1.2, w * .8), .85, "round", "round")
+        }
         if (i % 2 == 0) {
             val bl = 40 + r.next() * 70
             val bd = "M${fixed(bx, 1)},${fixed(by, 1)} L${fixed(bx + cos(ba) * bl * .5, 1)},${fixed(by + sin(ba) * bl * .5, 1)}" +
                 " L${fixed(bx + cos(ba + .4) * bl, 1)},${fixed(by + sin(ba + .4) * bl, 1)}"
-            cracks += MotionPath(bd, null, ModeSwitchMotion.Colors.CRACK_BRANCH, 1.0, 1.0, "round", "round")
+            cracks += MotionPath(bd, null, ModeSwitchMotion.Colors.CRACK_BRANCH, 1.1, .95, "round", "round")
         }
     }
 
@@ -106,28 +109,28 @@ internal fun buildDropShapes(hit: Point): DropShapes {
     for (i in 0 until 30) {
         val side = if (i % 2 != 0) 1 else -1
         val u = r.next()
-        val ox = hit.x + side * u * 158 * s
-        val oy = hit.y - u * 50 * s
-        val ang = -PI / 2 + side * (.5 + r.next() * 1.0)
-        val sp = 60 + r.next() * 170
-        val r0 = 9 + r.next() * 14
-        val life = 380 + r.next() * 340
-        val alpha = .45 + r.next() * .4
-        dust += Particle(ox, oy, cos(ang) * sp, sin(ang) * sp * .75, r0, life, alpha)
+        val ox = hit.x + side * u * 164 * s
+        val oy = hit.y - u * 44 * s
+        val ang = -PI / 2 + side * (.85 + r.next() * .65)
+        val sp = 60 + r.next() * 190
+        val r0 = 10 + r.next() * 14
+        val life = 400 + r.next() * 340
+        val alpha = .45 + r.next() * .42
+        dust += Particle(ox, oy, cos(ang) * sp, sin(ang) * sp * .55, r0, life, alpha)
     }
     val sparks = ArrayList<Particle>()
-    for (i in 0 until 34) {
-        val ang = -PI / 2 + (r.next() - .5) * 3.4
-        val sp = 160 + r.next() * 300
-        val life = 240 + r.next() * 260
-        sparks += Particle(hit.x, hit.y - 6, cos(ang) * sp, sin(ang) * sp, 0.0, life, 1.0)
+    for (i in 0 until 36) {
+        val ang = -PI / 2 + (r.next() - .5) * 3.1
+        val sp = 165 + r.next() * 330
+        val life = 250 + r.next() * 290
+        sparks += Particle(hit.x + (r.next() - .5) * 30, hit.y - 6, cos(ang) * sp, sin(ang) * sp, 0.0, life, 1.0)
     }
     val burst = ArrayList<Point>()
     val bn = 18
     for (i in 0 until bn * 2) {
         val a = i.toDouble() / (bn * 2) * PI * 2
-        val rad = if (i % 2 != 0) 16 + r.next() * 10 else 70 + r.next() * 70
-        burst += Point(fixed(cos(a) * rad * 1.5, 1).toDouble(), fixed(sin(a) * rad * .55, 1).toDouble())
+        val rad = if (i % 2 != 0) 15 + r.next() * 10 else 72 + r.next() * 72
+        burst += Point(fixed(cos(a) * rad * 1.48, 1).toDouble(), fixed(sin(a) * rad * .52, 1).toDouble())
     }
     return DropShapes(cracks, dust, sparks, burst)
 }
@@ -138,8 +141,8 @@ internal class PumpShapes(val veins: List<VeinPath>, val nodes: List<VeinNode>)
 internal val VEIN_LAYERS = listOf(VeinPath.LAYER_GLOW, VeinPath.LAYER_CORE, VeinPath.LAYER_HOT, VeinPath.LAYER_PULSE)
 
 /**
- * The whole rng(23) run: seven main veins in a 120-degree fan centred on [fanCentreDeg] (the prototype's fan is
- * centred on 228), each running to the screen's edge from [src], capped at 840 x [reach], with their branches.
+ * The whole rng(23) run: seven main veins in a 120-degree fan centred on [fanCentreDeg], each running to the screen's
+ * edge from [src], capped at 840 x [reach], with their branches.
  */
 internal fun buildPumpShapes(w: Double, h: Double, src: Point, fanCentreDeg: Double, reach: Double): PumpShapes {
     val pr = MotionRng(23)
@@ -170,9 +173,9 @@ internal fun buildPumpShapes(w: Double, h: Double, src: Point, fanCentreDeg: Dou
             x += cos(hd) * step; y += sin(hd) * step
             pts += doubleArrayOf(x, y); heads += hd
         }
-        vein(VeinPath.LAYER_GLOW, pts, false, d0, (n * step).toDouble(), if (level == 1) 6.0 else 4.0)
-        vein(VeinPath.LAYER_CORE, pts, false, d0, (n * step).toDouble(), if (level == 1) 1.3 else .9)
-        nodes += VeinNode(p0[0] + src.x, p0[1] + src.y, if (level == 1) 2.6 else 1.7, d0)
+        vein(VeinPath.LAYER_GLOW, pts, false, d0, (n * step).toDouble(), if (level == 1) 7.0 else 4.5)
+        vein(VeinPath.LAYER_CORE, pts, false, d0, (n * step).toDouble(), if (level == 1) 1.5 else .95)
+        nodes += VeinNode(p0[0] + src.x, p0[1] + src.y, if (level == 1) 2.8 else 1.8, d0)
         if (level == 1 && n > 2 && pr.next() < .65) {
             val k = 1 + (pr.next() * (n - 1)).toInt()
             val sign = if (pr.next() > .5) 1 else -1
@@ -197,7 +200,7 @@ internal fun buildPumpShapes(w: Double, h: Double, src: Point, fanCentreDeg: Dou
         var y = 0.0
         var wander = 0.0
         for (s in 0 until n) {
-            wander = wander * .72 + (pr.next() - .5) * .62
+            wander = wander * .72 + (pr.next() - .5) * .58
             val hd = base + wander
             x += cos(hd) * step; y += sin(hd) * step
             pts += doubleArrayOf(x, y); heads += hd
@@ -205,18 +208,18 @@ internal fun buildPumpShapes(w: Double, h: Double, src: Point, fanCentreDeg: Dou
         val len = (n * step).toDouble()
         val k1 = max(2, (n * .6).roundToInt())
         val k2 = max(2, (n * .28).roundToInt())
-        vein(VeinPath.LAYER_GLOW, pts, false, 0.0, len, 9.0)
-        vein(VeinPath.LAYER_CORE, pts, false, 0.0, len, 1.5)
-        vein(VeinPath.LAYER_CORE, pts.subList(0, k1 + 1), true, 0.0, (k1 - .5) * step, 2.4)
-        vein(VeinPath.LAYER_CORE, pts.subList(0, k2 + 1), true, 0.0, (k2 - .5) * step, 3.4)
-        vein(VeinPath.LAYER_HOT, pts.subList(0, k1 + 1), true, 0.0, (k1 - .5) * step, .9)
-        pulses += VeinPath(smoothD(pts, false), VeinPath.LAYER_PULSE, VeinPath.colorOf(VeinPath.LAYER_PULSE), 2.6, 0.0, len, false)
+        vein(VeinPath.LAYER_GLOW, pts, false, 0.0, len, 10.0)
+        vein(VeinPath.LAYER_CORE, pts, false, 0.0, len, 1.7)
+        vein(VeinPath.LAYER_CORE, pts.subList(0, k1 + 1), true, 0.0, (k1 - .5) * step, 2.8)
+        vein(VeinPath.LAYER_CORE, pts.subList(0, k2 + 1), true, 0.0, (k2 - .5) * step, 3.6)
+        vein(VeinPath.LAYER_HOT, pts.subList(0, k1 + 1), true, 0.0, (k1 - .5) * step, 1.1)
+        pulses += VeinPath(smoothD(pts, false), VeinPath.LAYER_PULSE, VeinPath.colorOf(VeinPath.LAYER_PULSE), 3.2, 0.0, len, false)
         var side = if (pr.next() > .5) 1 else -1
         for (s in 2 until n - 1) {
-            if (pr.next() < .5) {
+            if (pr.next() < .48) {
                 side = -side
                 val turn = heads[s - 1] + side * (.45 + pr.next() * .5)
-                val bl = 60 + pr.next() * 130 * (1 - .4 * s / n)
+                val bl = 58 + pr.next() * 125 * (1 - .4 * s / n)
                 branch(pts[s], turn, bl, (s * step).toDouble(), 1)
             }
         }
@@ -237,68 +240,106 @@ private fun circleD(cx: Double, cy: Double, r: Double): String {
     return "M$a,$c A$rr,$rr 0 1,0 $b,$c A$rr,$rr 0 1,0 $a,$c Z"
 }
 
-private const val RUNE_D = "M-9,-116 L-9,-36 M-9,-100 L15,-78 L-9,-56"
+private const val RUNE_D = "M-10,-104 L-10,-46 M-10,-92 L18,-75 L-10,-58"
 
-/** The hammer, in the page's `#hammerShape` order. Circles are written as two arcs. */
+private val KNURL_D: String by lazy {
+    val sb = StringBuilder()
+    var y = -268
+    while (y <= -186) {
+        val half = 15.0 + ((y + 282.0) / 128.0) * 6.0
+        val l = fixed(-half + 1.0, 1)
+        val r = fixed(half - 1.0, 1)
+        if (sb.isNotEmpty()) sb.append(' ')
+        sb.append("M").append(l).append(',').append(y).append(" L").append(r).append(',').append(y + 9)
+        sb.append(" M").append(r).append(',').append(y).append(" L").append(l).append(',').append(y + 9)
+        y += 18
+    }
+    sb.toString()
+}
+
+/** The forged iron hammer, back to front, with the striking face at (0, 0) and the haft up. */
 internal val HAMMER: List<MotionPath> by lazy {
-    val ink = "#0B0C0E"
+    val ink = "#090B0E"
     listOf(
-        // hanging ring and pommel
-        MotionPath(circleD(0.0, -306.0, 11.0), null, "url(#gBand)", 6.0, 1.0),
-        MotionPath("M-22,-278 Q-24,-296 0,-296 Q24,-296 22,-278 Z", "url(#gBand)", null, 0.0, 1.0),
-        // haft: bare dark oak, tapered, three plain iron bands
-        MotionPath("M-15,-280 L15,-280 L21,-150 L-21,-150 Z", "url(#gWood)", null, 0.0, 1.0),
-        MotionPath("M-6,-276 L-8,-154 M3,-276 L4,-154 M10,-276 L13,-154", null, "#0C0A08", 1.2, .7),
-        MotionPath("M-19,-284 L19,-284 L19.6,-272 L-19.6,-272 Z", "url(#gBand)", null, 0.0, 1.0),
-        MotionPath("M-20,-226 L20,-226 L20.6,-214 L-20.6,-214 Z", "url(#gBand)", null, 0.0, 1.0),
-        // socket where haft meets head
-        MotionPath("M-25,-176 L25,-176 L34,-142 L-34,-142 Z", "url(#gBand)", null, 0.0, 1.0),
-        // head: broad pendant-style wedge, flared ends, keel underside
+        // hanging steel ring & machined pommel
+        MotionPath(circleD(0.0, -312.0, 12.0), null, "url(#gCollar)", 6.5, 1.0),
+        MotionPath("M-24,-282 L-18,-300 L18,-300 L24,-282 Z", "url(#gCollar)", ink, 1.8, 1.0, lineJoin = "round"),
+        MotionPath("M-16,-297 L16,-297 L19,-290 L-19,-290 Z", "#E5EAF0", null, 0.0, .35),
+        // tapered haft with knurled leather/steel grip
+        MotionPath("M-15,-282 L15,-282 L22,-154 L-22,-154 Z", "url(#gGrip)", ink, 1.8, 1.0),
+        MotionPath(KNURL_D, null, "#090807", 1.5, .65),
+        MotionPath(KNURL_D, null, "#8E7B68", .7, .22),
+        // machined iron grip collars & bolster socket
+        MotionPath("M-20,-284 L20,-284 L21,-273 L-21,-273 Z", "url(#gCollar)", ink, 1.6, 1.0),
+        MotionPath("M-21,-228 L21,-228 L22,-217 L-22,-217 Z", "url(#gCollar)", ink, 1.6, 1.0),
+        MotionPath("M-26,-178 L26,-178 L42,-146 L-42,-146 Z", "url(#gCollar)", ink, 2.0, 1.0, lineJoin = "round"),
+        MotionPath("M-24,-175 L24,-175 L27,-168 L-27,-168 Z", "#E5EAF0", null, 0.0, .35),
+        // main forged octagonal-beveled head
         MotionPath(
-            "M-30,-150 C-70,-150 -108,-140 -148,-114 L-160,-52 Q-86,-34 -30,-7 Q-12,0 0,0 Q12,0 30,-7 Q86,-34 160,-52 L148,-114 C108,-140 70,-150 30,-150 Z",
-            "url(#gIron)", ink, 2.0, 1.0, lineJoin = "round",
+            "M-44,-150 L-126,-142 L-162,-112 L-166,-44 L-128,-16 L-42,-4 L0,0 L42,-4 L128,-16 L166,-44 L162,-112 L126,-142 L44,-150 Z",
+            "url(#gSteelFace)", ink, 2.6, 1.0, lineJoin = "round",
         ),
-        // top bevel catching light
+        // top crown bright chamfer
         MotionPath(
-            "M-30,-148 C-70,-148 -108,-138 -146,-113 L-144,-104 C-106,-128 -70,-138 -30,-139 L30,-139 C70,-138 106,-128 144,-104 L146,-113 C108,-138 70,-148 30,-148 Z",
-            "#C9CED6", null, 0.0, .55,
+            "M-44,-150 L-126,-142 L-116,-124 L-40,-131 L40,-131 L116,-124 L126,-142 L44,-150 Z",
+            "#BFC6D0", null, 0.0, .82,
         ),
-        // end faces
-        MotionPath("M-148,-114 L-160,-52 L-146,-56 L-137,-108 Z", "#0F1113", null, 0.0, .7),
-        MotionPath("M148,-114 L160,-52 L146,-56 L137,-108 Z", "#9AA1AA", null, 0.0, .35),
-        // incised border
+        // left dark forged cheek & right lit forged cheek
         MotionPath(
-            "M-30,-128 C-66,-127 -98,-120 -130,-100 L-138,-62 Q-78,-46 -28,-22 Q-10,-14 0,-14 Q10,-14 28,-22 Q78,-46 138,-62 L130,-100 C98,-120 66,-127 30,-128 Z",
-            null, ink, 2.4, .75,
+            "M-126,-142 L-162,-112 L-166,-44 L-128,-16 L-114,-34 L-138,-52 L-136,-104 L-116,-124 Z",
+            "#181C21", null, 0.0, .9,
         ),
         MotionPath(
-            "M-30,-126 C-66,-125 -98,-118 -129,-98.500 L-136.500,-61 Q-78,-44 -28,-20 Q-10,-12 0,-12 Q10,-12 28,-20 Q78,-44 136.500,-61 L129,-98.500 C98,-118 66,-125 30,-126 Z",
-            null, "#B8BEC6", 1.0, .35,
+            "M126,-142 L162,-112 L166,-44 L128,-16 L114,-34 L138,-52 L136,-104 L116,-124 Z",
+            "#8E96A1", null, 0.0, .58,
         ),
-        // ring-and-dot punch marks
-        MotionPath(circleD(-98.0, -84.0, 13.0), null, ink, 2.6, 1.0),
-        MotionPath(circleD(98.0, -84.0, 13.0), null, ink, 2.6, 1.0),
-        MotionPath(circleD(-58.0, -66.0, 6.0), null, ink, 2.6, 1.0),
-        MotionPath(circleD(58.0, -66.0, 6.0), null, ink, 2.6, 1.0),
-        MotionPath(circleD(-98.0, -84.0, 4.0), ink, null, 0.0, 1.0),
-        MotionPath(circleD(98.0, -84.0, 4.0), ink, null, 0.0, 1.0),
-        MotionPath(circleD(-58.0, -66.0, 1.8), ink, null, 0.0, 1.0),
-        MotionPath(circleD(58.0, -66.0, 1.8), ink, null, 0.0, 1.0),
-        // thurisaz, cut into the iron
-        MotionPath(RUNE_D, null, "#08090A", 8.0, 1.0, lineCap = "square", lineJoin = "miter"),
+        // bottom striking face bevel
+        MotionPath(
+            "M-128,-16 L-42,-4 L0,0 L42,-4 L128,-16 L114,-34 L38,-22 L0,-18 L-38,-22 L-114,-34 Z",
+            "#363C44", null, 0.0, .92,
+        ),
+        // inner recessed forged panel outline & top specular ridge
+        MotionPath(
+            "M-116,-124 L-40,-131 L40,-131 L116,-124 L136,-104 L138,-52 L114,-34 L38,-22 L0,-18 L-38,-22 L-114,-34 L-138,-52 L-136,-104 Z",
+            null, ink, 2.4, 1.0, lineJoin = "round",
+        ),
+        MotionPath("M-114,-122 L-40,-129 L40,-129 L114,-122", null, "#E8EDF5", 1.6, .65, lineCap = "round"),
+        // twin plate-style weight grooves on left & right wings
+        MotionPath("M-96,-110 L-96,-48 M-78,-112 L-78,-44", null, ink, 4.0, .78, lineCap = "round"),
+        MotionPath("M-94,-110 L-94,-48 M-76,-112 L-76,-44", null, "#A8B1BC", 1.2, .45, lineCap = "round"),
+        MotionPath("M96,-110 L96,-48 M78,-112 L78,-44", null, ink, 4.0, .78, lineCap = "round"),
+        MotionPath("M98,-110 L98,-48 M80,-112 L80,-44", null, "#C6CED8", 1.2, .45, lineCap = "round"),
+        // center recessed rune plate
+        MotionPath("M-36,-116 L36,-116 L46,-76 L34,-34 L-34,-34 L-46,-76 Z", "#171A1F", ink, 2.2, 1.0, lineJoin = "round"),
+        MotionPath("M-34,-114 L34,-114", null, "#9BA4B0", 1.2, .5),
+        // deeply chiseled thurisaz rune
+        MotionPath(RUNE_D, null, "#050608", 9.0, 1.0, lineCap = "square", lineJoin = "miter"),
     )
 }
 
-/** The rune's glow, drawn over the hammer at [DropFrame.runeOpacity]. */
-internal val HAMMER_RUNE_GLOW = MotionPath(RUNE_D, null, "#FFC98A", 5.0, 1.0, lineCap = "square", lineJoin = "miter")
+/** The rune's golden core stroke, drawn over the hammer at [DropFrame.runeOpacity]. */
+internal val HAMMER_RUNE_GLOW = MotionPath(RUNE_D, null, "#FFB84D", 5.5, 1.0, lineCap = "square", lineJoin = "miter")
 
-/** The page's `<defs>` gradients. Linear ones run in the shape's bounding box (SVG's default units). */
+/** The full molten rune glow layers (ember bloom, orange halo, gold core, white-hot center, wing embers, top glint). */
+internal val HAMMER_RUNE_GLOWS: List<MotionPath> by lazy {
+    listOf(
+        MotionPath(circleD(0.0, -75.0, 58.0), "url(#gEmber)", null, 0.0, 1.0),
+        MotionPath(RUNE_D, null, "#FF6B1A", 9.0, .7, lineCap = "square", lineJoin = "miter"),
+        HAMMER_RUNE_GLOW,
+        MotionPath(RUNE_D, null, "#FFF8E7", 2.2, 1.0, lineCap = "square", lineJoin = "miter"),
+        MotionPath("M-78,-108 L-78,-48 M78,-108 L78,-48", null, "#FF9A3C", 2.0, .7, lineCap = "round"),
+        MotionPath("M-116,-124 L-40,-131 L40,-131 L116,-124", null, "#FFFFFF", 3.0, .75, lineCap = "round"),
+    )
+}
+
+/** The `<defs>` gradients. Linear ones run in the shape's bounding box (SVG's default units). */
 internal val MOTION_GRADIENTS: List<MotionGradient> by lazy {
     listOf(
-        MotionGradient("gIron", false, 0.0, 0.0, 0.0, 1.0, listOf(GradientStop(0.0, "#7B828B", 1.0), GradientStop(.38, "#4A5058", 1.0), GradientStop(1.0, "#1D2024", 1.0))),
-        MotionGradient("gBand", false, 0.0, 0.0, 1.0, 0.0, listOf(GradientStop(0.0, "#2A2E33", 1.0), GradientStop(.35, "#9AA1AA", 1.0), GradientStop(1.0, "#23262A", 1.0))),
-        MotionGradient("gWood", false, 0.0, 0.0, 1.0, 0.0, listOf(GradientStop(0.0, "#15110E", 1.0), GradientStop(.4, "#4A3A2C", 1.0), GradientStop(1.0, "#120F0C", 1.0))),
-        MotionGradient("gHalo", true, 0.0, 0.0, 0.0, 0.0, listOf(GradientStop(0.0, "#BFD7FF", .75), GradientStop(.4, "#6FA4FF", .32), GradientStop(1.0, "#4F8DFF", 0.0))),
-        MotionGradient("gChalk", true, 0.0, 0.0, 0.0, 0.0, listOf(GradientStop(0.0, "#E4E6E2", .9), GradientStop(.55, "#C9CED6", .45), GradientStop(1.0, "#C9CED6", 0.0))),
+        MotionGradient("gSteelFace", false, .15, 0.0, .85, 1.0, listOf(GradientStop(0.0, "#6F7782", 1.0), GradientStop(.32, "#3E444D", 1.0), GradientStop(.72, "#22262C", 1.0), GradientStop(1.0, "#121519", 1.0))),
+        MotionGradient("gGrip", false, 0.0, 0.0, 1.0, 0.0, listOf(GradientStop(0.0, "#12100E", 1.0), GradientStop(.35, "#3E332B", 1.0), GradientStop(.68, "#241E19", 1.0), GradientStop(1.0, "#0E0C0A", 1.0))),
+        MotionGradient("gCollar", false, 0.0, 0.0, 1.0, 0.0, listOf(GradientStop(0.0, "#20242A", 1.0), GradientStop(.3, "#C5CCD6", 1.0), GradientStop(.55, "#646C77", 1.0), GradientStop(1.0, "#1A1E23", 1.0))),
+        MotionGradient("gEmber", true, 0.0, 0.0, 0.0, 0.0, listOf(GradientStop(0.0, "#FFF6DC", 1.0), GradientStop(.35, "#FF9F3F", .8), GradientStop(.75, "#EA580C", .25), GradientStop(1.0, "#EA580C", 0.0))),
+        MotionGradient("gHalo", true, 0.0, 0.0, 0.0, 0.0, listOf(GradientStop(0.0, "#DCEBFF", .85), GradientStop(.38, "#60A5FA", .35), GradientStop(1.0, "#2563EB", 0.0))),
+        MotionGradient("gChalk", true, 0.0, 0.0, 0.0, 0.0, listOf(GradientStop(0.0, "#F3F4EF", .92), GradientStop(.52, "#C9CED6", .45), GradientStop(1.0, "#C9CED6", 0.0))),
     )
 }

@@ -688,8 +688,11 @@ object GritDomain {
     /** The hammer's shapes, back to front, the striking boss at (0, 0): place them with a frame's pose. */
     fun modeSwitchHammerPaths(): Array<JsMotionPath> = ModeSwitchMotion.HAMMER_PATHS.map { it.toJs() }.toTypedArray()
 
-    /** The rune's glow, over the hammer at the frame's `runeOpacity`. */
+    /** The rune's golden core stroke, over the hammer at the frame's `runeOpacity`. */
     fun modeSwitchHammerRune(): JsMotionPath = ModeSwitchMotion.HAMMER_RUNE.toJs()
+
+    /** The full molten rune glow layers, over the hammer at the frame's `runeOpacity`. */
+    fun modeSwitchHammerRunePaths(): Array<JsMotionPath> = ModeSwitchMotion.HAMMER_RUNE_PATHS.map { it.toJs() }.toTypedArray()
 
     /** The gradients the shapes name with `url(#id)`. */
     fun modeSwitchGradients(): Array<JsMotionGradient> = ModeSwitchMotion.GRADIENTS.map { it.toJs() }.toTypedArray()

@@ -202,20 +202,22 @@ export function buildDrop(svg: Element, w: number, h: number, light: boolean): D
   const ghosts = [0, 1, 2].map(() => node('use', { href: '#ms-hammer', opacity: 0 }, ghostLayer))
   const hammer = node('g', { opacity: 0 }, svg)
   node('use', { href: '#ms-hammer' }, hammer.el)
-  const r = grit.modeSwitchHammerRune()
-  const rune = node(
-    'path',
-    {
-      d: r.d,
-      fill: 'none',
-      stroke: r.stroke ?? 'none',
-      'stroke-width': r.strokeWidth,
-      'stroke-linecap': r.lineCap,
-      'stroke-linejoin': r.lineJoin,
-      opacity: 0,
-    },
-    hammer.el,
-  )
+  const rune = node('g', { opacity: 0 }, hammer.el)
+  for (const r of grit.modeSwitchHammerRunePaths()) {
+    node(
+      'path',
+      {
+        d: r.d,
+        fill: own(r.fill),
+        stroke: own(r.stroke),
+        'stroke-width': r.strokeWidth,
+        opacity: r.opacity,
+        'stroke-linecap': r.lineCap,
+        'stroke-linejoin': r.lineJoin,
+      },
+      rune.el,
+    )
+  }
   const sparkLayer = node(
     'g',
     {

@@ -112,6 +112,7 @@ export declare namespace GritDomain {
             modeSwitchSparkWidth(): number;
             modeSwitchHammerPaths(): Array<JsMotionPath>;
             modeSwitchHammerRune(): JsMotionPath;
+            modeSwitchHammerRunePaths(): Array<JsMotionPath>;
             modeSwitchGradients(): Array<JsMotionGradient>;
             modeSwitchHitPoint(w: number, h: number): JsMotionPoint;
             modeSwitchDropFrame(tMs: number, w: number, h: number): JsDropFrame;
