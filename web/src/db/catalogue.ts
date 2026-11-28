@@ -68,6 +68,25 @@ export function setPlateCount(db: GritDb, exerciseId: number | null, catalogueNa
   })
 }
 
+/**
+ * Sets an exercise's single-sided ("one side at a time") setting in one transaction; resolves to the row's id.
+ * Turning it off removes the key from the row. Only that row changes; existing sets stay as they are.
+ */
+export function setSingleSided(db: GritDb, exerciseId: number | null, catalogueName: string | null, enabled: boolean): Promise<number> {
+  return db.transaction('rw', db.exercises, async () => {
+    const id = await exerciseFor(db, exerciseId, catalogueName)
+    if ((await db.exercises.get(id)) == null) throw new Error(`There is no exercise ${id}.`)
+    await db.exercises
+      .where(':id')
+      .equals(id)
+      .modify((row: ExerciseRow) => {
+        if (enabled) row.singleSided = true
+        else delete row.singleSided
+      })
+    return id
+  })
+}
+
 /** Every plan item of `mode`'s side, in id order. Each side keeps its own plan (bodybuilding mode spec §2). */
 export async function planFor(db: GritDb, mode: TrainingMode): Promise<(PlanItemRow & { id: number })[]> {
   // Filtered here rather than by the mode index: a row with no mode is on the powerlifting side (see `sideOf`).

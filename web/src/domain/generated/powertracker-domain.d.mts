@@ -170,6 +170,10 @@ export declare namespace GritDomain {
             guideSampleMonthsHistory(mode: string, until: string): JsHistory;
             guideSampleMonthsPlan(mode: string): Array<JsPlanItem>;
             guideSampleMonthsCheckIn(mode: string, step: string, progress: number): Nullable<JsCheckIn>;
+            singleSidedOffered(exercise: JsExercise): boolean;
+            singleSidedActive(exercise: JsExercise): boolean;
+            singleSidedWeaker(right: JsSideLog, left: JsSideLog): JsSideLog;
+            singleSidedSummary(split: JsSplitSides, unit?: string): string;
             private constructor();
         }
     }
@@ -760,8 +764,40 @@ export declare namespace JsModeSwitchLightColors {
         const constructor: abstract new () => JsModeSwitchLightColors;
     }
 }
+export declare class JsSideLog {
+    constructor(weightKg: number, reps: number, rpe: Nullable<number>, failed: boolean);
+    get weightKg(): number;
+    get reps(): number;
+    get rpe(): Nullable<number>;
+    get failed(): boolean;
+    copy(weightKg?: number, reps?: number, rpe?: Nullable<number>, failed?: boolean): JsSideLog;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSideLog {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSideLog;
+    }
+}
+export declare class JsSplitSides {
+    constructor(right: JsSideLog, left: JsSideLog);
+    get right(): JsSideLog;
+    get left(): JsSideLog;
+    copy(right?: JsSideLog, left?: JsSideLog): JsSplitSides;
+    toString(): string;
+    hashCode(): number;
+    equals(other: Nullable<any>): boolean;
+}
+export declare namespace JsSplitSides {
+    /** @deprecated $metadata$ is used for internal purposes, please don't use it in your code, because it can be removed at any moment */
+    namespace $metadata$ {
+        const constructor: abstract new () => JsSplitSides;
+    }
+}
 export declare class JsExercise {
-    constructor(id: number, name: string, category: string, parentLift: Nullable<string>, muscles: Array<string>, isBuiltIn: boolean, archived: boolean, plateCount?: string);
+    constructor(id: number, name: string, category: string, parentLift: Nullable<string>, muscles: Array<string>, isBuiltIn: boolean, archived: boolean, plateCount?: string, singleSided?: boolean);
     get id(): number;
     get name(): string;
     get category(): string;
@@ -770,7 +806,8 @@ export declare class JsExercise {
     get isBuiltIn(): boolean;
     get archived(): boolean;
     get plateCount(): string;
-    copy(id?: number, name?: string, category?: string, parentLift?: Nullable<string>, muscles?: Array<string>, isBuiltIn?: boolean, archived?: boolean, plateCount?: string): JsExercise;
+    get singleSided(): boolean;
+    copy(id?: number, name?: string, category?: string, parentLift?: Nullable<string>, muscles?: Array<string>, isBuiltIn?: boolean, archived?: boolean, plateCount?: string, singleSided?: boolean): JsExercise;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;
@@ -782,7 +819,7 @@ export declare namespace JsExercise {
     }
 }
 export declare class JsSet {
-    constructor(exerciseId: number, weightKg: number, reps: number, rpe: Nullable<number>, failed: boolean, missPoint: Nullable<string>, isTopSet: boolean, unit?: string);
+    constructor(exerciseId: number, weightKg: number, reps: number, rpe: Nullable<number>, failed: boolean, missPoint: Nullable<string>, isTopSet: boolean, unit?: string, splitSides?: Nullable<JsSplitSides>);
     get exerciseId(): number;
     get weightKg(): number;
     get reps(): number;
@@ -791,7 +828,8 @@ export declare class JsSet {
     get missPoint(): Nullable<string>;
     get isTopSet(): boolean;
     get unit(): string;
-    copy(exerciseId?: number, weightKg?: number, reps?: number, rpe?: Nullable<number>, failed?: boolean, missPoint?: Nullable<string>, isTopSet?: boolean, unit?: string): JsSet;
+    get splitSides(): Nullable<JsSplitSides>;
+    copy(exerciseId?: number, weightKg?: number, reps?: number, rpe?: Nullable<number>, failed?: boolean, missPoint?: Nullable<string>, isTopSet?: boolean, unit?: string, splitSides?: Nullable<JsSplitSides>): JsSet;
     toString(): string;
     hashCode(): number;
     equals(other: Nullable<any>): boolean;

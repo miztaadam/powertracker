@@ -29,7 +29,9 @@ export {
   JsRatioRange,
   JsSession,
   JsSet,
+  JsSideLog,
   JsSkip,
+  JsSplitSides,
   JsWeeklyPoint,
 } from './generated/powertracker-domain.mjs'
 

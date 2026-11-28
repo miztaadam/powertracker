@@ -35,14 +35,30 @@ export const SKIP_ANSWERS: readonly [text: string, reason: SkipReason | null][] 
 /** How long, in ms, the reason sheet ignores taps on its answers once it is open (see `SHEET_TAP_WINDOW_MS`). */
 export const SKIP_SHEET_TAP_WINDOW_MS = SHEET_TAP_WINDOW_MS
 
+export const ONE_SIDE_AT_A_TIME = 'One side at a time'
+export const ONE_SIDE_ON = 'One side at a time · On'
+
 /**
- * The row menu (⋮): Skip today with `onSkipToday`, and Count plates on this machine under it with `onCountPlates` (1.17).
- * It shows when either is given, and draws nothing when neither is.
+ * The row menu (⋮): Skip today with `onSkipToday`, Count plates on this machine with `onCountPlates` (1.17),
+ * and One side at a time with `onToggleSingleSided`. Draws nothing when none are given.
  */
-export function SkipMenu({ name, onSkipToday, onCountPlates }: { name: string; onSkipToday?: () => void; onCountPlates?: () => void }) {
+export function SkipMenu({
+  name,
+  onSkipToday,
+  onCountPlates,
+  singleSided,
+  onToggleSingleSided,
+}: {
+  name: string
+  onSkipToday?: () => void
+  onCountPlates?: () => void
+  singleSided?: boolean
+  onToggleSingleSided?: () => void
+}) {
   const items: MenuItem[] = [
     ...(onSkipToday ? [{ text: SKIP_TODAY, icon: <SkipNextIcon />, onSelect: onSkipToday }] : []),
     ...(onCountPlates ? [{ text: COUNT_PLATES, icon: <TuneIcon />, onSelect: onCountPlates, testId: 'exercise-menu-plates' }] : []),
+    ...(onToggleSingleSided ? [{ text: singleSided ? ONE_SIDE_ON : ONE_SIDE_AT_A_TIME, icon: <TuneIcon />, onSelect: onToggleSingleSided, testId: 'exercise-menu-single-sided' }] : []),
   ]
   if (items.length === 0) return null
   return <Menu label={exerciseOptions(name)} items={items} />

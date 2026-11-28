@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { grit, todayIso } from '../../domain'
-import { setUnit, type LoadUnit, type TrainingMode } from '../../db/schema'
+import { grit, JsSideLog, todayIso } from '../../domain'
+import { splitSidesToJs } from '../../db/mapping'
+import { setUnit, type LoadUnit, type Side, type SideLogRow, type TrainingMode } from '../../db/schema'
 import { GRIND_RPE, type MissPoint, type PlannedItem, type SetEditor, type StoredSet, type Suggestion, type SupersetHalf, type Target, type TodayActions, type TodayItem } from '../../state/useToday'
 import { PrimaryButton, QuietButton, SecondaryButton } from '../../ui/components/Button'
 import { Card } from '../../ui/components/Card'
@@ -105,13 +106,15 @@ export type ExerciseCardProps = {
   onSkipToday?: () => void
   /** Opens the plate sheet (1.17); left out, Count plates is not in the row menu. With neither, there is no menu. */
   onCountPlates?: () => void
+  /** Toggles single-sided ("one side at a time") tracking in the row menu. */
+  onToggleSingleSided?: () => void
 }
 
 /** A superset's tag on Today, as on the Plan tab (1.24): "Superset A" on the first exercise, "Superset B" on the one done straight after it. */
 export const supersetTag = (half: SupersetHalf): string => (half === 'FIRST' ? 'Superset A' : 'Superset B')
 
 /** The exercise being logged: coach chip, sets so far, steppers, plates and the one big button. */
-export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', today = todayIso(), onSkipToday, onCountPlates }: ExerciseCardProps) {
+export function ExerciseCard({ item, position, count, weightStepKg, changePlates, next, actions, side = 'POWERLIFTING', today = todayIso(), onSkipToday, onCountPlates, onToggleSingleSided }: ExerciseCardProps) {
   const id = item.exercise.id
   const [extraSet, setExtraSet] = useState(false)
   const [selected, setSelected] = useState<{ number: number; set: StoredSet } | null>(null)
@@ -156,7 +159,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
         {/* Together, at the right: when the head wraps they go to the next line as one, never the ⋮ alone at the left (1.17.1). */}
         <span className="today-card-actions">
           <InfoButton name={item.exercise.name} />
-          <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} />
+          <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} singleSided={item.singleSided} onToggleSingleSided={onToggleSingleSided} />
         </span>
       </div>
 
@@ -184,6 +187,7 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
                 onClick={() => setSelected({ number: i + 1, set })}
                 // Each set in its own unit, whatever the exercise's setting is now.
                 unit={set.unit}
+                splitText={set.splitSides ? grit.singleSidedSummary(splitSidesToJs(set.splitSides), setUnit(set)) : undefined}
               />
               {powerlifting && (set.failed || (set.rpe ?? 0) >= GRIND_RPE) && <MissRow number={i + 1} set={set} lift={grit.mainLiftOf(item.exercise) ?? null} onSelect={(point) => void actions.setMissPoint(set.id, point)} />}
             </div>
@@ -235,6 +239,11 @@ export function ExerciseCard({ item, position, count, weightStepKg, changePlates
           }
         >
           <p className="today-dose headline-small">{doseText(selected.set.weightKg, selected.set.reps, selected.set.rpe, setUnit(selected.set)) + (selected.set.failed ? ' · failed' : '')}</p>
+          {selected.set.splitSides && (
+            <p className="body-medium" style={{ color: 'var(--text-secondary)', marginTop: 6 }}>
+              {`Right: ${doseText(selected.set.splitSides.right.weightKg, selected.set.splitSides.right.reps, selected.set.splitSides.right.rpe, setUnit(selected.set))}${selected.set.splitSides.right.failed ? ' (missed)' : ''} · Left: ${doseText(selected.set.splitSides.left.weightKg, selected.set.splitSides.left.reps, selected.set.splitSides.left.rpe, setUnit(selected.set))}${selected.set.splitSides.left.failed ? ' (missed)' : ''}`}
+            </p>
+          )}
         </Dialog>
       )}
     </Card>
@@ -299,6 +308,11 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   const e = item.editor
   const [drafts, setDrafts] = useState<Drafts>({})
   const [focused, setFocused] = useState<EntryKind | null>(null)
+  const [startSide, setStartSide] = useState<Side>('RIGHT')
+  const [firstSide, setFirstSide] = useState<{ side: Side; log: SideLogRow } | null>(null)
+  const singleSided = item.singleSided === true
+  const activeSide: Side = firstSide != null ? (firstSide.side === 'RIGHT' ? 'LEFT' : 'RIGHT') : startSide
+  const sideLabel = (s: Side) => (s === 'RIGHT' ? 'Right' : 'Left')
   const isBarbellLift = item.exercise.category !== 'ACCESSORY'
   // The weight is typed as kg or as a plate number (1.17); each card settles only its own three kinds.
   const unit = setUnit(item)
@@ -317,6 +331,9 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
   if ((Object.keys(drafts) as EntryKind[]).some((kind) => drafts[kind] != null && (!kinds.includes(kind) || shown(kind) == null))) {
     setDrafts(Object.fromEntries(kinds.map((kind) => [kind, shown(kind)])))
   }
+  // If single-sided mode was turned off mid-set, clear any pending first-side log.
+  if (!singleSided && firstSide != null) setFirstSide(null)
+
   // The editor as it will be once the typing is committed: the plates and the buttons follow the typing.
   const typed = settle(e, drafts, kinds).editor
   const weight = typed.weightKg
@@ -353,8 +370,33 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
     if (!sameEditor(settled.editor, e)) actions.edit(id, settled.editor)
     if (refused >= 0) return
     const now = settled.editor
+    if (now.weightKg == null) return
+    if (singleSided) {
+      const half: SideLogRow = { weightKg: now.weightKg, reps: now.reps, rpe: now.rpe, failed }
+      if (firstSide == null) {
+        // First side logged: hold it here, start no rest timer, and keep the steppers pre-filled for the other side.
+        setFirstSide({ side: activeSide, log: half })
+        return
+      }
+      const right = firstSide.side === 'RIGHT' ? firstSide.log : half
+      const left = firstSide.side === 'LEFT' ? firstSide.log : half
+      const weaker = grit.singleSidedWeaker(
+        new JsSideLog(right.weightKg, right.reps, right.rpe, right.failed),
+        new JsSideLog(left.weightKg, left.reps, left.rpe, left.failed),
+      )
+      setFirstSide(null)
+      void actions.logSet(id, {
+        weightKg: weaker.weightKg,
+        reps: weaker.reps,
+        rpe: weaker.rpe ?? null,
+        failed: weaker.failed,
+        ...(unit === 'PLATES' ? { unit } : {}),
+        splitSides: { right, left },
+      })
+      return
+    }
     // The set carries the unit of the field it was typed in; kg writes no unit key.
-    if (now.weightKg != null) void actions.logSet(id, { weightKg: now.weightKg, reps: now.reps, rpe: now.rpe, failed, ...(unit === 'PLATES' ? { unit } : {}) })
+    void actions.logSet(id, { weightKg: now.weightKg, reps: now.reps, rpe: now.rpe, failed, ...(unit === 'PLATES' ? { unit } : {}) })
   }
 
   const field = (kind: EntryKind, label: string, valueText: string, inputMode: 'decimal' | 'numeric', unitText?: string, placeholder = unitText) => (
@@ -371,10 +413,40 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
     />
   )
   const weightText = e.weightKg != null ? formatKg(e.weightKg) : ''
+  const logLabel = singleSided
+    ? firstSide == null
+      ? `Log ${sideLabel(activeSide)} (1/2)`
+      : `Log ${sideLabel(activeSide)} · Set ${item.sets.length + 1}`
+    : `Log set ${item.sets.length + 1}`
 
   return (
     <>
       <WarmUp sets={warmUp} done={item.warmUpDone} onTick={(key, done) => actions.tickWarmUp(id, key, done)} />
+      {singleSided && (
+        <div className="today-side-bar" data-testid="single-sided-bar">
+          {firstSide == null ? (
+            <>
+              <span className="eyebrow">One side at a time</span>
+              <SegmentedChoice
+                label="Side to log first"
+                options={['Right', 'Left']}
+                selectedIndex={startSide === 'RIGHT' ? 0 : 1}
+                onSelect={(i) => setStartSide(i === 0 ? 'RIGHT' : 'LEFT')}
+              />
+            </>
+          ) : (
+            <div className="today-side-pending" data-testid="single-sided-pending">
+              <div className="today-side-pending-text">
+                <span className="eyebrow">{`${sideLabel(firstSide.side)} done · now log ${sideLabel(activeSide)}`}</span>
+                <span className="body-medium">
+                  {doseText(firstSide.log.weightKg, firstSide.log.reps, firstSide.log.rpe, unit) + (firstSide.log.failed ? ' · missed' : '')}
+                </span>
+              </div>
+              <QuietButton text="Undo" onClick={() => setFirstSide(null)} />
+            </div>
+          )}
+        </div>
+      )}
       <div className="today-steppers" ref={fields}>
         {weightField === 'kg' ? (
           <StepperField
@@ -438,17 +510,29 @@ function Editor({ item, weightStepKg, changePlates, actions }: { item: TodayItem
 
       <div className="today-log">
         <SecondaryButton text="Missed" onClick={() => log(true)} enabled={weight != null} icon={<CloseIcon />} />
-        <PrimaryButton className="today-grow" text={`Log set ${item.sets.length + 1}`} onClick={() => log(false)} enabled={weight != null} icon={<CheckIcon />} />
+        <PrimaryButton className="today-grow" text={logLabel} onClick={() => log(false)} enabled={weight != null} icon={<CheckIcon />} />
       </div>
     </>
   )
 }
 
 /**
- * Another exercise in today's session, folded to one line. Tap to log it. `onSkipToday` (1.13) and `onCountPlates` (1.17)
- * put their items in the row menu; with neither there is none.
+ * Another exercise in today's session, folded to one line. Tap to log it. `onSkipToday` (1.13), `onCountPlates` (1.17)
+ * and `onToggleSingleSided` put their items in the row menu; with none there is no menu.
  */
-export function ExerciseRow({ item, onClick, onSkipToday, onCountPlates }: { item: TodayItem; onClick: () => void; onSkipToday?: () => void; onCountPlates?: () => void }) {
+export function ExerciseRow({
+  item,
+  onClick,
+  onSkipToday,
+  onCountPlates,
+  onToggleSingleSided,
+}: {
+  item: TodayItem
+  onClick: () => void
+  onSkipToday?: () => void
+  onCountPlates?: () => void
+  onToggleSingleSided?: () => void
+}) {
   return (
     <Card contentPadding={0} className="today-row-card">
       <button type="button" className="today-row" onClick={onClick}>
@@ -467,6 +551,7 @@ export function ExerciseRow({ item, onClick, onSkipToday, onCountPlates }: { ite
           <span className="today-pair-second today-pair-row">
             {item.planned && <span className="today-row-plan headline-small">{planText(item.planned)}</span>}
             {item.superset && <Pill text={supersetTag(item.superset.half)} />}
+            {item.singleSided && <Pill text="One side" />}
             {item.isComplete ? (
               <Pill text="Done" tone="success" icon={<CheckIcon />} />
             ) : item.sets.length > 0 && item.targetSets != null ? (
@@ -481,7 +566,7 @@ export function ExerciseRow({ item, onClick, onSkipToday, onCountPlates }: { ite
           so that a long word of the name still has its room (1.13). */}
       <span className="today-row-actions">
         <InfoButton name={item.exercise.name} />
-        <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} />
+        <SkipMenu name={item.exercise.name} onSkipToday={onSkipToday} onCountPlates={onCountPlates} singleSided={item.singleSided} onToggleSingleSided={onToggleSingleSided} />
       </span>
     </Card>
   )

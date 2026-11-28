@@ -20,12 +20,15 @@ export type SetRowProps = {
   className?: string
   /** What `weightKg` is (1.17): kg when left out, or a plate number on a plate-counted machine, "plate 7½". */
   unit?: LoadUnit
+  /** Compact Right/Left breakdown for a single-sided set, e.g. "R 12 · L 10". */
+  splitText?: string
 }
 
 /** "Set 1: 150 kg × 5 at RPE 8, top set, personal record, done"; "Set 1: plate 7 and a half × 12 at RPE 8, done". */
-export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, unit }: SetRowProps): string {
+export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, unit, splitText }: SetRowProps): string {
   let s = `Set ${index}: ${unit === 'PLATES' ? grit.plateSpoken(weightKg) : `${formatKg(weightKg)} kg`} × ${reps}`
   if (rpe != null) s += ` at RPE ${formatRpe(rpe)}`
+  if (splitText) s += `, ${splitText}`
   if (isTopSet) s += ', top set'
   if (isPr) s += ', personal record'
   return `${s}, ${state}`
@@ -37,7 +40,7 @@ export function setRowLabel({ index, weightKg, reps, rpe, state, isTopSet = fals
  * Reads to a screen reader as one sentence.
  */
 export function SetRow(props: SetRowProps) {
-  const { index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, onClick, className, unit } = props
+  const { index, weightKg, reps, rpe, state, isTopSet = false, isPr = false, onClick, className, unit, splitText } = props
   const content = (
     <>
       <span className="sr-only">{setRowLabel(props)}</span>
@@ -59,9 +62,10 @@ export function SetRow(props: SetRowProps) {
             </span>
           )}
         </span>
-        {(isTopSet || isPr) && (
+        {(isTopSet || isPr || splitText) && (
           // Both pills stay on one line where they fit; on a narrow phone with a long weight the second goes under the first.
           <span className="gr-set-pills">
+            {splitText && <Pill text={splitText} />}
             {isTopSet && <Pill text="Top set" />}
             {isPr && <Pill text="PR" tone="success" icon={<EmojiEventsIcon />} />}
           </span>

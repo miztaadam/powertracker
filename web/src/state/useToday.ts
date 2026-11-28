@@ -1,10 +1,10 @@
 import Dexie, { liveQuery } from 'dexie'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { addSet, planFor, setPlateCount as storePlateCount } from '../db/catalogue'
+import { addSet, planFor, setPlateCount as storePlateCount, setSingleSided as storeSingleSided } from '../db/catalogue'
 import { checkInToJs, loadCheckIns } from '../db/checkIns'
 import { getSettings, loadHistory, type AppSettings, type GritDb } from '../db/db'
 import { adviceFromJs, adviceToJs, planItemToJs } from '../db/mapping'
-import { LOAD_UNITS, setUnit, sideOf, type AdviceRow, type LoadUnit, type PlanItemRow, type PlateCount, type SetRow, type SkipReason, type TrainingMode } from '../db/schema'
+import { LOAD_UNITS, setUnit, sideOf, type AdviceRow, type LoadUnit, type PlanItemRow, type PlateCount, type SetRow, type SkipReason, type SplitSidesRow, type TrainingMode } from '../db/schema'
 import { skip as storeSkip, skips as readSkips, skipToJs, unskip, type StoredSkip } from '../db/skips'
 import { haptic, hapticsPossible } from '../platform/haptics'
 import type { PastSet } from '../ui/components/PastSets'
@@ -90,13 +90,16 @@ export type TodayItem = {
   unit?: LoadUnit
   plateCount?: PlateCount
   plateOffered?: boolean
+  /** Single-sided ("one side at a time") tracking: Right + Left = 1 set; offered on unilateral-capable accessories. */
+  singleSided?: boolean
+  singleSidedOffered?: boolean
 }
 
 /**
  * What the lifter did, as the editor has it. Never a top set: that is worked out from the session afterwards. `unit`
  * (1.17) is the field's it was typed in, there only for plates.
  */
-export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit }
+export type SetInput = { weightKg: number; reps: number; rpe: number | null; failed: boolean; unit?: LoadUnit; splitSides?: SplitSidesRow }
 
 export type InputWarning = 'HIGH_REPS' | 'BIG_JUMP'
 
@@ -232,6 +235,8 @@ export type TodayActions = {
    * offers no plate item.
    */
   setPlateCount?: (itemKey: number, value: PlateCount) => Promise<void>
+  /** Stores whether the item with this key is logged one side at a time (Right + Left = 1 set). */
+  setSingleSided?: (itemKey: number, enabled: boolean) => Promise<void>
   /**
    * Skips `exerciseId`, planned today with no sets logged, for today on the side shown, with an optional reason (null is
    * "Just skip"). The skip and the coach's card for it, if any, are stored together, and it ticks once. Skipping needs no
@@ -582,6 +587,8 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
     const unit = grit.loadUnitOf(exercise) as LoadUnit
     const offered = grit.plateCountOffered(exercise)
     const plateCount = exercise.plateCount as PlateCount
+    const singleOffered = grit.singleSidedOffered(exercise)
+    const singleSided = grit.singleSidedActive(exercise)
     const sets = d.sets.filter((s) => s.exerciseId === exercise.id)
     // A stored target in the other unit is neither shown nor applied.
     // Nor is a plate target off the current grid (plate 7½ once whole plates are on): the coach's pass stores a fresh one.
@@ -629,6 +636,8 @@ function build(d: Stored, l: Local): Pick<TodayState, 'sessionId' | 'items' | 'e
       ...unitKey(unit),
       ...(offered && plateCount !== 'OFF' ? { plateCount } : {}),
       ...(offered ? { plateOffered: true } : {}),
+      ...(singleSided ? { singleSided: true } : {}),
+      ...(singleOffered ? { singleSidedOffered: true } : {}),
     }
   }
 
@@ -1061,8 +1070,19 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
         // The top set is worked out from the session afterwards (heaviest good set), never flagged here.
         // A stand-in key means a catalogue exercise with no row yet: the row is saved with this set, in one transaction.
         const entry = standInEntry(itemKey)
-        // `unit` goes last and only for plates: a kg row is exactly as it was.
-        const row = { sessionId: now.sessionId, exerciseId: entry ? null : itemKey, weightKg: set.weightKg, reps: set.reps, rpe: set.rpe, failed: set.failed, missPoint: null, isTopSet: false, ...unitKey(setUnit(set)) }
+        // `unit` goes last and only for plates: a kg row is exactly as it was; `splitSides` only for single-sided sets.
+        const row = {
+          sessionId: now.sessionId,
+          exerciseId: entry ? null : itemKey,
+          weightKg: set.weightKg,
+          reps: set.reps,
+          rpe: set.rpe,
+          failed: set.failed,
+          missPoint: null,
+          isTopSet: false,
+          ...unitKey(setUnit(set)),
+          ...(set.splitSides ? { splitSides: set.splitSides } : {}),
+        }
         slide.arm()
         let setId: number
         try {
@@ -1267,6 +1287,14 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     [db, date, update],
   )
 
+  const setSingleSided = useCallback<NonNullable<TodayActions['setSingleSided']>>(
+    async (itemKey, enabled) => {
+      const entry = standInEntry(itemKey)
+      await storeSingleSided(db, entry ? null : itemKey, entry?.name ?? null, enabled)
+    },
+    [db],
+  )
+
   const finishSession = useCallback(async () => {
     const tapped = latest.current
     if (finishing.current || tapped.summary != null || tapped.loading || tapped.sessionId == null) return
@@ -1383,6 +1411,7 @@ export function useToday(db: GritDb, today: () => string, onSetLogged?: (isMainO
     removeExercise,
     tickWarmUp,
     setPlateCount,
+    setSingleSided,
     skip,
     undoSkip,
     bringBack,

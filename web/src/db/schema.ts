@@ -32,6 +32,23 @@ export function plateCountOf(row: { plateCount?: PlateCount }): PlateCount {
   return row.plateCount ?? 'OFF'
 }
 
+/** Which side was worked in a single-sided set. */
+export type Side = 'RIGHT' | 'LEFT'
+
+/** One half (right or left) of a single-sided set. */
+export type SideLogRow = {
+  weightKg: number
+  reps: number
+  rpe: number | null
+  failed: boolean
+}
+
+/** Both halves of a single-sided set; the set's main fields hold the weaker side. */
+export type SplitSidesRow = {
+  right: SideLogRow
+  left: SideLogRow
+}
+
 export type ExerciseRow = {
   id?: number
   name: string
@@ -42,6 +59,8 @@ export type ExerciseRow = {
   archived: boolean
   /** 1.17: written only as WHOLE or HALF, never as OFF (see `plateCountOf`). */
   plateCount?: PlateCount
+  /** Written only as true when logged one side at a time (Right + Left = 1 set). */
+  singleSided?: true
 }
 
 export type SessionRow = {
@@ -66,6 +85,8 @@ export type SetRow = {
   isTopSet: boolean
   /** 1.17: written only as PLATES, never as KG (see `setUnit`). */
   unit?: LoadUnit
+  /** Written only when logged one side at a time (Right + Left = 1 set). */
+  splitSides?: SplitSidesRow
 }
 
 export type PlanItemRow = {
