@@ -2221,3 +2221,18 @@ Nothing here says what a real phone does: no phone was available.
 - **Database & Backup version 8 (both apps):** Room `MIGRATION_7_8` (`exercise.singleSided`, `logged_set.splitSides`), Dexie schema v8, and Backup format v8 (omitting `singleSided` when false and `splitSides` when absent; v7 files restore cleanly; v7 readers reject v8 as too new).
 - **Owner previewed on iPhone** via Vercel preview branch and approved ("works great, lets do it").
 
+## 1.26 (2026-11-28, branch `feat/polish-and-insights`): UI polish & training insights, both apps
+- **Today UI & feel (Android + Web):**
+  - **PR celebration moment:** logging a new PR sweeps a molten-gold shimmer across the set row and pops a **PR** badge (including on iPhone where `navigator.vibrate` is unavailable).
+  - **Rest timer final-10s & ready pulse:** subtle breathing glow during the last 10 seconds ("Almost up") and green ready pulse at `0:00` ("Ready").
+  - **Workout progress strip:** slim progress bar above Today's exercises showing `done / planned sets`, turning green on completion.
+  - **Quick-edit a logged set:** tapping a logged set opens weight/plate, reps, and RPE inputs with a **Save** button alongside Keep and Delete set.
+  - **Upgraded plate visual:** metallic sleeve sheen, machined top-edge plate highlights, micro weight labels (`25`/`20`/`15`/`10`), and slide-on animation.
+- **Coach & Progress insights (domain + Android + Web):**
+  - **Left vs. Right side balance (`SideBalance`):** compares average left/right rep gaps across the last 3 sessions per single-sided exercise and renders a **Side balance (L / R)** card on both Bodybuilding and Powerlifting Progress.
+  - **Weekly muscle-group volume heat map:** color-coded weekly volume bar (`low` / `mid` / `hit` / `high`) inside each body-part row on Bodybuilding Progress.
+  - **Upgraded session recap (`SessionRecapMath`):** Finish summary card now also displays **Total tonnage**, **PRs hit**, and **Session duration** (and preserves tonnage & PRs across app reloads).
+- **Database & Backup:** unchanged (v8); zero schema migrations.
+- **Owner previewed on iPhone** via Vercel preview branch and approved ("all good, lets do it").
+
+

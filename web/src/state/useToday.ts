@@ -429,10 +429,18 @@ async function readFinished(db: GritDb, date: string): Promise<FinishSummary | n
   if (typeof note !== 'object' || note === null) return null
   const { sessionId, date: day, summary } = note as Record<string, unknown>
   if (typeof sessionId !== 'number' || day !== date || typeof summary !== 'object' || summary === null) return null
-  const { setCount, exerciseCount, newNotes, skipped } = summary as Record<string, unknown>
+  const { setCount, exerciseCount, newNotes, skipped, tonnageKg, prCount, durationMin } = summary as Record<string, unknown>
   if (!isCount(setCount) || !isCount(exerciseCount) || !isCount(newNotes) || (skipped !== undefined && !isCount(skipped))) return null
   if ((await db.sessions.get(sessionId))?.date !== date) return null
-  return { setCount, exerciseCount, newNotes, ...(skipped != null && skipped > 0 ? { skipped } : {}) }
+  return {
+    setCount,
+    exerciseCount,
+    newNotes,
+    ...(skipped != null && skipped > 0 ? { skipped } : {}),
+    ...(typeof tonnageKg === 'number' && Number.isFinite(tonnageKg) && tonnageKg > 0 ? { tonnageKg } : {}),
+    ...(isCount(prCount) && prCount > 0 ? { prCount } : {}),
+    ...(isCount(durationMin) && durationMin > 0 ? { durationMin } : {}),
+  }
 }
 
 const coachSettings = (s: AppSettings) => new JsCoachSettings(s.defaultRpe, s.changePlates)

@@ -155,7 +155,14 @@ class SkipTodayScreenTest {
         waitFor { compose.onAllNodes(hasTestTag("exercise-Curl")).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("exercise-Curl").performClick()
         waitFor { exists("Remove") }
-        assertTrue("an added exercise", !menuExists("Curl"))
+        // Curl offers "One side at a time" in its menu (1.25), but an added exercise still has no "Skip today".
+        if (menuExists("Curl")) {
+            compose.onNodeWithContentDescription("Options for Curl").performScrollTo().performClick()
+            compose.waitForIdle()
+            assertTrue("an added exercise has no Skip today", !exists("Skip today"))
+            androidx.test.espresso.Espresso.pressBack()
+            compose.waitForIdle()
+        }
         assertTrue(menuExists("Bench"))
     }
 

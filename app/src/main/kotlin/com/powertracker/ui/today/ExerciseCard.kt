@@ -221,6 +221,8 @@ fun ExerciseCard(
 
         AlertDialog(
             onDismissRequest = { selected = null },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+            modifier = Modifier.padding(horizontal = 16.dp),
             title = { Text("Set $number") },
             // Each set in its own unit, whatever the exercise's setting is now.
             text = {
@@ -228,7 +230,7 @@ fun ExerciseCard(
                     val split = stored.set.splitSides?.let { "\n" + com.powertracker.domain.unilateral.SingleSided.summaryText(it, stored.set.unit) }.orEmpty()
                     Text(doseText(stored.set.weightKg, stored.set.reps, stored.set.rpe, stored.set.unit) + (if (stored.set.failed) " · failed" else "") + split, style = MaterialTheme.typography.headlineSmall)
                     if (canQuickEdit) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(Space.s)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Space.s)) {
                             androidx.compose.material3.OutlinedTextField(
                                 value = editWeight,
                                 onValueChange = { editWeight = it },

@@ -120,14 +120,15 @@ and Chrome on Android if you open Grit there. They take about ten minutes.
       replaces everything on that phone: restore the other phone's file and check the data matches.
 - [ ] **9. Back closes what is open.** On Exercises, open a form guide and go Back (button or edge swipe): the guide
       closes and you are still on Exercises.
-- [ ] **10. This release's own changes.** 1.25, both apps:
-      - **Mode-switch animations:** in Settings, switch between Bodybuilding and Powerlifting mode: the forged iron
-        hammer drops with molten glow and cracks (with the original hammer sound), and the pump pulses with double-beat
-        heartbeats (with the original pump sound).
-      - **One side at a time:** on Today, open ⋮ on an eligible exercise (such as Pec deck, Lat pulldown, or a dumbbell
-        exercise) and tap "One side at a time". Log your Right side (no rest timer starts), then log your Left side
-        (saves as 1 set showing `R … · L …` and starts your normal rest timer).
-      - **The backup changed (version 8):** update both phones before moving a backup between them (check 8).
+- [ ] **10. This release's own changes.** 1.26, both apps:
+      - **Today polish:** start a session and check the workout progress strip above your exercises (`done / planned sets`,
+        turns green when complete); log a new PR to see the gold shimmer sweep + **PR** badge; tap a logged set to
+        quick-edit its weight/reps/RPE and tap **Save**; let the rest timer enter its last 10 seconds ("Almost up" glow)
+        and hit `0:00` ("Ready" green pulse); check the upgraded barbell plate strip with micro weight labels.
+      - **Progress & recap insights:** check Bodybuilding Progress for the color-coded weekly muscle volume bars, check
+        the **Side balance (L / R)** card if you have logged single-sided sets, and tap **Finish** to check **Total
+        tonnage**, **PRs hit**, and **Duration** on the recap card (still kept after reopening Grit).
+      - **Backup format unchanged (version 8):** no migration needed.
 
 The full list, feature by feature (210 checks), is in [`docs/manual-checks.md`](docs/manual-checks.md). Use it when a
 release touched a feature and you want that feature's own checks.
